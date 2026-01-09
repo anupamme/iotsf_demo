@@ -1,0 +1,39 @@
+# Optional Dependencies for IoT Security Demo
+# These packages have compatibility issues with Python 3.14
+
+# ============================================================================
+# IMPORTANT: Moirai (uni2ts) - Python 3.9-3.11 ONLY
+# ============================================================================
+# uni2ts requires scipy~=1.11.3 which cannot be built on Python 3.14
+# If you need Moirai functionality:
+#
+# Option 1: Use Python 3.9-3.11
+#   pyenv install 3.11.10
+#   pyenv local 3.11.10
+#   python -m venv venv
+#   source venv/bin/activate
+#   pip install uni2ts
+#
+# Option 2: Run in Docker with Python 3.11
+#   See Dockerfile.py311 (if available)
+#
+# Option 3: Skip Moirai and use alternative anomaly detection
+#   The demo will work without it for basic functionality
+
+# Uncomment if using Python 3.9-3.11:
+# uni2ts>=2.0.0
+
+# ============================================================================
+# Diffusion-TS - Install from source when needed
+# ============================================================================
+# Not available on PyPI, must be installed from GitHub
+# -e git+https://github.com/Y-debug-sys/Diffusion-TS.git#egg=diffusion-ts
+
+# ============================================================================
+# Traditional IDS Tools
+# ============================================================================
+# pyshark requires system dependencies (wireshark/tshark)
+# Install on macOS: brew install wireshark
+# Install on Ubuntu: sudo apt-get install tshark
+# Then uncomment:
+# pyshark>=0.6
