@@ -1,0 +1,41 @@
+project:
+  name: "IoT Security Demo"
+  version: "1.0.0"
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  synthetic_dir: "data/synthetic"
+  ciciot_subset_size: 10000  # Samples per class
+
+models:
+  diffusion_ts:
+    seq_length: 128
+    feature_dim: 12
+    n_diffusion_steps: 1000
+    checkpoint: "models/diffusion_ts.pt"
+  moirai:
+    model_size: "small"  # small, base, large
+    context_length: 512
+    prediction_length: 64
+  baseline:
+    method: "threshold"  # threshold, isolation_forest, lstm
+
+demo:
+  n_benign_samples: 3
+  n_attack_samples: 3
+  attack_types:
+    - "slow_exfiltration"
+    - "lotl_mimicry"
+    - "protocol_anomaly"
+
+device:
+  use_gpu: true
+  gpu_id: 0
+
+visualization:
+  theme: "plotly_dark"
+  colors:
+    benign: "#00CC96"
+    attack: "#EF553B"
+    detected: "#636EFA"
