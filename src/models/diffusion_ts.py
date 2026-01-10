@@ -29,6 +29,24 @@ except ImportError:
     logger.warning("Diffusion-TS not installed. Using mock implementation.")
 
 
+# Feature indices for IoT network traffic (12 features total)
+# These correspond to typical network flow features:
+# 0-4: Basic flow statistics (duration, packet counts, etc.)
+# 5-7: Packet rate features (packets/sec, burst indicators, etc.)
+# 8-9: Byte transfer features (outbound bytes, inbound bytes)
+# 10-11: Timing features (inter-arrival times, jitter)
+FEATURE_PACKET_RATE_START = 5
+FEATURE_PACKET_RATE_END = 8
+FEATURE_OUTBOUND_BYTES = 8
+FEATURE_INBOUND_BYTES = 9
+FEATURE_TIMING_IAT = 10
+FEATURE_TIMING_JITTER = 11
+
+# Attack pattern configuration
+BEACON_INTERVAL = 16  # Time steps between C2 beacon signals
+LOTL_BURST_POSITIONS = [32, 64, 96]  # Positions for living-off-the-land micro-bursts
+
+
 class IoTDiffusionGenerator:
     """
     Generator for synthetic IoT traffic using Diffusion-TS.
@@ -302,39 +320,43 @@ class IoTDiffusionGenerator:
 
         These patterns are designed to be statistically hidden but
         detectable by sophisticated anomaly detection.
+
+        Uses feature indices defined at module level:
+        - FEATURE_OUTBOUND_BYTES, FEATURE_INBOUND_BYTES: Byte transfer
+        - FEATURE_PACKET_RATE_START:FEATURE_PACKET_RATE_END: Packet rates
+        - FEATURE_TIMING_IAT, FEATURE_TIMING_JITTER: Timing features
         """
         traffic = traffic.copy()
 
         if pattern == 'slow_exfiltration':
-            # Gradual increase in outbound bytes (feature index 8, 9)
+            # Gradual increase in outbound/inbound bytes
             # Very subtle - only 2-3% increase over sequence
             trend = np.linspace(0, 0.03, traffic.shape[0])
-            if traffic.shape[1] > 8:
-                traffic[:, 8] += trend * traffic[:, 8].std()
-            if traffic.shape[1] > 9:
-                traffic[:, 9] += trend * 0.5 * traffic[:, 9].std()
+            if traffic.shape[1] > FEATURE_OUTBOUND_BYTES:
+                traffic[:, FEATURE_OUTBOUND_BYTES] += trend * traffic[:, FEATURE_OUTBOUND_BYTES].std()
+            if traffic.shape[1] > FEATURE_INBOUND_BYTES:
+                traffic[:, FEATURE_INBOUND_BYTES] += trend * 0.5 * traffic[:, FEATURE_INBOUND_BYTES].std()
 
         elif pattern == 'lotl_mimicry':
             # Living-off-the-land: Periodic micro-bursts
             # Inject at positions that look like legitimate polling
-            burst_positions = [32, 64, 96]  # Regular intervals
-            for pos in burst_positions:
+            for pos in LOTL_BURST_POSITIONS:
                 if pos < len(traffic):
-                    if traffic.shape[1] > 7:
-                        traffic[pos, 5:8] *= 1.15  # 15% burst in packet rate
+                    if traffic.shape[1] > FEATURE_PACKET_RATE_END:
+                        # 15% burst in packet rate features
+                        traffic[pos, FEATURE_PACKET_RATE_START:FEATURE_PACKET_RATE_END] *= 1.15
 
         elif pattern == 'protocol_anomaly':
             # Subtle protocol timing anomaly
-            # Slightly irregular inter-arrival times
-            if traffic.shape[1] > 10:
-                traffic[:, 10] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
-            if traffic.shape[1] > 11:
-                traffic[:, 11] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
+            # Slightly irregular inter-arrival times and jitter
+            if traffic.shape[1] > FEATURE_TIMING_IAT:
+                traffic[:, FEATURE_TIMING_IAT] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
+            if traffic.shape[1] > FEATURE_TIMING_JITTER:
+                traffic[:, FEATURE_TIMING_JITTER] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
 
         elif pattern == 'beacon':
             # C2 beacon pattern - very regular intervals
-            beacon_interval = 16
-            for i in range(0, len(traffic), beacon_interval):
+            for i in range(0, len(traffic), BEACON_INTERVAL):
                 traffic[i, :] *= 0.98  # Tiny dip at regular intervals
         else:
             logger.warning(f"Unknown attack pattern: {pattern}. No pattern injected.")
