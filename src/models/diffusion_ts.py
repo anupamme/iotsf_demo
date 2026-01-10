@@ -46,8 +46,28 @@ FEATURE_TIMING_JITTER = 11
 BEACON_INTERVAL = 16  # Time steps between C2 beacon signals
 LOTL_BURST_POSITIONS = [32, 64, 96]  # Positions for living-off-the-land micro-bursts
 
+# Attack pattern intensity parameters (as fractions/multipliers)
+SLOW_EXFIL_TREND_MAGNITUDE = 0.03  # 3% gradual increase over sequence
+SLOW_EXFIL_INBOUND_SCALING = 0.5  # Inbound bytes increase at 50% of outbound rate
+LOTL_BURST_MAGNITUDE = 1.15  # 15% increase in packet rate during bursts
+PROTOCOL_ANOMALY_NOISE_FACTOR = 0.05  # 5% random variation in timing features
+BEACON_DIP_MAGNITUDE = 0.98  # 2% decrease at beacon intervals (1.0 - 0.02)
+
+# Mock generation parameters
+MOCK_TIME_RANGE = 4 * np.pi  # Time range for sinusoidal seasonality patterns
+MOCK_TREND_MAGNITUDE = 0.1  # Maximum trend increase over sequence
+MOCK_SEASONALITY_AMPLITUDE = 0.3  # Amplitude of sinusoidal seasonality
+MOCK_NOISE_STD = 0.1  # Standard deviation of Gaussian noise
+MOCK_PHASE_RANGE = 2 * np.pi  # Phase variation range for different features
+
+# Hard-negative generation parameters
+HARD_NEG_STD_DEVIATION_SCALING = 0.1  # Scaling factor for statistical deviation
+HARD_NEG_GUIDANCE_SCALE_MULTIPLIER = 5  # Multiplier for stealth level to guidance scale
+
 # Decomposition configuration
 MIN_SEQUENCE_LENGTH_FOR_DECOMPOSITION = 5  # Minimum length for meaningful decomposition
+SAVGOL_DEFAULT_WINDOW = 21  # Default window length for Savitzky-Golay filter
+SEASONALITY_TOP_FREQUENCIES = 5  # Number of top FFT frequencies to keep
 
 
 class IoTDiffusionGenerator:
@@ -199,27 +219,33 @@ class IoTDiffusionGenerator:
         n_samples: int,
         target_statistics: Optional[Dict]
     ) -> np.ndarray:
-        """Mock generation for development."""
+        """
+        Mock generation for development.
+
+        Uses module-level constants for generation parameters:
+        - MOCK_TIME_RANGE, MOCK_TREND_MAGNITUDE, MOCK_SEASONALITY_AMPLITUDE
+        - MOCK_NOISE_STD, MOCK_PHASE_RANGE
+        """
         # Generate realistic-looking mock data
-        t = np.linspace(0, 4 * np.pi, self.seq_length)
+        t = np.linspace(0, MOCK_TIME_RANGE, self.seq_length)
 
         samples = []
         for _ in range(n_samples):
             # Trend component (slight upward trend)
-            trend = np.linspace(0, 0.1, self.seq_length)[:, None]
+            trend = np.linspace(0, MOCK_TREND_MAGNITUDE, self.seq_length)[:, None]
             trend = np.tile(trend, (1, self.feature_dim))
 
             # Seasonality component (sinusoidal pattern)
-            seasonality = np.sin(t)[:, None] * 0.3
+            seasonality = np.sin(t)[:, None] * MOCK_SEASONALITY_AMPLITUDE
             seasonality = np.tile(seasonality, (1, self.feature_dim))
 
             # Add some phase variations per feature
             for i in range(self.feature_dim):
-                phase = np.random.uniform(0, 2 * np.pi)
-                seasonality[:, i] = np.sin(t + phase) * 0.3
+                phase = np.random.uniform(0, MOCK_PHASE_RANGE)
+                seasonality[:, i] = np.sin(t + phase) * MOCK_SEASONALITY_AMPLITUDE
 
             # Noise component
-            noise = np.random.randn(self.seq_length, self.feature_dim) * 0.1
+            noise = np.random.randn(self.seq_length, self.feature_dim) * MOCK_NOISE_STD
 
             # Combine components
             sample = trend + seasonality + noise
@@ -263,7 +289,7 @@ class IoTDiffusionGenerator:
                 current_std = x_t.std(dim=(1, 2), keepdim=True)
                 # Gradient to adjust variance
                 grad += (x_t - x_t.mean(dim=(1,2), keepdim=True)) * \
-                        (target_std / (current_std + 1e-8) - 1) * guidance_scale * 0.1
+                        (target_std / (current_std + 1e-8) - 1) * guidance_scale * HARD_NEG_STD_DEVIATION_SCALING
 
             return grad
 
@@ -285,11 +311,15 @@ class IoTDiffusionGenerator:
 
         Returns:
             Tuple of (generated_attack, attack_metadata)
+
+        Uses module-level constants:
+        - HARD_NEG_STD_DEVIATION_SCALING: Controls statistical deviation
+        - HARD_NEG_GUIDANCE_SCALE_MULTIPLIER: Converts stealth level to guidance scale
         """
         # Extract statistics from benign sample
         target_stats = {
             'mean': float(benign_sample.mean()),
-            'std': float(benign_sample.std()) * (1 + (1 - stealth_level) * 0.1),
+            'std': float(benign_sample.std()) * (1 + (1 - stealth_level) * HARD_NEG_STD_DEVIATION_SCALING),
             # Match variance within threshold
         }
 
@@ -297,7 +327,7 @@ class IoTDiffusionGenerator:
         generated = self.generate(
             n_samples=1,
             target_statistics=target_stats,
-            guidance_scale=stealth_level * 5
+            guidance_scale=stealth_level * HARD_NEG_GUIDANCE_SCALE_MULTIPLIER
         )[0]
 
         # Inject attack pattern (subtle modifications)
@@ -324,21 +354,19 @@ class IoTDiffusionGenerator:
         These patterns are designed to be statistically hidden but
         detectable by sophisticated anomaly detection.
 
-        Uses feature indices defined at module level:
-        - FEATURE_OUTBOUND_BYTES, FEATURE_INBOUND_BYTES: Byte transfer
-        - FEATURE_PACKET_RATE_START:FEATURE_PACKET_RATE_END: Packet rates
-        - FEATURE_TIMING_IAT, FEATURE_TIMING_JITTER: Timing features
+        Uses feature indices and attack parameters defined at module level:
+        - Feature indices: FEATURE_OUTBOUND_BYTES, FEATURE_INBOUND_BYTES, etc.
+        - Attack intensities: SLOW_EXFIL_TREND_MAGNITUDE, LOTL_BURST_MAGNITUDE, etc.
         """
         traffic = traffic.copy()
 
         if pattern == 'slow_exfiltration':
             # Gradual increase in outbound/inbound bytes
-            # Very subtle - only 2-3% increase over sequence
-            trend = np.linspace(0, 0.03, traffic.shape[0])
+            trend = np.linspace(0, SLOW_EXFIL_TREND_MAGNITUDE, traffic.shape[0])
             if traffic.shape[1] > FEATURE_OUTBOUND_BYTES:
                 traffic[:, FEATURE_OUTBOUND_BYTES] += trend * traffic[:, FEATURE_OUTBOUND_BYTES].std()
             if traffic.shape[1] > FEATURE_INBOUND_BYTES:
-                traffic[:, FEATURE_INBOUND_BYTES] += trend * 0.5 * traffic[:, FEATURE_INBOUND_BYTES].std()
+                traffic[:, FEATURE_INBOUND_BYTES] += trend * SLOW_EXFIL_INBOUND_SCALING * traffic[:, FEATURE_INBOUND_BYTES].std()
 
         elif pattern == 'lotl_mimicry':
             # Living-off-the-land: Periodic micro-bursts
@@ -346,21 +374,20 @@ class IoTDiffusionGenerator:
             for pos in LOTL_BURST_POSITIONS:
                 if pos < len(traffic):
                     if traffic.shape[1] > FEATURE_PACKET_RATE_END:
-                        # 15% burst in packet rate features
-                        traffic[pos, FEATURE_PACKET_RATE_START:FEATURE_PACKET_RATE_END] *= 1.15
+                        traffic[pos, FEATURE_PACKET_RATE_START:FEATURE_PACKET_RATE_END] *= LOTL_BURST_MAGNITUDE
 
         elif pattern == 'protocol_anomaly':
             # Subtle protocol timing anomaly
             # Slightly irregular inter-arrival times and jitter
             if traffic.shape[1] > FEATURE_TIMING_IAT:
-                traffic[:, FEATURE_TIMING_IAT] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
+                traffic[:, FEATURE_TIMING_IAT] *= (1 + np.random.randn(traffic.shape[0]) * PROTOCOL_ANOMALY_NOISE_FACTOR)
             if traffic.shape[1] > FEATURE_TIMING_JITTER:
-                traffic[:, FEATURE_TIMING_JITTER] *= (1 + np.random.randn(traffic.shape[0]) * 0.05)
+                traffic[:, FEATURE_TIMING_JITTER] *= (1 + np.random.randn(traffic.shape[0]) * PROTOCOL_ANOMALY_NOISE_FACTOR)
 
         elif pattern == 'beacon':
             # C2 beacon pattern - very regular intervals
             for i in range(0, len(traffic), BEACON_INTERVAL):
-                traffic[i, :] *= 0.98  # Tiny dip at regular intervals
+                traffic[i, :] *= BEACON_DIP_MAGNITUDE
         else:
             logger.warning(f"Unknown attack pattern: {pattern}. No pattern injected.")
 
@@ -398,7 +425,7 @@ class IoTDiffusionGenerator:
         from scipy.fft import rfft, irfft
 
         # Extract trend using Savitzky-Golay filter
-        window_length = min(21, seq_length if seq_length % 2 == 1 else seq_length - 1)
+        window_length = min(SAVGOL_DEFAULT_WINDOW, seq_length if seq_length % 2 == 1 else seq_length - 1)
         if window_length < 3:
             window_length = 3
         polyorder = min(3, window_length - 1)
@@ -410,8 +437,8 @@ class IoTDiffusionGenerator:
 
         # Extract dominant frequencies for seasonality
         fft = rfft(detrended, axis=0)
-        # Keep only top 5 frequencies
-        n_keep = 5
+        # Keep only top frequencies
+        n_keep = SEASONALITY_TOP_FREQUENCIES
         fft_filtered = np.zeros_like(fft)
         magnitudes = np.abs(fft)
         for i in range(sample.shape[1]):
