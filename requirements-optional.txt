@@ -24,9 +24,16 @@
 # uni2ts>=2.0.0
 
 # ============================================================================
-# Diffusion-TS - Install from source when needed
+# Diffusion-TS (Updated)
 # ============================================================================
-# Not available on PyPI, must be installed from GitHub
+# Install with provided script (recommended):
+#   bash scripts/install_diffusion_ts.sh
+#
+# Or manually:
+#   git clone https://github.com/Y-debug-sys/Diffusion-TS
+#   pip install -e ./Diffusion-TS
+#
+# Not required - mock mode works out of the box!
 # -e git+https://github.com/Y-debug-sys/Diffusion-TS.git#egg=diffusion-ts
 
 # ============================================================================

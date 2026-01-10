@@ -157,6 +157,40 @@ Don't try to compile scipy manually. Use Python 3.12 which has prebuilt wheels.
 
 ---
 
+## Diffusion-TS (Optional)
+
+Diffusion-TS is used for generating synthetic IoT attacks. The demo works with **mock mode by default** - you don't need to install anything extra!
+
+### Using Mock Mode (Default)
+Mock mode generates realistic synthetic traffic using statistical patterns. It's fast and works immediately.
+
+### Installing Real Diffusion-TS (Optional)
+
+If you want to use the real model:
+
+**Linux/macOS:**
+```bash
+bash scripts/install_diffusion_ts.sh
+```
+
+**Windows:**
+```cmd
+scripts\install_diffusion_ts.bat
+```
+
+**Manual Installation:**
+```bash
+git clone https://github.com/Y-debug-sys/Diffusion-TS
+pip install -e ./Diffusion-TS
+```
+
+### Verifying Installation
+```python
+python -c "from src.models import IoTDiffusionGenerator; g = IoTDiffusionGenerator(); g.initialize(); print('✅ Works!')"
+```
+
+---
+
 ## Testing Your Installation
 
 ### Test Core Functionality
@@ -167,6 +201,11 @@ python -c "from src.utils.device import get_device_info; print(get_device_info()
 ### Test Moirai (Python 3.12 only)
 ```bash
 python -c "import uni2ts; print(f'Moirai version: {uni2ts.__version__}')"
+```
+
+### Test Diffusion-TS
+```bash
+python -c "from src.models import IoTDiffusionGenerator; g = IoTDiffusionGenerator(); g.initialize(); print('✅ Diffusion-TS ready!')"
 ```
 
 ### Run Test Suite

@@ -6,7 +6,7 @@ Interactive demonstration of IoT security anomaly detection using time series fo
 
 - 🔍 Interactive "Spot the Attack" challenge
 - 🎯 Comparison of traditional IDS vs. modern ML approaches
-- 🤖 Diffusion-TS for synthetic attack generation
+- 🤖 **Diffusion-TS for synthetic attack generation** (mock mode included!)
 - 📊 Moirai foundation model for anomaly detection
 - 📈 Real-time visualization with Plotly
 
@@ -114,11 +114,56 @@ python -c "import torch; print(torch.cuda.is_available())"
 This demo uses the **CICIoT2023** dataset for IoT security research.
 Download instructions will be added in future updates.
 
+## Diffusion-TS Usage
+
+Generate synthetic attacks:
+
+```python
+from src.models import IoTDiffusionGenerator
+import numpy as np
+
+# Initialize generator (uses mock mode by default)
+generator = IoTDiffusionGenerator(seq_length=128, feature_dim=12)
+generator.initialize()
+
+# Generate benign-like traffic
+samples = generator.generate(n_samples=5)
+print(samples.shape)  # (5, 128, 12)
+
+# Generate hard-negative attack
+benign_sample = np.random.randn(128, 12)
+attack, metadata = generator.generate_hard_negative(
+    benign_sample=benign_sample,
+    attack_pattern='slow_exfiltration',
+    stealth_level=0.95
+)
+print(f"Attack type: {metadata['attack_type']}")
+print(f"Mean difference: {metadata['mean_diff']:.4f}")
+```
+
+### Pre-generate Attacks for Demo
+
+```bash
+python scripts/precompute_attacks.py --n-samples 20
+```
+
+This generates synthetic attacks in `data/synthetic/`:
+- `benign_samples.npy` - Baseline benign traffic
+- `slow_exfiltration_stealth_XX.npy` - Slow data exfiltration attacks
+- `lotl_mimicry_stealth_XX.npy` - Living-off-the-land mimicry
+- `protocol_anomaly_stealth_XX.npy` - Protocol timing anomalies
+- `beacon_stealth_XX.npy` - C2 beacon patterns
+
 ## Development
 
 Run tests:
 ```bash
 pytest tests/ -v
+```
+
+Run Diffusion-TS tests specifically:
+```bash
+pytest tests/test_diffusion_ts.py -v
 ```
 
 ## License
