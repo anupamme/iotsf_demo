@@ -250,7 +250,7 @@ class CICIoT2023Loader:
         }
 
         for csv_file in self.data_dir.glob("*.csv"):
-            df = pd.read_csv(csv_file)
+            df = self._load_csv_file(csv_file)
             stats['files'].append({
                 'name': csv_file.name,
                 'samples': len(df),
