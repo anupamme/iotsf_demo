@@ -298,6 +298,23 @@ class TestDecomposition:
         with pytest.raises(RuntimeError, match="not initialized"):
             generator.get_decomposition(sample)
 
+    def test_decomposition_with_short_sequence_raises(self):
+        """Test that decomposition raises error for sequences that are too short."""
+        generator = IoTDiffusionGenerator(seq_length=128, feature_dim=12)
+        generator.initialize()
+
+        # Test various short sequences
+        for length in [1, 2, 3, 4]:
+            short_sample = np.random.randn(length, 12)
+            with pytest.raises(ValueError, match="Sequence too short"):
+                generator.get_decomposition(short_sample)
+
+        # Verify that minimum length works
+        min_sample = np.random.randn(5, 12)
+        decomp = generator.get_decomposition(min_sample)
+        assert 'trend' in decomp
+        assert decomp['trend'].shape == (5, 12)
+
 
 class TestCheckpointing:
     """Test model checkpointing."""

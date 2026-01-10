@@ -46,6 +46,9 @@ FEATURE_TIMING_JITTER = 11
 BEACON_INTERVAL = 16  # Time steps between C2 beacon signals
 LOTL_BURST_POSITIONS = [32, 64, 96]  # Positions for living-off-the-land micro-bursts
 
+# Decomposition configuration
+MIN_SEQUENCE_LENGTH_FOR_DECOMPOSITION = 5  # Minimum length for meaningful decomposition
+
 
 class IoTDiffusionGenerator:
     """
@@ -372,9 +375,22 @@ class IoTDiffusionGenerator:
 
         Returns:
             Dict with 'trend', 'seasonality', 'residual' components
+
+        Raises:
+            RuntimeError: If model not initialized
+            ValueError: If sequence is too short for decomposition
         """
         if not self._initialized:
             raise RuntimeError("Model not initialized")
+
+        # Check minimum sequence length
+        seq_length = sample.shape[0]
+        if seq_length < MIN_SEQUENCE_LENGTH_FOR_DECOMPOSITION:
+            raise ValueError(
+                f"Sequence too short for decomposition. "
+                f"Got length {seq_length}, need at least {MIN_SEQUENCE_LENGTH_FOR_DECOMPOSITION}. "
+                f"Decomposition requires sufficient data points for trend and seasonality extraction."
+            )
 
         # Simple decomposition for visualization
         # In real Diffusion-TS, this comes from the model's internal representation
@@ -382,7 +398,7 @@ class IoTDiffusionGenerator:
         from scipy.fft import rfft, irfft
 
         # Extract trend using Savitzky-Golay filter
-        window_length = min(21, sample.shape[0] if sample.shape[0] % 2 == 1 else sample.shape[0] - 1)
+        window_length = min(21, seq_length if seq_length % 2 == 1 else seq_length - 1)
         if window_length < 3:
             window_length = 3
         polyorder = min(3, window_length - 1)
