@@ -13,8 +13,14 @@ Interactive demonstration of IoT security anomaly detection using time series fo
 ## Quick Start
 
 ### Prerequisites
-- Python 3.9 or higher
+- **Python 3.12** (recommended for full compatibility with Moirai)
+- Python 3.13-3.14 supported (but excludes uni2ts/Moirai)
 - GPU with CUDA support (optional, will fall back to CPU)
+
+**Python Version Guide:**
+- ✅ **Python 3.12** - Full support including Moirai (uni2ts) - **RECOMMENDED**
+- ⚠️ **Python 3.13-3.14** - Core features work, but Moirai (uni2ts) not available
+- ⚠️ **Python 3.9-3.11** - May work but not tested
 
 ### Installation
 
@@ -26,12 +32,21 @@ cd iotsf_demo
 
 2. Create virtual environment:
 ```bash
-python -m venv venv
+# For Python 3.12 (recommended):
+python3.12 -m venv venv
+
+# Or for Python 3.13+:
+python3 -m venv venv
+
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install dependencies:
 ```bash
+# For Python 3.12 (includes Moirai):
+pip install -r requirements-py312.txt
+
+# For Python 3.13+ (excludes Moirai):
 pip install -r requirements.txt
 ```
 

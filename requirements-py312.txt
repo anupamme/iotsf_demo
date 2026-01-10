@@ -1,0 +1,36 @@
+# IoT Security Demo - Python 3.12 Requirements
+# All packages including uni2ts (Moirai) tested and verified to work with Python 3.12
+
+# IMPORTANT: Use Python 3.12.x for full compatibility with uni2ts (Moirai)
+# Python 3.13+ will NOT work due to scipy compilation issues
+
+# Core Scientific Computing
+numpy>=1.26.0,<2.0.0
+pandas>=2.1.0
+scipy>=1.11.0,<1.12.0
+scikit-learn>=1.5.0
+
+# Deep Learning
+torch>=2.4.0
+einops>=0.7.0,<0.8.0
+transformers>=4.57.0
+
+# Time Series Foundation Models
+uni2ts>=2.0.0  # Moirai - works on Python 3.12!
+
+# Visualization
+plotly>=6.5.0
+streamlit>=1.52.0
+
+# Data Handling
+pyarrow>=22.0.0
+h5py>=3.15.0
+
+# Utilities
+pyyaml>=6.0.0
+tqdm>=4.67.0
+loguru>=0.7.3
+
+# Development & Testing
+pytest>=9.0.0
+pytest-cov>=7.0.0
