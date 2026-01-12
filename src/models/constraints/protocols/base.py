@@ -261,7 +261,87 @@ class ProtocolValidator(ABC):
                     suggestion=f"Adjust generation to uniform range [{min_val}, {max_val}]"
                 )
 
-        # Add more distribution types as needed
+        elif dist_type == 'lognormal':
+            # Log-normal distribution: log(X) ~ Normal(μ, σ)
+            target_mean = params.get('mean', 1.0)
+            target_std = params.get('std', 1.0)
+
+            # Check if data contains non-positive values (log-normal requires all positive)
+            if np.any(data <= 0):
+                return ConstraintViolation(
+                    constraint_name=constraint.name,
+                    severity='warning',
+                    feature_indices=constraint.feature_indices,
+                    suggestion="Log-normal distribution requires positive values"
+                )
+
+            # All data is positive, check distribution in log-space
+            log_data = np.log(data)
+            log_mean = float(np.mean(log_data))
+            log_std = float(np.std(log_data))
+
+            # Expected log-space parameters (approximate)
+            # For log-normal with mean μ and std σ, the log-space mean ≈ log(μ)
+            expected_log_mean = np.log(target_mean + 1e-8)
+            expected_log_std = target_std / (target_mean + 1e-8)  # Approximate
+
+            # Check if log-space statistics are within tolerance
+            mean_diff = abs(log_mean - expected_log_mean) / (abs(expected_log_mean) + 1e-8)
+            std_diff = abs(log_std - expected_log_std) / (abs(expected_log_std) + 1e-8)
+
+            if mean_diff > tolerance or std_diff > tolerance:
+                deviation = max(mean_diff, std_diff)
+                return ConstraintViolation(
+                    constraint_name=constraint.name,
+                    severity='warning',
+                    feature_indices=constraint.feature_indices,
+                    expected_range=(target_mean * 0.5, target_mean * 2.0),  # Approximate
+                    actual_value=float(np.mean(data)),
+                    deviation_magnitude=deviation,
+                    suggestion=f"Adjust generation to log-normal(μ={target_mean:.1f}, σ={target_std:.1f})"
+                )
+
+        elif dist_type == 'exponential':
+            # Exponential distribution with rate parameter λ
+            target_lambda = params.get('lambda', 1.0)
+            target_mean = params.get('mean', 1.0 / target_lambda)
+
+            actual_mean = float(np.mean(data))
+
+            # For exponential distribution, mean = 1/λ
+            # Check if actual mean is close to expected
+            mean_diff = abs(actual_mean - target_mean) / (target_mean + 1e-8)
+
+            # Also check if data is positive (exponential only for positive values)
+            if np.any(data < 0):
+                return ConstraintViolation(
+                    constraint_name=constraint.name,
+                    severity='warning',
+                    feature_indices=constraint.feature_indices,
+                    suggestion="Exponential distribution requires non-negative values"
+                )
+
+            if mean_diff > tolerance:
+                return ConstraintViolation(
+                    constraint_name=constraint.name,
+                    severity='warning',
+                    feature_indices=constraint.feature_indices,
+                    expected_range=(target_mean * (1 - tolerance), target_mean * (1 + tolerance)),
+                    actual_value=actual_mean,
+                    deviation_magnitude=mean_diff,
+                    suggestion=f"Adjust generation to exponential(λ={target_lambda:.2f}, mean={target_mean:.2f})"
+                )
+
+        elif dist_type == 'categorical':
+            # Categorical distribution - check if values fall into expected categories
+            # This is a placeholder - actual implementation depends on specific use case
+            logger.debug(f"Categorical distribution check not fully implemented for {constraint.name}")
+            return None
+
+        else:
+            # Unknown distribution type
+            logger.warning(f"Unknown distribution type '{dist_type}' for constraint {constraint.name}")
+            return None
 
         return None
 

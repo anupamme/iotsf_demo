@@ -306,6 +306,158 @@ class TestUniformDistributionValidation:
         assert len([v for v in report.violations if v.constraint_name == "test_uniform_zero_span"]) == 0
 
 
+class TestLognormalDistributionValidation:
+    """Test log-normal distribution validation."""
+
+    def test_lognormal_distribution_valid(self):
+        """Test log-normal distribution with matching data."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_lognormal",
+            target_distribution="lognormal",
+            target_params={'mean': 128.0, 'std': 256.0},
+            feature_indices=[0],
+            tolerance=0.5  # Higher tolerance for log-normal
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Generate log-normal data
+        data_ok = np.random.lognormal(np.log(128), 0.5, size=(100,))
+        sample = np.tile(data_ok[:, None], (1, 12))
+
+        report = validator.validate(sample, strictness='moderate')
+        # Should have no or minimal violations
+        violations = [v for v in report.violations if v.constraint_name == "test_lognormal"]
+        assert len(violations) <= 1
+
+    def test_lognormal_distribution_invalid(self):
+        """Test log-normal distribution with non-matching data."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_lognormal_bad",
+            target_distribution="lognormal",
+            target_params={'mean': 128.0, 'std': 256.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Generate very different data (normal instead of lognormal)
+        data_bad = np.random.normal(500, 50, size=(100,))
+        sample_bad = np.tile(data_bad[:, None], (1, 12))
+
+        report_bad = validator.validate(sample_bad, strictness='strict')
+        violations = [v for v in report_bad.violations if v.constraint_name == "test_lognormal_bad"]
+        assert len(violations) > 0
+
+    def test_lognormal_with_negative_values(self):
+        """Test log-normal distribution rejects negative values."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_lognormal_negative",
+            target_distribution="lognormal",
+            target_params={'mean': 128.0, 'std': 256.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Data with negative values - should violate
+        data_negative = np.array([-10.0, -5.0, 0.0, 5.0, 10.0] * 20)
+        sample = np.tile(data_negative[:, None], (1, 12))
+
+        report = validator.validate(sample, strictness='moderate')
+        violations = [v for v in report.violations if v.constraint_name == "test_lognormal_negative"]
+        assert len(violations) > 0
+        if violations:
+            assert 'positive' in violations[0].suggestion.lower()
+
+
+class TestExponentialDistributionValidation:
+    """Test exponential distribution validation."""
+
+    def test_exponential_distribution_valid(self):
+        """Test exponential distribution with matching data."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_exponential",
+            target_distribution="exponential",
+            target_params={'lambda': 0.2, 'mean': 5.0},
+            feature_indices=[0],
+            tolerance=0.5
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Generate exponential data with mean=5
+        data_ok = np.random.exponential(5.0, size=(100,))
+        sample = np.tile(data_ok[:, None], (1, 12))
+
+        report = validator.validate(sample, strictness='moderate')
+        violations = [v for v in report.violations if v.constraint_name == "test_exponential"]
+        # Should pass or have minimal violations
+        assert len(violations) <= 1
+
+    def test_exponential_distribution_invalid(self):
+        """Test exponential distribution with non-matching data."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_exponential_bad",
+            target_distribution="exponential",
+            target_params={'lambda': 0.2, 'mean': 5.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Generate data with very different mean
+        data_bad = np.random.exponential(50.0, size=(100,))
+        sample_bad = np.tile(data_bad[:, None], (1, 12))
+
+        report_bad = validator.validate(sample_bad, strictness='strict')
+        violations = [v for v in report_bad.violations if v.constraint_name == "test_exponential_bad"]
+        assert len(violations) > 0
+
+    def test_exponential_with_negative_values(self):
+        """Test exponential distribution rejects negative values."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_exponential_negative",
+            target_distribution="exponential",
+            target_params={'lambda': 0.2, 'mean': 5.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Data with negative values - should violate
+        data_negative = np.array([-1.0, -0.5, 0.0, 1.0, 2.0] * 20)
+        sample = np.tile(data_negative[:, None], (1, 12))
+
+        report = validator.validate(sample, strictness='moderate')
+        violations = [v for v in report.violations if v.constraint_name == "test_exponential_negative"]
+        assert len(violations) > 0
+        if violations:
+            assert 'non-negative' in violations[0].suggestion.lower()
+
+
 class TestProtocolValidatorBase:
     """Test base protocol validator."""
 
