@@ -13,6 +13,13 @@ from .types import (
     MQTT_FEATURE_MAP,
     COAP_FEATURE_MAP
 )
+from .manager import IoTConstraintManager
+from .protocols import (
+    ProtocolValidator,
+    ModbusValidator,
+    MQTTValidator,
+    CoAPValidator
+)
 
 __all__ = [
     'HardConstraint',
@@ -21,5 +28,10 @@ __all__ = [
     'ValidationReport',
     'MODBUS_FEATURE_MAP',
     'MQTT_FEATURE_MAP',
-    'COAP_FEATURE_MAP'
+    'COAP_FEATURE_MAP',
+    'IoTConstraintManager',
+    'ProtocolValidator',
+    'ModbusValidator',
+    'MQTTValidator',
+    'CoAPValidator'
 ]
