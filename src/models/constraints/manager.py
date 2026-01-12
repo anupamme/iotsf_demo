@@ -6,7 +6,7 @@ Loads configurations, manages protocol validators, and aggregates reports.
 """
 
 from pathlib import Path
-from typing import Dict, List, Optional, Literal, Union
+from typing import Any, Dict, List, Optional, Literal, Union
 import numpy as np
 import yaml
 from loguru import logger
@@ -235,7 +235,7 @@ class IoTConstraintManager:
     def aggregate_violations(
         self,
         reports: List[ValidationReport]
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """
         Aggregate violations across multiple reports.
 
