@@ -236,12 +236,21 @@ class ProtocolValidator(ABC):
             actual_min = float(np.min(data))
             actual_max = float(np.max(data))
 
+            # Use absolute tolerance based on range (robust for negative/zero values)
+            range_size = max_val - min_val
+            abs_tolerance = range_size * tolerance
+
+            # Expand bounds using absolute tolerance
+            lower_bound = min_val - abs_tolerance
+            upper_bound = max_val + abs_tolerance
+
             # Check if data falls outside expected range
-            if actual_min < min_val * (1 - tolerance) or actual_max > max_val * (1 + tolerance):
-                deviation = max(
-                    abs(actual_min - min_val) / (abs(min_val) + 1e-8),
-                    abs(actual_max - max_val) / (abs(max_val) + 1e-8)
-                )
+            if actual_min < lower_bound or actual_max > upper_bound:
+                # Compute deviation as fraction of range outside bounds
+                lower_deviation = max(0, (lower_bound - actual_min) / (range_size + 1e-8))
+                upper_deviation = max(0, (actual_max - upper_bound) / (range_size + 1e-8))
+                deviation = max(lower_deviation, upper_deviation)
+
                 return ConstraintViolation(
                     constraint_name=constraint.name,
                     severity='warning',

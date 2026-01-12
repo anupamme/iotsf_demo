@@ -226,6 +226,86 @@ class TestValidationReport:
         assert "1 warning" in summary
 
 
+class TestUniformDistributionValidation:
+    """Test uniform distribution validation with edge cases."""
+
+    def test_uniform_positive_range(self):
+        """Test uniform distribution with positive range."""
+        from src.models.constraints.types import SoftConstraint
+        from src.models.constraints.protocols.base import ProtocolValidator
+
+        constraint = SoftConstraint(
+            name="test_uniform_positive",
+            target_distribution="uniform",
+            target_params={'min': 10.0, 'max': 20.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Data within range - should pass
+        data_ok = np.random.uniform(10, 20, size=(100,))
+        sample = np.tile(data_ok[:, None], (1, 12))
+        report = validator.validate(sample, strictness='moderate')
+        assert len([v for v in report.violations if v.constraint_name == "test_uniform_positive"]) == 0
+
+        # Data outside range - should fail
+        data_bad = np.random.uniform(25, 30, size=(100,))
+        sample_bad = np.tile(data_bad[:, None], (1, 12))
+        report_bad = validator.validate(sample_bad, strictness='moderate')
+        assert len([v for v in report_bad.violations if v.constraint_name == "test_uniform_positive"]) > 0
+
+    def test_uniform_negative_range(self):
+        """Test uniform distribution with negative range (regression test)."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_uniform_negative",
+            target_distribution="uniform",
+            target_params={'min': -20.0, 'max': -10.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Data within negative range - should pass
+        data_ok = np.random.uniform(-20, -10, size=(100,))
+        sample = np.tile(data_ok[:, None], (1, 12))
+        report = validator.validate(sample, strictness='moderate')
+        assert len([v for v in report.violations if v.constraint_name == "test_uniform_negative"]) == 0
+
+        # Data outside range (too negative) - should fail
+        data_bad = np.random.uniform(-30, -25, size=(100,))
+        sample_bad = np.tile(data_bad[:, None], (1, 12))
+        report_bad = validator.validate(sample_bad, strictness='moderate')
+        assert len([v for v in report_bad.violations if v.constraint_name == "test_uniform_negative"]) > 0
+
+    def test_uniform_range_spanning_zero(self):
+        """Test uniform distribution with range spanning zero."""
+        from src.models.constraints.types import SoftConstraint
+
+        constraint = SoftConstraint(
+            name="test_uniform_zero_span",
+            target_distribution="uniform",
+            target_params={'min': -10.0, 'max': 10.0},
+            feature_indices=[0],
+            tolerance=0.3
+        )
+
+        validator = MockProtocolValidator()
+        validator._soft_constraints = [constraint]
+
+        # Data within range - should pass
+        data_ok = np.random.uniform(-10, 10, size=(100,))
+        sample = np.tile(data_ok[:, None], (1, 12))
+        report = validator.validate(sample, strictness='moderate')
+        assert len([v for v in report.violations if v.constraint_name == "test_uniform_zero_span"]) == 0
+
+
 class TestProtocolValidatorBase:
     """Test base protocol validator."""
 
