@@ -154,6 +154,73 @@ This generates synthetic attacks in `data/synthetic/`:
 - `protocol_anomaly_stealth_XX.npy` - Protocol timing anomalies
 - `beacon_stealth_XX.npy` - C2 beacon patterns
 
+## Moirai Usage
+
+Detect anomalies using the Moirai time-series foundation model:
+
+```python
+from src.models import MoiraiAnomalyDetector
+import numpy as np
+
+# Initialize detector (uses mock mode if uni2ts not available)
+detector = MoiraiAnomalyDetector(
+    model_size='small',  # 'small', 'base', or 'large'
+    context_length=512,
+    prediction_length=64,
+    confidence_level=0.95
+)
+detector.initialize()
+
+# Load traffic sample (shape: seq_length, n_features)
+traffic = np.random.randn(600, 12)
+
+# Detect anomalies
+result = detector.detect_anomalies(
+    traffic,
+    threshold=0.95,
+    return_feature_contributions=True
+)
+
+print(f"Anomalies detected: {result.n_anomalies}")
+print(f"Anomaly rate: {result.anomaly_rate:.2%}")
+print(f"Mean score: {result.anomaly_scores.mean():.3f}")
+
+# Get anomalous timesteps
+if result.n_anomalies > 0:
+    anomalous_timesteps = result.get_anomalous_timesteps()
+    print(f"Anomalous timesteps: {anomalous_timesteps}")
+
+    # Get top contributing features for first anomaly
+    first_anomaly = anomalous_timesteps[0]
+    top_features = result.get_top_anomalous_features(first_anomaly, top_k=3)
+    print(f"Top 3 contributing features: {top_features}")
+```
+
+### Quick Test
+
+Test the detector on synthetic samples:
+
+```bash
+python scripts/test_moirai.py --model-size small --sample slow_exfiltration_stealth_95
+```
+
+This will:
+- Load the Moirai detector
+- Run anomaly detection on the specified sample
+- Print detailed results including anomaly scores and contributing features
+
+### Model Sizes
+
+| Size  | Parameters | Speed | Accuracy | Use Case |
+|-------|-----------|-------|----------|----------|
+| Small | ~5M       | Fast  | Good     | Demo, development, quick testing |
+| Base  | ~30M      | Medium | Better  | Balanced performance |
+| Large | ~300M     | Slow  | Best    | Production, highest accuracy needed |
+
+### Mock Mode
+
+If uni2ts is not available (Python 3.13+), the detector automatically falls back to mock mode, which uses statistical forecasting (exponential smoothing + moving statistics) for anomaly detection. Mock mode is fast (<2s per sample) and suitable for development and testing.
+
 ## Development
 
 Run tests:
@@ -164,6 +231,11 @@ pytest tests/ -v
 Run Diffusion-TS tests specifically:
 ```bash
 pytest tests/test_diffusion_ts.py -v
+```
+
+Run Moirai detector tests:
+```bash
+pytest tests/test_moirai_detector.py -v
 ```
 
 ## License
