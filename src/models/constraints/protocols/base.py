@@ -5,7 +5,7 @@ Defines the interface that all protocol-specific validators must implement.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import numpy as np
 from loguru import logger
 
@@ -400,7 +400,7 @@ class ProtocolValidator(ABC):
         """
         pass
 
-    def _compute_statistics(self, sample: np.ndarray) -> Dict[str, float]:
+    def _compute_statistics(self, sample: np.ndarray) -> Dict[str, Any]:
         """Compute general statistics about the sample."""
         return {
             'mean': float(np.mean(sample)),

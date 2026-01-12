@@ -79,7 +79,7 @@ class ValidationReport:
     sample_id: Optional[int] = None
     protocol: str = 'unknown'
     violations: List[ConstraintViolation] = field(default_factory=list)
-    statistics: Dict[str, float] = field(default_factory=dict)
+    statistics: Dict[str, Any] = field(default_factory=dict)
     timestamp: Optional[str] = None
 
     def is_valid(self, strictness: Literal['strict', 'moderate', 'permissive'] = 'moderate') -> bool:
