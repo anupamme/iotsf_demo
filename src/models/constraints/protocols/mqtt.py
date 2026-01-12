@@ -26,7 +26,8 @@ from ..types import (
     FEATURE_IDX_FWD_IAT_MEAN,
     FEATURE_IDX_BWD_IAT_MEAN,
     FEATURE_IDX_FLOW_DURATION,
-    FEATURE_IDX_FLOW_PKTS_PER_SEC
+    FEATURE_IDX_FWD_PKTS_PER_SEC,
+    FEATURE_IDX_BWD_PKTS_PER_SEC
 )
 
 
@@ -176,16 +177,17 @@ class MQTTValidator(ProtocolValidator):
 
         # Publish/subscribe asymmetry
         # In pub-sub, one publisher can send to many subscribers (1:N pattern)
-        # So packet rates may not be symmetric
-        self._soft_constraints.append(
-            SoftConstraint(
+        # Check the ratio of forward to backward packet rates
+        # Typical asymmetry: 0.1 (subscriber-heavy) to 10.0 (publisher-heavy)
+        self._hard_constraints.append(
+            HardConstraint(
                 name="mqtt_pubsub_asymmetry",
-                target_distribution="uniform",
-                target_params={'min': 0.1, 'max': 10.0},  # Allow wide asymmetry
-                feature_indices=[FEATURE_IDX_FLOW_PKTS_PER_SEC],
-                tolerance=0.6,
-                weight=0.5,
-                description="Pub-sub pattern allows asymmetric packet rates"
+                constraint_type="range",
+                validation_fn=lambda x: self._validate_pubsub_asymmetry(x),
+                feature_indices=[FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC],
+                parameters={'min_ratio': 0.1, 'max_ratio': 10.0},
+                severity='warning',
+                description="Pub-sub pattern allows asymmetric packet rates (0.1x to 10x)"
             )
         )
 
@@ -205,6 +207,52 @@ class MQTTValidator(ProtocolValidator):
         # Allow very short connections for testing, but flag suspiciously short
         min_duration = 10.0  # seconds
         return mean_duration >= min_duration or mean_duration == 0  # 0 means ongoing
+
+    def _validate_pubsub_asymmetry(self, data: np.ndarray) -> bool:
+        """
+        Validate pub-sub asymmetry by comparing forward and backward packet rates.
+
+        In MQTT pub-sub:
+        - Publishers send data (forward packets)
+        - Subscribers receive data (backward packets)
+        - The ratio can be asymmetric (e.g., 1 publisher -> N subscribers)
+
+        Args:
+            data: Array with shape (seq_length, 2) where:
+                  column 0 = forward packets per second
+                  column 1 = backward packets per second
+
+        Returns:
+            True if asymmetry ratio is within acceptable range (0.1x to 10x)
+        """
+        # Extract forward and backward rates
+        fwd_rate = data[:, 0]
+        bwd_rate = data[:, 1]
+
+        # Compute mean rates
+        mean_fwd = np.mean(fwd_rate)
+        mean_bwd = np.mean(bwd_rate)
+
+        # Handle edge cases
+        if mean_fwd < 1e-6 and mean_bwd < 1e-6:
+            # Both very close to zero - acceptable (idle connection)
+            return True
+
+        if mean_bwd < 1e-6:
+            # Backward rate is zero but forward isn't - likely publisher-only
+            # This is acceptable for pub-sub pattern
+            return True
+
+        # Compute asymmetry ratio (forward / backward)
+        ratio = mean_fwd / (mean_bwd + 1e-8)
+
+        # Check if ratio is within acceptable range
+        # 0.1x means subscriber-heavy (10x more backward)
+        # 10x means publisher-heavy (10x more forward)
+        min_ratio = 0.1
+        max_ratio = 10.0
+
+        return min_ratio <= ratio <= max_ratio
 
     def get_protocol_name(self) -> str:
         """Return protocol name."""
@@ -227,6 +275,10 @@ class MQTTValidator(ProtocolValidator):
             if actual_value < 10.0:
                 return (f"Connection duration {actual_value:.1f}s is very short for MQTT. "
                         f"MQTT typically maintains persistent connections with keep-alive.")
+
+        elif "pubsub_asymmetry" in constraint.name:
+            return (f"Pub-sub asymmetry ratio {actual_value:.2f} is outside acceptable range (0.1x to 10x). "
+                    f"Adjust forward/backward packet rates to reflect realistic pub-sub patterns.")
 
         return f"Adjust value {actual_value:.2f} to meet MQTT protocol requirements"
 

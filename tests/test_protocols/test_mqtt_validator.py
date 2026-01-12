@@ -213,3 +213,104 @@ class TestMQTTAdvancedValidation:
 
         result = validator.validate_message_type_diversity(sample)
         assert result == True
+
+
+class TestMQTTPubSubAsymmetry:
+    """Test MQTT pub-sub asymmetry validation."""
+
+    def test_symmetric_traffic_passes(self):
+        """Test that symmetric traffic passes asymmetry check."""
+        from src.models.constraints.types import FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC
+
+        validator = MQTTValidator()
+
+        # Create sample with roughly symmetric packet rates
+        sample = np.zeros((128, 12))
+        sample[:, FEATURE_IDX_FWD_PKTS_PER_SEC] = np.random.uniform(8, 12, 128)  # ~10 pps
+        sample[:, FEATURE_IDX_BWD_PKTS_PER_SEC] = np.random.uniform(8, 12, 128)  # ~10 pps
+        sample[:, FEATURE_IDX_FWD_BYTS_B_AVG] = 100.0
+        sample[:, FEATURE_IDX_BWD_BYTS_B_AVG] = 100.0
+
+        report = validator.validate(sample, strictness='moderate')
+
+        # Should not violate asymmetry constraint
+        asymmetry_violations = [v for v in report.violations if 'asymmetry' in v.constraint_name]
+        assert len(asymmetry_violations) == 0
+
+    def test_publisher_heavy_traffic_passes(self):
+        """Test that publisher-heavy traffic (10x forward) passes."""
+        from src.models.constraints.types import FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC
+
+        validator = MQTTValidator()
+
+        # Create sample with 10x more forward packets (publisher-heavy)
+        sample = np.zeros((128, 12))
+        sample[:, FEATURE_IDX_FWD_PKTS_PER_SEC] = 100.0  # Publishers sending
+        sample[:, FEATURE_IDX_BWD_PKTS_PER_SEC] = 10.0   # Subscribers ACKing
+        sample[:, FEATURE_IDX_FWD_BYTS_B_AVG] = 100.0
+        sample[:, FEATURE_IDX_BWD_BYTS_B_AVG] = 100.0
+
+        report = validator.validate(sample, strictness='moderate')
+
+        # Should not violate asymmetry (ratio = 10.0, within limit)
+        asymmetry_violations = [v for v in report.violations if 'asymmetry' in v.constraint_name]
+        assert len(asymmetry_violations) == 0
+
+    def test_subscriber_heavy_traffic_passes(self):
+        """Test that subscriber-heavy traffic (5x backward) passes."""
+        from src.models.constraints.types import FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC
+
+        validator = MQTTValidator()
+
+        # Create sample with 5x more backward packets (subscriber-heavy)
+        sample = np.zeros((128, 12))
+        sample[:, FEATURE_IDX_FWD_PKTS_PER_SEC] = 20.0   # Few publishers
+        sample[:, FEATURE_IDX_BWD_PKTS_PER_SEC] = 100.0  # Many subscribers receiving
+        sample[:, FEATURE_IDX_FWD_BYTS_B_AVG] = 100.0
+        sample[:, FEATURE_IDX_BWD_BYTS_B_AVG] = 100.0
+
+        report = validator.validate(sample, strictness='moderate')
+
+        # Should not violate asymmetry (ratio = 0.2, well within 0.1-10.0 limit)
+        asymmetry_violations = [v for v in report.violations if 'asymmetry' in v.constraint_name]
+        assert len(asymmetry_violations) == 0
+
+    def test_extreme_asymmetry_fails(self):
+        """Test that extreme asymmetry (>10x) is flagged."""
+        from src.models.constraints.types import FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC
+
+        validator = MQTTValidator()
+
+        # Create sample with 100x asymmetry (too extreme)
+        sample = np.zeros((128, 12))
+        sample[:, FEATURE_IDX_FWD_PKTS_PER_SEC] = 1000.0  # Extreme forward
+        sample[:, FEATURE_IDX_BWD_PKTS_PER_SEC] = 10.0    # Little backward
+        sample[:, FEATURE_IDX_FWD_BYTS_B_AVG] = 100.0
+        sample[:, FEATURE_IDX_BWD_BYTS_B_AVG] = 100.0
+
+        report = validator.validate(sample, strictness='moderate')
+
+        # Should violate asymmetry constraint
+        asymmetry_violations = [v for v in report.violations if 'asymmetry' in v.constraint_name]
+        assert len(asymmetry_violations) > 0
+        if asymmetry_violations:
+            assert 'asymmetry' in asymmetry_violations[0].suggestion.lower()
+
+    def test_publisher_only_traffic_passes(self):
+        """Test that publisher-only traffic (zero backward) passes."""
+        from src.models.constraints.types import FEATURE_IDX_FWD_PKTS_PER_SEC, FEATURE_IDX_BWD_PKTS_PER_SEC
+
+        validator = MQTTValidator()
+
+        # Create sample with only forward packets (publisher-only)
+        sample = np.zeros((128, 12))
+        sample[:, FEATURE_IDX_FWD_PKTS_PER_SEC] = 50.0
+        sample[:, FEATURE_IDX_BWD_PKTS_PER_SEC] = 0.0  # No backward traffic
+        sample[:, FEATURE_IDX_FWD_BYTS_B_AVG] = 100.0
+        sample[:, FEATURE_IDX_BWD_BYTS_B_AVG] = 100.0
+
+        report = validator.validate(sample, strictness='moderate')
+
+        # Should not violate (publisher-only is valid pub-sub pattern)
+        asymmetry_violations = [v for v in report.violations if 'asymmetry' in v.constraint_name]
+        assert len(asymmetry_violations) == 0
