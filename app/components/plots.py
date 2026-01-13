@@ -134,6 +134,12 @@ COLOR_DETECTED = "#636EFA"  # Blue for detection results
 COLOR_BASELINE = "#AB63FA"  # Purple for baseline methods
 COLOR_THRESHOLD = "#FFA15A"  # Orange for thresholds
 
+# Decomposition component colors
+COLOR_DECOMP_ORIGINAL = "#FFFFFF"  # White for original signal
+COLOR_DECOMP_TREND = "#FFD700"  # Yellow for trend component
+COLOR_DECOMP_SEASONALITY = "#00CED1"  # Cyan for seasonality component
+COLOR_DECOMP_RESIDUAL = "#FF00FF"  # Magenta for residual component
+
 # Default feature names for IoT traffic
 DEFAULT_FEATURE_NAMES = [
     'flow_duration', 'fwd_pkts_tot', 'bwd_pkts_tot',
@@ -702,12 +708,30 @@ def plot_decomposition(
     if feature_name is None:
         feature_name = DEFAULT_FEATURE_NAMES[feature_idx] if feature_idx < len(DEFAULT_FEATURE_NAMES) else f"Feature {feature_idx}"
 
-    # Extract components
+    # Reconstruct original if not provided (original = trend + seasonality + residual)
+    original = decomposition.get('original')
+    if original is None:
+        trend = decomposition.get('trend')
+        seasonality = decomposition.get('seasonality')
+        residual = decomposition.get('residual')
+
+        if trend is not None and seasonality is not None and residual is not None:
+            # Reconstruct from components
+            original = trend + seasonality + residual
+        elif trend is not None:
+            # If we only have some components, at least show something meaningful
+            original = trend
+            if seasonality is not None:
+                original = original + seasonality
+            if residual is not None:
+                original = original + residual
+
+    # Extract components with proper color constants
     components = {
-        'Original': (decomposition.get('original', decomposition.get('trend')), '#FFFFFF'),
-        'Trend': (decomposition.get('trend'), '#FFD700'),  # Yellow
-        'Seasonality': (decomposition.get('seasonality'), '#00CED1'),  # Cyan
-        'Residual': (decomposition.get('residual'), '#FF00FF')  # Magenta
+        'Original': (original, COLOR_DECOMP_ORIGINAL),
+        'Trend': (decomposition.get('trend'), COLOR_DECOMP_TREND),
+        'Seasonality': (decomposition.get('seasonality'), COLOR_DECOMP_SEASONALITY),
+        'Residual': (decomposition.get('residual'), COLOR_DECOMP_RESIDUAL)
     }
 
     fig = make_subplots(
