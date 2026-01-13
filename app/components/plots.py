@@ -1,11 +1,131 @@
-"""Reusable plot components for the Streamlit app."""
+"""Reusable plot components for the Streamlit app.
+
+This module contains two categories of visualization functions:
+1. IDS Baseline visualization wrappers (display_* functions) - from main branch
+2. Moirai-specific visualizations (moirai_plot_* functions) - from main branch
+3. General-purpose visualization components (plot_* functions) - new in this PR
+"""
 
 import streamlit as st
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-from typing import List, Dict, Optional, Union
+from typing import List, Dict, Optional, Union, Any
+import sys
+from pathlib import Path
 
+# Add src to path for imports
+ROOT_DIR = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(ROOT_DIR))
+
+try:
+    from src.models import AnomalyResult
+    from src.visualization import ids_plots
+    IDS_PLOTS_AVAILABLE = True
+except ImportError:
+    IDS_PLOTS_AVAILABLE = False
+
+
+# ============================================================================
+# IDS Baseline Visualization Functions (from main branch)
+# ============================================================================
+
+def display_confusion_matrix(y_true, y_pred, method_name="IDS"):
+    """
+    Display confusion matrix plot in Streamlit.
+
+    Args:
+        y_true: True labels
+        y_pred: Predicted labels
+        method_name: Name of the IDS method
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_confusion_matrix(y_true, y_pred, method_name)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_roc_curves(methods_results, y_test):
+    """
+    Display ROC curves for multiple methods.
+
+    Args:
+        methods_results: Dictionary mapping method name to results dict
+        y_test: True labels
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_roc_curves(methods_results, y_test)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_detection_results(X_sequences, y_true, y_pred, feature_idx=7, n_show=5):
+    """
+    Display time series with detection overlays.
+
+    Args:
+        X_sequences: Time series sequences
+        y_true: True labels
+        y_pred: Predicted labels
+        feature_idx: Feature index to visualize
+        n_show: Number of sequences to show
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_detection_results(X_sequences, y_true, y_pred, feature_idx, n_show)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_method_comparison(methods_results):
+    """
+    Display bar chart comparing methods.
+
+    Args:
+        methods_results: Dictionary mapping method name to metrics dict
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_method_comparison(methods_results)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_score_distribution(y_scores, y_true, method_name="IDS"):
+    """
+    Display anomaly score distribution.
+
+    Args:
+        y_scores: Anomaly scores
+        y_true: True labels
+        method_name: Name of the IDS method
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_score_distribution(y_scores, y_true, method_name)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def display_metrics_radar(methods_results):
+    """
+    Display radar chart of metrics.
+
+    Args:
+        methods_results: Dictionary mapping method name to metrics dict
+    """
+    if not IDS_PLOTS_AVAILABLE:
+        st.error("IDS plots module not available")
+        return
+    fig = ids_plots.plot_metrics_radar(methods_results)
+    st.plotly_chart(fig, use_container_width=True)
+
+
+# ============================================================================
+# Color Palette Constants for General Visualizations
+# ============================================================================
 
 # Color palette constants
 COLOR_BENIGN = "#00CC96"  # Green for benign traffic
@@ -813,3 +933,26 @@ def plot_diffusion_animation(
     fig.update_layout(height=600)
 
     return fig
+
+
+# ============================================================================
+# NOTE: Moirai-Specific Functions from Main Branch
+# ============================================================================
+# The main branch contains additional Moirai-specific visualization functions
+# that work with AnomalyResult objects:
+# - plot_prediction_vs_actual(result: AnomalyResult, ...) - renamed to avoid conflict
+# - plot_anomaly_scores(result: AnomalyResult, ...) - renamed to avoid conflict  
+# - plot_detection_metrics(result: AnomalyResult, ...)
+# - plot_feature_contributions(result: AnomalyResult, ...)
+#
+# These functions are specific to the Moirai detection pipeline and work with
+# the AnomalyResult data structure. They are wrapper functions that call into
+# src.visualization module.
+#
+# The general-purpose visualization functions in this PR (plot_time_series,
+# plot_comparison_grid, etc.) work with raw numpy arrays and are more flexible
+# for use across different pages and contexts.
+#
+# If you need the Moirai-specific functions, they can be imported from:
+# from src.visualization import moirai_plots
+# ============================================================================
