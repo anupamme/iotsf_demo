@@ -55,14 +55,20 @@ with st.spinner("Loading Moirai model and running detection... This may take a m
 
         # Detect on all samples
         results = []
+        anomaly_threshold = 0.95  # Confidence threshold for anomaly scoring
+        classification_threshold = 0.3  # Anomaly rate threshold for binary classification
+
         for i, sample in enumerate(samples):
-            result = detector.detect(sample)
+            result = detector.detect_anomalies(
+                traffic=sample,
+                threshold=anomaly_threshold,
+                return_feature_contributions=True
+            )
             results.append(result)
 
-        # Get binary predictions (sample is attack if anomaly_rate > threshold)
-        threshold = 0.3  # 30% anomaly rate threshold
+        # Get binary predictions (sample is attack if anomaly_rate > classification_threshold)
         y_pred_moirai = np.array([
-            1 if r.anomaly_rate > threshold else 0
+            1 if r.anomaly_rate > classification_threshold else 0
             for r in results
         ])
         y_scores_moirai = np.array([r.anomaly_rate for r in results])
