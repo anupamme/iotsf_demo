@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT_DIR))
 from src.utils.config import Config
 from src.utils.device import get_device, get_device_info
 from src.utils.logging import setup_logging
+from app.utils.data_loader import load_demo_samples
 
 # Page configuration
 st.set_page_config(
@@ -38,6 +39,31 @@ def initialize_app():
         )
         st.session_state.device = device
         st.session_state.device_info = get_device_info()
+
+        # Load demo samples
+        st.session_state.demo_samples = load_demo_samples(
+            data_dir=ROOT_DIR / "data" / "synthetic",
+            config=config
+        )
+
+        # Initialize voting state
+        st.session_state.user_votes = {
+            'votes': [False] * 6,
+            'vote_counts': {},
+            'vote_submitted': False
+        }
+
+        # Initialize detection results storage
+        st.session_state.detection_results = {
+            'baseline': {},
+            'moirai': [],
+            'computed': False
+        }
+
+        # Model loading state
+        st.session_state.models = {
+            'loaded': set()
+        }
 
         st.session_state.initialized = True
 
