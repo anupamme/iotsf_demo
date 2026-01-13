@@ -6,8 +6,20 @@ that traditional IDS methods can process effectively.
 """
 
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Dict
 from scipy.stats import linregress
+
+# Feature names for CICIoT2023 dataset
+FEATURE_NAMES = [
+    'flow_duration', 'fwd_pkts_tot', 'bwd_pkts_tot',
+    'fwd_data_pkts_tot', 'bwd_data_pkts_tot',
+    'fwd_pkts_per_sec', 'bwd_pkts_per_sec', 'flow_pkts_per_sec',
+    'fwd_byts_b_avg', 'bwd_byts_b_avg',
+    'fwd_iat_mean', 'bwd_iat_mean'
+]
+
+# Statistic names (order matters - must match extract_sequence_features)
+STAT_NAMES = ['mean', 'std', 'min', 'max', 'slope', 'peak_to_peak']
 
 
 def extract_sequence_features(sequence: np.ndarray) -> np.ndarray:
@@ -57,6 +69,96 @@ def extract_sequence_features(sequence: np.ndarray) -> np.ndarray:
         features.extend([mean_val, std_val, min_val, max_val, slope, peak_to_peak])
 
     return np.array(features)
+
+
+def extract_structured_features(sequence: np.ndarray) -> Dict[str, Dict[str, float]]:
+    """
+    Extract statistical features as a structured dictionary.
+
+    This provides a more maintainable interface than the flat array.
+    Features can be accessed by name, e.g., features['fwd_pkts_per_sec']['mean']
+
+    Args:
+        sequence: Time series of shape (seq_length, feature_dim)
+
+    Returns:
+        Nested dictionary: {feature_name: {stat_name: value}}
+
+    Example:
+        >>> seq = np.random.randn(128, 12)
+        >>> features = extract_structured_features(seq)
+        >>> fwd_pkt_rate_mean = features['fwd_pkts_per_sec']['mean']
+        >>> fwd_byte_avg_max = features['fwd_byts_b_avg']['max']
+    """
+    seq_length, feature_dim = sequence.shape
+    structured_features = {}
+
+    for feature_idx in range(feature_dim):
+        feature_name = FEATURE_NAMES[feature_idx] if feature_idx < len(FEATURE_NAMES) else f'feature_{feature_idx}'
+        feature_values = sequence[:, feature_idx]
+
+        # Basic statistics
+        mean_val = np.mean(feature_values)
+        std_val = np.std(feature_values)
+        min_val = np.min(feature_values)
+        max_val = np.max(feature_values)
+
+        # Trend analysis (linear regression slope)
+        time_steps = np.arange(seq_length)
+        slope, _, _, _, _ = linregress(time_steps, feature_values)
+
+        # Amplitude
+        peak_to_peak = max_val - min_val
+
+        # Store as nested dictionary
+        structured_features[feature_name] = {
+            'mean': mean_val,
+            'std': std_val,
+            'min': min_val,
+            'max': max_val,
+            'slope': slope,
+            'peak_to_peak': peak_to_peak
+        }
+
+    return structured_features
+
+
+def get_feature_value(features_flat: np.ndarray, feature_name: str, stat_name: str) -> float:
+    """
+    Access a specific feature value from the flat feature array.
+
+    This helper function provides name-based access to features extracted
+    by extract_sequence_features(), making the code more maintainable.
+
+    Args:
+        features_flat: Flat feature array from extract_sequence_features()
+        feature_name: Name of the feature (e.g., 'fwd_pkts_per_sec')
+        stat_name: Name of the statistic (e.g., 'mean', 'std')
+
+    Returns:
+        The requested feature value
+
+    Raises:
+        ValueError: If feature_name or stat_name is invalid
+
+    Example:
+        >>> seq = np.random.randn(128, 12)
+        >>> features = extract_sequence_features(seq)
+        >>> pkt_rate_mean = get_feature_value(features, 'fwd_pkts_per_sec', 'mean')
+    """
+    if feature_name not in FEATURE_NAMES:
+        raise ValueError(f"Invalid feature name: {feature_name}. Must be one of {FEATURE_NAMES}")
+
+    if stat_name not in STAT_NAMES:
+        raise ValueError(f"Invalid stat name: {stat_name}. Must be one of {STAT_NAMES}")
+
+    feature_idx = FEATURE_NAMES.index(feature_name)
+    stat_idx = STAT_NAMES.index(stat_name)
+
+    # Calculate flat array index
+    flat_idx = feature_idx * len(STAT_NAMES) + stat_idx
+
+    return features_flat[flat_idx]
 
 
 def extract_batch_features(sequences: np.ndarray) -> np.ndarray:

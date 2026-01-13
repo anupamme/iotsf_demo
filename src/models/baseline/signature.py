@@ -11,25 +11,10 @@ from loguru import logger
 
 from .base import BaseIDS
 from .feature_extraction import (
-    extract_batch_features,
-    extract_sequence_features,
+    extract_structured_features,
     compute_asymmetry_ratio,
     detect_periodicity
 )
-
-
-# Feature indices based on CICIoT2023Loader.FEATURE_COLUMNS
-# 0: flow_duration, 1: fwd_pkts_tot, 2: bwd_pkts_tot
-# 3: fwd_data_pkts_tot, 4: bwd_data_pkts_tot
-# 5: fwd_pkts_per_sec, 6: bwd_pkts_per_sec, 7: flow_pkts_per_sec
-# 8: fwd_byts_b_avg, 9: bwd_byts_b_avg
-# 10: fwd_iat_mean, 11: bwd_iat_mean
-FEATURE_IDX_FLOW_DURATION = 0
-FEATURE_IDX_FWD_PKTS_TOT = 1
-FEATURE_IDX_BWD_PKTS_TOT = 2
-FEATURE_IDX_FWD_PKTS_PER_SEC = 5
-FEATURE_IDX_FLOW_PKTS_PER_SEC = 7
-FEATURE_IDX_FWD_BYTS_B_AVG = 8
 
 
 class SignatureIDS(BaseIDS):
@@ -140,16 +125,12 @@ class SignatureIDS(BaseIDS):
         Returns:
             Signature match score in [0, 1]
         """
-        # Extract relevant features
-        features = extract_sequence_features(sequence)
+        # Extract features using structured interface for maintainability
+        features = extract_structured_features(sequence)
 
-        # Feature indices after extraction (6 stats per feature)
-        # fwd_pkts_per_sec is feature 5, so its mean is at index 5*6 + 0 = 30
-        fwd_pkt_rate_mean_idx = FEATURE_IDX_FWD_PKTS_PER_SEC * 6 + 0
-        fwd_byte_avg_mean_idx = FEATURE_IDX_FWD_BYTS_B_AVG * 6 + 0
-
-        fwd_pkt_rate_mean = features[fwd_pkt_rate_mean_idx]
-        fwd_byte_avg_mean = features[fwd_byte_avg_mean_idx]
+        # Access features by name - much more readable and maintainable
+        fwd_pkt_rate_mean = features['fwd_pkts_per_sec']['mean']
+        fwd_byte_avg_mean = features['fwd_byts_b_avg']['mean']
 
         # Check Mirai conditions
         high_pkt_rate = fwd_pkt_rate_mean > self.mirai_pkt_rate_threshold
@@ -179,18 +160,18 @@ class SignatureIDS(BaseIDS):
         Returns:
             Signature match score in [0, 1]
         """
-        # Extract relevant features
-        features = extract_sequence_features(sequence)
+        # Extract features using structured interface
+        features = extract_structured_features(sequence)
 
-        # Flow packet rate mean
-        flow_pkt_rate_mean_idx = FEATURE_IDX_FLOW_PKTS_PER_SEC * 6 + 0
-        flow_pkt_rate_mean = features[flow_pkt_rate_mean_idx]
+        # Access flow packet rate by name - clear and maintainable
+        flow_pkt_rate_mean = features['flow_pkts_per_sec']['mean']
 
-        # Compute asymmetry ratio
+        # Compute asymmetry ratio (using raw sequence, indices still needed here)
+        # Feature indices: 1=fwd_pkts_tot, 2=bwd_pkts_tot (from FEATURE_NAMES)
         asymmetry = compute_asymmetry_ratio(
             sequence,
-            fwd_idx=FEATURE_IDX_FWD_PKTS_TOT,
-            bwd_idx=FEATURE_IDX_BWD_PKTS_TOT
+            fwd_idx=1,  # fwd_pkts_tot
+            bwd_idx=2   # bwd_pkts_tot
         )
 
         # Check DDoS conditions
