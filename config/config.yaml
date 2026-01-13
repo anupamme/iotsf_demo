@@ -50,9 +50,17 @@ demo:
   n_benign_samples: 3
   n_attack_samples: 3
   attack_types:
-    - "slow_exfiltration"
-    - "lotl_mimicry"
-    - "protocol_anomaly"
+    - "slow_exfiltration_stealth_95"
+    - "lotl_mimicry_stealth_90"
+    - "protocol_anomaly_stealth_85"
+  voting:
+    enable_multi_user: true  # Aggregate votes across sessions
+    reset_password: "presenter123"  # Optional password for reset
+
+presenter_mode:
+  enabled: true
+  show_timing: true
+  show_qa_prep: true
 
 device:
   use_gpu: true
