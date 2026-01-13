@@ -79,6 +79,9 @@ Thumbs.db
 htmlcov/
 .tox/
 
+# Test outputs
+outputs/
+
 # MyPy
 .mypy_cache/
 .dmypy.json
