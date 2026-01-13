@@ -1,5 +1,12 @@
 # Models package
 from .diffusion_ts import IoTDiffusionGenerator
 from .hard_negative_generator import HardNegativeGenerator
+from .moirai_detector import MoiraiAnomalyDetector
+from .anomaly_result import AnomalyResult
 
-__all__ = ['IoTDiffusionGenerator', 'HardNegativeGenerator']
+__all__ = [
+    'IoTDiffusionGenerator',
+    'HardNegativeGenerator',
+    'MoiraiAnomalyDetector',
+    'AnomalyResult'
+]
