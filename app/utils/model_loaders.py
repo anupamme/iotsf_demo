@@ -27,13 +27,15 @@ def load_moirai_detector():
 
     if config:
         model_size = config.get('models.moirai.model_size', 'small')
-        context_length = config.get('models.moirai.context_length', 512)
-        prediction_length = config.get('models.moirai.prediction_length', 64)
+        # Use shorter context/prediction for 128-timestep samples
+        # Our samples are 128 timesteps, so context + prediction must be <= 128
+        context_length = config.get('models.moirai.context_length', 96)
+        prediction_length = config.get('models.moirai.prediction_length', 32)
     else:
-        # Fallback defaults
+        # Fallback defaults sized for 128-timestep sequences
         model_size = 'small'
-        context_length = 512
-        prediction_length = 64
+        context_length = 96   # Use 96 timesteps as context
+        prediction_length = 32  # Predict next 32 timesteps (total = 128)
 
     detector = MoiraiAnomalyDetector(
         model_size=model_size,
