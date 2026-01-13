@@ -88,13 +88,31 @@ with col1:
                     st.session_state.user_votes['vote_counts'].get(i, 0) + 1
 
 with col2:
-    if st.button("🔄 Reset Votes", use_container_width=True):
-        st.session_state.user_votes = {
-            'votes': [False] * 6,
-            'vote_counts': {},
-            'vote_submitted': False
-        }
-        st.rerun()
+    # Password-protected reset for presenters only
+    with st.popover("🔄 Reset Votes"):
+        st.warning("⚠️ This will reset votes for all users!")
+
+        # Get reset password from config
+        config = st.session_state.config
+        required_password = config.get('demo.voting.reset_password', 'presenter123')
+
+        reset_password = st.text_input(
+            "Enter presenter password:",
+            type="password",
+            key="reset_password_input"
+        )
+
+        if st.button("Confirm Reset", type="secondary"):
+            if reset_password == required_password:
+                st.session_state.user_votes = {
+                    'votes': [False] * 6,
+                    'vote_counts': {},
+                    'vote_submitted': False
+                }
+                st.success("✅ Votes reset successfully!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect password. Only presenters can reset votes.")
 
 # Display vote results if submitted
 if st.session_state.user_votes['vote_submitted']:
