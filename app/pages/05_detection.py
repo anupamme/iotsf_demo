@@ -57,12 +57,12 @@ THEME = config.get('visualization.theme', 'plotly_dark')
 
 
 @st.cache_resource
-def load_detector(model_size: str):
+def load_detector(model_size: str, context_length: int, prediction_length: int):
     """Load and initialize the Moirai detector (cached)."""
     detector = MoiraiAnomalyDetector(
         model_size=model_size,
-        context_length=config.get('models.moirai.context_length', 512),
-        prediction_length=config.get('models.moirai.prediction_length', 64),
+        context_length=context_length,
+        prediction_length=prediction_length,
         confidence_level=config.get('models.moirai.confidence_level', 0.95)
     )
     detector.initialize()
@@ -162,10 +162,19 @@ with st.sidebar:
         st.error(f"Error loading samples: {e}")
         st.stop()
 
+# Adjust context/prediction lengths based on sample size
+seq_length = sample_data.shape[1]
+context_length = min(config.get('models.moirai.context_length', 512), seq_length // 2)
+prediction_length = min(config.get('models.moirai.prediction_length', 64), seq_length // 4)
+
+# Show adjusted parameters if they differ from config
+if context_length != config.get('models.moirai.context_length', 512):
+    st.info(f"📝 Adjusted parameters for short sequences: context_length={context_length}, prediction_length={prediction_length}")
+
 # Load detector
 try:
     with st.spinner(f"Loading Moirai {model_size} model..."):
-        detector = load_detector(model_size)
+        detector = load_detector(model_size, context_length, prediction_length)
 
     is_mock = detector._mock_mode
     if is_mock:
