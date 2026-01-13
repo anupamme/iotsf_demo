@@ -29,17 +29,8 @@ def plot_confusion_matrix(
     """
     from sklearn.metrics import confusion_matrix
 
-    cm = confusion_matrix(y_true, y_pred)
-
-    # Ensure 2x2 matrix (handle edge cases)
-    if cm.shape != (2, 2):
-        cm_full = np.zeros((2, 2), dtype=int)
-        if cm.shape == (1, 1):
-            if y_true[0] == 0:
-                cm_full[0, 0] = cm[0, 0]
-            else:
-                cm_full[1, 1] = cm[0, 0]
-        cm = cm_full
+    # Explicitly specify labels to ensure 2x2 matrix
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
 
     fig = go.Figure(data=go.Heatmap(
         z=cm,

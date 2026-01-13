@@ -62,21 +62,12 @@ class IDSMetrics:
         metrics['recall'] = recall_score(y_true, y_pred, zero_division=0)
         metrics['f1'] = f1_score(y_true, y_pred, zero_division=0)
 
-        # Confusion matrix
-        cm = confusion_matrix(y_true, y_pred)
+        # Confusion matrix (explicitly specify labels to ensure 2x2 matrix)
+        cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
         metrics['confusion_matrix'] = cm
 
-        # Extract confusion matrix values
-        if cm.shape == (2, 2):
-            tn, fp, fn, tp = cm.ravel()
-        else:
-            # Handle edge cases (e.g., all predictions are same class)
-            tn = fp = fn = tp = 0
-            if cm.shape == (1, 1):
-                if y_true[0] == 0:  # All benign
-                    tn = cm[0, 0]
-                else:  # All attacks
-                    tp = cm[0, 0]
+        # Extract confusion matrix values (guaranteed 2x2 matrix)
+        tn, fp, fn, tp = cm.ravel()
 
         metrics['true_negatives'] = int(tn)
         metrics['false_positives'] = int(fp)
