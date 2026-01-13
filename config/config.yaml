@@ -23,7 +23,28 @@ models:
     anomaly_threshold: 0.95  # Detection threshold
     checkpoint: null  # Optional fine-tuned checkpoint path
   baseline:
-    method: "threshold"  # threshold, isolation_forest, lstm
+    method: "combined"  # threshold, signature, statistical, ml_based, combined
+    threshold:
+      percentile: 95
+      violation_threshold: 3
+    signature:
+      mirai_pkt_rate_threshold: 1000.0  # pkts/sec
+      mirai_byte_avg_threshold: 100.0
+      ddos_pkt_rate_threshold: 500.0
+      ddos_asymmetry_threshold: 10.0
+    statistical:
+      z_score_threshold: 3.0
+      iqr_multiplier: 1.5
+    ml_based:
+      contamination: 0.05
+      n_estimators: 100
+      random_state: 42
+    combined:
+      weights:
+        threshold: 0.15
+        signature: 0.35
+        statistical: 0.25
+        ml: 0.25
 
 demo:
   n_benign_samples: 3
