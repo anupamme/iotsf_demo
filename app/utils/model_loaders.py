@@ -70,16 +70,16 @@ def load_baseline_ids():
     # Get config from session state
     config = st.session_state.get('config')
 
+    # Get weights from config if available
     if config:
-        methods = config.get('models.baseline.methods', ['threshold', 'statistical', 'signature'])
+        weights = config.get('models.baseline.combined.weights', None)
     else:
-        # Use all three baseline methods
-        methods = ['threshold', 'statistical', 'signature']
+        weights = None
 
     ids = CombinedBaselineIDS(
         seq_length=128,
         feature_dim=12,
-        methods=methods
+        weights=weights
     )
 
     return ids
