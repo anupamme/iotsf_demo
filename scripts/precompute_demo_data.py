@@ -22,9 +22,7 @@ sys.path.insert(0, str(ROOT_DIR))
 
 from src.data.loader import CICIoT2023Loader
 from src.data.preprocessor import TrafficPreprocessor, create_sequences
-from src.models import IoTDiffusionGenerator
-from src.models.baseline_ids import BaselineIDS
-from src.models.moirai_detector import MoiraiDetector
+from src.models import IoTDiffusionGenerator, MoiraiAnomalyDetector, ThresholdIDS
 from src.utils.config import Config
 
 
@@ -148,7 +146,7 @@ def generate_attack_samples(
 
 
 def run_baseline_detection(
-    baseline: BaselineIDS,
+    baseline: ThresholdIDS,
     benign_samples: np.ndarray,
     attack_samples: np.ndarray
 ) -> dict:
@@ -165,14 +163,23 @@ def run_baseline_detection(
     """
     logger.info("Running baseline IDS detection...")
 
-    # Fit on benign samples
-    baseline.fit(benign_samples)
-
     # Combine all samples
     all_samples = np.concatenate([benign_samples, attack_samples], axis=0)
 
-    # Detect
-    results = baseline.detect(all_samples)
+    # Detect using threshold IDS (operates on each sample)
+    predictions = []
+    scores = []
+
+    for i, sample in enumerate(all_samples):
+        result = baseline.detect(sample)
+        # Extract prediction and score from result
+        predictions.append(1 if result.is_attack else 0)
+        scores.append(result.confidence)
+
+    results = {
+        'predictions': np.array(predictions),
+        'scores': np.array(scores)
+    }
 
     logger.success(
         f"Baseline IDS: Detected {results['predictions'].sum()}/{len(all_samples)} as attacks"
@@ -182,7 +189,7 @@ def run_baseline_detection(
 
 
 def run_moirai_detection(
-    moirai: MoiraiDetector,
+    moirai: MoiraiAnomalyDetector,
     benign_samples: np.ndarray,
     attack_samples: np.ndarray
 ) -> dict:
@@ -202,26 +209,36 @@ def run_moirai_detection(
     # Combine all samples
     all_samples = np.concatenate([benign_samples, attack_samples], axis=0)
 
-    # Detect
-    try:
-        results = moirai.detect(all_samples)
-        logger.success(
-            f"Moirai: Detected {results['predictions'].sum()}/{len(all_samples)} as attacks"
-        )
-        return results
+    # Detect (MoiraiAnomalyDetector works on 2D: seq_length x features)
+    predictions = []
+    scores = []
+    all_forecasts = []
 
-    except ImportError as e:
-        logger.error(
-            "Moirai requires Python 3.12 and uni2ts. "
-            "Falling back to mock detection."
-        )
-        # Return mock results
-        n_samples = len(all_samples)
-        return {
-            'predictions': np.array([0, 0, 0, 1, 1, 1]),  # Mock: detect all attacks
-            'scores': np.array([0.1, 0.15, 0.2, 0.7, 0.75, 0.8]),  # Mock scores
-            'forecasts': np.zeros((n_samples, moirai.prediction_length, all_samples.shape[2]))
-        }
+    for i, sample in enumerate(all_samples):
+        logger.debug(f"Processing sample {i+1}/{len(all_samples)}")
+        result = moirai.detect_anomalies(sample, threshold=0.95, return_feature_contributions=False)
+
+        # Aggregate anomaly info
+        predictions.append(1 if result.n_anomalies > 0 else 0)
+        scores.append(result.anomaly_scores.mean())  # Average anomaly score
+        all_forecasts.append(result.predictions)  # Shape: (seq_length, n_features)
+
+    # Convert forecasts to consistent shape (n_samples, pred_length, n_features)
+    # Use first prediction_length steps
+    pred_length = min(28, all_forecasts[0].shape[0])
+    forecasts_array = np.array([f[:pred_length] for f in all_forecasts])
+
+    results = {
+        'predictions': np.array(predictions),
+        'scores': np.array(scores),
+        'forecasts': forecasts_array
+    }
+
+    logger.success(
+        f"Moirai: Detected {results['predictions'].sum()}/{len(all_samples)} as attacks"
+    )
+
+    return results
 
 
 def save_demo_data(
@@ -322,16 +339,18 @@ def generate_demo_data(
     )
 
     # 3. Run baseline IDS
-    baseline = BaselineIDS(threshold=0.3, n_std=3.0)
+    baseline = ThresholdIDS()
     baseline_results = run_baseline_detection(baseline, benign_samples, attack_samples)
 
     # 4. Run Moirai detection
-    moirai = MoiraiDetector(
+    moirai = MoiraiAnomalyDetector(
         model_size=config.get("models.moirai.model_size", "small"),
-        context_length=config.get("models.moirai.context_length", 100),
-        prediction_length=config.get("models.moirai.prediction_length", 28),
-        threshold=0.5
+        context_length=config.get("models.moirai.context_length", 512),
+        prediction_length=config.get("models.moirai.prediction_length", 64),
+        confidence_level=0.95,
+        device='auto'
     )
+    moirai.initialize()
     moirai_results = run_moirai_detection(moirai, benign_samples, attack_samples)
 
     # 5. Create metadata
@@ -343,8 +362,13 @@ def generate_demo_data(
         'seq_length': seq_length,
         'feature_dim': feature_dim,
         'seed': seed,
-        'baseline_params': baseline.get_params(),
-        'moirai_params': moirai.get_params()
+        'baseline_params': {'type': 'ThresholdIDS'},
+        'moirai_params': {
+            'model_size': moirai.model_size,
+            'context_length': moirai.context_length,
+            'prediction_length': moirai.prediction_length,
+            'device': str(moirai.device)
+        }
     }
 
     # 6. Save everything

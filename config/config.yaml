@@ -16,18 +16,51 @@ models:
     checkpoint: "models/diffusion_ts.pt"
   moirai:
     model_size: "small"  # small, base, large
-    context_length: 512
-    prediction_length: 64
+    context_length: 96  # Context window (must fit in 128 timestep samples)
+    prediction_length: 32  # Prediction horizon (context + prediction <= 128)
+    patch_size: 32
+    confidence_level: 0.95  # Confidence level for intervals
+    anomaly_threshold: 0.95  # Detection threshold
+    checkpoint: null  # Optional fine-tuned checkpoint path
   baseline:
-    method: "threshold"  # threshold, isolation_forest, lstm
+    method: "combined"  # threshold, signature, statistical, ml_based, combined
+    threshold:
+      percentile: 95
+      violation_threshold: 3
+    signature:
+      mirai_pkt_rate_threshold: 1000.0  # pkts/sec
+      mirai_byte_avg_threshold: 100.0
+      ddos_pkt_rate_threshold: 500.0
+      ddos_asymmetry_threshold: 10.0
+    statistical:
+      z_score_threshold: 3.0
+      iqr_multiplier: 1.5
+    ml_based:
+      contamination: 0.05
+      n_estimators: 100
+      random_state: 42
+    combined:
+      weights:
+        threshold: 0.15
+        signature: 0.35
+        statistical: 0.25
+        ml: 0.25
 
 demo:
   n_benign_samples: 3
   n_attack_samples: 3
   attack_types:
-    - "slow_exfiltration"
-    - "lotl_mimicry"
-    - "protocol_anomaly"
+    - "slow_exfiltration_stealth_95"
+    - "lotl_mimicry_stealth_90"
+    - "protocol_anomaly_stealth_85"
+  voting:
+    enable_multi_user: true  # Aggregate votes across sessions
+    reset_password: "presenter123"  # Optional password for reset
+
+presenter_mode:
+  enabled: true
+  show_timing: true
+  show_qa_prep: true
 
 device:
   use_gpu: true
@@ -39,3 +72,42 @@ visualization:
     benign: "#00CC96"
     attack: "#EF553B"
     detected: "#636EFA"
+
+constraints:
+  enabled: true
+  default_protocol: "modbus"
+  strictness: "moderate"  # strict, moderate, permissive
+
+  protocols:
+    modbus:
+      enabled: true
+      packet_size_range: [7, 260]
+      valid_function_codes: [1, 2, 3, 4, 5, 6, 15, 16, 20, 21, 22, 23, 24, 43]
+      timing_min_ms: 1
+      timing_max_ms: 1000
+      soft_constraints:
+        packet_size_mean: 64
+        packet_size_std: 32
+        inter_arrival_lambda: 0.1
+
+    mqtt:
+      enabled: true
+      packet_size_range: [2, 1024]
+      valid_message_types: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+      qos_levels: [0, 1, 2]
+      keep_alive_range: [60, 300]
+      soft_constraints:
+        packet_size_mean: 128
+        packet_size_std: 256
+        keep_alive_mean: 180
+
+    coap:
+      enabled: true
+      packet_size_range: [4, 1280]
+      token_length_range: [0, 8]
+      valid_message_types: [0, 1, 2, 3]
+      valid_methods: [1, 2, 3, 4]
+      soft_constraints:
+        packet_size_mean: 128
+        packet_size_std: 96
+        request_interval_mean: 5.0
