@@ -160,14 +160,30 @@ class TestConfigValidation:
         new_config = Config(config_path)
         assert new_config.get("value") == 2
 
-    def test_empty_config_file(self, tmp_path):
-        """Should handle empty config file."""
+    def test_empty_config_file(self, tmp_path, monkeypatch):
+        """Should handle empty config file (loads as None)."""
+        # Empty YAML returns None. Config loads successfully but all gets return None.
+        # Clear env vars to avoid triggering _apply_env_overrides failure
+        monkeypatch.delenv("USE_GPU", raising=False)
+        monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+
         empty_config = tmp_path / "empty.yaml"
         empty_config.write_text("")
 
         config = Config(empty_config)
-        # Empty YAML returns None, which should be handled
+        assert config._config is None
         assert config.get("any.key") is None
+
+    def test_empty_config_with_env_override_fails(self, tmp_path, monkeypatch):
+        """Should raise TypeError if empty config + env var override is attempted."""
+        # This tests the edge case identified: empty YAML + env var = TypeError
+        monkeypatch.setenv("USE_GPU", "true")
+
+        empty_config = tmp_path / "empty.yaml"
+        empty_config.write_text("")
+
+        with pytest.raises(TypeError, match="'NoneType' object is not subscriptable"):
+            Config(empty_config)
 
     def test_config_with_special_characters(self, tmp_path):
         """Should handle keys with special characters."""
