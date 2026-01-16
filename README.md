@@ -154,6 +154,27 @@ This generates synthetic attacks in `data/synthetic/`:
 - `protocol_anomaly_stealth_XX.npy` - Protocol timing anomalies
 - `beacon_stealth_XX.npy` - C2 beacon patterns
 
+### Pre-compute Demo Data with Detection Results
+
+For the complete demo presentation, pre-generate all samples and detection results:
+
+```bash
+python scripts/precompute_demo_data.py --seed 42
+```
+
+This creates `data/synthetic/demo_data.npz` containing:
+- 3 benign samples from CICIoT2023
+- 3 synthetic attacks (slow_exfiltration, lotl_mimicry, beacon)
+- Baseline IDS detection results for all 6 samples
+- Moirai detection results for all 6 samples
+
+Verify the generated data:
+```bash
+python scripts/verify_demo_data.py
+```
+
+See [data/synthetic/README.md](data/synthetic/README.md) for detailed format specification.
+
 ## Moirai Usage
 
 Detect anomalies using the Moirai time-series foundation model:
