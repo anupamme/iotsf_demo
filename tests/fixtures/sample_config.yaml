@@ -1,0 +1,31 @@
+# Minimal config for testing
+project:
+  name: "Test Project"
+  version: "0.1.0"
+
+data:
+  raw_dir: "tests/fixtures/data"
+  processed_dir: "tests/fixtures/processed"
+  synthetic_dir: "tests/fixtures/synthetic"
+  ciciot_subset_size: 100
+
+models:
+  diffusion_ts:
+    seq_length: 32  # Smaller for faster tests
+    feature_dim: 12
+    n_diffusion_steps: 10  # Much fewer for speed
+  moirai:
+    model_size: "small"
+    context_length: 64
+    prediction_length: 16
+  baseline:
+    method: "threshold"
+
+device:
+  use_gpu: false
+  gpu_id: 0
+
+demo:
+  n_benign_samples: 2
+  n_attack_samples: 2
+  attack_types: ["slow_exfiltration", "beacon"]

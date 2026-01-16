@@ -156,15 +156,82 @@ This generates synthetic attacks in `data/synthetic/`:
 
 ## Development
 
-Run tests:
+### Testing
+
+Run the full test suite:
 ```bash
 pytest tests/ -v
 ```
 
-Run Diffusion-TS tests specifically:
+Run specific test categories:
 ```bash
-pytest tests/test_diffusion_ts.py -v
+# Unit tests only
+pytest tests/ -m unit -v
+
+# Integration tests only
+pytest tests/ -m integration -v
+
+# Exclude slow tests
+pytest tests/ -m "not slow" -v
+
+# UI tests only
+pytest tests/ -m ui -v
 ```
+
+View test coverage:
+```bash
+pytest tests/ --cov=src --cov-report=html
+open htmlcov/index.html  # On Windows: start htmlcov/index.html
+```
+
+#### Test Categories
+
+- **Unit Tests** (~110+ tests): Individual components
+  - `test_loader.py` - Data loading (9 tests)
+  - `test_preprocessor.py` - Preprocessing (12 tests)
+  - `test_diffusion_ts.py` - Diffusion-TS model (42 tests)
+  - `test_device.py` - GPU utilities (4 tests)
+  - `test_config.py` - Configuration (16 tests)
+
+- **Integration Tests** (20+ tests): End-to-end workflows
+  - `test_integration.py` - Complete pipelines
+
+- **UI Tests** (27 tests): Streamlit application
+  - `test_app.py` - Page functionality
+  - `test_components.py` - UI components
+
+- **Placeholder Tests** (27 tests, skipped): Future components
+  - `test_moirai.py` - Moirai foundation model (12 tests)
+  - `test_baseline_ids.py` - Traditional IDS baselines (15 tests)
+
+### Demo Walkthrough
+
+See [DEMO.md](DEMO.md) for a complete presentation guide including:
+- Pre-demo checklist
+- Talking points for each section
+- Troubleshooting common issues
+- Q&A preparation
+
+Quick demo:
+```bash
+# 1. Pre-generate attacks
+python scripts/precompute_attacks.py --n-samples 10
+
+# 2. Launch app
+streamlit run app/main.py
+
+# 3. Navigate through pages 1-5
+```
+
+### Troubleshooting
+
+See [DEMO.md#troubleshooting-guide](DEMO.md#troubleshooting-guide) for detailed solutions.
+
+Common issues:
+- **Import errors**: Run from project root
+- **GPU not detected**: CPU fallback is automatic
+- **Tests failing**: Check dependencies installed with `pip list`
+- **Streamlit errors**: Clear cache with `streamlit cache clear`
 
 ## License
 
