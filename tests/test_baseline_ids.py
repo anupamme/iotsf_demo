@@ -1,190 +1,347 @@
-"""Tests for baseline IDS methods.
-
-NOTE: These tests are skipped because baseline IDS is not yet implemented.
-They define the expected API and behavior for future implementation.
-"""
+"""Tests for Baseline IDS methods"""
 
 import pytest
+import sys
 import numpy as np
+from pathlib import Path
 
-pytestmark = pytest.mark.skip(reason="Baseline IDS not yet implemented")
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.models.baseline import (
+    BaseIDS,
+    ThresholdIDS,
+    StatisticalIDS,
+    SignatureIDS,
+    MLBasedIDS,
+    CombinedBaselineIDS,
+    extract_sequence_features,
+    extract_batch_features
+)
+from src.evaluation.metrics import IDSMetrics
+
+
+# Fixtures
+@pytest.fixture
+def benign_sequences():
+    """Generate synthetic benign traffic."""
+    np.random.seed(42)
+    return np.random.randn(50, 128, 12) * 0.5
+
+
+@pytest.fixture
+def attack_sequences():
+    """Generate synthetic attack traffic with high packet rates."""
+    np.random.seed(42)
+    sequences = np.random.randn(50, 128, 12) * 0.5
+    # Inject attack pattern: very high packet rates
+    sequences[:, :, 7] *= 5  # flow_pkts_per_sec
+    return sequences
+
+
+class TestFeatureExtraction:
+    """Test feature extraction utilities."""
+
+    def test_extract_sequence_features_shape(self):
+        """Test that feature extraction returns correct shape."""
+        seq = np.random.randn(128, 12)
+        features = extract_sequence_features(seq)
+        assert features.shape == (72,), f"Expected (72,), got {features.shape}"
+
+    def test_extract_batch_features_shape(self):
+        """Test batch feature extraction."""
+        seqs = np.random.randn(10, 128, 12)
+        features = extract_batch_features(seqs)
+        assert features.shape == (10, 72)
+
+    def test_extract_sequence_features_deterministic(self):
+        """Test that feature extraction is deterministic."""
+        np.random.seed(42)
+        seq = np.random.randn(128, 12)
+        features1 = extract_sequence_features(seq)
+        features2 = extract_sequence_features(seq)
+        np.testing.assert_array_equal(features1, features2)
 
 
 class TestThresholdIDS:
-    """Test simple threshold-based detection."""
+    """Test threshold-based IDS."""
 
-    def test_init_threshold_detector(self):
-        """Should initialize with threshold configuration."""
-        from src.models.baseline import ThresholdIDS
-        ids = ThresholdIDS(threshold=0.95)
-        assert ids.threshold == 0.95
-
-    def test_detect_with_static_threshold(self):
-        """Should flag values exceeding threshold."""
-        from src.models.baseline import ThresholdIDS
-
-        ids = ThresholdIDS(threshold=0.95)
-        benign = np.random.randn(100, 12)
-        attack = np.random.randn(100, 12) * 2.0  # Above threshold
-
-        benign_result = ids.detect(benign)
-        attack_result = ids.detect(attack)
-
-        assert np.mean(benign_result) < 0.1  # Few false positives
-        assert np.mean(attack_result) > 0.9  # High detection rate
-
-    def test_multi_feature_thresholds(self):
-        """Should support per-feature thresholds."""
-        from src.models.baseline import ThresholdIDS
-
-        thresholds = {i: 0.95 for i in range(12)}
-        ids = ThresholdIDS(thresholds=thresholds)
-
-        assert len(ids.thresholds) == 12
-
-
-class TestIsolationForestIDS:
-    """Test Isolation Forest anomaly detection."""
-
-    def test_init_isolation_forest(self):
-        """Should initialize sklearn IsolationForest."""
-        from src.models.baseline import IsolationForestIDS
-
-        ids = IsolationForestIDS(contamination=0.1)
-        assert ids.contamination == 0.1
-
-    def test_fit_on_benign_data(self):
-        """Should train on benign traffic baseline."""
-        from src.models.baseline import IsolationForestIDS
-
-        ids = IsolationForestIDS()
-        benign = np.random.randn(1000, 128, 12)
-
-        ids.fit(benign)
-        assert ids.is_fitted
-
-    def test_detect_anomalies(self):
-        """Should detect outliers in test data."""
-        from src.models.baseline import IsolationForestIDS
-
-        ids = IsolationForestIDS()
-        benign = np.random.randn(1000, 128, 12)
-        ids.fit(benign)
-
-        test_benign = np.random.randn(100, 128, 12)
-        test_attack = np.random.randn(100, 128, 12) * 3.0
-
-        benign_scores = ids.detect(test_benign)
-        attack_scores = ids.detect(test_attack)
-
-        assert np.mean(attack_scores) > np.mean(benign_scores)
-
-    def test_contamination_parameter(self):
-        """Should respect contamination setting."""
-        from src.models.baseline import IsolationForestIDS
-
-        ids = IsolationForestIDS(contamination=0.15)
-        benign = np.random.randn(1000, 128, 12)
-        ids.fit(benign)
-
-        predictions = ids.detect(benign)
-        anomaly_rate = np.mean(predictions > 0.5)
-
-        # Should be close to contamination level
-        assert 0.10 <= anomaly_rate <= 0.20
-
-
-class TestLSTMIDS:
-    """Test LSTM-based anomaly detection."""
-
-    def test_init_lstm_model(self):
-        """Should initialize LSTM architecture."""
-        from src.models.baseline import LSTMIDS
-
-        ids = LSTMIDS(seq_length=128, feature_dim=12, hidden_dim=64)
+    def test_initialization(self):
+        """Test ThresholdIDS initialization."""
+        ids = ThresholdIDS()
         assert ids.seq_length == 128
         assert ids.feature_dim == 12
-        assert ids.hidden_dim == 64
+        assert ids.percentile == 95
+        assert not ids._fitted
 
-    def test_train_on_sequences(self):
-        """Should train on time-series sequences."""
-        from src.models.baseline import LSTMIDS
+    def test_fit(self, benign_sequences):
+        """Test fitting on benign data."""
+        ids = ThresholdIDS()
+        ids.fit(benign_sequences)
+        assert ids._fitted
+        assert ids.thresholds is not None
+        assert len(ids.thresholds) == 72  # 12 features × 6 statistics
 
-        ids = LSTMIDS(seq_length=128, feature_dim=12)
-        benign = np.random.randn(500, 128, 12)
+    def test_predict_shape(self, benign_sequences, attack_sequences):
+        """Test prediction output shape."""
+        ids = ThresholdIDS()
+        ids.fit(benign_sequences)
 
-        ids.train(benign, epochs=5)
-        assert ids.is_trained
+        predictions = ids.predict(attack_sequences)
+        assert predictions.shape == (50,)
+        assert predictions.dtype == int
 
-    def test_predict_next_step(self):
-        """Should forecast next time step."""
-        from src.models.baseline import LSTMIDS
+    def test_predict_proba_range(self, benign_sequences, attack_sequences):
+        """Test that probability scores are in [0, 1]."""
+        ids = ThresholdIDS()
+        ids.fit(benign_sequences)
 
-        ids = LSTMIDS(seq_length=128, feature_dim=12)
-        benign = np.random.randn(500, 128, 12)
-        ids.train(benign, epochs=5)
+        scores = ids.predict_proba(attack_sequences)
+        assert np.all(scores >= 0) and np.all(scores <= 1)
 
-        test_sequence = np.random.randn(128, 12)
-        prediction = ids.predict_next(test_sequence)
+    def test_high_recall_on_attacks(self, benign_sequences, attack_sequences):
+        """Test that attacks are detected."""
+        ids = ThresholdIDS()
+        ids.fit(benign_sequences)
 
-        assert prediction.shape == (12,)
-
-    def test_reconstruction_error_detection(self):
-        """Should use reconstruction error for anomaly scoring."""
-        from src.models.baseline import LSTMIDS
-
-        ids = LSTMIDS(seq_length=128, feature_dim=12)
-        benign = np.random.randn(500, 128, 12)
-        ids.train(benign, epochs=5)
-
-        test_benign = np.random.randn(100, 128, 12)
-        test_attack = np.random.randn(100, 128, 12) * 2.0
-
-        benign_errors = ids.reconstruction_error(test_benign)
-        attack_errors = ids.reconstruction_error(test_attack)
-
-        assert np.mean(attack_errors) > np.mean(benign_errors)
+        predictions = ids.predict(attack_sequences)
+        recall = np.mean(predictions)  # All are attacks (label=1)
+        assert recall > 0.3, f"Recall too low: {recall}"
 
 
-class TestBaselineComparison:
-    """Test comparison utilities for baseline methods."""
+class TestStatisticalIDS:
+    """Test statistical IDS."""
 
-    def test_compare_all_baselines(self):
-        """Should evaluate all baseline methods on same data."""
-        from src.models.baseline import compare_baselines
+    def test_initialization(self):
+        """Test StatisticalIDS initialization."""
+        ids = StatisticalIDS()
+        assert ids.z_score_threshold == 3.0
+        assert ids.iqr_multiplier == 1.5
 
-        benign = np.random.randn(100, 128, 12)
-        attack = np.random.randn(100, 128, 12) * 2.0
+    def test_fit_computes_statistics(self, benign_sequences):
+        """Test that fit computes mean, std, and IQR."""
+        ids = StatisticalIDS()
+        ids.fit(benign_sequences)
 
-        results = compare_baselines(benign, attack)
+        assert ids.mean is not None
+        assert ids.std is not None
+        assert ids.q1 is not None
+        assert ids.q3 is not None
+        assert ids.iqr is not None
 
-        assert 'threshold' in results
-        assert 'isolation_forest' in results
-        assert 'lstm' in results
+    def test_predict(self, benign_sequences, attack_sequences):
+        """Test StatisticalIDS prediction."""
+        ids = StatisticalIDS()
+        ids.fit(benign_sequences)
 
-    def test_generate_comparison_metrics(self):
-        """Should compute precision, recall, F1 for each method."""
-        from src.models.baseline import compare_baselines
+        predictions = ids.predict(attack_sequences)
+        assert predictions.shape == (50,)
+        assert np.any(predictions == 1), "Should detect some attacks"
 
-        benign = np.random.randn(100, 128, 12)
-        attack = np.random.randn(100, 128, 12) * 2.0
 
-        results = compare_baselines(benign, attack)
+class TestSignatureIDS:
+    """Test signature-based IDS."""
 
-        for method in ['threshold', 'isolation_forest', 'lstm']:
-            assert 'precision' in results[method]
-            assert 'recall' in results[method]
-            assert 'f1' in results[method]
+    def test_initialization(self):
+        """Test SignatureIDS initialization."""
+        ids = SignatureIDS()
+        assert ids.mirai_pkt_rate_threshold == 1000.0
+        assert ids.ddos_pkt_rate_threshold == 500.0
 
-    def test_baseline_vs_moirai(self):
-        """Should compare traditional vs. foundation model."""
-        from src.models.baseline import compare_with_moirai
+    def test_no_training_required(self, benign_sequences):
+        """Test that SignatureIDS doesn't require training."""
+        ids = SignatureIDS()
+        ids.fit(benign_sequences)  # Should work but not use data
+        assert ids._fitted
 
-        benign = np.random.randn(100, 128, 12)
-        attack = np.random.randn(100, 128, 12) * 2.0
+    def test_detect_high_packet_rate(self):
+        """Test detection of high packet rate attacks."""
+        ids = SignatureIDS()
+        ids.fit(np.random.randn(10, 128, 12))  # Dummy fit
 
-        results = compare_with_moirai(benign, attack)
+        # Create sequences with very high packet rates
+        attack = np.random.randn(10, 128, 12) * 0.5
+        attack[:, :, 5] = 1500  # Very high fwd_pkts_per_sec
+        attack[:, :, 8] = 50    # Low bytes per packet
 
-        assert 'baseline_best' in results
-        assert 'moirai' in results
-        assert 'improvement' in results
+        predictions = ids.predict(attack)
+        assert np.any(predictions == 1), "Should detect high packet rate attacks"
+
+
+class TestMLBasedIDS:
+    """Test ML-based IDS using Isolation Forest."""
+
+    def test_initialization(self):
+        """Test MLBasedIDS initialization."""
+        ids = MLBasedIDS()
+        assert ids.contamination == 0.05
+        assert ids.n_estimators == 100
+
+    def test_fit(self, benign_sequences):
+        """Test fitting Isolation Forest."""
+        ids = MLBasedIDS()
+        ids.fit(benign_sequences)
+        assert ids._fitted
+
+    def test_predict(self, benign_sequences, attack_sequences):
+        """Test MLBasedIDS prediction."""
+        ids = MLBasedIDS()
+        ids.fit(benign_sequences)
+
+        predictions = ids.predict(attack_sequences)
+        assert predictions.shape == (50,)
+        assert np.any(predictions == 1), "Should detect some anomalies"
+
+    def test_deterministic_results(self, benign_sequences, attack_sequences):
+        """Test that results are deterministic with fixed random_state."""
+        ids1 = MLBasedIDS(random_state=42)
+        ids1.fit(benign_sequences)
+        pred1 = ids1.predict(attack_sequences)
+
+        ids2 = MLBasedIDS(random_state=42)
+        ids2.fit(benign_sequences)
+        pred2 = ids2.predict(attack_sequences)
+
+        np.testing.assert_array_equal(pred1, pred2)
+
+
+class TestCombinedBaselineIDS:
+    """Test combined/ensemble IDS."""
+
+    def test_initialization(self):
+        """Test CombinedBaselineIDS initialization."""
+        ids = CombinedBaselineIDS()
+        assert len(ids.methods) == 4
+        assert 'threshold' in ids.methods
+        assert 'signature' in ids.methods
+        assert 'statistical' in ids.methods
+        assert 'ml' in ids.methods
+
+    def test_weights_sum_to_one(self):
+        """Test that weights sum to 1.0."""
+        ids = CombinedBaselineIDS()
+        weight_sum = sum(ids.weights.values())
+        assert np.isclose(weight_sum, 1.0)
+
+    def test_fit_all_methods(self, benign_sequences):
+        """Test that fit trains all constituent methods."""
+        ids = CombinedBaselineIDS()
+        ids.fit(benign_sequences)
+
+        for method in ids.methods.values():
+            assert method._fitted
+
+    def test_predict(self, benign_sequences, attack_sequences):
+        """Test combined prediction."""
+        ids = CombinedBaselineIDS()
+        ids.fit(benign_sequences)
+
+        predictions = ids.predict(attack_sequences)
+        assert predictions.shape == (50,)
+
+    def test_get_individual_predictions(self, benign_sequences, attack_sequences):
+        """Test getting individual method predictions."""
+        ids = CombinedBaselineIDS()
+        ids.fit(benign_sequences)
+
+        individual_preds = ids.get_individual_predictions(attack_sequences)
+        assert len(individual_preds) == 4
+        assert 'threshold' in individual_preds
+        assert individual_preds['threshold'].shape == (50,)
+
+
+class TestIDSMetrics:
+    """Test metrics computation."""
+
+    def test_compute_all_metrics(self):
+        """Test computing all metrics."""
+        y_true = np.array([0, 0, 0, 1, 1, 1])
+        y_pred = np.array([0, 0, 1, 1, 1, 0])
+
+        metrics = IDSMetrics.compute_all_metrics(y_true, y_pred)
+
+        assert 'accuracy' in metrics
+        assert 'precision' in metrics
+        assert 'recall' in metrics
+        assert 'f1' in metrics
+        assert 'confusion_matrix' in metrics
+        assert 'false_positive_rate' in metrics
+
+    def test_confusion_matrix_values(self):
+        """Test confusion matrix calculation."""
+        y_true = np.array([0, 0, 1, 1])
+        y_pred = np.array([0, 1, 1, 1])
+
+        metrics = IDSMetrics.compute_all_metrics(y_true, y_pred)
+
+        assert metrics['true_negatives'] == 1
+        assert metrics['false_positives'] == 1
+        assert metrics['false_negatives'] == 0
+        assert metrics['true_positives'] == 2
+
+    def test_roc_auc_computation(self):
+        """Test ROC-AUC computation with scores."""
+        y_true = np.array([0, 0, 1, 1])
+        y_pred = np.array([0, 0, 1, 1])
+        y_scores = np.array([0.1, 0.3, 0.7, 0.9])
+
+        metrics = IDSMetrics.compute_all_metrics(y_true, y_pred, y_scores)
+
+        assert 'roc_auc' in metrics
+        assert metrics['roc_auc'] is not None
+        assert 0 <= metrics['roc_auc'] <= 1
+
+
+class TestIntegration:
+    """Integration tests across multiple components."""
+
+    def test_end_to_end_detection(self, benign_sequences, attack_sequences):
+        """Test end-to-end detection pipeline."""
+        # Combine data
+        X_test = np.concatenate([benign_sequences, attack_sequences])
+        y_test = np.concatenate([
+            np.zeros(len(benign_sequences)),
+            np.ones(len(attack_sequences))
+        ])
+
+        # Train and evaluate all methods
+        methods = {
+            'Threshold': ThresholdIDS(),
+            'Statistical': StatisticalIDS(),
+            'Signature': SignatureIDS(),
+            'ML-Based': MLBasedIDS(),
+            'Combined': CombinedBaselineIDS()
+        }
+
+        for name, ids in methods.items():
+            # Train
+            ids.fit(benign_sequences)
+
+            # Predict
+            y_pred = ids.predict(X_test)
+            y_scores = ids.predict_proba(X_test)
+
+            # Compute metrics
+            metrics = IDSMetrics.compute_all_metrics(y_test, y_pred, y_scores)
+
+            # Basic sanity checks
+            assert 0 <= metrics['accuracy'] <= 1
+            assert 0 <= metrics['precision'] <= 1
+            assert 0 <= metrics['recall'] <= 1
+            assert 0 <= metrics['f1'] <= 1
+
+    def test_low_false_positive_rate_on_benign(self, benign_sequences):
+        """Test that FPR is low on benign traffic."""
+        # Split benign data
+        X_train = benign_sequences[:30]
+        X_test = benign_sequences[30:]
+        y_test = np.zeros(len(X_test))
+
+        ids = CombinedBaselineIDS()
+        ids.fit(X_train)
+        y_pred = ids.predict(X_test)
+
+        metrics = IDSMetrics.compute_all_metrics(y_test, y_pred)
+        fpr = metrics['false_positive_rate']
+
+        assert fpr < 0.3, f"FPR too high on benign traffic: {fpr}"
