@@ -163,22 +163,19 @@ def run_baseline_detection(
     """
     logger.info("Running baseline IDS detection...")
 
+    # Fit on benign samples
+    baseline.fit(benign_samples)
+
     # Combine all samples
     all_samples = np.concatenate([benign_samples, attack_samples], axis=0)
 
-    # Detect using threshold IDS (operates on each sample)
-    predictions = []
-    scores = []
-
-    for i, sample in enumerate(all_samples):
-        result = baseline.detect(sample)
-        # Extract prediction and score from result
-        predictions.append(1 if result.is_attack else 0)
-        scores.append(result.confidence)
+    # Predict using sklearn-style interface
+    predictions = baseline.predict(all_samples)
+    scores = baseline.predict_proba(all_samples)
 
     results = {
-        'predictions': np.array(predictions),
-        'scores': np.array(scores)
+        'predictions': predictions,
+        'scores': scores
     }
 
     logger.success(
