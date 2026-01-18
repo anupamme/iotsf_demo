@@ -105,6 +105,21 @@ def main():
 
         st.caption(f"PyTorch: {device_info['pytorch_version']}")
 
+        # Check which generator mode is currently available
+        st.markdown("---")
+        st.subheader("Generator Status")
+        try:
+            from src.models import IoTDiffusionGenerator
+            test_gen = IoTDiffusionGenerator()
+            test_gen.initialize()
+            if not test_gen._mock_mode:
+                st.success("✅ Real Diffusion-TS Available")
+            else:
+                st.info("📊 Using Mock Generator")
+        except Exception as e:
+            st.warning(f"⚠️ Generator check failed")
+            st.caption(f"Error: {str(e)[:50]}...")
+
 
 if __name__ == "__main__":
     main()

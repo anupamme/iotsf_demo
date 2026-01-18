@@ -379,6 +379,7 @@ def generate_demo_data(
         'seq_length': seq_length,
         'feature_dim': feature_dim,
         'seed': seed,
+        'diffusion_mode': 'real' if not generator._mock_mode else 'mock',  # NEW: Track which mode was used
         'baseline_params': {'type': 'ThresholdIDS'},
         'moirai_params': {
             'model_size': moirai.model_size,
