@@ -191,6 +191,197 @@ class CICIoT2023Loader:
 
         return sampled_df[self.FEATURE_COLUMNS]
 
+    def load_any_attack_samples(self, n_samples: int) -> pd.DataFrame:
+        """
+        Load attack samples of any type.
+
+        Args:
+            n_samples: Number of samples to return
+
+        Returns:
+            DataFrame with n_samples rows
+        """
+        # Find all attack files
+        attack_files = []
+        for csv_file in self.data_dir.glob("*.csv"):
+            if "benign" not in csv_file.name.lower():
+                attack_files.append(csv_file)
+
+        if not attack_files:
+            raise FileNotFoundError(f"No attack files found in {self.data_dir}")
+
+        logger.info(f"Found {len(attack_files)} attack file(s)")
+
+        # Load all attack files
+        dfs = []
+        for file_path in attack_files:
+            df = self._load_csv_file(file_path)
+            if 'label' in df.columns:
+                # Filter out benign samples
+                df = df[df['label'] != 'Benign']
+            dfs.append(df)
+
+        combined_df = pd.concat(dfs, ignore_index=True)
+
+        if len(combined_df) == 0:
+            raise ValueError("No attack samples found")
+
+        # Sample n_samples
+        if len(combined_df) < n_samples:
+            logger.warning(
+                f"Requested {n_samples} attack samples but only {len(combined_df)} available."
+            )
+            sampled_df = combined_df
+        else:
+            sampled_df = combined_df.sample(n=n_samples, random_state=42)
+
+        logger.info(f"Loaded {len(sampled_df)} attack samples")
+
+        return sampled_df[self.FEATURE_COLUMNS]
+
+    def load_finetune_data(
+        self,
+        benign_ratio: float = 0.7,
+        hard_negative_ratio: float = 0.2,
+        standard_attack_ratio: float = 0.1,
+        train_val_split: float = 0.85,
+        total_samples: int = 1000
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Load mixed data for Moirai fine-tuning.
+
+        Combines:
+        - Benign traffic from CICIoT2023
+        - Hard-negative attacks from synthetic data (.npy files)
+        - Standard attacks from CICIoT2023
+
+        Args:
+            benign_ratio: Proportion of benign samples (default: 0.7)
+            hard_negative_ratio: Proportion of hard-negative attacks (default: 0.2)
+            standard_attack_ratio: Proportion of standard attacks (default: 0.1)
+            train_val_split: Train/validation split ratio (default: 0.85)
+            total_samples: Total number of samples to generate (default: 1000)
+
+        Returns:
+            Tuple of (train_data, val_data) arrays
+            - train_data: (n_train, 128, 12)
+            - val_data: (n_val, 128, 12)
+        """
+        from src.data.preprocessor import TrafficPreprocessor, create_sequences
+
+        logger.info("Loading fine-tuning data...")
+        logger.info(f"Target composition: {benign_ratio*100}% benign, "
+                   f"{hard_negative_ratio*100}% hard-negative, "
+                   f"{standard_attack_ratio*100}% standard attacks")
+
+        # Calculate sample counts
+        n_benign = int(total_samples * benign_ratio)
+        n_hard_neg = int(total_samples * hard_negative_ratio)
+        n_attacks = int(total_samples * standard_attack_ratio)
+
+        all_sequences = []
+
+        # 1. Load benign samples from CICIoT2023
+        logger.info(f"Loading {n_benign} benign samples from CICIoT2023...")
+        try:
+            benign_df = self.load_benign_samples(n_samples=n_benign * 128)
+            benign_data = benign_df.values
+
+            # Normalize
+            preprocessor = TrafficPreprocessor(scaler_type='standard')
+            normalized_benign = preprocessor.fit_transform(benign_data)
+
+            # Create sequences
+            benign_sequences = create_sequences(
+                normalized_benign,
+                seq_length=128,
+                stride=128  # Non-overlapping
+            )
+
+            # Select n_benign sequences
+            if len(benign_sequences) > n_benign:
+                benign_sequences = benign_sequences[:n_benign]
+
+            all_sequences.append(benign_sequences)
+            logger.success(f"Loaded {len(benign_sequences)} benign sequences")
+
+        except Exception as e:
+            logger.error(f"Failed to load benign data: {e}")
+            raise
+
+        # 2. Load hard-negative attacks from synthetic data
+        logger.info(f"Loading {n_hard_neg} hard-negative samples from synthetic data...")
+        synthetic_dir = self.data_dir.parent / 'synthetic'
+
+        hard_neg_files = [
+            'slow_exfiltration_stealth_95.npy',
+            'lotl_mimicry_stealth_90.npy',
+            'beacon_stealth_85.npy'
+        ]
+
+        hard_negatives = []
+        for file in hard_neg_files:
+            file_path = synthetic_dir / file
+            if file_path.exists():
+                samples = np.load(file_path)
+                hard_negatives.append(samples)
+                logger.info(f"  Loaded {len(samples)} samples from {file}")
+            else:
+                logger.warning(f"  Hard-negative file not found: {file_path}")
+
+        if hard_negatives:
+            hard_neg_combined = np.concatenate(hard_negatives)[:n_hard_neg]
+            all_sequences.append(hard_neg_combined)
+            logger.success(f"Loaded {len(hard_neg_combined)} hard-negative sequences")
+        else:
+            logger.warning("No hard-negative samples found, skipping...")
+
+        # 3. Load standard attack samples from CICIoT2023
+        logger.info(f"Loading {n_attacks} standard attack samples from CICIoT2023...")
+        try:
+            attack_df = self.load_any_attack_samples(n_samples=n_attacks * 128)
+            attack_data = attack_df.values
+
+            # Normalize (using same preprocessor as benign)
+            normalized_attacks = preprocessor.transform(attack_data)
+
+            # Create sequences
+            attack_sequences = create_sequences(
+                normalized_attacks,
+                seq_length=128,
+                stride=128  # Non-overlapping
+            )
+
+            # Select n_attacks sequences
+            if len(attack_sequences) > n_attacks:
+                attack_sequences = attack_sequences[:n_attacks]
+
+            all_sequences.append(attack_sequences)
+            logger.success(f"Loaded {len(attack_sequences)} attack sequences")
+
+        except Exception as e:
+            logger.warning(f"Failed to load attack data: {e}")
+
+        # 4. Combine and shuffle
+        if not all_sequences:
+            raise ValueError("No data loaded for fine-tuning")
+
+        all_data = np.concatenate(all_sequences, axis=0)
+        np.random.seed(42)
+        np.random.shuffle(all_data)
+
+        logger.info(f"Total sequences: {len(all_data)}")
+
+        # 5. Train/val split
+        split_idx = int(len(all_data) * train_val_split)
+        train_data = all_data[:split_idx]
+        val_data = all_data[split_idx:]
+
+        logger.success(f"Fine-tuning data prepared: "
+                      f"train={train_data.shape}, val={val_data.shape}")
+
+        return train_data, val_data
+
     def get_mixed_batch(
         self,
         n_benign: int,
