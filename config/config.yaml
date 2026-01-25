@@ -21,7 +21,24 @@ models:
     patch_size: 32
     confidence_level: 0.95  # Confidence level for intervals
     anomaly_threshold: 0.95  # Detection threshold
-    checkpoint: null  # Optional fine-tuned checkpoint path
+    checkpoint: null  # Optional fine-tuned checkpoint path (e.g., "models/moirai_finetuned/best_moirai.pt")
+
+    # Fine-tuning configuration
+    training:
+      epochs: 10  # Number of training epochs
+      batch_size: 32  # Batch size for training
+      learning_rate: 1e-4  # Learning rate for AdamW optimizer
+      early_stopping_patience: 3  # Epochs to wait before early stopping
+      grad_clip_norm: 1.0  # Gradient clipping norm (prevents exploding gradients)
+
+      # Data composition for fine-tuning
+      data_composition:
+        benign_ratio: 0.7  # 70% benign traffic (real CICIoT2023)
+        hard_negative_ratio: 0.2  # 20% hard-negative attacks (synthetic stealth)
+        standard_attack_ratio: 0.1  # 10% standard attacks (real CICIoT2023)
+
+      train_val_split: 0.85  # 85% train, 15% validation
+      total_samples: 1000  # Total samples for training
   baseline:
     method: "combined"  # threshold, signature, statistical, ml_based, combined
     threshold:

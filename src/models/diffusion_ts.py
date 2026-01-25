@@ -16,16 +16,18 @@ from typing import Optional, Dict, Tuple
 from pathlib import Path
 from loguru import logger
 
-# Import from Diffusion-TS repo (needs to be installed)
-# git clone https://github.com/Y-debug-sys/Diffusion-TS
-# pip install -e Diffusion-TS/
+# Import from Diffusion-TS repo using adapter
+# To install: bash scripts/install_diffusion_ts_compatible.sh
 
 try:
-    from diffusion_ts.model import DiffusionTS
-    from diffusion_ts.diffusion import GaussianDiffusion
-    DIFFUSION_TS_AVAILABLE = True
+    from src.models.diffusion_ts_adapter import get_diffusion_model, DIFFUSION_TS_AVAILABLE as _adapter_available
+    Diffusion_TS, Transformer, model_utils = get_diffusion_model()
+    DIFFUSION_TS_AVAILABLE = _adapter_available and Diffusion_TS is not None
+    if DIFFUSION_TS_AVAILABLE:
+        logger.info("Diffusion-TS loaded successfully via adapter")
 except ImportError:
     DIFFUSION_TS_AVAILABLE = False
+    Diffusion_TS, Transformer, model_utils = None, None, None
     logger.warning("Diffusion-TS not installed. Using mock implementation.")
 
 
@@ -128,29 +130,26 @@ class IoTDiffusionGenerator:
             self._initialize_mock()
             return
 
-        # Model configuration
+        # Model configuration for actual Diffusion-TS
+        # The model expects: seq_length, feature_size, n_layer_enc, n_layer_dec, d_model, timesteps, etc.
         model_config = {
             'seq_length': self.seq_length,
-            'feature_dim': self.feature_dim,
+            'feature_size': self.feature_dim,  # Note: parameter name is feature_size, not feature_dim
+            'n_layer_enc': 3,
+            'n_layer_dec': 6,
             'd_model': 256,
-            'n_heads': 8,
-            'n_layers': 4,
-            'dropout': 0.1,
-            # Decomposition parameters
-            'trend_poly_degree': 3,
-            'seasonality_n_harmonics': 5
+            'timesteps': self.n_diffusion_steps,
+            'sampling_timesteps': None,  # Will default to same as timesteps
+            'loss_type': 'l1',
+            'beta_schedule': 'cosine'
         }
 
-        # Initialize model
-        self.model = DiffusionTS(**model_config).to(self.device)
+        # Initialize model (Diffusion_TS combines model and diffusion process)
+        self.model = Diffusion_TS(**model_config).to(self.device)
 
-        # Initialize diffusion process
-        self.diffusion = GaussianDiffusion(
-            model=self.model,
-            seq_length=self.seq_length,
-            n_steps=self.n_diffusion_steps,
-            loss_type='l2'
-        )
+        # Note: Diffusion_TS already includes the diffusion process
+        # No need for separate GaussianDiffusion initialization
+        self.diffusion = self.model  # For compatibility with existing code
 
         # Load checkpoint if provided
         if checkpoint_path and Path(checkpoint_path).exists():
@@ -198,19 +197,22 @@ class IoTDiffusionGenerator:
             return self._generate_mock(n_samples, target_statistics)
 
         with torch.no_grad():
-            # Start from random noise
-            x_T = torch.randn(
-                n_samples, self.seq_length, self.feature_dim,
-                device=self.device
-            )
+            # Generate using Diffusion-TS
+            # Note: Real Diffusion-TS uses sample(shape) method
+            # Guidance and conditioning would need different implementation
 
-            # Reverse diffusion with optional guidance
-            x_0 = self.diffusion.sample(
-                x_T,
-                n_steps=n_inference_steps,
-                guidance_fn=self._create_guidance_fn(target_statistics, guidance_scale)
-                if target_statistics else None
-            )
+            shape = (n_samples, self.seq_length, self.feature_dim)
+
+            # Use fast_sample if n_inference_steps < self.n_diffusion_steps
+            if n_inference_steps < self.n_diffusion_steps:
+                x_0 = self.diffusion.fast_sample(shape)
+            else:
+                x_0 = self.diffusion.sample(shape)
+
+            # Note: target_statistics and guidance_scale are not currently supported
+            # with the real Diffusion-TS model. Would need custom implementation.
+            if target_statistics:
+                logger.warning("target_statistics not supported with real Diffusion-TS yet")
 
             return x_0.cpu().numpy()
 

@@ -89,3 +89,7 @@ dmypy.json
 
 # PyCharm
 .idea/
+
+# External dependencies (cloned during setup)
+Diffusion-TS/
+lib/Diffusion-TS/
