@@ -129,7 +129,7 @@ class CICIoT2023Loader:
                 f"Requested {n_samples} samples but only {len(combined_df)} available. "
                 f"Returning all available samples."
             )
-            return combined_df
+            return combined_df[self.FEATURE_COLUMNS]
 
         sampled_df = combined_df.sample(n=n_samples, random_state=42)
         logger.info(f"Loaded {len(sampled_df)} benign samples")
@@ -311,7 +311,7 @@ class CICIoT2023Loader:
 
         # 2. Load hard-negative attacks from synthetic data
         logger.info(f"Loading {n_hard_neg} hard-negative samples from synthetic data...")
-        synthetic_dir = self.data_dir.parent / 'synthetic'
+        synthetic_dir = self.data_dir.parent.parent / 'synthetic'
 
         hard_neg_files = [
             'slow_exfiltration_stealth_95.npy',

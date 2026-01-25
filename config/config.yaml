@@ -3,7 +3,7 @@ project:
   version: "1.0.0"
 
 data:
-  raw_dir: "data/raw"
+  raw_dir: "data/raw/sample"
   processed_dir: "data/processed"
   synthetic_dir: "data/synthetic"
   ciciot_subset_size: 10000  # Samples per class

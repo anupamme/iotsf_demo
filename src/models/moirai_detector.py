@@ -32,9 +32,9 @@ except ImportError:
 
 # Model configuration
 MODEL_SIZE_MAP = {
-    'small': 'Salesforce/moirai-1.0-R-small',
-    'base': 'Salesforce/moirai-1.0-R-base',
-    'large': 'Salesforce/moirai-1.0-R-large'
+    'small': 'Salesforce/moirai-1.1-R-small',
+    'base': 'Salesforce/moirai-1.1-R-base',
+    'large': 'Salesforce/moirai-1.1-R-large'
 }
 
 # Default model parameters
@@ -142,15 +142,34 @@ class MoiraiAnomalyDetector:
             return
 
         try:
-            # Load Moirai model from Hugging Face
-            model_id = MODEL_SIZE_MAP[self.model_size]
-            logger.info(f"Loading Moirai model: {model_id}")
+            if checkpoint_path:
+                # Load fine-tuned checkpoint
+                logger.info(f"Loading fine-tuned checkpoint: {checkpoint_path}")
+                self.model = MoiraiForecast.load_from_checkpoint(
+                    checkpoint_path,
+                    map_location=self.device
+                )
+            else:
+                # Load pre-trained Moirai model from Hugging Face
+                model_id = MODEL_SIZE_MAP[self.model_size]
+                logger.info(f"Loading Moirai model: {model_id}")
 
-            # Load the model
-            self.model = MoiraiForecast.load_from_checkpoint(
-                checkpoint_path if checkpoint_path else f"hf://{model_id}",
-                map_location=self.device
-            )
+                # Initialize with MoiraiModule.from_pretrained() for Hugging Face models
+                module = MoiraiModule.from_pretrained(model_id)
+
+                # Create MoiraiForecast wrapper
+                # Note: target_dim should match the number of features in your data
+                self.model = MoiraiForecast(
+                    module=module,
+                    prediction_length=self.prediction_length,
+                    context_length=self.context_length,
+                    patch_size=self.patch_size,
+                    num_samples=100,  # For probabilistic forecasting
+                    target_dim=12,  # 12 features in IoT network traffic data
+                    feat_dynamic_real_dim=0,
+                    past_feat_dynamic_real_dim=0,
+                )
+
             self.model.to(self.device)
             self.model.eval()
 
@@ -638,47 +657,24 @@ class MoiraiAnomalyDetector:
                 context = batch['context'].to(self.device)  # (B, context_length, n_features)
                 target = batch['target'].to(self.device)    # (B, prediction_length, n_features)
                 past_is_pad = batch['past_is_pad'].to(self.device)  # (B, context_length)
+                past_observed_target = batch['past_observed_target'].to(self.device)  # (B, context_length, n_features)
 
-                # Forward pass through Moirai
-                # Note: MoiraiForecast expects specific input format
-                # We need to reshape for the model's expected input
+                # Forward pass through Moirai (uni2ts 2.0.0 API)
                 try:
                     # Generate forecast distribution
                     forecast_samples = self.model.forward(
                         past_target=context,
+                        past_observed_target=past_observed_target,
                         past_is_pad=past_is_pad
                     )  # Returns samples: (num_samples, B, prediction_length, n_features)
 
-                    # Compute MSE loss (since we're working with samples, not distributions)
-                    # Average over forecast samples
+                    # Compute MSE loss on forecast mean
                     forecast_mean = forecast_samples.mean(dim=0)  # (B, prediction_length, n_features)
                     loss = torch.nn.functional.mse_loss(forecast_mean, target)
 
                 except Exception as e:
-                    logger.warning(f"Batch {batch_idx} forward pass failed: {e}")
-                    logger.warning("Trying alternative forward approach...")
-
-                    # Fallback: Use the model's forecasting method directly
-                    try:
-                        # Reshape context for forecasting: (B, context_length, n_features) -> (B * n_features, context_length)
-                        B, T, F = context.shape
-                        context_reshaped = context.permute(0, 2, 1).reshape(B * F, T)
-
-                        # Generate forecasts
-                        with torch.no_grad():
-                            forecast = self.model.forecast(
-                                past_target=context_reshaped,
-                                prediction_length=self.prediction_length,
-                                num_samples=10
-                            )  # (10, B*F, prediction_length)
-
-                        # Reshape back: (B*F, prediction_length) -> (B, prediction_length, F)
-                        forecast_mean = forecast.mean(dim=0).reshape(B, F, self.prediction_length).permute(0, 2, 1)
-                        loss = torch.nn.functional.mse_loss(forecast_mean, target)
-
-                    except Exception as e2:
-                        logger.error(f"Batch {batch_idx} failed completely: {e2}")
-                        continue
+                    logger.error(f"Batch {batch_idx} forward pass failed: {e}")
+                    continue
 
                 # Backward pass
                 optimizer.zero_grad()
@@ -712,29 +708,20 @@ class MoiraiAnomalyDetector:
                     context = batch['context'].to(self.device)
                     target = batch['target'].to(self.device)
                     past_is_pad = batch['past_is_pad'].to(self.device)
+                    past_observed_target = batch['past_observed_target'].to(self.device)
 
                     try:
                         forecast_samples = self.model.forward(
                             past_target=context,
+                            past_observed_target=past_observed_target,
                             past_is_pad=past_is_pad
                         )
                         forecast_mean = forecast_samples.mean(dim=0)
                         loss = torch.nn.functional.mse_loss(forecast_mean, target)
 
-                    except Exception:
-                        # Fallback approach
-                        try:
-                            B, T, F = context.shape
-                            context_reshaped = context.permute(0, 2, 1).reshape(B * F, T)
-                            forecast = self.model.forecast(
-                                past_target=context_reshaped,
-                                prediction_length=self.prediction_length,
-                                num_samples=10
-                            )
-                            forecast_mean = forecast.mean(dim=0).reshape(B, F, self.prediction_length).permute(0, 2, 1)
-                            loss = torch.nn.functional.mse_loss(forecast_mean, target)
-                        except Exception:
-                            continue
+                    except Exception as e:
+                        logger.debug(f"Val batch {batch_idx} failed: {e}")
+                        continue
 
                     epoch_val_loss += loss.item()
                     val_batch_count += 1
