@@ -241,6 +241,7 @@ class CICIoT2023Loader:
 
     def load_finetune_data(
         self,
+        synthetic_dir: Union[str, Path],
         benign_ratio: float = 0.7,
         hard_negative_ratio: float = 0.2,
         standard_attack_ratio: float = 0.1,
@@ -256,6 +257,7 @@ class CICIoT2023Loader:
         - Standard attacks from CICIoT2023
 
         Args:
+            synthetic_dir: Path to directory containing synthetic hard-negative .npy files
             benign_ratio: Proportion of benign samples (default: 0.7)
             hard_negative_ratio: Proportion of hard-negative attacks (default: 0.2)
             standard_attack_ratio: Proportion of standard attacks (default: 0.1)
@@ -311,7 +313,7 @@ class CICIoT2023Loader:
 
         # 2. Load hard-negative attacks from synthetic data
         logger.info(f"Loading {n_hard_neg} hard-negative samples from synthetic data...")
-        synthetic_dir = self.data_dir.parent.parent / 'synthetic'
+        synthetic_path = Path(synthetic_dir)
 
         hard_neg_files = [
             'slow_exfiltration_stealth_95.npy',
@@ -321,7 +323,7 @@ class CICIoT2023Loader:
 
         hard_negatives = []
         for file in hard_neg_files:
-            file_path = synthetic_dir / file
+            file_path = synthetic_path / file
             if file_path.exists():
                 samples = np.load(file_path)
                 hard_negatives.append(samples)
