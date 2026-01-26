@@ -23,6 +23,78 @@ try:
     from uni2ts.model.moirai import MoiraiForecast, MoiraiModule
     from uni2ts.data.dataset import TimeSeriesDataset
     UNI2TS_AVAILABLE = True
+
+    # Apply monkey-patch to fix in-place operation bug in uni2ts 2.0.0 scaler
+    # This bug prevents gradient-based training due to in-place tensor modifications
+    _UNI2TS_PATCHED = False
+
+    def _apply_uni2ts_gradient_patch():
+        """
+        Patch uni2ts PackedStdScaler to fix in-place operation bug.
+
+        The original _get_loc_scale method uses in-place assignment:
+            loc[sample_id == 0] = 0
+            scale[sample_id == 0] = 1
+
+        This breaks gradient computation. We replace with torch.where() operations.
+        """
+        global _UNI2TS_PATCHED
+        if _UNI2TS_PATCHED:
+            return
+
+        try:
+            from einops import reduce
+            from uni2ts.module.packed_scaler import PackedStdScaler
+            from uni2ts.common.torch_util import safe_div
+
+            def _get_loc_scale_fixed(
+                self,
+                target,
+                observed_mask,
+                sample_id,
+                variate_id,
+            ):
+                id_mask = torch.logical_and(
+                    torch.eq(sample_id.unsqueeze(-1), sample_id.unsqueeze(-2)),
+                    torch.eq(variate_id.unsqueeze(-1), variate_id.unsqueeze(-2)),
+                )
+                tobs = reduce(
+                    id_mask * reduce(observed_mask, '... seq dim -> ... 1 seq', 'sum'),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                loc = reduce(
+                    id_mask * reduce(target * observed_mask, '... seq dim -> ... 1 seq', 'sum'),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                loc = safe_div(loc, tobs)
+                var = reduce(
+                    id_mask
+                    * reduce(
+                        ((target - loc) ** 2) * observed_mask,
+                        '... seq dim -> ... 1 seq',
+                        'sum',
+                    ),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                var = safe_div(var, (tobs - self.correction))
+                scale = torch.sqrt(var + self.minimum_scale)
+
+                # FIX: Use non-in-place operations to preserve gradients
+                sample_id_mask = (sample_id == 0).unsqueeze(-1)
+                loc = torch.where(sample_id_mask, torch.zeros_like(loc), loc)
+                scale = torch.where(sample_id_mask, torch.ones_like(scale), scale)
+
+                return loc, scale
+
+            PackedStdScaler._get_loc_scale = _get_loc_scale_fixed
+            _UNI2TS_PATCHED = True
+            logger.debug("Applied uni2ts gradient patch for fine-tuning support")
+        except Exception as e:
+            logger.warning(f"Failed to apply uni2ts gradient patch: {e}")
+
 except ImportError:
     UNI2TS_AVAILABLE = False
     logger.warning("uni2ts not installed. Using mock implementation.")
@@ -272,15 +344,21 @@ class MoiraiAnomalyDetector:
                 context_start = max(0, i - self.context_length)
                 context = traffic[context_start:i]
 
-                # Convert to tensor
+                # Convert to tensor with proper shape for MoiraiForecast
                 context_tensor = torch.from_numpy(context).float().unsqueeze(0)
                 context_tensor = context_tensor.to(self.device)
 
-                # Generate forecast (single step)
-                forecast = self.model.forecast(
-                    context_tensor,
-                    prediction_length=1,
-                    num_samples=100  # For probabilistic forecast
+                # Create observation mask and padding mask
+                past_observed = torch.ones_like(context_tensor, dtype=torch.bool)
+                past_is_pad = torch.zeros(1, context_tensor.shape[1], dtype=torch.bool, device=self.device)
+
+                # Generate forecast using forward() (uni2ts 2.0.0 API)
+                # Returns: (batch, num_samples, prediction_length, n_features)
+                forecast_samples = self.model.forward(
+                    past_target=context_tensor,
+                    past_observed_target=past_observed,
+                    past_is_pad=past_is_pad,
+                    num_samples=100
                 )
 
                 # Compute quantiles for confidence interval
@@ -288,17 +366,12 @@ class MoiraiAnomalyDetector:
                 lower_quantile = alpha / 2
                 upper_quantile = 1 - alpha / 2
 
-                pred_mean = forecast.mean(dim=0).cpu().numpy()[0]
-                pred_lower = np.quantile(
-                    forecast.cpu().numpy()[:, 0, :],
-                    lower_quantile,
-                    axis=0
-                )
-                pred_upper = np.quantile(
-                    forecast.cpu().numpy()[:, 0, :],
-                    upper_quantile,
-                    axis=0
-                )
+                # Extract first timestep prediction: (batch, samples, pred_len, feat) -> (samples, feat)
+                first_step_samples = forecast_samples[0, :, 0, :].cpu().numpy()
+
+                pred_mean = first_step_samples.mean(axis=0)
+                pred_lower = np.quantile(first_step_samples, lower_quantile, axis=0)
+                pred_upper = np.quantile(first_step_samples, upper_quantile, axis=0)
 
                 predictions[i] = pred_mean
                 confidence_lower[i] = pred_lower
@@ -588,6 +661,10 @@ class MoiraiAnomalyDetector:
         if not self._initialized:
             raise RuntimeError("Model not initialized. Call initialize() first.")
 
+        # Apply gradient patch for uni2ts 2.0.0
+        if UNI2TS_AVAILABLE:
+            _apply_uni2ts_gradient_patch()
+
         from torch.utils.data import DataLoader
         from src.data.torch_dataset import MoiraiFineTuneDataset
 
@@ -659,18 +736,36 @@ class MoiraiAnomalyDetector:
                 past_is_pad = batch['past_is_pad'].to(self.device)  # (B, context_length)
                 past_observed_target = batch['past_observed_target'].to(self.device)  # (B, context_length, n_features)
 
-                # Forward pass through Moirai (uni2ts 2.0.0 API)
+                # Forward pass through Moirai using _get_distr for gradient tracking
+                # Note: forward() uses sampling which breaks gradients; _get_distr() preserves them
                 try:
-                    # Generate forecast distribution
-                    forecast_samples = self.model.forward(
+                    from einops import rearrange
+
+                    # Get distribution (preserves gradients with patched scaler)
+                    distr = self.model._get_distr(
+                        patch_size=self.patch_size,
                         past_target=context,
                         past_observed_target=past_observed_target,
-                        past_is_pad=past_is_pad
-                    )  # Returns samples: (num_samples, B, prediction_length, n_features)
+                        past_is_pad=past_is_pad,
+                    )
 
-                    # Compute MSE loss on forecast mean
-                    forecast_mean = forecast_samples.mean(dim=0)  # (B, prediction_length, n_features)
-                    loss = torch.nn.functional.mse_loss(forecast_mean, target)
+                    # Extract prediction portion from packed output
+                    n_features = context.shape[-1]
+                    ctx_tokens = self.model.context_token_length(self.patch_size)
+                    pred_tokens = self.model.prediction_token_length(self.patch_size)
+                    start_idx = n_features * ctx_tokens
+                    end_idx = start_idx + n_features * pred_tokens
+
+                    # Get prediction mean and reshape to (batch, pred_length, n_features)
+                    pred_mean_packed = distr.mean[:, start_idx:end_idx, :]
+                    pred_mean = rearrange(
+                        pred_mean_packed,
+                        'batch (feat tokens) patch -> batch (tokens patch) feat',
+                        feat=n_features
+                    )[:, :self.prediction_length, :]
+
+                    # Compute MSE loss
+                    loss = torch.nn.functional.mse_loss(pred_mean, target)
 
                 except Exception as e:
                     logger.error(f"Batch {batch_idx} forward pass failed: {e}")
@@ -711,13 +806,31 @@ class MoiraiAnomalyDetector:
                     past_observed_target = batch['past_observed_target'].to(self.device)
 
                     try:
-                        forecast_samples = self.model.forward(
+                        from einops import rearrange
+
+                        # Get distribution for validation
+                        distr = self.model._get_distr(
+                            patch_size=self.patch_size,
                             past_target=context,
                             past_observed_target=past_observed_target,
-                            past_is_pad=past_is_pad
+                            past_is_pad=past_is_pad,
                         )
-                        forecast_mean = forecast_samples.mean(dim=0)
-                        loss = torch.nn.functional.mse_loss(forecast_mean, target)
+
+                        # Extract and reshape prediction mean
+                        n_features = context.shape[-1]
+                        ctx_tokens = self.model.context_token_length(self.patch_size)
+                        pred_tokens = self.model.prediction_token_length(self.patch_size)
+                        start_idx = n_features * ctx_tokens
+                        end_idx = start_idx + n_features * pred_tokens
+
+                        pred_mean_packed = distr.mean[:, start_idx:end_idx, :]
+                        pred_mean = rearrange(
+                            pred_mean_packed,
+                            'batch (feat tokens) patch -> batch (tokens patch) feat',
+                            feat=n_features
+                        )[:, :self.prediction_length, :]
+
+                        loss = torch.nn.functional.mse_loss(pred_mean, target)
 
                     except Exception as e:
                         logger.debug(f"Val batch {batch_idx} failed: {e}")
