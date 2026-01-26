@@ -115,6 +115,8 @@ DEFAULT_PREDICTION_LENGTH = 64
 DEFAULT_PATCH_SIZE = 32
 DEFAULT_CONFIDENCE_LEVEL = 0.95
 DEFAULT_ANOMALY_THRESHOLD = 0.95
+DEFAULT_TARGET_DIM = 12  # Number of features in IoT network traffic data
+DEFAULT_NUM_SAMPLES = 100  # Number of samples for probabilistic forecasting
 
 # Anomaly scoring constants
 ANOMALY_SCORE_EPS = 1e-8  # Small epsilon to avoid division by zero
@@ -157,6 +159,8 @@ class MoiraiAnomalyDetector:
         prediction_length: int = DEFAULT_PREDICTION_LENGTH,
         patch_size: int = DEFAULT_PATCH_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        target_dim: int = DEFAULT_TARGET_DIM,
+        num_samples: int = DEFAULT_NUM_SAMPLES,
         device: str = 'auto'
     ):
         """
@@ -168,6 +172,8 @@ class MoiraiAnomalyDetector:
             prediction_length: Length of forecast window
             patch_size: Patch size for model (must match model architecture)
             confidence_level: Confidence level for intervals (e.g., 0.95 = 95%)
+            target_dim: Number of features/dimensions in the input data
+            num_samples: Number of samples for probabilistic forecasting
             device: Device for computation ('auto', 'cuda', or 'cpu')
         """
         self.model_size = model_size
@@ -175,6 +181,8 @@ class MoiraiAnomalyDetector:
         self.prediction_length = prediction_length
         self.patch_size = patch_size
         self.confidence_level = confidence_level
+        self.target_dim = target_dim
+        self.num_samples = num_samples
 
         # Validate model size
         if model_size not in MODEL_SIZE_MAP:
@@ -230,14 +238,13 @@ class MoiraiAnomalyDetector:
                 module = MoiraiModule.from_pretrained(model_id)
 
                 # Create MoiraiForecast wrapper
-                # Note: target_dim should match the number of features in your data
                 self.model = MoiraiForecast(
                     module=module,
                     prediction_length=self.prediction_length,
                     context_length=self.context_length,
                     patch_size=self.patch_size,
-                    num_samples=100,  # For probabilistic forecasting
-                    target_dim=12,  # 12 features in IoT network traffic data
+                    num_samples=self.num_samples,
+                    target_dim=self.target_dim,
                     feat_dynamic_real_dim=0,
                     past_feat_dynamic_real_dim=0,
                 )
@@ -358,7 +365,7 @@ class MoiraiAnomalyDetector:
                     past_target=context_tensor,
                     past_observed_target=past_observed,
                     past_is_pad=past_is_pad,
-                    num_samples=100
+                    num_samples=self.num_samples
                 )
 
                 # Compute quantiles for confidence interval
