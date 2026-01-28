@@ -88,10 +88,14 @@ class MoiraiFineTuneDataset(Dataset):
         # All timesteps are valid (no padding)
         past_is_pad = torch.zeros(self.context_length, dtype=torch.bool)
 
+        # All values are observed (not missing)
+        past_observed_target = torch.ones(self.context_length, self.n_features, dtype=torch.bool)
+
         return {
             'context': context,
             'target': target,
-            'past_is_pad': past_is_pad
+            'past_is_pad': past_is_pad,
+            'past_observed_target': past_observed_target
         }
 
     def get_sample_info(self) -> Dict[str, int]:

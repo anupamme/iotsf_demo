@@ -129,7 +129,7 @@ class CICIoT2023Loader:
                 f"Requested {n_samples} samples but only {len(combined_df)} available. "
                 f"Returning all available samples."
             )
-            return combined_df
+            return combined_df[self.FEATURE_COLUMNS]
 
         sampled_df = combined_df.sample(n=n_samples, random_state=42)
         logger.info(f"Loaded {len(sampled_df)} benign samples")

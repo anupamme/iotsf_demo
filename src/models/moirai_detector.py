@@ -157,15 +157,28 @@ class MoiraiAnomalyDetector:
             model_id = MODEL_SIZE_MAP[self.model_size]
             logger.info(f"Loading Moirai model: {model_id}")
 
+            # Always load base model from HuggingFace first
+            self.model = self._load_from_huggingface(model_id)
+
+            # If checkpoint provided, load fine-tuned weights
             if checkpoint_path:
-                # Load from local checkpoint (PyTorch Lightning format)
-                self.model = MoiraiForecast.load_from_checkpoint(
-                    checkpoint_path,
-                    map_location=self.device
-                )
-            else:
-                # Load from HuggingFace using safetensors
-                self.model = self._load_from_huggingface(model_id)
+                checkpoint_file = Path(checkpoint_path)
+                if checkpoint_file.exists():
+                    logger.info(f"Loading fine-tuned weights from {checkpoint_path}")
+                    checkpoint = torch.load(checkpoint_path, map_location=self.device)
+
+                    # Handle our custom checkpoint format
+                    if 'model_state_dict' in checkpoint:
+                        self.model.load_state_dict(checkpoint['model_state_dict'])
+                        if 'epoch' in checkpoint:
+                            logger.info(f"  Checkpoint epoch: {checkpoint['epoch']}")
+                        if 'val_loss' in checkpoint:
+                            logger.info(f"  Checkpoint val_loss: {checkpoint['val_loss']:.4f}")
+                        logger.success("Fine-tuned weights loaded successfully")
+                    else:
+                        logger.warning("Checkpoint missing 'model_state_dict', using base model")
+                else:
+                    logger.warning(f"Checkpoint not found: {checkpoint_path}, using base model")
 
             self.model.to(self.device)
             self.model.eval()
@@ -725,48 +738,35 @@ class MoiraiAnomalyDetector:
             for batch_idx, batch in enumerate(train_loader):
                 context = batch['context'].to(self.device)  # (B, context_length, n_features)
                 target = batch['target'].to(self.device)    # (B, prediction_length, n_features)
-                past_is_pad = batch['past_is_pad'].to(self.device)  # (B, context_length)
 
-                # Forward pass through Moirai
-                # Note: MoiraiForecast expects specific input format
-                # We need to reshape for the model's expected input
+                # MoiraiForecast._val_loss expects full sequence (context + target)
+                # Shape: (B, context_length + prediction_length, n_features)
+                full_target = torch.cat([context, target], dim=1)
+                B, seq_len, n_features = full_target.shape
+
+                # Create observation masks
+                observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
+                is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+
+                # Compute NLL loss using model's internal method
+                # _val_loss returns per-sample loss (B,)
                 try:
-                    # Generate forecast distribution
-                    forecast_samples = self.model.forward(
-                        past_target=context,
-                        past_is_pad=past_is_pad
-                    )  # Returns samples: (num_samples, B, prediction_length, n_features)
+                    # Use patch_size from model (default 32 for small model)
+                    patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
 
-                    # Compute MSE loss (since we're working with samples, not distributions)
-                    # Average over forecast samples
-                    forecast_mean = forecast_samples.mean(dim=0)  # (B, prediction_length, n_features)
-                    loss = torch.nn.functional.mse_loss(forecast_mean, target)
+                    per_sample_loss = self.model._val_loss(
+                        patch_size=patch_size,
+                        target=full_target,
+                        observed_target=observed_target,
+                        is_pad=is_pad
+                    )  # Returns (B,) tensor
+
+                    # Average over batch
+                    loss = per_sample_loss.mean()
 
                 except Exception as e:
-                    logger.warning(f"Batch {batch_idx} forward pass failed: {e}")
-                    logger.warning("Trying alternative forward approach...")
-
-                    # Fallback: Use the model's forecasting method directly
-                    try:
-                        # Reshape context for forecasting: (B, context_length, n_features) -> (B * n_features, context_length)
-                        B, T, F = context.shape
-                        context_reshaped = context.permute(0, 2, 1).reshape(B * F, T)
-
-                        # Generate forecasts
-                        with torch.no_grad():
-                            forecast = self.model.forecast(
-                                past_target=context_reshaped,
-                                prediction_length=self.prediction_length,
-                                num_samples=10
-                            )  # (10, B*F, prediction_length)
-
-                        # Reshape back: (B*F, prediction_length) -> (B, prediction_length, F)
-                        forecast_mean = forecast.mean(dim=0).reshape(B, F, self.prediction_length).permute(0, 2, 1)
-                        loss = torch.nn.functional.mse_loss(forecast_mean, target)
-
-                    except Exception as e2:
-                        logger.error(f"Batch {batch_idx} failed completely: {e2}")
-                        continue
+                    logger.warning(f"Batch {batch_idx} NLL loss failed: {e}")
+                    continue
 
                 # Backward pass
                 optimizer.zero_grad()
@@ -799,30 +799,28 @@ class MoiraiAnomalyDetector:
                 for batch_idx, batch in enumerate(val_loader):
                     context = batch['context'].to(self.device)
                     target = batch['target'].to(self.device)
-                    past_is_pad = batch['past_is_pad'].to(self.device)
+
+                    # Full sequence for _val_loss
+                    full_target = torch.cat([context, target], dim=1)
+                    B, seq_len, n_features = full_target.shape
+
+                    observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
+                    is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
 
                     try:
-                        forecast_samples = self.model.forward(
-                            past_target=context,
-                            past_is_pad=past_is_pad
+                        patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
+
+                        per_sample_loss = self.model._val_loss(
+                            patch_size=patch_size,
+                            target=full_target,
+                            observed_target=observed_target,
+                            is_pad=is_pad
                         )
-                        forecast_mean = forecast_samples.mean(dim=0)
-                        loss = torch.nn.functional.mse_loss(forecast_mean, target)
+                        loss = per_sample_loss.mean()
 
                     except Exception:
-                        # Fallback approach
-                        try:
-                            B, T, F = context.shape
-                            context_reshaped = context.permute(0, 2, 1).reshape(B * F, T)
-                            forecast = self.model.forecast(
-                                past_target=context_reshaped,
-                                prediction_length=self.prediction_length,
-                                num_samples=10
-                            )
-                            forecast_mean = forecast.mean(dim=0).reshape(B, F, self.prediction_length).permute(0, 2, 1)
-                            loss = torch.nn.functional.mse_loss(forecast_mean, target)
-                        except Exception:
-                            continue
+                        # Skip batch on error
+                        continue
 
                     epoch_val_loss += loss.item()
                     val_batch_count += 1
