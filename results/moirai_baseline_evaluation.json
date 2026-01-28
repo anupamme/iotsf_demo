@@ -1,0 +1,114 @@
+{
+  "ciciot2023": {
+    "metrics": {
+      "accuracy": 0.5,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666,
+      "confusion_matrix": [
+        [
+          0,
+          39
+        ],
+        [
+          0,
+          39
+        ]
+      ],
+      "true_negatives": 0,
+      "false_positives": 39,
+      "false_negatives": 0,
+      "true_positives": 39,
+      "false_positive_rate": 1.0,
+      "roc_auc": 0.2702169625246548
+    },
+    "mean_anomaly_score": 0.7680917820589757,
+    "std_anomaly_score": 0.008322590046862706,
+    "n_samples": 78,
+    "n_detected": 78
+  },
+  "synthetic_stealth_85": {
+    "metrics": {
+      "accuracy": 0.8,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.8888888888888888,
+      "confusion_matrix": [
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "true_negatives": 0,
+      "false_positives": 10,
+      "false_negatives": 0,
+      "true_positives": 40,
+      "false_positive_rate": 1.0,
+      "roc_auc": 0.6075
+    },
+    "mean_anomaly_score": 0.8157371050702311,
+    "std_anomaly_score": 0.03397039205728089,
+    "n_samples": 50,
+    "n_detected": 50
+  },
+  "synthetic_stealth_90": {
+    "metrics": {
+      "accuracy": 0.8,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.8888888888888888,
+      "confusion_matrix": [
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "true_negatives": 0,
+      "false_positives": 10,
+      "false_negatives": 0,
+      "true_positives": 40,
+      "false_positive_rate": 1.0,
+      "roc_auc": 0.5375
+    },
+    "mean_anomaly_score": 0.8089343260279631,
+    "std_anomaly_score": 0.020648865783971317,
+    "n_samples": 50,
+    "n_detected": 50
+  },
+  "synthetic_stealth_95": {
+    "metrics": {
+      "accuracy": 0.8,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.8888888888888888,
+      "confusion_matrix": [
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          40
+        ]
+      ],
+      "true_negatives": 0,
+      "false_positives": 10,
+      "false_negatives": 0,
+      "true_positives": 40,
+      "false_positive_rate": 1.0,
+      "roc_auc": 0.6074999999999999
+    },
+    "mean_anomaly_score": 0.8121296972077349,
+    "std_anomaly_score": 0.020103382377049756,
+    "n_samples": 50,
+    "n_detected": 50
+  }
+}

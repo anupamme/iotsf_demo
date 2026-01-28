@@ -89,6 +89,9 @@ class MoiraiFineTuneDataset(Dataset):
         past_is_pad = torch.zeros(self.context_length, dtype=torch.bool)
         past_observed_target = torch.ones(self.context_length, self.n_features, dtype=torch.bool)
 
+        # All values are observed (not missing)
+        past_observed_target = torch.ones(self.context_length, self.n_features, dtype=torch.bool)
+
         return {
             'context': context,
             'target': target,
