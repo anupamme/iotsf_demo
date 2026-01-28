@@ -299,9 +299,9 @@ We're actively seeking collaborators and partners for:
 - Open-source contributions
 
 **Connect with us:**
-- 📄 **Paper**: [Link to research paper / arXiv]
-- 💻 **Code**: GitHub repository [github.com/yourorg/iotsf_demo]
-- 📧 **Contact**: [your-email@institution.edu]
+- 📄 **Paper**: [TBD]
+- 💻 **Code**: GitHub repository [github.com/the-security-online/iotsf_demo]
+- 📧 **Contact**: [anupam@thesecurity.online]
 - 🤝 **Collaborate**: Open to industry partnerships and research collaborations
 
 **Star our repository** if you find this work useful! 🌟
