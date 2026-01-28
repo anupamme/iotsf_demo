@@ -263,7 +263,8 @@ class MoiraiAnomalyDetector:
         self,
         traffic: np.ndarray,
         threshold: float = DEFAULT_ANOMALY_THRESHOLD,
-        return_feature_contributions: bool = True
+        return_feature_contributions: bool = True,
+        method: Literal['confidence_interval', 'nll'] = 'confidence_interval'
     ) -> AnomalyResult:
         """
         Detect anomalies in IoT network traffic.
@@ -272,6 +273,9 @@ class MoiraiAnomalyDetector:
             traffic: Time series array of shape (seq_length, n_features)
             threshold: Anomaly score threshold for flagging (0-1)
             return_feature_contributions: Whether to compute per-feature contributions
+            method: Detection method to use:
+                - 'confidence_interval': Flag timesteps outside predicted CI (default)
+                - 'nll': Use negative log-likelihood as anomaly score (Option A)
 
         Returns:
             AnomalyResult with predictions, confidence intervals, and anomaly flags
@@ -300,7 +304,7 @@ class MoiraiAnomalyDetector:
 
         logger.debug(
             f"Detecting anomalies: seq_length={seq_length}, "
-            f"n_features={n_features}, threshold={threshold}"
+            f"n_features={n_features}, threshold={threshold}, method={method}"
         )
 
         start_time = time.time()
@@ -308,6 +312,8 @@ class MoiraiAnomalyDetector:
         # Use mock or real detection
         if self._mock_mode:
             result = self._detect_mock(traffic, threshold, return_feature_contributions)
+        elif method == 'nll':
+            result = self._detect_real_nll(traffic, threshold, return_feature_contributions)
         else:
             result = self._detect_real(traffic, threshold, return_feature_contributions)
 
@@ -315,6 +321,7 @@ class MoiraiAnomalyDetector:
         result.metadata['inference_time'] = inference_time
         result.metadata['model_size'] = self.model_size
         result.metadata['mock_mode'] = self._mock_mode
+        result.metadata['detection_method'] = method
 
         logger.info(
             f"Detection complete: {result.n_anomalies}/{seq_length} anomalies "
@@ -416,6 +423,137 @@ class MoiraiAnomalyDetector:
             threshold=threshold,
             feature_contributions=feature_contributions,
             metadata={}
+        )
+
+    def _detect_real_nll(
+        self,
+        traffic: np.ndarray,
+        threshold: float,
+        return_feature_contributions: bool
+    ) -> AnomalyResult:
+        """
+        Perform detection using NLL (negative log-likelihood) as anomaly score.
+
+        Option A: Instead of sampling and checking confidence intervals,
+        this method computes NLL directly from the model's distribution.
+        Higher NLL = data is less likely under the model = more anomalous.
+
+        Args:
+            traffic: Time series array of shape (seq_length, n_features)
+            threshold: NLL threshold for flagging (will be calibrated)
+            return_feature_contributions: Whether to compute per-feature contributions
+
+        Returns:
+            AnomalyResult with NLL-based anomaly scores
+        """
+        seq_length, n_features = traffic.shape
+
+        # Initialize arrays
+        predictions = np.zeros_like(traffic)
+        nll_scores = np.zeros(seq_length)
+
+        # Patch size for model
+        patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
+
+        # Full sequence length for _val_loss
+        full_length = self.context_length + self.prediction_length
+
+        # Compute NLL for each window
+        with torch.no_grad():
+            window_nlls = []
+            window_positions = []
+
+            # Sliding window NLL computation
+            for i in range(0, seq_length - full_length + 1, self.prediction_length):
+                window = traffic[i:i + full_length]
+
+                # Prepare tensors
+                target = torch.from_numpy(window).float().unsqueeze(0).to(self.device)
+                observed_target = torch.ones_like(target, dtype=torch.bool)
+                is_pad = torch.zeros(1, full_length, dtype=torch.bool, device=self.device)
+
+                try:
+                    # Compute NLL using model's internal method
+                    nll = self.model._val_loss(
+                        patch_size=patch_size,
+                        target=target,
+                        observed_target=observed_target,
+                        is_pad=is_pad
+                    )
+                    window_nlls.append(nll.item())
+                    window_positions.append((i, i + full_length))
+                except Exception as e:
+                    logger.warning(f"NLL computation failed for window at {i}: {e}")
+                    window_nlls.append(0.0)
+                    window_positions.append((i, i + full_length))
+
+            # Convert to numpy
+            window_nlls = np.array(window_nlls)
+
+            # Convert NLL to anomaly score
+            # Key insight: LOWER NLL = MORE likely attack (attacks are more predictable)
+            # So we INVERT: anomaly_score = 1 - sigmoid(NLL - baseline)
+            # Higher score = more anomalous = more likely attack
+            #
+            # Use baseline NLL around 12-14 (typical for benign IoT traffic)
+            # and scale factor based on observed variance
+            BASELINE_NLL = 13.0  # Approximate midpoint between benign (~16) and attack (~10)
+            SCALE_FACTOR = 0.5  # Controls sensitivity
+
+            if len(window_nlls) > 0:
+                # Lower NLL -> higher anomaly score
+                # sigmoid(-k*(nll - baseline)) gives high score for low NLL
+                normalized_nlls = 1.0 / (1.0 + np.exp(SCALE_FACTOR * (window_nlls - BASELINE_NLL)))
+            else:
+                normalized_nlls = np.zeros_like(window_nlls)
+
+            # Map window NLL scores to per-timestep scores
+            # Each timestep gets the max NLL of windows it belongs to
+            for idx, ((start, end), score) in enumerate(zip(window_positions, normalized_nlls)):
+                nll_scores[start:end] = np.maximum(nll_scores[start:end], score)
+
+            # For timesteps not covered by any window, use nearest window's score
+            if len(window_positions) > 0:
+                first_start = window_positions[0][0]
+                last_end = window_positions[-1][1]
+                if first_start > 0:
+                    nll_scores[:first_start] = normalized_nlls[0]
+                if last_end < seq_length:
+                    nll_scores[last_end:] = normalized_nlls[-1]
+
+            # Use mean of samples for predictions (from forward pass)
+            # This is approximate - we focus on anomaly scoring here
+            for i in range(0, seq_length - full_length + 1, self.prediction_length):
+                window = traffic[i:i + full_length]
+                predictions[i:i + full_length] = window  # Simple: use actual as prediction
+
+        # Flag anomalies based on normalized NLL score
+        is_anomaly = nll_scores > threshold
+
+        # For NLL method, we don't have traditional confidence intervals
+        # Use prediction +/- std as placeholder
+        traffic_std = np.std(traffic, axis=0, keepdims=True)
+        confidence_lower = predictions - 2 * traffic_std
+        confidence_upper = predictions + 2 * traffic_std
+
+        # Feature contributions based on per-feature deviation from mean
+        feature_contributions = None
+        if return_feature_contributions:
+            deviations = np.abs(traffic - np.mean(traffic, axis=0, keepdims=True))
+            row_sums = deviations.sum(axis=1, keepdims=True)
+            row_sums = np.where(row_sums > ANOMALY_SCORE_EPS, row_sums, 1.0)
+            feature_contributions = deviations / row_sums
+
+        return AnomalyResult(
+            predictions=predictions,
+            actuals=traffic,
+            confidence_lower=confidence_lower,
+            confidence_upper=confidence_upper,
+            anomaly_scores=nll_scores,
+            is_anomaly=is_anomaly,
+            threshold=threshold,
+            feature_contributions=feature_contributions,
+            metadata={'nll_raw': window_nlls.tolist() if len(window_nlls) > 0 else []}
         )
 
     def _detect_mock(
