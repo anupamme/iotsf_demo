@@ -29,26 +29,68 @@ Our advanced anomaly detection system uses **three key components** working toge
 high detection accuracy on sophisticated, stealthy attacks.
 """)
 
-# Architecture diagram using Mermaid
+# Architecture diagram using HTML/CSS (no external dependencies)
 st.subheader("System Overview")
 
-st.markdown("""
-```mermaid
-graph LR
-    A[IoT Traffic Data] --> B[Diffusion-TS Generator]
-    B --> C[Synthetic Attack Samples]
-    C --> D[Constraint Validator]
-    D --> E[Validated Attacks]
-    E --> F[Moirai Detector]
-    F --> G[Anomaly Detection]
+# Pipeline diagram using HTML/CSS - works without graphviz installation
+pipeline_html = """
+<style>
+.pipeline-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    margin: 10px 0;
+}
+.pipeline-box {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    text-align: center;
+    min-width: 100px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+}
+.pipeline-box:hover {
+    transform: translateY(-2px);
+}
+.pipeline-arrow {
+    font-size: 24px;
+    color: #888;
+    font-weight: bold;
+}
+.box-input { background: #00CC96; color: #000; }
+.box-diffusion { background: #636EFA; color: #fff; }
+.box-synthetic { background: #87CEEB; color: #000; }
+.box-constraint { background: #EF553B; color: #fff; }
+.box-validated { background: #FFB6C1; color: #000; }
+.box-moirai { background: #AB63FA; color: #fff; }
+.box-output { background: #FFA15A; color: #000; }
+</style>
 
-    style A fill:#00CC96,stroke:#fff,color:#000
-    style B fill:#636EFA,stroke:#fff,color:#fff
-    style D fill:#EF553B,stroke:#fff,color:#fff
-    style F fill:#AB63FA,stroke:#fff,color:#fff
-    style G fill:#FFA15A,stroke:#fff,color:#000
-```
-""")
+<div class="pipeline-container">
+    <div class="pipeline-box box-input">IoT Traffic<br/>Data</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-diffusion">Diffusion-TS<br/>Generator</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-synthetic">Synthetic Attack<br/>Samples</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-constraint">Constraint<br/>Validator</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-validated">Validated<br/>Attacks</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-moirai">Moirai<br/>Detector</div>
+    <span class="pipeline-arrow">→</span>
+    <div class="pipeline-box box-output">Anomaly<br/>Detection</div>
+</div>
+"""
+
+st.markdown(pipeline_html, unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -60,11 +102,13 @@ with col1:
     st.markdown("**Synthetic Attack Generation**")
 
     st.markdown("""
-    Diffusion-TS is a diffusion model trained on the CICIoT2023 dataset to generate realistic
-    IoT traffic patterns and sophisticated attack samples.
+    Diffusion-TS is a pre-trained time-series diffusion model (Zhang et al., ICLR 2024) that we
+    use to generate realistic baseline traffic patterns. Attack signatures are then injected
+    into these samples to create sophisticated synthetic attacks.
 
     **Key Capabilities:**
-    - Generates synthetic attacks with variable stealth levels (85-95%)
+    - Generates realistic time-series with proper trend/seasonality
+    - Attack patterns injected with variable stealth levels (85-95%)
     - Creates hard-negatives that are highly similar to benign traffic
     - Supports multiple attack types:
       - Slow data exfiltration
@@ -82,18 +126,20 @@ with col1:
     with st.expander("📖 Technical Details"):
         st.markdown("""
         **Model Architecture:**
-        - Time-series diffusion model with U-Net backbone
+        - Pre-trained Transformer-based diffusion model
         - 128 timesteps, 12 network features
-        - 1000 diffusion steps during training
+        - 1000 diffusion steps for generation
 
-        **Attack Injection:**
-        - Pattern injection during reverse diffusion
-        - Trend, seasonality, and residual manipulation
-        - Configurable stealth parameters
+        **Attack Injection (Post-Generation):**
+        - Patterns added after sample generation
+        - Slow exfiltration: gradual byte-count trends
+        - LOTL mimicry: micro-bursts at polling intervals
+        - Beacons: regular timing signatures
+        - Protocol anomalies: timing jitter injection
 
         **Hard-Negative Mining:**
-        - Statistical similarity constraints
-        - Maintains protocol validity
+        - Statistical similarity constraints (mean/std matching)
+        - Stealth level controls attack visibility
         - Maximizes detection difficulty
         """)
 
@@ -206,22 +252,22 @@ with tab1:
     st.markdown("""
     ### Training Phase: Building the Detector
 
-    1. **Generate Synthetic Data**
-       - Diffusion-TS creates benign baseline samples
-       - Generates attack patterns with varying stealth levels
-       - Produces thousands of diverse attack samples
+    1. **Generate Synthetic Attacks**
+       - Diffusion-TS generates realistic time-series patterns
+       - Attack signatures injected with varying stealth levels (85-95%)
+       - Produces diverse attack samples (exfiltration, beacons, LOTL, etc.)
 
     2. **Validate Protocol Compliance**
        - Constraint system filters unrealistic samples
        - Ensures attacks conform to protocol specifications
-       - Maintains statistical properties of real traffic
+       - Maintains statistical properties similar to real traffic
 
     3. **Fine-tune Moirai**
-       - Train on validated synthetic attacks
-       - Learn to distinguish subtle anomalies
+       - Train on validated synthetic attacks + real benign data
+       - Learn to distinguish subtle anomalies from normal patterns
        - Optimize for high-stealth attack detection
 
-    **Key Innovation:** No real attack data required! Entirely synthetic training enables:
+    **Key Innovation:** No real attack data required! Synthetic attack generation enables:
     - Rapid development without waiting for real attacks
     - Testing on novel, zero-day style attacks
     - Controlled evaluation of detection capabilities
