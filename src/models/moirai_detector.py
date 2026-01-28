@@ -27,6 +27,78 @@ try:
     from uni2ts.distribution.negative_binomial import NegativeBinomialOutput
     from uni2ts.distribution.log_normal import LogNormalOutput
     UNI2TS_AVAILABLE = True
+
+    # Apply monkey-patch to fix in-place operation bug in uni2ts 2.0.0 scaler
+    # This bug prevents gradient-based training due to in-place tensor modifications
+    _UNI2TS_PATCHED = False
+
+    def _apply_uni2ts_gradient_patch():
+        """
+        Patch uni2ts PackedStdScaler to fix in-place operation bug.
+
+        The original _get_loc_scale method uses in-place assignment:
+            loc[sample_id == 0] = 0
+            scale[sample_id == 0] = 1
+
+        This breaks gradient computation. We replace with torch.where() operations.
+        """
+        global _UNI2TS_PATCHED
+        if _UNI2TS_PATCHED:
+            return
+
+        try:
+            from einops import reduce
+            from uni2ts.module.packed_scaler import PackedStdScaler
+            from uni2ts.common.torch_util import safe_div
+
+            def _get_loc_scale_fixed(
+                self,
+                target,
+                observed_mask,
+                sample_id,
+                variate_id,
+            ):
+                id_mask = torch.logical_and(
+                    torch.eq(sample_id.unsqueeze(-1), sample_id.unsqueeze(-2)),
+                    torch.eq(variate_id.unsqueeze(-1), variate_id.unsqueeze(-2)),
+                )
+                tobs = reduce(
+                    id_mask * reduce(observed_mask, '... seq dim -> ... 1 seq', 'sum'),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                loc = reduce(
+                    id_mask * reduce(target * observed_mask, '... seq dim -> ... 1 seq', 'sum'),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                loc = safe_div(loc, tobs)
+                var = reduce(
+                    id_mask
+                    * reduce(
+                        ((target - loc) ** 2) * observed_mask,
+                        '... seq dim -> ... 1 seq',
+                        'sum',
+                    ),
+                    '... seq1 seq2 -> ... seq1 1',
+                    'sum',
+                )
+                var = safe_div(var, (tobs - self.correction))
+                scale = torch.sqrt(var + self.minimum_scale)
+
+                # FIX: Use non-in-place operations to preserve gradients
+                sample_id_mask = (sample_id == 0).unsqueeze(-1)
+                loc = torch.where(sample_id_mask, torch.zeros_like(loc), loc)
+                scale = torch.where(sample_id_mask, torch.ones_like(scale), scale)
+
+                return loc, scale
+
+            PackedStdScaler._get_loc_scale = _get_loc_scale_fixed
+            _UNI2TS_PATCHED = True
+            logger.debug("Applied uni2ts gradient patch for fine-tuning support")
+        except Exception as e:
+            logger.warning(f"Failed to apply uni2ts gradient patch: {e}")
+
 except ImportError:
     UNI2TS_AVAILABLE = False
     logger.warning("uni2ts not installed. Using mock implementation.")
@@ -829,6 +901,10 @@ class MoiraiAnomalyDetector:
 
         if not self._initialized:
             raise RuntimeError("Model not initialized. Call initialize() first.")
+
+        # Apply gradient patch for uni2ts 2.0.0
+        if UNI2TS_AVAILABLE:
+            _apply_uni2ts_gradient_patch()
 
         from torch.utils.data import DataLoader
         from src.data.torch_dataset import MoiraiFineTuneDataset

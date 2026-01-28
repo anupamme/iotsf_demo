@@ -240,10 +240,12 @@ Examples:
     # 2. Load training data
     logger.info("Step 2: Loading training data...")
     data_dir = config.get("data.raw_dir", ROOT_DIR / "data" / "raw")
+    synthetic_dir = config.get("data.synthetic_dir", ROOT_DIR / "data" / "synthetic")
     loader = CICIoT2023Loader(str(data_dir))
 
     try:
         train_data, val_data = loader.load_finetune_data(
+            synthetic_dir=synthetic_dir,
             benign_ratio=args.benign_ratio,
             hard_negative_ratio=args.hard_neg_ratio,
             standard_attack_ratio=args.attack_ratio,
