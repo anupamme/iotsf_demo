@@ -21,7 +21,11 @@ from .anomaly_result import AnomalyResult
 # Try to import uni2ts (Moirai implementation)
 try:
     from uni2ts.model.moirai import MoiraiForecast, MoiraiModule
-    from uni2ts.data.dataset import TimeSeriesDataset
+    from uni2ts.distribution.mixture import MixtureOutput
+    from uni2ts.distribution.student_t import StudentTOutput
+    from uni2ts.distribution.normal import NormalFixedScaleOutput
+    from uni2ts.distribution.negative_binomial import NegativeBinomialOutput
+    from uni2ts.distribution.log_normal import LogNormalOutput
     UNI2TS_AVAILABLE = True
 except ImportError:
     UNI2TS_AVAILABLE = False
@@ -32,9 +36,9 @@ except ImportError:
 
 # Model configuration
 MODEL_SIZE_MAP = {
-    'small': 'Salesforce/moirai-1.0-R-small',
-    'base': 'Salesforce/moirai-1.0-R-base',
-    'large': 'Salesforce/moirai-1.0-R-large'
+    'small': 'Salesforce/moirai-1.1-R-small',
+    'base': 'Salesforce/moirai-1.1-R-base',
+    'large': 'Salesforce/moirai-1.1-R-large'
 }
 
 # Default model parameters
@@ -43,6 +47,8 @@ DEFAULT_PREDICTION_LENGTH = 64
 DEFAULT_PATCH_SIZE = 32
 DEFAULT_CONFIDENCE_LEVEL = 0.95
 DEFAULT_ANOMALY_THRESHOLD = 0.95
+DEFAULT_TARGET_DIM = 12  # Number of features in IoT network traffic data
+DEFAULT_NUM_SAMPLES = 100  # Number of samples for probabilistic forecasting
 
 # Anomaly scoring constants
 ANOMALY_SCORE_EPS = 1e-8  # Small epsilon to avoid division by zero
@@ -85,6 +91,8 @@ class MoiraiAnomalyDetector:
         prediction_length: int = DEFAULT_PREDICTION_LENGTH,
         patch_size: int = DEFAULT_PATCH_SIZE,
         confidence_level: float = DEFAULT_CONFIDENCE_LEVEL,
+        target_dim: int = DEFAULT_TARGET_DIM,
+        num_samples: int = DEFAULT_NUM_SAMPLES,
         device: str = 'auto'
     ):
         """
@@ -96,6 +104,8 @@ class MoiraiAnomalyDetector:
             prediction_length: Length of forecast window
             patch_size: Patch size for model (must match model architecture)
             confidence_level: Confidence level for intervals (e.g., 0.95 = 95%)
+            target_dim: Number of target dimensions/features (default: 12 for IoT traffic)
+            num_samples: Number of samples for probabilistic forecasting (default: 100)
             device: Device for computation ('auto', 'cuda', or 'cpu')
         """
         self.model_size = model_size
@@ -103,6 +113,8 @@ class MoiraiAnomalyDetector:
         self.prediction_length = prediction_length
         self.patch_size = patch_size
         self.confidence_level = confidence_level
+        self.target_dim = target_dim
+        self.num_samples = num_samples
 
         # Validate model size
         if model_size not in MODEL_SIZE_MAP:
@@ -142,15 +154,19 @@ class MoiraiAnomalyDetector:
             return
 
         try:
-            # Load Moirai model from Hugging Face
             model_id = MODEL_SIZE_MAP[self.model_size]
             logger.info(f"Loading Moirai model: {model_id}")
 
-            # Load the model
-            self.model = MoiraiForecast.load_from_checkpoint(
-                checkpoint_path if checkpoint_path else f"hf://{model_id}",
-                map_location=self.device
-            )
+            if checkpoint_path:
+                # Load from local checkpoint (PyTorch Lightning format)
+                self.model = MoiraiForecast.load_from_checkpoint(
+                    checkpoint_path,
+                    map_location=self.device
+                )
+            else:
+                # Load from HuggingFace using safetensors
+                self.model = self._load_from_huggingface(model_id)
+
             self.model.to(self.device)
             self.model.eval()
 
@@ -161,6 +177,68 @@ class MoiraiAnomalyDetector:
             logger.error(f"Failed to load Moirai model: {e}")
             logger.info("Falling back to mock mode")
             self._initialize_mock()
+
+    def _load_from_huggingface(self, model_id: str) -> MoiraiForecast:
+        """
+        Load Moirai model from HuggingFace using safetensors format.
+
+        Args:
+            model_id: HuggingFace model ID (e.g., 'Salesforce/moirai-1.1-R-small')
+
+        Returns:
+            MoiraiForecast model instance
+        """
+        import json
+        from huggingface_hub import hf_hub_download
+        from safetensors.torch import load_file
+
+        # Download config and weights
+        config_path = hf_hub_download(repo_id=model_id, filename="config.json")
+        weights_path = hf_hub_download(repo_id=model_id, filename="model.safetensors")
+
+        # Load config
+        with open(config_path) as f:
+            config = json.load(f)
+
+        # Create distribution output (standard Moirai mixture)
+        distr_output = MixtureOutput(components=[
+            StudentTOutput(),
+            NormalFixedScaleOutput(scale=0.001),
+            NegativeBinomialOutput(),
+            LogNormalOutput()
+        ])
+
+        # Create MoiraiModule with config
+        module = MoiraiModule(
+            distr_output=distr_output,
+            d_model=config['d_model'],
+            num_layers=config['num_layers'],
+            patch_sizes=tuple(config['patch_sizes']),
+            max_seq_len=config['max_seq_len'],
+            attn_dropout_p=config['attn_dropout_p'],
+            dropout_p=config['dropout_p'],
+            scaling=config.get('scaling', True)
+        )
+
+        # Load weights
+        state_dict = load_file(weights_path)
+        module.load_state_dict(state_dict)
+
+        logger.info(f"Loaded MoiraiModule with {sum(p.numel() for p in module.parameters()):,} parameters")
+
+        # Create MoiraiForecast wrapper
+        model = MoiraiForecast(
+            prediction_length=self.prediction_length,
+            target_dim=self.target_dim,
+            feat_dynamic_real_dim=0,
+            past_feat_dynamic_real_dim=0,
+            context_length=self.context_length,
+            module=module,
+            patch_size='auto',
+            num_samples=self.num_samples
+        )
+
+        return model
 
     def _initialize_mock(self):
         """Initialize mock mode for development without uni2ts."""
@@ -246,49 +324,59 @@ class MoiraiAnomalyDetector:
         confidence_lower = np.zeros_like(traffic)
         confidence_upper = np.zeros_like(traffic)
 
-        # Sliding window prediction
+        # Model expects past_length = context_length + prediction_length
+        past_length = self.context_length + self.prediction_length
+
+        # Sliding window prediction using MoiraiForecast.forward()
         with torch.no_grad():
-            for i in range(self.context_length, seq_length):
-                # Extract context window
-                context_start = max(0, i - self.context_length)
+            # Process in chunks where we have enough context
+            for i in range(past_length, seq_length + 1, self.prediction_length):
+                # Extract context window of size past_length
+                context_start = i - past_length
                 context = traffic[context_start:i]
 
-                # Convert to tensor
-                context_tensor = torch.from_numpy(context).float().unsqueeze(0)
-                context_tensor = context_tensor.to(self.device)
+                # Prepare tensors for MoiraiForecast.forward()
+                # past_target: (batch, past_time, target_dim)
+                past_target = torch.from_numpy(context).float().unsqueeze(0).to(self.device)
 
-                # Generate forecast (single step)
-                forecast = self.model.forecast(
-                    context_tensor,
-                    prediction_length=1,
-                    num_samples=100  # For probabilistic forecast
+                # past_observed_target: (batch, past_time, target_dim) - all observed
+                past_observed_target = torch.ones_like(past_target, dtype=torch.bool)
+
+                # past_is_pad: (batch, past_time) - no padding
+                past_is_pad = torch.zeros(1, past_length, dtype=torch.bool, device=self.device)
+
+                # Call MoiraiForecast.forward() directly
+                # Output shape: (batch, num_samples, prediction_length, target_dim)
+                forecast_samples = self.model.forward(
+                    past_target=past_target,
+                    past_observed_target=past_observed_target,
+                    past_is_pad=past_is_pad,
+                    num_samples=self.num_samples
                 )
 
-                # Compute quantiles for confidence interval
+                # forecast_samples: (batch, num_samples, prediction_length, target_dim)
+                # We need to fill in predictions for positions [i-prediction_length : i]
+                pred_start = i - self.prediction_length
+                pred_end = min(i, seq_length)
+                n_steps = pred_end - pred_start
+
+                # Compute mean and quantiles for each prediction step
                 alpha = 1 - self.confidence_level
                 lower_quantile = alpha / 2
                 upper_quantile = 1 - alpha / 2
 
-                pred_mean = forecast.mean(dim=0).cpu().numpy()[0]
-                pred_lower = np.quantile(
-                    forecast.cpu().numpy()[:, 0, :],
-                    lower_quantile,
-                    axis=0
-                )
-                pred_upper = np.quantile(
-                    forecast.cpu().numpy()[:, 0, :],
-                    upper_quantile,
-                    axis=0
-                )
+                for j in range(n_steps):
+                    # Shape: (num_samples, target_dim)
+                    step_samples = forecast_samples[0, :, j, :].cpu().numpy()
 
-                predictions[i] = pred_mean
-                confidence_lower[i] = pred_lower
-                confidence_upper[i] = pred_upper
+                    predictions[pred_start + j] = step_samples.mean(axis=0)
+                    confidence_lower[pred_start + j] = np.quantile(step_samples, lower_quantile, axis=0)
+                    confidence_upper[pred_start + j] = np.quantile(step_samples, upper_quantile, axis=0)
 
-        # For initial context, use historical values as predictions
-        predictions[:self.context_length] = traffic[:self.context_length]
-        confidence_lower[:self.context_length] = traffic[:self.context_length] * 0.95
-        confidence_upper[:self.context_length] = traffic[:self.context_length] * 1.05
+        # For initial context (before we have enough data), use historical values
+        predictions[:past_length - self.prediction_length] = traffic[:past_length - self.prediction_length]
+        confidence_lower[:past_length - self.prediction_length] = traffic[:past_length - self.prediction_length] * 0.95
+        confidence_upper[:past_length - self.prediction_length] = traffic[:past_length - self.prediction_length] * 1.05
 
         # Compute anomaly scores
         anomaly_scores = self._compute_anomaly_scores(
