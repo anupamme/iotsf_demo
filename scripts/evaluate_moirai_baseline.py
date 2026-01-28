@@ -269,6 +269,7 @@ Examples:
     logger.success(f"  Moirai {args.model_size} initialized on {detector.device}")
 
     results = {}
+    benign_seqs = None  # Initialize to handle case where CICIoT2023 loading fails
 
     # === 1. Evaluate on CICIoT2023 ===
     logger.info("")
@@ -304,11 +305,18 @@ Examples:
     if not synthetic_data:
         logger.warning("No synthetic data found, skipping...")
     else:
-        # Get benign samples for comparison
+        # Get benign samples for comparison - require valid benign data
         benign_synthetic = synthetic_data.get('benign', None)
         if benign_synthetic is None:
-            logger.warning("No synthetic benign samples, using first 10 CICIoT2023 benign")
-            benign_synthetic = benign_seqs[:10] if 'ciciot2023' in results else np.zeros((10, 128, 12))
+            # Try to use CICIoT2023 benign samples if available
+            if 'ciciot2023' in results and benign_seqs is not None and len(benign_seqs) > 0:
+                logger.warning("No synthetic benign samples, using first 10 CICIoT2023 benign")
+                benign_synthetic = benign_seqs[:10]
+            else:
+                # Cannot proceed without valid benign samples - metrics would be meaningless
+                logger.error("No valid benign samples available for synthetic evaluation")
+                logger.error("Skipping synthetic hard-negative evaluation (FPR would be meaningless)")
+                synthetic_data = {}  # Clear to skip the evaluation loop
 
         # Evaluate each stealth level separately
         attack_types = ['slow_exfiltration', 'lotl_mimicry', 'beacon', 'protocol_anomaly']
