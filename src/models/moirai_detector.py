@@ -585,19 +585,21 @@ class MoiraiAnomalyDetector:
             window_nlls = np.array(window_nlls)
 
             # Convert NLL to anomaly score
-            # Key insight: LOWER NLL = MORE likely attack (attacks are more predictable)
-            # So we INVERT: anomaly_score = 1 - sigmoid(NLL - baseline)
-            # Higher score = more anomalous = more likely attack
+            # For STEALTH attacks: HIGHER NLL = less predictable = more likely attack
+            # (Stealth attacks are designed to look unpredictable/random like noise)
             #
-            # Use baseline NLL around 12-14 (typical for benign IoT traffic)
-            # and scale factor based on observed variance
-            BASELINE_NLL = 13.0  # Approximate midpoint between benign (~16) and attack (~10)
-            SCALE_FACTOR = 0.5  # Controls sensitivity
+            # Base model produces NLL ~ -1 to -4:
+            #   - Attacks: higher NLL (~ -1.3 to -2.2)
+            #   - Benign: lower NLL (~ -2.2 to -3.9)
+            #
+            # We use INVERTED sigmoid: higher NLL → higher anomaly score
+            BASELINE_NLL = -2.5  # Midpoint for base model (attacks > -2.5, benign < -2.5)
+            SCALE_FACTOR = 2.0  # Steeper sigmoid for clearer separation
 
             if len(window_nlls) > 0:
-                # Lower NLL -> higher anomaly score
-                # sigmoid(-k*(nll - baseline)) gives high score for low NLL
-                normalized_nlls = 1.0 / (1.0 + np.exp(SCALE_FACTOR * (window_nlls - BASELINE_NLL)))
+                # Higher NLL -> higher anomaly score (for stealth attack detection)
+                # sigmoid(k*(nll - baseline)) gives high score for high NLL
+                normalized_nlls = 1.0 / (1.0 + np.exp(-SCALE_FACTOR * (window_nlls - BASELINE_NLL)))
             else:
                 normalized_nlls = np.zeros_like(window_nlls)
 
