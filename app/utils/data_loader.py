@@ -63,6 +63,8 @@ def load_demo_samples(data_dir: Path, config: dict) -> Dict:
 
     # Add one sample from each attack type using optimal indices
     for i, attack_samples in enumerate(attack_data):
+        if len(attack_samples) == 0:
+            raise ValueError(f"Attack file for {attack_types_config[i]} contains no samples")
         idx = ATTACK_INDICES[i] if i < len(ATTACK_INDICES) else 0
         # Ensure index is within bounds
         idx = min(idx, len(attack_samples) - 1)
