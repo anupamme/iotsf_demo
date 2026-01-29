@@ -61,12 +61,21 @@ with st.spinner("Loading Moirai model and running detection... This may take a m
         classification_threshold = 0.5  # Anomaly score threshold for binary classification
 
         for i, sample in enumerate(samples):
-            result = detector.detect_anomalies(
-                traffic=sample,
-                threshold=anomaly_threshold,
-                return_feature_contributions=True,
-                method='nll'  # Use NLL-based detection for better accuracy
-            )
+            # Try NLL method first (better accuracy), fall back to default if not supported
+            try:
+                result = detector.detect_anomalies(
+                    traffic=sample,
+                    threshold=anomaly_threshold,
+                    return_feature_contributions=True,
+                    method='nll'  # Use NLL-based detection for better accuracy
+                )
+            except TypeError:
+                # Older version without method parameter
+                result = detector.detect_anomalies(
+                    traffic=sample,
+                    threshold=anomaly_threshold,
+                    return_feature_contributions=True
+                )
             results.append(result)
 
         # Get binary predictions (sample is attack if anomaly_rate > classification_threshold)
