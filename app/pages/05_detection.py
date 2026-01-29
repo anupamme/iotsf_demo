@@ -47,9 +47,8 @@ y_true = np.array([1 if label else 0 for label in true_labels])
 
 # Run Moirai detection
 st.markdown("---")
-st.subheader("🔍 Running Moirai Detection...")
 
-with st.spinner("Loading Moirai model and running detection... This may take a moment."):
+with st.spinner("🔍 Running Moirai Detection... This may take a moment."):
     try:
         # Load Moirai detector
         detector = load_moirai_detector()
