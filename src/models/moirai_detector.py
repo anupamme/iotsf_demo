@@ -1428,7 +1428,8 @@ class MoiraiAnomalyDetector:
 
                     total_loss = nll_loss + contrastive_weight * cont_loss
 
-                except Exception:
+                except Exception as e:
+                    logger.warning(f"Validation batch failed: {e}")
                     continue
 
                 epoch_val_loss += total_loss.item()
