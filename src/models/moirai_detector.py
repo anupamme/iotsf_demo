@@ -1186,3 +1186,369 @@ class MoiraiAnomalyDetector:
             logger.info(f"  Checkpoint epoch: {checkpoint['epoch']}")
         if 'val_loss' in checkpoint:
             logger.info(f"  Checkpoint val_loss: {checkpoint['val_loss']:.4f}")
+
+    def fine_tune_supervised(
+        self,
+        train_data: np.ndarray,
+        train_labels: np.ndarray,
+        val_data: np.ndarray,
+        val_labels: np.ndarray,
+        n_epochs: int = FINETUNE_DEFAULT_EPOCHS,
+        batch_size: int = FINETUNE_DEFAULT_BATCH_SIZE,
+        learning_rate: float = FINETUNE_DEFAULT_LR,
+        contrastive_weight: float = 0.5,
+        temperature: float = 0.07,
+        checkpoint_dir: str = "models/moirai_supervised",
+        early_stopping_patience: int = FINETUNE_EARLY_STOPPING_PATIENCE
+    ) -> Dict[str, List[float]]:
+        """
+        Fine-tune Moirai with supervised contrastive loss.
+
+        Combines self-supervised NLL loss with supervised contrastive loss:
+        - NLL loss: Teaches model to forecast IoT traffic patterns
+        - Contrastive loss: Pushes benign/attack embeddings apart using labels
+
+        This addresses the limitation of pure self-supervised training where
+        the model learns to predict attacks well (reducing NLL gap), making
+        them harder to detect.
+
+        Args:
+            train_data: Training sequences (n_samples, seq_length, n_features)
+            train_labels: Training labels (n_samples,) with 0=benign, 1=attack
+            val_data: Validation sequences
+            val_labels: Validation labels
+            n_epochs: Number of training epochs
+            batch_size: Batch size for training
+            learning_rate: Learning rate for AdamW optimizer
+            contrastive_weight: Weight (lambda) for contrastive loss term
+            temperature: Temperature for contrastive loss
+            checkpoint_dir: Directory to save checkpoints
+            early_stopping_patience: Epochs to wait before early stopping
+
+        Returns:
+            Dictionary with training history:
+            - train_loss: Total loss per epoch
+            - train_nll: NLL component per epoch
+            - train_contrastive: Contrastive component per epoch
+            - val_loss: Validation total loss per epoch
+        """
+        if self._mock_mode:
+            logger.warning("Supervised fine-tuning not available in mock mode")
+            return {'train_loss': [], 'val_loss': []}
+
+        if not self._initialized:
+            raise RuntimeError("Model not initialized. Call initialize() first.")
+
+        # Apply gradient patch for uni2ts 2.0.0
+        if UNI2TS_AVAILABLE:
+            _apply_uni2ts_gradient_patch()
+
+        from torch.utils.data import DataLoader
+        from src.data.torch_dataset import MoiraiSupervisedDataset
+        from src.models.losses import SupervisedContrastiveLoss
+        from src.models.projection_head import ProjectionHead
+
+        logger.info("=" * 60)
+        logger.info("SUPERVISED CONTRASTIVE FINE-TUNING")
+        logger.info("=" * 60)
+        logger.info(f"Train: {len(train_data)} samples "
+                   f"({(train_labels == 0).sum()} benign, {(train_labels == 1).sum()} attack)")
+        logger.info(f"Val: {len(val_data)} samples "
+                   f"({(val_labels == 0).sum()} benign, {(val_labels == 1).sum()} attack)")
+        logger.info(f"Epochs: {n_epochs}, Batch: {batch_size}, LR: {learning_rate}")
+        logger.info(f"Contrastive weight: {contrastive_weight}, Temperature: {temperature}")
+        logger.info(f"Device: {self.device}")
+        logger.info("=" * 60)
+
+        # Create datasets and dataloaders
+        train_dataset = MoiraiSupervisedDataset(
+            train_data, train_labels,
+            context_length=self.context_length,
+            prediction_length=self.prediction_length
+        )
+        val_dataset = MoiraiSupervisedDataset(
+            val_data, val_labels,
+            context_length=self.context_length,
+            prediction_length=self.prediction_length
+        )
+
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            drop_last=True
+        )
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=batch_size,
+            shuffle=False
+        )
+
+        logger.info(f"DataLoaders: {len(train_loader)} train, {len(val_loader)} val batches")
+
+        # Initialize projection head
+        # d_model for small=384, base=768, large=1024
+        d_model = self.model.module.d_model if hasattr(self.model.module, 'd_model') else 384
+        projection_head = ProjectionHead(
+            input_dim=d_model,
+            hidden_dim=256,
+            output_dim=128
+        ).to(self.device)
+
+        # Initialize contrastive loss
+        contrastive_loss_fn = SupervisedContrastiveLoss(temperature=temperature)
+
+        # Optimizer includes both model and projection head parameters
+        optimizer = torch.optim.AdamW(
+            list(self.model.parameters()) + list(projection_head.parameters()),
+            lr=learning_rate
+        )
+
+        # Learning rate scheduler
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=n_epochs
+        )
+
+        # Training state
+        train_losses, train_nlls, train_contrastives = [], [], []
+        val_losses = []
+        best_val_loss = float('inf')
+        patience_counter = 0
+
+        checkpoint_path = Path(checkpoint_dir)
+        checkpoint_path.mkdir(parents=True, exist_ok=True)
+        best_checkpoint_path = checkpoint_path / "best_moirai_supervised.pt"
+
+        # Register hook to capture encoder embeddings
+        captured_embeddings = {}
+
+        def capture_hook(module, input, output):
+            captured_embeddings['encoder'] = output
+
+        encoder_hook = self.model.module.encoder.register_forward_hook(capture_hook)
+
+        logger.info("Starting supervised training loop...")
+
+        try:
+            for epoch in range(n_epochs):
+                epoch_start = time.time()
+
+                # Training phase
+                self.model.train()
+                projection_head.train()
+                epoch_nll, epoch_cont, epoch_total = 0.0, 0.0, 0.0
+                batch_count = 0
+
+                for batch_idx, batch in enumerate(train_loader):
+                    context = batch['context'].to(self.device)
+                    target = batch['target'].to(self.device)
+                    labels = batch['label'].to(self.device)
+
+                    # Concatenate context and target for NLL computation
+                    full_target = torch.cat([context, target], dim=1)
+                    B, seq_len, n_features = full_target.shape
+
+                    observed_target = torch.ones(B, seq_len, n_features,
+                                                dtype=torch.bool, device=self.device)
+                    is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+
+                    try:
+                        patch_size = self.patch_size if self.patch_size != 'auto' else 32
+
+                        # Compute NLL loss (this also triggers the encoder hook)
+                        per_sample_nll = self.model._val_loss(
+                            patch_size=patch_size,
+                            target=full_target,
+                            observed_target=observed_target,
+                            is_pad=is_pad
+                        )
+                        nll_loss = per_sample_nll.mean()
+
+                        # Get captured encoder embeddings and pool
+                        encoder_output = captured_embeddings['encoder']
+                        embeddings = encoder_output.mean(dim=1)  # Mean pooling
+
+                        # Project embeddings
+                        projected = projection_head(embeddings)
+
+                        # Compute contrastive loss
+                        cont_loss = contrastive_loss_fn(projected, labels)
+
+                        # Combined loss
+                        total_loss = nll_loss + contrastive_weight * cont_loss
+
+                    except Exception as e:
+                        logger.warning(f"Batch {batch_idx} failed: {e}")
+                        continue
+
+                    # Backward pass
+                    optimizer.zero_grad()
+                    total_loss.backward()
+                    torch.nn.utils.clip_grad_norm_(
+                        list(self.model.parameters()) + list(projection_head.parameters()),
+                        FINETUNE_GRAD_CLIP_NORM
+                    )
+                    optimizer.step()
+
+                    epoch_nll += nll_loss.item()
+                    epoch_cont += cont_loss.item()
+                    epoch_total += total_loss.item()
+                    batch_count += 1
+
+                    if (batch_idx + 1) % 10 == 0:
+                        logger.debug(
+                            f"Epoch {epoch+1} Batch {batch_idx+1}/{len(train_loader)} - "
+                            f"NLL: {nll_loss.item():.4f}, Cont: {cont_loss.item():.4f}"
+                        )
+
+                if batch_count == 0:
+                    logger.error("No successful training batches - aborting")
+                    break
+
+                avg_nll = epoch_nll / batch_count
+                avg_cont = epoch_cont / batch_count
+                avg_total = epoch_total / batch_count
+                train_losses.append(avg_total)
+                train_nlls.append(avg_nll)
+                train_contrastives.append(avg_cont)
+
+                # Validation phase
+                self.model.eval()
+                projection_head.eval()
+                epoch_val_loss = 0.0
+                val_batch_count = 0
+
+                with torch.no_grad():
+                    for batch in val_loader:
+                        context = batch['context'].to(self.device)
+                        target = batch['target'].to(self.device)
+                        labels = batch['label'].to(self.device)
+
+                        full_target = torch.cat([context, target], dim=1)
+                        B, seq_len, n_features = full_target.shape
+
+                        observed_target = torch.ones(B, seq_len, n_features,
+                                                    dtype=torch.bool, device=self.device)
+                        is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+
+                        try:
+                            patch_size = self.patch_size if self.patch_size != 'auto' else 32
+
+                            per_sample_nll = self.model._val_loss(
+                                patch_size=patch_size,
+                                target=full_target,
+                                observed_target=observed_target,
+                                is_pad=is_pad
+                            )
+                            nll_loss = per_sample_nll.mean()
+
+                            encoder_output = captured_embeddings['encoder']
+                            embeddings = encoder_output.mean(dim=1)
+                            projected = projection_head(embeddings)
+                            cont_loss = contrastive_loss_fn(projected, labels)
+
+                            total_loss = nll_loss + contrastive_weight * cont_loss
+
+                        except Exception:
+                            continue
+
+                        epoch_val_loss += total_loss.item()
+                        val_batch_count += 1
+
+                avg_val_loss = epoch_val_loss / val_batch_count if val_batch_count > 0 else float('inf')
+                val_losses.append(avg_val_loss)
+
+                epoch_time = time.time() - epoch_start
+                current_lr = optimizer.param_groups[0]['lr']
+
+                logger.info(
+                    f"Epoch {epoch+1}/{n_epochs} - "
+                    f"Train: {avg_total:.4f} (NLL: {avg_nll:.4f}, Cont: {avg_cont:.4f}), "
+                    f"Val: {avg_val_loss:.4f}, LR: {current_lr:.6f}, Time: {epoch_time:.1f}s"
+                )
+
+                scheduler.step()
+
+                # Early stopping
+                if avg_val_loss < best_val_loss:
+                    best_val_loss = avg_val_loss
+                    patience_counter = 0
+
+                    # Save checkpoint (including projection head)
+                    self._save_supervised_checkpoint(
+                        str(best_checkpoint_path),
+                        projection_head,
+                        epoch=epoch,
+                        val_loss=best_val_loss
+                    )
+                    logger.info(f"New best model saved (val_loss: {best_val_loss:.4f})")
+                else:
+                    patience_counter += 1
+                    logger.info(f"No improvement ({patience_counter}/{early_stopping_patience})")
+
+                    if patience_counter >= early_stopping_patience:
+                        logger.info(f"Early stopping at epoch {epoch+1}")
+                        break
+
+        finally:
+            # Always remove the hook
+            encoder_hook.remove()
+
+        # Load best checkpoint
+        if best_checkpoint_path.exists():
+            logger.info("Loading best checkpoint...")
+            self._load_supervised_checkpoint(str(best_checkpoint_path), projection_head)
+
+        logger.info("=" * 60)
+        logger.info("SUPERVISED FINE-TUNING COMPLETE")
+        logger.info("=" * 60)
+        logger.info(f"Best val loss: {best_val_loss:.4f}")
+        logger.info(f"Checkpoint: {best_checkpoint_path}")
+        logger.info("=" * 60)
+
+        return {
+            'train_loss': train_losses,
+            'train_nll': train_nlls,
+            'train_contrastive': train_contrastives,
+            'val_loss': val_losses
+        }
+
+    def _save_supervised_checkpoint(
+        self,
+        path: str,
+        projection_head,
+        epoch: Optional[int] = None,
+        val_loss: Optional[float] = None
+    ):
+        """Save checkpoint including projection head."""
+        checkpoint_path = Path(path)
+        checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+
+        checkpoint = {
+            'model_state_dict': self.model.state_dict(),
+            'projection_head_state_dict': projection_head.state_dict(),
+            'config': {
+                'model_size': self.model_size,
+                'context_length': self.context_length,
+                'prediction_length': self.prediction_length,
+                'patch_size': self.patch_size,
+                'confidence_level': self.confidence_level
+            }
+        }
+
+        if epoch is not None:
+            checkpoint['epoch'] = epoch
+        if val_loss is not None:
+            checkpoint['val_loss'] = val_loss
+
+        torch.save(checkpoint, checkpoint_path)
+
+    def _load_supervised_checkpoint(self, path: str, projection_head):
+        """Load checkpoint including projection head."""
+        checkpoint = torch.load(path, map_location=self.device)
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+
+        if 'projection_head_state_dict' in checkpoint:
+            projection_head.load_state_dict(checkpoint['projection_head_state_dict'])
+
+        logger.info(f"Supervised checkpoint loaded from {path}")
