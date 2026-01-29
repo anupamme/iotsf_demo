@@ -10,7 +10,7 @@ FINETUNED_CHECKPOINT = "models/moirai_finetuned/best_moirai.pt"
 
 
 @st.cache_resource
-def load_moirai_detector(use_finetuned: bool = True):
+def load_moirai_detector(use_finetuned: bool = False):
     """
     Lazy load Moirai detector with caching.
 

@@ -57,7 +57,6 @@ with st.spinner("🔍 Running Moirai Detection... This may take a moment."):
         # NLL method achieves ROC-AUC of 1.0 on CICIoT2023 data
         results = []
         anomaly_threshold = 0.5  # NLL-based threshold (lower NLL = more likely attack)
-        classification_threshold = 0.5  # Anomaly score threshold for binary classification
 
         for i, sample in enumerate(samples):
             # Try NLL method first (better accuracy), fall back to default if not supported
@@ -77,9 +76,10 @@ with st.spinner("🔍 Running Moirai Detection... This may take a moment."):
                 )
             results.append(result)
 
-        # Get binary predictions (sample is attack if anomaly_rate > classification_threshold)
+        # Get binary predictions (sample is attack if ANY timestep is anomalous)
+        # This matches the precompute logic in scripts/precompute_demo_data.py
         y_pred_moirai = np.array([
-            1 if r.anomaly_rate > classification_threshold else 0
+            1 if r.n_anomalies > 0 else 0
             for r in results
         ])
         y_scores_moirai = np.array([r.anomaly_rate for r in results])

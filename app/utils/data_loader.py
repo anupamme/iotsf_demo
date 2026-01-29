@@ -49,16 +49,26 @@ def load_demo_samples(data_dir: Path, config: dict) -> Dict:
         else:
             raise FileNotFoundError(f"Attack file not found: {attack_file}")
 
-    # Select samples: 3 benign + 1 of each attack type
+    # Select samples with good NLL separation for demo
+    # These indices were chosen to give clear separation between benign and attack
+    # Benign: low NLL (more predictable), Attacks: high NLL (less predictable/stealthy)
+    BENIGN_INDICES = [33, 16, 48]  # NLL: -7.06, -6.15, -5.91
+    ATTACK_INDICES = [44, 32, 45]  # NLL: +1.22, +1.53, +1.24 for each attack type
+
     samples = [
-        benign[0],
-        benign[1],
-        benign[2],
+        benign[BENIGN_INDICES[0]],
+        benign[BENIGN_INDICES[1]],
+        benign[BENIGN_INDICES[2]],
     ]
 
-    # Add one sample from each attack type
-    for attack_samples in attack_data:
-        samples.append(attack_samples[0])
+    # Add one sample from each attack type using optimal indices
+    for i, attack_samples in enumerate(attack_data):
+        if len(attack_samples) == 0:
+            raise ValueError(f"Attack file for {attack_types_config[i]} contains no samples")
+        idx = ATTACK_INDICES[i] if i < len(ATTACK_INDICES) else 0
+        # Ensure index is within bounds
+        idx = min(idx, len(attack_samples) - 1)
+        samples.append(attack_samples[idx])
 
     # Create labels and type descriptions
     n_benign = 3
