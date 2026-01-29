@@ -51,9 +51,8 @@ y_true = np.array([1 if label else 0 for label in true_labels])
 
 # Run detection
 st.markdown("---")
-st.subheader("🔍 Running Traditional IDS Detection...")
 
-with st.spinner("Loading and training traditional IDS methods..."):
+with st.spinner("🔍 Running Traditional IDS Detection..."):
     try:
         # Load baseline IDS
         ids = load_baseline_ids()
