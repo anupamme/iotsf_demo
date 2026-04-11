@@ -1,0 +1,64 @@
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+% ============================================================
+
+\textbf{Traditional IoT IDS.}
+Early anomaly detection for IoT relied on hand-engineered thresholds
+and signature databases~\cite{snort,zeek}.
+Statistical methods (Z-score, IQR) flag individual flow features that
+deviate from a learned normal distribution; Isolation
+Forest~\cite{liu2012isolation} extends this to multivariate settings.
+Ensemble approaches combine multiple detectors to improve
+precision~\cite{garcia2014empirical}.  While effective for gross
+anomalies, all these methods share a critical weakness: they are
+calibrated on known, high-magnitude attacks and fail to detect
+stealthy, low-amplitude perturbations.
+The \dataset{} dataset~\cite{neto2023ciciot} provides a comprehensive
+benchmark that we use throughout this work.
+
+\textbf{Deep-learning anomaly detection.}
+Autoencoder-based methods reconstruct benign traffic and flag
+samples with high reconstruction error~\cite{an2015variational}.
+USAD~\cite{audibert2020usad} extends this with an adversarially
+trained dual-autoencoder.  TranAD~\cite{tuli2022tranad} applies
+context-aware Transformers with a focus-score mechanism to amplify
+anomalous regions.  The Anomaly Transformer~\cite{xu2022anomaly}
+introduces association discrepancy: anomalous timesteps attend
+differently than their Gaussian neighbourhood prior.
+PatchTST~\cite{nie2023patchtst} demonstrates that patch-based
+Transformers capture long-range dependencies in time series and
+adapts naturally to reconstruction-based anomaly detection.
+We include all four methods as competitive baselines.
+
+\textbf{Generative models for data augmentation in security.}
+GANs have been applied to synthetic attack
+generation~\cite{lin2018idsgan}, but mode collapse and training
+instability limit diversity.  TimeGAN~\cite{yoon2019timegan} improves
+temporal fidelity via a supervised adversarial framework.
+Diffusion-TS~\cite{zhang2024diffusionts}, which we adopt, achieves
+state-of-the-art quality on multivariate time-series generation
+through a decomposition-aware architecture (trend $+$ seasonality).
+To our knowledge, ours is the first work to apply diffusion-based
+generation for IoT hard-negative mining with protocol constraint integration.
+
+\textbf{Time-series foundation models.}
+Large-scale pre-training on diverse time-series corpora has produced
+general-purpose forecasters with strong zero-shot
+capabilities~\cite{das2024timeseries,ansari2024chronos}.
+Moirai~\cite{woo2024moirai} is trained on over 27~billion time points
+and supports probabilistic multi-variate forecasting via patch-based
+Transformers.  MOMENT~\cite{goswami2024moment} and
+TimesFM~\cite{das2024timeseries} offer complementary architectures.
+We select Moirai because its probabilistic output (confidence intervals)
+naturally maps to an anomaly score: timesteps falling outside the
+predicted confidence interval are candidates for anomalies.
+
+\textbf{Contrastive learning for anomaly detection.}
+Supervised contrastive learning~\cite{khosla2020supcon} has been
+applied to tabular anomaly detection~\cite{sohn2020fixmatch} and
+time-series classification~\cite{eldele2021ts2vec}.
+Our CombinedLoss is most closely related to~\cite{reiss2021panda},
+which combines reconstruction objectives with contrastive loss for
+image anomaly detection.  We adapt this principle to IoT time-series
+by pairing NLL-based forecasting with SupCon fine-tuning.

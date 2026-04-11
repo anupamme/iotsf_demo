@@ -1,0 +1,133 @@
+% ============================================================
+\section{\ours{}: Methodology}
+\label{sec:method}
+% ============================================================
+
+Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline.
+It consists of two stages: (1) protocol-constrained hard-negative generation
+and (2) supervised contrastive fine-tuning of Moirai.
+
+% --- Figure 1: Architecture ---
+\begin{figure}[t]
+  \centering
+  \input{figures/architecture.tikz}
+  \caption{
+    \ours{} architecture.
+    \textbf{Stage 1}: Diffusion-TS generates hard-negative attack sequences
+    conditioned on benign traffic and an attack pattern $P_k$, with a
+    constraint-retry loop ensuring protocol validity.
+    \textbf{Stage 2}: Moirai is fine-tuned on a 70/20/10 mixture of
+    benign, hard-negative, and real-attack sequences using a combined
+    NLL + supervised contrastive loss.
+    At inference, out-of-confidence-interval scoring detects anomalies.
+  }
+  \label{fig:architecture}
+\end{figure}
+
+% ============================================================
+\subsection{Stage 1: Protocol-Constrained Hard-Negative Generation}
+\label{sec:method:gen}
+% ============================================================
+
+\textbf{Diffusion-TS backbone.}
+We adopt Diffusion-TS~\cite{zhang2024diffusionts}, which models the
+score function of a multivariate time series as a sum of trend and
+seasonality components.  Given a benign sample $\mathbf{X}_b$, we
+apply a forward diffusion process to obtain a noisy latent, then
+guide the reverse process toward the target attack pattern $P_k$
+at stealth level $s$:
+\begin{equation}
+  \mathbf{X}_a = \text{DiffusionTS}\!\left(\mathbf{X}_b,\, P_k,\, s\right).
+\end{equation}
+The trend component uses a Savitzky-Golay filter, and the seasonality
+component retains the top-5 FFT frequencies, enabling interpretable
+attack injection that preserves global traffic statistics.
+
+\textbf{Protocol constraint validation.}
+Raw generated samples may violate IoT protocol specifications (e.g.,
+packet sizes outside the Modbus 7--260 byte range).  Algorithm~\ref{alg:hng}
+describes the constraint-retry loop used during generation.
+
+\begin{algorithm}[h]
+\caption{Protocol-Constrained Hard-Negative Generation}
+\label{alg:hng}
+\begin{algorithmic}[1]
+\Require Benign sequence $\mathbf{X}_b$, attack pattern $P_k$,
+         stealth level $s$, protocol $\pi$, max retries $R=3$
+\Ensure Hard-negative $\mathbf{X}_a$ satisfying $\mathcal{C}_\pi$
+\For{$r = 1, \ldots, R$}
+  \State $\mathbf{X}_a \leftarrow \text{DiffusionTS}(\mathbf{X}_b, P_k, s)$
+  \State $\text{report} \leftarrow \mathcal{C}_\pi(\mathbf{X}_a)$
+  \If{$\text{report.is\_valid}$}
+    \State \Return $\mathbf{X}_a$
+  \EndIf
+  \State $s \leftarrow \min(s + 0.01,\; 1.0)$  \Comment{Relax stealth slightly}
+\EndFor
+\State \Return $\mathbf{X}_a$  \Comment{Return best attempt with warning}
+\end{algorithmic}
+\end{algorithm}
+
+We implement three IoT protocol validators:
+\textbf{Modbus} (packet size 7--260 bytes, timing 1--1000 ms, valid function codes),
+\textbf{MQTT} (packet size 2--1024 bytes, QoS levels 0--2, keep-alive 60--300 s),
+and \textbf{CoAP} (packet size 4--1280 bytes, valid message types, token length 0--8).
+Each validator operates at three strictness tiers (strict / moderate / permissive)
+to support different deployment requirements.
+
+% ============================================================
+\subsection{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}
+\label{sec:method:finetune}
+% ============================================================
+
+\textbf{Moirai for anomaly scoring.}
+Moirai~\cite{woo2024moirai} is a universal Transformer forecaster
+that produces probabilistic predictions via mixture distributions.
+Given context window $\mathbf{X}_{1:96}$, it predicts a distribution
+over $\mathbf{X}_{97:128}$.  We use the $1-\alpha$ confidence interval
+(CI) at $\alpha = 0.05$ as an anomaly signal: timestep $t$ is flagged
+if the observed value falls outside the predicted CI.  The sample-level
+anomaly score is the fraction of flagged timesteps:
+\begin{equation}
+  \hat{s}(\mathbf{X}) = \frac{1}{T'}\sum_{t=97}^{128}
+    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right].
+\end{equation}
+A sample is classified as an attack if $\hat{s}(\mathbf{X}) > \delta$,
+where $\delta$ is calibrated on a validation set
+(Section~\ref{sec:experiments:setup}).
+
+\textbf{Gradient fix for fine-tuning.}
+The \texttt{uni2ts} \texttt{PackedStdScaler} contains an in-place
+tensor assignment that breaks the autograd graph:
+\texttt{loc[sample\_id == 0] = 0}.
+We replace this with a differentiable \texttt{torch.where} operation,
+enabling gradient-based fine-tuning through the scaler.
+This fix is contributed back to the \texttt{uni2ts} community.
+
+\textbf{Combined training objective.}
+We fine-tune Moirai's parameters $\theta$ on a mixture of
+70\% benign, 20\% hard-negative, and 10\% real-attack sequences
+using the combined loss:
+\begin{equation}
+  \label{eq:combined_loss}
+  \mathcal{L}(\theta) =
+    \mathcal{L}_{\text{NLL}}(\theta) +
+    \lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau),
+\end{equation}
+where $\lambda = 0.5$ and $\tau = 0.07$.
+$\mathcal{L}_{\text{NLL}}$ is the standard negative log-likelihood loss
+from Moirai's pre-training objective.
+$\mathcal{L}_{\text{SupCon}}$~\cite{khosla2020supcon} is supervised
+contrastive loss applied to embeddings $\mathbf{z}$ extracted from a
+projection head $h_\phi$.
+
+\textbf{Projection head.}
+We insert a three-layer MLP projection head after Moirai's encoder:
+$h_\phi: \R^{384} \to \R^{256} \to \text{ReLU} \to \R^{128}$.
+Embeddings are L2-normalised before the contrastive loss, following
+the recommendation of~\cite{khosla2020supcon}.
+
+\textbf{Training details.}
+We train with AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$),
+batch size 32, for 10 epochs, with early stopping (patience 3) and
+gradient clipping at 1.0.  We use the Moirai-Small (5M parameters)
+checkpoint as the pre-trained backbone.

@@ -1,0 +1,89 @@
+% ============================================================
+% NeurIPS 2026 Submission
+% "Fighting AI-Powered Threats with AI-Generated Defense"
+% ============================================================
+% Use neurips_2025.sty until neurips_2026.sty is released.
+% Download from: https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
+% Place as paper/neurips_2025.sty
+% ============================================================
+
+\documentclass{article}
+
+% ---- NeurIPS style (download separately) ----
+% \usepackage{neurips_2025}   % uncomment once sty file is downloaded
+% For now, use article with similar margins:
+\usepackage[margin=1in]{geometry}
+
+% ---- Core packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{hidelinks, colorlinks=false}
+\usepackage{url}
+\usepackage{booktabs}         % professional tables
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{subcaption}       % subfigures
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---- Macros ----
+\newcommand{\ours}{\textsc{DiffIDS}}   % paper's proposed system name
+\newcommand{\dataset}{CICIoT2023}
+\newcommand{\R}{\mathbb{R}}
+
+\title{Fighting AI-Powered Threats with AI-Generated Defense:\\
+       Diffusion-Based Hard-Negative Mining for IoT Intrusion Detection}
+
+\author{
+  Anupam Chattopadhyay\thanks{Correspondence: \texttt{anupam@example.com}} \\
+  % Add remaining authors / affiliations here
+}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+Modern IoT attackers increasingly use AI to generate stealthy network traffic
+that mimics benign behaviour, defeating traditional intrusion detection
+systems (IDS) which rely on statistical thresholds, signatures, or shallow
+anomaly detectors.  We propose \ours{}, a two-stage defence framework that
+fights AI-powered threats with AI-generated defences.  In the first stage,
+we use Diffusion-TS, a decomposition-aware diffusion model, to synthesise
+\emph{hard-negative} attacks---traffic sequences that are statistically
+similar to benign IoT flows yet embed adversarial patterns---while enforcing
+protocol compliance constraints (Modbus, MQTT, CoAP).  In the second stage,
+we adapt Moirai, a universal time-series forecasting foundation model, for
+anomaly detection by fine-tuning it with a combined NLL and supervised
+contrastive loss.  The contrastive component, trained on hard negatives,
+pushes benign and attack embeddings apart in a shared representation space.
+Extensive experiments on the \dataset{} benchmark across four attack types
+at three stealth levels (85\%--95\% similarity) demonstrate that \ours{}
+substantially outperforms five traditional baselines and four deep-learning
+competitors, reducing the false-positive rate while maintaining high
+detection rates even against the stealthiest attacks.  We release code,
+synthetic datasets, and a reproducible evaluation harness.
+\end{abstract}
+
+% ============================================================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_problem_formulation}
+\input{sections/04_methodology}
+\input{sections/05_experiments}
+\input{sections/06_analysis}
+\input{sections/07_conclusion}
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}

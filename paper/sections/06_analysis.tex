@@ -1,0 +1,53 @@
+% ============================================================
+\section{Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+
+\textbf{Why does base Moirai fail on \dataset{}?}
+The zero-shot Moirai model (condition A, ROC-AUC $\approx$ 0.27) fails
+because it was pre-trained on financial, energy, and weather time series.
+IoT network traffic has fundamentally different statistical properties:
+high autocorrelation in packet inter-arrival times, bursty protocol
+behaviour, and feature scales that differ from Moirai's pre-training
+distribution.  Fine-tuning on just 10 epochs of domain-specific data
+substantially closes the distribution gap (condition D vs A).
+
+\textbf{Why do hard negatives help more than real attacks?}
+Standard attack traffic in \dataset{} is high-magnitude (large Z-scores,
+easily detected by simple thresholds).  These easy negatives let the
+model converge to a coarse decision boundary.  Synthetic hard negatives
+at stealth 85--95\% are deliberately positioned near the boundary,
+forcing the model to learn fine-grained temporal features.
+This is analogous to curriculum learning~\cite{bengio2009curriculum}
+and hard example mining in object detection~\cite{shrivastava2016training}.
+
+\textbf{Protocol constraint utility.}
+Beyond improving detection quality, the constraint validation layer
+provides an interpretable quality metric for generated samples.
+The constraint pass-rate statistics (Table~\ref{tab:constraints})
+could serve as an independent signal for deployment engineers to
+verify that synthetic training data reflects real IoT traffic.
+
+\textbf{Computational overhead.}
+Hard-negative generation with Diffusion-TS (mock mode) takes $<$2s
+per sample.  Fine-tuning Moirai-Small for 10 epochs on our dataset
+requires $\approx$2--4 GPU-hours on an NVIDIA A100.
+Inference latency is $<$50ms per sample, suitable for near-real-time
+IoT monitoring at moderate sampling rates.
+
+\textbf{Limitations and future work.}
+(1) Our evaluation uses a single dataset; generalisation to other
+IoT benchmarks (e.g., N-BaIoT, UNSW-NB15) is future work.
+(2) Moirai requires a fixed 12-dimensional input; adapting to
+variable-feature IoT environments would require input projection.
+(3) The diffusion model operates in mock mode (statistical generation)
+when Diffusion-TS is not installed; full quality requires the full
+model.  (4) The stealth thresholds (85--95\%) are fixed; adaptive
+adversaries could target higher stealth levels.
+
+\textbf{Responsible disclosure.}
+The same diffusion-based adversarial augmentation technique used here
+for defensive training could potentially be used offensively to evade
+existing IDS deployments.  We follow responsible disclosure norms:
+the code and synthetic data are released to enable defensive research
+and reproducible benchmarking, not to enable attacks.

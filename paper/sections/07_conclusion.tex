@@ -1,0 +1,23 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We presented \ours{}, a two-stage framework that leverages generative AI
+to both stress-test and improve IoT intrusion detection systems.  By using
+Diffusion-TS to generate protocol-compliant hard-negative attacks and
+fine-tuning Moirai with a supervised contrastive objective, \ours{}
+achieves significantly better detection on AI-generated stealthy attacks
+than traditional and deep-learning baselines, particularly at the highest
+stealth levels (95\%) where conventional methods fail.
+
+Our key insight is that the most effective defence against AI-powered
+adversaries is not a static model trained on historical attacks, but an
+adaptive training regime that continuously exposes the detector to the
+hardest possible synthetic attacks.  This \emph{red-team-as-training-data}
+paradigm generalises beyond IoT security and may inform future work on
+adversarial robustness in time-series anomaly detection broadly.
+
+We release all code, synthetic datasets, calibration scripts, and an
+interactive Streamlit demonstration to facilitate reproducibility and
+encourage follow-up work in this critical security domain.

@@ -1,0 +1,79 @@
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+The proliferation of Internet-of-Things (IoT) devices---projected to exceed
+29 billion by 2030---has dramatically expanded the attack surface available
+to adversaries.  Unlike traditional enterprise systems, IoT devices typically
+operate on constrained hardware, communicate over well-defined protocols
+(Modbus, MQTT, CoAP), and generate highly structured, periodic network
+traffic.  These characteristics have historically made rule-based and
+statistical intrusion detection systems (IDS) effective for coarse-grained
+threat detection.
+
+\textbf{The AI-powered threat gap.}
+Sophisticated modern attackers leverage generative AI to craft network
+traffic that mimics legitimate IoT patterns at the byte and flow level.
+Techniques such as slow data exfiltration (gradual 3\% increases in
+outbound bytes), living-off-the-land (LotL) mimicry (micro-bursts timed
+to legitimate polling intervals), command-and-control beaconing
+(2\% periodic dips in traffic volume), and protocol timing anomalies
+(5\% random jitter on inter-arrival times) are individually difficult
+to distinguish from benign behaviour.  We formalise these as
+\emph{hard-negative} attacks: sequences where the statistical similarity
+to benign traffic exceeds a stealth threshold $s \in \{0.85, 0.90, 0.95\}$
+(see Section~\ref{sec:problem}).
+Empirically, all five traditional IDS methods we evaluate---threshold,
+signature, statistical, Isolation Forest, and weighted ensemble---achieve
+less than 20\% detection rate on hard negatives at stealth level 95\%.
+
+\textbf{Fighting AI with AI.}
+We propose a fundamentally different defence strategy: \emph{use generative
+AI to anticipate adversarial traffic}, and \emph{use foundation models to
+detect it}.  Our system, \ours{} (\textbf{Diff}usion-based \textbf{IDS}),
+proceeds in two stages.  First, we generate synthetic hard-negative attacks
+using Diffusion-TS~\cite{zhang2024diffusionts}, a decomposition-aware
+diffusion model, while ensuring that generated samples satisfy IoT protocol
+constraints via a multi-tier validation framework.  Second, we fine-tune
+Moirai~\cite{woo2024moirai}, a universal time-series forecasting foundation
+model, using a combined negative log-likelihood (NLL) and supervised
+contrastive loss~\cite{khosla2020supcon}.  The synthetic hard negatives
+serve as difficult training examples that force the model to learn subtle
+temporal signatures beyond what standard attacks provide.
+
+\textbf{Contributions.}  We make four novel contributions:
+\begin{enumerate}
+  \item \textbf{Protocol-Constrained Hard-Negative Generation.}
+    We extend Diffusion-TS with an IoT protocol validation layer
+    (Modbus, MQTT, CoAP) that enforces packet-size, timing, and
+    function-code constraints during generation, producing
+    protocol-valid adversarial traffic at configurable stealth levels.
+
+  \item \textbf{Foundation Model Adaptation for IDS.}
+    We present the first systematic study of Moirai applied to network
+    intrusion detection, including an engineering contribution: a fix for
+    an in-place tensor operation in the \texttt{uni2ts} \texttt{PackedStdScaler}
+    that silently broke gradient computation during fine-tuning.
+
+  \item \textbf{Supervised Contrastive Fine-Tuning.}
+    We introduce a combined loss $\mathcal{L} = \mathcal{L}_{\text{NLL}} +
+    \lambda\,\mathcal{L}_{\text{SupCon}}$ ($\lambda=0.5$, $\tau=0.07$)
+    with a projection head (384$\to$256$\to$128 dimensions) that
+    bridges probabilistic forecasting and discriminative anomaly detection.
+
+  \item \textbf{Stealth Attack Benchmark.}
+    We contribute a reproducible benchmark: four IoT attack types with
+    precise mathematical definitions at three stealth levels, evaluated
+    against nine IDS methods on \dataset{}.
+    Code, synthetic datasets, and a Streamlit demonstration are released
+    at \url{https://github.com/anupamme/iotsf_demo}.
+\end{enumerate}
+
+\textbf{Paper organisation.}
+Section~\ref{sec:related} reviews related work.
+Section~\ref{sec:problem} formalises the problem.
+Section~\ref{sec:method} describes \ours{}.
+Section~\ref{sec:experiments} presents experimental results.
+Section~\ref{sec:analysis} discusses findings and limitations.
+Section~\ref{sec:conclusion} concludes.
