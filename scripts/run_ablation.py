@@ -102,32 +102,36 @@ def build_eval_sets(benign, conditions, rng, max_eval_samples: int = 50):
 # Detection helper
 # ---------------------------------------------------------------------------
 
-def score_and_evaluate(
+def score_samples(
     detector: MoiraiAnomalyDetector,
     X: np.ndarray,
-    y: np.ndarray,
-    ci_thresh: float = 0.95,
-    det_thresh: float = 0.30,
-):
-    """Run detector on X and return metrics dict."""
-    preds, scores = [], []
+) -> np.ndarray:
+    """Score every sample using NLL method, returning raw NLL scores."""
     n = len(X)
+    scores = np.zeros(n, dtype=np.float64)
     for i, sample in enumerate(X):
         try:
-            result = detector.detect_anomalies(sample, threshold=ci_thresh)
-            pred = 1 if result.anomaly_rate > det_thresh else 0
-            preds.append(pred)
-            scores.append(float(result.anomaly_scores.mean()))
+            result = detector.detect_anomalies(sample, threshold=0.0, method='nll')
+            scores[i] = float(result.anomaly_scores.mean())
         except Exception as e:
             logger.warning(f"Detection error on sample {i}: {e}")
-            preds.append(0)
-            scores.append(0.0)
+            scores[i] = -1e9
         if (i + 1) % 10 == 0 or (i + 1) == n:
             logger.debug(f"    scored {i + 1}/{n}")
+    return scores
 
-    preds_arr = np.array(preds)
-    scores_arr = np.array(scores)
-    return IDSMetrics.compute_all_metrics(y, preds_arr, scores_arr)
+
+def find_best_threshold(scores: np.ndarray, y: np.ndarray) -> tuple:
+    """Sweep threshold on raw NLL scores to maximize F1. Returns (best_thresh, metrics)."""
+    lo, hi = np.percentile(scores, 2), np.percentile(scores, 98)
+    thresholds = np.linspace(lo, hi, 100)
+    best_f1, best_t, best_metrics = -1.0, lo, {}
+    for t in thresholds:
+        preds = (scores > t).astype(int)
+        m = IDSMetrics.compute_all_metrics(y, preds, scores)
+        if m["f1"] > best_f1:
+            best_f1, best_t, best_metrics = m["f1"], t, m
+    return best_t, best_metrics
 
 
 def load_calibrated_thresholds(results_dir: str):
@@ -148,56 +152,52 @@ def load_calibrated_thresholds(results_dir: str):
 # Condition implementations
 # ---------------------------------------------------------------------------
 
-def run_condition_a(detector_kwargs, eval_sets, ci_thresh, det_thresh):
+def run_condition_a(detector_kwargs, eval_sets):
     """Condition A: zero-shot Moirai (no fine-tuning)."""
     logger.info("[A] Initialising Moirai zero-shot...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
-    det.initialize()   # no checkpoint → uses HuggingFace base model
-    return _evaluate_all(det, eval_sets, ci_thresh, det_thresh)
+    det.initialize()
+    return _evaluate_all(det, eval_sets)
 
 
-def run_condition_b(detector_kwargs, eval_sets, ci_thresh, det_thresh,
-                    synthetic_dir, epochs, batch_size, lr):
+def run_condition_b(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
     """Condition B: fine-tuned with NLL only (contrastive_weight=0.0)."""
     logger.info("[B] Fine-tuning Moirai (NLL only, no contrastive loss)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.0,
                use_hard_negatives=True, use_constraints=True)
-    return _evaluate_all(det, eval_sets, ci_thresh, det_thresh)
+    return _evaluate_all(det, eval_sets)
 
 
-def run_condition_c(detector_kwargs, eval_sets, ci_thresh, det_thresh,
-                    synthetic_dir, epochs, batch_size, lr):
+def run_condition_c(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
     """Condition C: fine-tuned NLL+SupCon with REAL attacks (no hard negatives)."""
     logger.info("[C] Fine-tuning Moirai (NLL+SupCon, real attacks, no hard negatives)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
                use_hard_negatives=False, use_constraints=True)
-    return _evaluate_all(det, eval_sets, ci_thresh, det_thresh)
+    return _evaluate_all(det, eval_sets)
 
 
-def run_condition_d(detector_kwargs, eval_sets, ci_thresh, det_thresh,
-                    synthetic_dir, epochs, batch_size, lr):
+def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
     """Condition D: full system (NLL+SupCon + hard negatives + constraints)."""
     logger.info("[D] Fine-tuning Moirai (full system)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
                use_hard_negatives=True, use_constraints=True)
-    return _evaluate_all(det, eval_sets, ci_thresh, det_thresh)
+    return _evaluate_all(det, eval_sets)
 
 
-def run_condition_e(detector_kwargs, eval_sets, ci_thresh, det_thresh,
-                    synthetic_dir, epochs, batch_size, lr):
+def run_condition_e(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
     """Condition E: full system but WITHOUT protocol constraints."""
     logger.info("[E] Fine-tuning Moirai (full system, NO protocol constraints)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
                use_hard_negatives=True, use_constraints=False)
-    return _evaluate_all(det, eval_sets, ci_thresh, det_thresh)
+    return _evaluate_all(det, eval_sets)
 
 
 # ---------------------------------------------------------------------------
@@ -273,17 +273,25 @@ def _fine_tune(
         logger.warning(f"Fine-tuning failed: {e}")
 
 
-def _evaluate_all(detector, eval_sets, ci_thresh, det_thresh):
-    """Evaluate detector on every (X, y) pair in eval_sets."""
+def _evaluate_all(detector, eval_sets, ci_thresh=None, det_thresh=None):
+    """Evaluate detector on every (X, y) pair in eval_sets.
+
+    For each eval set, scores all samples with NLL and sweeps the threshold
+    to find the best F1. This makes each condition self-calibrating, enabling
+    fair comparison across base/fine-tuned models with different NLL scales.
+    """
     results = {}
     for name, (X, y) in eval_sets.items():
         logger.info(f"  Evaluating on {name} ({len(X)} samples)...")
-        metrics = score_and_evaluate(detector, X, y, ci_thresh, det_thresh)
+        raw_scores = score_samples(detector, X)
+        best_t, metrics = find_best_threshold(raw_scores, y)
         results[name] = {k: (v.tolist() if hasattr(v, "tolist") else v)
                          for k, v in metrics.items()}
+        results[name]["best_threshold"] = float(best_t)
         logger.info(
             f"  {name}: F1={metrics.get('f1', 0):.3f}, "
-            f"FPR={metrics.get('false_positive_rate', 1):.3f}"
+            f"FPR={metrics.get('false_positive_rate', 1):.3f}, "
+            f"ROC-AUC={metrics.get('roc_auc') or 0:.3f}"
         )
     return results
 
@@ -332,9 +340,6 @@ def main():
         logger.error("No evaluation sets available; aborting")
         sys.exit(1)
 
-    # Load calibrated thresholds
-    ci_thresh, det_thresh = load_calibrated_thresholds(args.results_dir)
-
     detector_kwargs = dict(
         model_size=args.model_size,
         context_length=96,
@@ -353,11 +358,11 @@ def main():
     to_run = ["a", "b", "c", "d", "e"] if args.condition == "all" else [args.condition]
 
     condition_fns = {
-        "a": lambda: run_condition_a(detector_kwargs, eval_sets, ci_thresh, det_thresh),
-        "b": lambda: run_condition_b(detector_kwargs, eval_sets, ci_thresh, det_thresh, **ft_kwargs),
-        "c": lambda: run_condition_c(detector_kwargs, eval_sets, ci_thresh, det_thresh, **ft_kwargs),
-        "d": lambda: run_condition_d(detector_kwargs, eval_sets, ci_thresh, det_thresh, **ft_kwargs),
-        "e": lambda: run_condition_e(detector_kwargs, eval_sets, ci_thresh, det_thresh, **ft_kwargs),
+        "a": lambda: run_condition_a(detector_kwargs, eval_sets),
+        "b": lambda: run_condition_b(detector_kwargs, eval_sets, **ft_kwargs),
+        "c": lambda: run_condition_c(detector_kwargs, eval_sets, **ft_kwargs),
+        "d": lambda: run_condition_d(detector_kwargs, eval_sets, **ft_kwargs),
+        "e": lambda: run_condition_e(detector_kwargs, eval_sets, **ft_kwargs),
     }
 
     all_condition_results = {}

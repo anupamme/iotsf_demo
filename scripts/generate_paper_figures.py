@@ -12,7 +12,7 @@ Figure 4 — Hyperparameter sensitivity heatmap (λ × temperature)
 Figure 5 — Training curves (NLL + contrastive loss)
 Figure 6 — ROC curves for all 9 methods on stealth-95
 
-Output directory: results/figures/  (PDFs suitable for LaTeX \includegraphics)
+Output directory: results/figures/  (PDFs suitable for LaTeX includegraphics)
 
 Usage:
     python scripts/generate_paper_figures.py

@@ -544,7 +544,7 @@ class MoiraiAnomalyDetector:
 
         # Initialize arrays
         predictions = np.zeros_like(traffic)
-        nll_scores = np.zeros(seq_length)
+        nll_scores = np.full(seq_length, -np.inf)
 
         # Patch size for model
         patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
@@ -581,27 +581,12 @@ class MoiraiAnomalyDetector:
                     window_nlls.append(0.0)
                     window_positions.append((i, i + full_length))
 
-            # Convert to numpy
+            # Convert to numpy — return raw NLL as anomaly score.
+            # Higher NLL = less predictable = more anomalous.
+            # No normalization: the calibration script finds the optimal
+            # threshold on the raw scale.
             window_nlls = np.array(window_nlls)
-
-            # Convert NLL to anomaly score
-            # For STEALTH attacks: HIGHER NLL = less predictable = more likely attack
-            # (Stealth attacks are designed to look unpredictable/random like noise)
-            #
-            # Base model produces NLL ~ -1 to -4:
-            #   - Attacks: higher NLL (~ -1.3 to -2.2)
-            #   - Benign: lower NLL (~ -2.2 to -3.9)
-            #
-            # We use INVERTED sigmoid: higher NLL → higher anomaly score
-            BASELINE_NLL = -2.5  # Midpoint for base model (attacks > -2.5, benign < -2.5)
-            SCALE_FACTOR = 2.0  # Steeper sigmoid for clearer separation
-
-            if len(window_nlls) > 0:
-                # Higher NLL -> higher anomaly score (for stealth attack detection)
-                # sigmoid(k*(nll - baseline)) gives high score for high NLL
-                normalized_nlls = 1.0 / (1.0 + np.exp(-SCALE_FACTOR * (window_nlls - BASELINE_NLL)))
-            else:
-                normalized_nlls = np.zeros_like(window_nlls)
+            normalized_nlls = window_nlls
 
             # Map window NLL scores to per-timestep scores
             # Each timestep gets the max NLL of windows it belongs to
@@ -623,7 +608,12 @@ class MoiraiAnomalyDetector:
                 window = traffic[i:i + full_length]
                 predictions[i:i + full_length] = window  # Simple: use actual as prediction
 
-        # Flag anomalies based on normalized NLL score
+        # Replace any uncovered timesteps (still -inf) with the minimum observed NLL
+        still_neg_inf = np.isinf(nll_scores) & (nll_scores < 0)
+        if still_neg_inf.any() and not still_neg_inf.all():
+            nll_scores[still_neg_inf] = nll_scores[~still_neg_inf].min()
+
+        # Flag anomalies based on NLL score
         is_anomaly = nll_scores > threshold
 
         # For NLL method, we don't have traditional confidence intervals

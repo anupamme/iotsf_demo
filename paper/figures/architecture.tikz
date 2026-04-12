@@ -4,7 +4,7 @@
 \begin{tikzpicture}[
   node distance=0.6cm and 1.1cm,
   box/.style={draw, rounded corners=3pt, minimum width=2.0cm, minimum height=0.7cm,
-              text centered, font=\small},
+              align=center, font=\small},
   stage/.style={draw, dashed, rounded corners=5pt, inner sep=6pt, fill=gray!5},
   arrow/.style={-{Stealth[length=3pt]}, thick},
   label/.style={font=\footnotesize\itshape},
