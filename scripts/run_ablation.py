@@ -43,10 +43,11 @@ from src.evaluation.metrics import IDSMetrics
 # Data loading helpers
 # ---------------------------------------------------------------------------
 
-def load_synthetic(synthetic_dir: str, rng: np.random.Generator):
+def load_synthetic(synthetic_dir: str, rng: np.random.Generator, max_eval_samples: int = 50):
     """
     Returns dicts of hard-negative arrays keyed by attack condition and
-    a benign array.
+    a benign array.  max_eval_samples caps the number of attack samples
+    per stealth level to keep evaluation fast.
     """
     synth = Path(synthetic_dir)
     attack_types = ["slow_exfiltration", "lotl_mimicry", "beacon", "protocol_anomaly"]
@@ -62,13 +63,17 @@ def load_synthetic(synthetic_dir: str, rng: np.random.Generator):
             if fp.exists():
                 chunks.append(np.load(fp))
         if chunks:
-            conditions[f"stealth_{stealth}"] = np.concatenate(chunks)
+            arr = np.concatenate(chunks)
+            if len(arr) > max_eval_samples:
+                idx = rng.choice(len(arr), size=max_eval_samples, replace=False)
+                arr = arr[idx]
+            conditions[f"stealth_{stealth}"] = arr
 
     return benign, conditions
 
 
-def build_eval_sets(benign, conditions, rng):
-    """Build (X, y) pairs for stealth-95 and all-stealth."""
+def build_eval_sets(benign, conditions, rng, max_eval_samples: int = 50):
+    """Build balanced (X, y) pairs for each stealth level and all combined."""
     eval_sets = {}
 
     if benign is None:
@@ -82,9 +87,9 @@ def build_eval_sets(benign, conditions, rng):
         y = np.array([0] * n_b + [1] * len(attacks))
         eval_sets[key] = (X, y)
 
-    # Combined all stealth levels
+    # Combined all stealth levels (cap benign to max_eval_samples)
     all_attacks = np.concatenate(list(conditions.values()))
-    n_b = min(len(benign), len(all_attacks))
+    n_b = min(len(benign), max_eval_samples)
     b_idx = rng.choice(len(benign), size=n_b, replace=False)
     X_all = np.concatenate([benign[b_idx], all_attacks])
     y_all = np.array([0] * n_b + [1] * len(all_attacks))
@@ -106,16 +111,19 @@ def score_and_evaluate(
 ):
     """Run detector on X and return metrics dict."""
     preds, scores = [], []
-    for sample in X:
+    n = len(X)
+    for i, sample in enumerate(X):
         try:
             result = detector.detect_anomalies(sample, threshold=ci_thresh)
             pred = 1 if result.anomaly_rate > det_thresh else 0
             preds.append(pred)
             scores.append(float(result.anomaly_scores.mean()))
         except Exception as e:
-            logger.warning(f"Detection error: {e}")
+            logger.warning(f"Detection error on sample {i}: {e}")
             preds.append(0)
             scores.append(0.0)
+        if (i + 1) % 10 == 0 or (i + 1) == n:
+            logger.debug(f"    scored {i + 1}/{n}")
 
     preds_arr = np.array(preds)
     scores_arr = np.array(scores)
@@ -228,9 +236,20 @@ def _fine_tune(
         chunks = [np.load(p) for p in attack_files]
         attacks = np.concatenate(chunks)
     else:
-        # Use benign copies with noise as stand-in "real attacks" for condition C
-        rng = np.random.default_rng(0)
-        attacks = benign + rng.normal(0, 0.3, benign.shape)
+        # Condition C: use noisy benign copies as stand-in "real attacks"
+        rng_ft = np.random.default_rng(0)
+        attacks = benign + rng_ft.normal(0, 0.3, benign.shape)
+
+    # Build train/val arrays with labels
+    rng_split = np.random.default_rng(1)
+    all_X = np.concatenate([benign, attacks])
+    all_y = np.array([0] * len(benign) + [1] * len(attacks))
+    perm = rng_split.permutation(len(all_X))
+    n_val = max(4, int(0.15 * len(all_X)))
+    val_idx = perm[:n_val]
+    train_idx = perm[n_val:]
+    train_data, train_labels = all_X[train_idx], all_y[train_idx]
+    val_data, val_labels = all_X[val_idx], all_y[val_idx]
 
     # Attempt supervised fine-tuning
     ft_method = getattr(detector, "fine_tune_supervised", None)
@@ -240,9 +259,11 @@ def _fine_tune(
 
     try:
         ft_method(
-            benign_sequences=benign,
-            attack_sequences=attacks,
-            epochs=epochs,
+            train_data=train_data,
+            train_labels=train_labels,
+            val_data=val_data,
+            val_labels=val_labels,
+            n_epochs=epochs,
             batch_size=batch_size,
             learning_rate=lr,
             contrastive_weight=contrastive_weight,
@@ -287,6 +308,12 @@ def main():
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument(
+        "--max-eval-samples", type=int, default=50,
+        help="Max attack samples per stealth level in eval sets (default 50). "
+             "Full dataset has 200/level → ~1400 samples/condition → ~10hrs on CPU. "
+             "Use 20 for a quick smoke-test (~15 min), 50 for a paper-quality run (~1hr)."
+    )
     args = parser.parse_args()
 
     output_root = Path(args.results_dir) / "ablation"
@@ -295,9 +322,12 @@ def main():
     rng = np.random.default_rng(42)
 
     # Load data
-    logger.info("Loading synthetic data...")
-    benign, conditions = load_synthetic(args.synthetic_dir, rng)
-    eval_sets = build_eval_sets(benign, conditions, rng)
+    logger.info(f"Loading synthetic data (max_eval_samples={args.max_eval_samples} per stealth level)...")
+    benign, conditions = load_synthetic(args.synthetic_dir, rng, max_eval_samples=args.max_eval_samples)
+    eval_sets = build_eval_sets(benign, conditions, rng, max_eval_samples=args.max_eval_samples)
+    total_evals = sum(len(y) for _, y in eval_sets.values())
+    logger.info(f"Total inference calls per condition: {total_evals} "
+                f"(× {len(['a','b','c','d','e'] if args.condition == 'all' else [args.condition])} conditions)")
     if not eval_sets:
         logger.error("No evaluation sets available; aborting")
         sys.exit(1)

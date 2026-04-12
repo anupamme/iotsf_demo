@@ -191,9 +191,8 @@ def main():
         context_length=96,
         prediction_length=32,
         confidence_level=0.95,
-        checkpoint_path=args.checkpoint,
     )
-    detector.initialize()
+    detector.initialize(checkpoint_path=args.checkpoint)
     logger.info(f"Detector ready on {detector.device}")
 
     # --- Define sweep grids ---
