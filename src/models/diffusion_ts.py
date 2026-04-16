@@ -301,7 +301,10 @@ class IoTDiffusionGenerator:
         self,
         benign_sample: np.ndarray,
         attack_pattern: str = 'slow_exfiltration',
-        stealth_level: float = 0.95
+        stealth_level: float = 0.95,
+        retry_mode: str = 'full',
+        max_retries: int = 3,
+        stealth_relax_step: float = 0.01,
     ) -> Tuple[np.ndarray, Dict]:
         """
         Generate a hard-negative attack that mimics benign traffic.
@@ -310,6 +313,17 @@ class IoTDiffusionGenerator:
             benign_sample: Reference benign traffic to mimic
             attack_pattern: Type of attack pattern to inject
             stealth_level: 0-1, higher means more similar to benign
+            retry_mode: Controls the retry/constraint behaviour for ablation.
+                'full'               — condition D: generate once at stealth_level,
+                                       return immediately (constraint retry handled
+                                       externally by HardNegativeGenerator).
+                'unconditional_retry'— condition E': iterate max_retries times,
+                                       relaxing stealth by stealth_relax_step each
+                                       iteration regardless of any constraint check;
+                                       returns the last generated sample.
+                'none'               — condition E: generate once, no retry.
+            max_retries: Number of unconditional iterations for 'unconditional_retry'.
+            stealth_relax_step: Step size for stealth relaxation per iteration.
 
         Returns:
             Tuple of (generated_attack, attack_metadata)
@@ -318,27 +332,29 @@ class IoTDiffusionGenerator:
         - HARD_NEG_STD_DEVIATION_SCALING: Controls statistical deviation
         - HARD_NEG_GUIDANCE_SCALE_MULTIPLIER: Converts stealth level to guidance scale
         """
-        # Extract statistics from benign sample
-        target_stats = {
-            'mean': float(benign_sample.mean()),
-            'std': float(benign_sample.std()) * (1 + (1 - stealth_level) * HARD_NEG_STD_DEVIATION_SCALING),
-            # Match variance within threshold
-        }
+        s = stealth_level
+        n_iters = max_retries if retry_mode == 'unconditional_retry' else 1
 
-        # Generate with guidance
-        generated = self.generate(
-            n_samples=1,
-            target_statistics=target_stats,
-            guidance_scale=stealth_level * HARD_NEG_GUIDANCE_SCALE_MULTIPLIER
-        )[0]
-
-        # Inject attack pattern (subtle modifications)
-        generated = self._inject_attack_pattern(generated, attack_pattern)
+        generated = None
+        for _ in range(n_iters):
+            target_stats = {
+                'mean': float(benign_sample.mean()),
+                'std': float(benign_sample.std()) * (1 + (1 - s) * HARD_NEG_STD_DEVIATION_SCALING),
+            }
+            generated = self.generate(
+                n_samples=1,
+                target_statistics=target_stats,
+                guidance_scale=s * HARD_NEG_GUIDANCE_SCALE_MULTIPLIER
+            )[0]
+            generated = self._inject_attack_pattern(generated, attack_pattern)
+            if retry_mode == 'unconditional_retry':
+                s = min(s + stealth_relax_step, 1.0)  # relax stealth each iteration
 
         metadata = {
             'attack_type': attack_pattern,
-            'stealth_level': stealth_level,
-            'target_stats': target_stats,
+            'stealth_level': s,           # effective stealth of the returned sample
+            'requested_stealth': stealth_level,
+            'retry_mode': retry_mode,
             'mean_diff': abs(generated.mean() - benign_sample.mean()),
             'std_diff': abs(generated.std() - benign_sample.std())
         }

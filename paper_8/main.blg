@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: plainnat.bst
+Database file #1: bibliography.bib
+Warning--can't use both volume and number fields in liu2012isolation
+Warning--can't use both volume and number fields in tuli2022tranad
+You've used 27 entries,
+            2773 wiz_defined-function locations,
+            721 strings with 9403 characters,
+and the built_in function-call counts, 12119 in all, are:
+= -- 1010
+> -- 764
+< -- 23
++ -- 261
+- -- 234
+* -- 852
+:= -- 1876
+add.period$ -- 95
+call.type$ -- 27
+change.case$ -- 143
+chr.to.int$ -- 27
+cite$ -- 56
+duplicate$ -- 626
+empty$ -- 1074
+format.name$ -- 280
+if$ -- 2596
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 26
+newline$ -- 156
+num.names$ -- 108
+pop$ -- 366
+preamble$ -- 1
+purify$ -- 115
+quote$ -- 0
+skip$ -- 445
+stack$ -- 0
+substring$ -- 129
+swap$ -- 69
+text.length$ -- 4
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 297
+warning$ -- 2
+while$ -- 89
+width$ -- 0
+write$ -- 366
+(There were 2 warnings)

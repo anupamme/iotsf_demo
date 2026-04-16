@@ -25,6 +25,7 @@ ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from src.models.constraints.manager import IoTConstraintManager
+from src.models.hard_negative_generator import HardNegativeGenerator
 
 
 # ---------------------------------------------------------------------------
@@ -100,6 +101,60 @@ def check_samples(
 
 
 # ---------------------------------------------------------------------------
+# Retry statistics via HardNegativeGenerator
+# ---------------------------------------------------------------------------
+
+def collect_retry_stats(
+    attack_type: str, n_samples: int, strictness: str = "moderate"
+) -> dict:
+    """
+    Run HardNegativeGenerator for `n_samples` of `attack_type` at `strictness`
+    and return the generation statistics (avg_retries, pct_first_try, etc.).
+
+    If the generator fails to initialise (no checkpoint), returns placeholder stats.
+    """
+    try:
+        manager = IoTConstraintManager()
+        gen = HardNegativeGenerator(
+            constraint_manager=manager,
+            max_retries=5,
+            strictness=strictness,
+        )
+        gen.initialize()
+        gen.reset_statistics()
+
+        # Generate a small batch to measure retries — capped at 20 for speed
+        n_gen = min(n_samples, 20)
+        attack_map = {
+            "slow_exfiltration": "slow_exfil",
+            "lotl_mimicry": "lotl",
+            "beacon": "beacon",
+            "protocol_anomaly": "protocol_anomaly",
+        }
+        pattern = attack_map.get(attack_type, attack_type)
+        gen.generate_batch(n_samples=n_gen, attack_pattern=pattern)
+
+        stats = gen.get_generation_statistics()
+        retry_counts = stats.get("retry_counts", [])
+        total = len(retry_counts)
+        first_try = sum(1 for r in retry_counts if r == 0)
+        return {
+            "avg_retries": float(stats.get("average_retries", 0)),
+            "max_retries_used": int(stats.get("max_retries_used", 0)),
+            "pct_first_try": float(first_try / total) if total > 0 else 1.0,
+            "total_generated": total,
+        }
+    except Exception as e:
+        logger.warning(f"Could not collect retry stats for {attack_type}/{strictness}: {e}")
+        return {
+            "avg_retries": 0.0,
+            "max_retries_used": 0,
+            "pct_first_try": 1.0,
+            "total_generated": 0,
+        }
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -112,6 +167,8 @@ def main():
     parser.add_argument("--output-dir", default="results")
     parser.add_argument("--n-samples", type=int, default=100,
                         help="Samples per (attack_type × protocol) cell (default 100)")
+    parser.add_argument("--skip-retry-stats", action="store_true",
+                        help="Skip HardNegativeGenerator retry stat collection (faster)")
     args = parser.parse_args()
 
     output_path = Path(args.output_dir)
@@ -126,6 +183,7 @@ def main():
         sys.exit(1)
 
     results = {}   # {attack_type: {protocol: {strictness: stats}}}
+    retry_stats = {}  # {attack_type: retry_stats_dict}
 
     total_cells = len(ATTACK_TYPES) * len(PROTOCOLS) * len(STRICTNESS_LEVELS)
     done = 0
@@ -150,33 +208,52 @@ def main():
                     f"({stats['n_pass']}/{stats['n_total']})"
                 )
 
+        # Collect retry stats at moderate strictness (training default)
+        if not args.skip_retry_stats:
+            logger.info(f"  Collecting retry stats for {attack_type}...")
+            rs = collect_retry_stats(attack_type, args.n_samples, strictness="moderate")
+            retry_stats[attack_type] = rs
+            logger.info(
+                f"  avg_retries={rs['avg_retries']:.2f}, "
+                f"pct_first_try={rs['pct_first_try']:.1%}, "
+                f"max_retries={rs['max_retries_used']}"
+            )
+
     # --- Save JSON ---
     out_json = output_path / "constraint_analysis.json"
     with open(out_json, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump({"pass_rates": results, "retry_stats": retry_stats}, f, indent=2)
     logger.success(f"Saved JSON to {out_json}")
 
     # --- Build readable table ---
-    lines = ["=" * 90]
+    lines = ["=" * 100]
     lines.append("PROTOCOL CONSTRAINT COMPLIANCE PASS RATES  (Table 3)")
-    lines.append("=" * 90)
+    lines.append("=" * 100)
     lines.append(
-        f"{'Attack Type':<22} {'Protocol':<10} {'Strict':>8} {'Moderate':>10} {'Permissive':>12}"
+        f"{'Attack Type':<22} {'Protocol':<10} {'Strict':>8} {'Moderate':>10} "
+        f"{'Permissive':>12} {'Avg Retries':>13} {'1st-try%':>10}"
     )
-    lines.append("-" * 90)
+    lines.append("-" * 100)
 
     for attack_type in ATTACK_TYPES:
-        for protocol in PROTOCOLS:
+        rs = retry_stats.get(attack_type, {})
+        avg_ret = rs.get("avg_retries", 0.0)
+        pct_ft = rs.get("pct_first_try", 1.0)
+        for i, protocol in enumerate(PROTOCOLS):
             row = results[attack_type][protocol]
+            # Only show retry stats on first protocol row per attack type
+            ret_col = f"{avg_ret:>13.2f}" if i == 0 else " " * 13
+            ft_col = f"{pct_ft:>10.1%}" if i == 0 else " " * 10
             lines.append(
-                f"{attack_type:<22} {protocol:<10} "
+                f"{attack_type if i == 0 else '':<22} {protocol:<10} "
                 f"{row['strict']['pass_rate']:>8.1%} "
                 f"{row['moderate']['pass_rate']:>10.1%} "
                 f"{row['permissive']['pass_rate']:>12.1%}"
+                f"{ret_col}{ft_col}"
             )
         lines.append("")
 
-    lines.append("=" * 90)
+    lines.append("=" * 100)
     table_text = "\n".join(lines)
     print("\n" + table_text)
 

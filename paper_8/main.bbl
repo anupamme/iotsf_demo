@@ -1,0 +1,196 @@
+\begin{thebibliography}{27}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Audibert et~al.(2020)]{audibert2020usad}
+Julien Audibert et~al.
+\newblock {USAD}: Unsupervised anomaly detection on multivariate time series.
+\newblock In \emph{ACM SIGKDD International Conference on Knowledge Discovery
+  and Data Mining (KDD)}, 2020.
+\newblock URL \url{https://dl.acm.org/doi/10.1145/3394486.3403392}.
+
+\bibitem[Bengio et~al.(2009)]{bengio2009curriculum}
+Yoshua Bengio et~al.
+\newblock Curriculum learning.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2009.
+
+\bibitem[Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton]{chen2020simclr}
+Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton.
+\newblock A simple framework for contrastive learning of visual
+  representations.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2002.05709}.
+
+\bibitem[Das et~al.(2024)]{das2024timeseries}
+Abhimanyu Das et~al.
+\newblock A decoder-only foundation model for time-series forecasting.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.10688}.
+
+\bibitem[Eldele et~al.(2021)]{eldele2021ts2vec}
+Emadeldeen Eldele et~al.
+\newblock Time-series representation learning via temporal and contextual
+  contrasting.
+\newblock In \emph{International Joint Conference on Artificial Intelligence
+  (IJCAI)}, 2021.
+
+\bibitem[Garcia et~al.(2014)]{garcia2014empirical}
+Sebastian Garcia et~al.
+\newblock An empirical comparison of botnet detection methods.
+\newblock \emph{Computers \& Security}, 45, 2014.
+
+\bibitem[Goodfellow et~al.(2015)Goodfellow, Shlens, and
+  Szegedy]{goodfellow2015adversarial}
+Ian~J. Goodfellow, Jonathon Shlens, and Christian Szegedy.
+\newblock Explaining and harnessing adversarial examples.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2015.
+\newblock URL \url{https://arxiv.org/abs/1412.6572}.
+
+\bibitem[Goswami et~al.(2024)]{goswami2024moment}
+Mononito Goswami et~al.
+\newblock {MOMENT}: A family of open time-series foundation models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Grill et~al.(2020)]{grill2020byol}
+Jean-Bastien Grill et~al.
+\newblock Bootstrap your own latent: A new approach to self-supervised
+  learning.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2006.07733}.
+
+\bibitem[Houlsby et~al.(2019)Houlsby, Giurgiu, Jastrzebski, Morber, Larsson,
+  Gesmundo, Attariyan, and Gelly]{houlsby2019adapters}
+Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morber, Hugo
+  Larsson, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly.
+\newblock Parameter-efficient transfer learning for {NLP}.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+  2790--2799, 2019.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2022lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+
+\bibitem[{IoT Analytics}(2023)]{iotanalyticsmarket2023}
+{IoT Analytics}.
+\newblock {IoT} analytics: State of {IoT} -- spring 2023.
+\newblock Technical report, IoT Analytics GmbH, 2023.
+\newblock URL \url{https://iot-analytics.com/number-connected-iot-devices/}.
+
+\bibitem[Khosla et~al.(2020)]{khosla2020supcon}
+Prannay Khosla et~al.
+\newblock Supervised contrastive learning.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2004.11362}.
+
+\bibitem[Lin et~al.(2022)]{lin2018idsgan}
+Zilong Lin et~al.
+\newblock {IDSGAN}: Generative adversarial networks for attack generation
+  against intrusion detection.
+\newblock In \emph{Pacific-Asia Conference on Knowledge Discovery and Data
+  Mining}, 2022.
+
+\bibitem[Liu et~al.(2012)Liu, Ting, and Zhou]{liu2012isolation}
+Fei~Tony Liu, Kai~Ming Ting, and Zhi-Hua Zhou.
+\newblock Isolation-based anomaly detection.
+\newblock In \emph{ACM Transactions on Knowledge Discovery from Data (TKDD)},
+  volume~6, 2012.
+
+\bibitem[Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and
+  Vladu]{madry2018pgd}
+Aleksander Madry, Aleksandar Makelov, Ludwig Schmidt, Dimitris Tsipras, and
+  Adrian Vladu.
+\newblock Towards deep learning models resistant to adversarial attacks.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2018.
+\newblock URL \url{https://arxiv.org/abs/1706.06083}.
+
+\bibitem[Meidan et~al.(2018)Meidan, Bohadana, Mathov, Mirsky, Shabtai,
+  Breitenbacher, and Elovici]{meidan2018n}
+Yair Meidan, Michael Bohadana, Yael Mathov, Yisroel Mirsky, Asaf Shabtai,
+  Dominik Breitenbacher, and Yuval Elovici.
+\newblock {N-BaIoT}: Network-based detection of {IoT} botnet attacks using deep
+  autoencoders.
+\newblock \emph{IEEE Pervasive Computing}, 17\penalty0 (3):\penalty0 12--22,
+  2018.
+
+\bibitem[Moustafa and Slay(2015)]{moustafa2015unsw}
+Nour Moustafa and Jill Slay.
+\newblock {UNSW-NB15}: A comprehensive data set for network intrusion detection
+  systems.
+\newblock In \emph{Military Communications and Information Systems Conference
+  (MilCIS)}, pages 1--6. IEEE, 2015.
+
+\bibitem[Neto et~al.(2023)]{neto2023ciciot}
+Euclides Carlos~Pinto Neto et~al.
+\newblock {CICIoT2023}: A real-time dataset and benchmark for large-scale
+  attacks in iot environment.
+\newblock \emph{Sensors}, 23\penalty0 (13), 2023.
+
+\bibitem[Nie et~al.(2023)]{nie2023patchtst}
+Yuqi Nie et~al.
+\newblock A time series is worth 64 words: Long-term forecasting with
+  transformers.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2211.14730}.
+
+\bibitem[Reiss et~al.(2021)]{reiss2021panda}
+Tal Reiss et~al.
+\newblock {PANDA}: Adapting pretrained features for anomaly detection and
+  segmentation.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2021.
+
+\bibitem[Sohn et~al.(2020)]{sohn2020fixmatch}
+Kihyuk Sohn et~al.
+\newblock {FixMatch}: Simplifying semi-supervised learning with consistency and
+  confidence.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+
+\bibitem[Tuli et~al.(2022)]{tuli2022tranad}
+Shreshth Tuli et~al.
+\newblock {TranAD}: Deep transformer networks for anomaly detection in
+  multivariate time series data.
+\newblock In \emph{Proceedings of the VLDB Endowment}, volume~15, 2022.
+\newblock URL \url{https://arxiv.org/abs/2201.07284}.
+
+\bibitem[Woo et~al.(2024)]{woo2024moirai}
+Gerald Woo et~al.
+\newblock Unified training of universal time series forecasting transformers.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.02592}.
+
+\bibitem[Xu et~al.(2022)]{xu2022anomaly}
+Jiehui Xu et~al.
+\newblock Anomaly transformer: Time series anomaly detection with association
+  discrepancy.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2110.02642}.
+
+\bibitem[Yoon et~al.(2019)Yoon, Jarrett, and van~der Schaar]{yoon2019timegan}
+Jinsung Yoon, Daniel Jarrett, and Mihaela van~der Schaar.
+\newblock Time-series generative adversarial networks.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2019.
+
+\bibitem[Zhang et~al.(2024)]{zhang2024diffusionts}
+Xinyu Zhang et~al.
+\newblock Diffusion-ts: Interpretable diffusion for general time series
+  generation.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2403.01742}.
+
+\end{thebibliography}

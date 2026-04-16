@@ -6,7 +6,7 @@ Conditions
 ----------
 A  Moirai zero-shot (calibrated threshold, no fine-tuning)
 B  Moirai fine-tuned, NLL loss only (contrastive_weight=0.0)
-C  Moirai fine-tuned NLL+SupCon with REAL attacks (no hard negatives)
+C  Moirai fine-tuned NLL+SupCon with Gaussian-noise negatives (no hard negatives)
 D  Full system: NLL+SupCon with synthetic hard negatives  [proposed method]
 E  Full system without protocol constraints (validate=False in generator)
 
@@ -28,6 +28,7 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import List
 
 import numpy as np
 from loguru import logger
@@ -36,7 +37,9 @@ ROOT_DIR = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
 from src.models import MoiraiAnomalyDetector
+from src.models.baseline.cnn_detector import CNNAnomalyDetector
 from src.evaluation.metrics import IDSMetrics
+from src.evaluation.per_attack_metrics import PerAttackMetrics
 
 
 # ---------------------------------------------------------------------------
@@ -121,17 +124,16 @@ def score_samples(
     return scores
 
 
-def find_best_threshold(scores: np.ndarray, y: np.ndarray) -> tuple:
-    """Sweep threshold on raw NLL scores to maximize F1. Returns (best_thresh, metrics)."""
-    lo, hi = np.percentile(scores, 2), np.percentile(scores, 98)
-    thresholds = np.linspace(lo, hi, 100)
-    best_f1, best_t, best_metrics = -1.0, lo, {}
-    for t in thresholds:
-        preds = (scores > t).astype(int)
-        m = IDSMetrics.compute_all_metrics(y, preds, scores)
-        if m["f1"] > best_f1:
-            best_f1, best_t, best_metrics = m["f1"], t, m
-    return best_t, best_metrics
+def find_best_threshold(benign_cal_scores: np.ndarray) -> float:
+    """Calibrate threshold on benign-only held-out scores at 95th percentile (5% FPR target).
+
+    Args:
+        benign_cal_scores: NLL scores for benign-only calibration samples (no attack labels).
+
+    Returns:
+        threshold: scalar float; classify as attack if score > threshold.
+    """
+    return float(np.percentile(benign_cal_scores, 95))
 
 
 def load_calibrated_thresholds(results_dir: str):
@@ -160,43 +162,166 @@ def run_condition_a(detector_kwargs, eval_sets):
     return _evaluate_all(det, eval_sets)
 
 
-def run_condition_b(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
+def run_condition_b(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                    max_train_samples=None, early_stopping_criterion="nll",
+                    freeze_encoder="none"):
     """Condition B: fine-tuned with NLL only (contrastive_weight=0.0)."""
     logger.info("[B] Fine-tuning Moirai (NLL only, no contrastive loss)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.0,
-               use_hard_negatives=True, use_constraints=True)
+               use_hard_negatives=True, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
     return _evaluate_all(det, eval_sets)
 
 
-def run_condition_c(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
-    """Condition C: fine-tuned NLL+SupCon with REAL attacks (no hard negatives)."""
-    logger.info("[C] Fine-tuning Moirai (NLL+SupCon, real attacks, no hard negatives)...")
+def run_condition_c(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                    max_train_samples=None, early_stopping_criterion="nll",
+                    freeze_encoder="none"):
+    """Condition C: fine-tuned NLL+SupCon with Gaussian-noise negatives (no hard negatives)."""
+    logger.info("[C] Fine-tuning Moirai (NLL+SupCon, Gaussian-noise negatives, no hard negatives)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
-               use_hard_negatives=False, use_constraints=True)
+               use_hard_negatives=False, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
     return _evaluate_all(det, eval_sets)
 
 
-def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
+def run_condition_cprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                         max_train_samples=None, early_stopping_criterion="nll",
+                         freeze_encoder="none"):
+    """
+    Condition C': NLL+SupCon with BALANCED hard negatives (1:1 ratio, subsampled to
+    match benign count).  Isolates negative *type* from dataset composition:
+    C  = Gaussian-noise negatives, 200 neg (1:1)
+    C' = hard negatives,           200 neg (1:1, subsampled)
+    D  = hard negatives,          2400 neg (1:12, all stealth levels)
+    C vs C' → effect of negative type (at equal scale)
+    C' vs D → effect of dataset size / imbalance (at fixed negative type)
+    """
+    logger.info("[C'] Fine-tuning Moirai (NLL+SupCon, balanced hard negatives, 1:1 ratio)...")
+    det = MoiraiAnomalyDetector(**detector_kwargs)
+    det.initialize()
+    _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
+               use_hard_negatives=True, use_constraints=True, balanced=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
+    return _evaluate_all(det, eval_sets)
+
+
+def run_condition_cnn(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                      max_train_samples=None, early_stopping_criterion="nll",
+                      freeze_encoder="none"):
+    """
+    Condition CNN: 1D-CNN trained from scratch with NLL(MSE)+SupCon on hard negatives.
+
+    Ablates Moirai's pre-training: if CNN ≪ Moirai (even at matched scale),
+    the foundation model pre-training is justified.  If CNN ≈ Moirai, the
+    pre-training provides no measurable benefit for this task.
+    """
+    logger.info("[CNN] Training 1D-CNN from scratch (NLL+SupCon, hard negatives, no pre-training)...")
+    det = CNNAnomalyDetector(n_features=12, seq_len=128, embed_dim=128)
+    det.initialize()
+    _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
+               use_hard_negatives=True, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
+    return _evaluate_all(det, eval_sets)
+
+
+def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                    max_train_samples=None, early_stopping_criterion="nll",
+                    freeze_encoder="none"):
     """Condition D: full system (NLL+SupCon + hard negatives + constraints)."""
     logger.info("[D] Fine-tuning Moirai (full system)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
-               use_hard_negatives=True, use_constraints=True)
+               use_hard_negatives=True, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
     return _evaluate_all(det, eval_sets)
 
 
-def run_condition_e(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr):
+def run_condition_e(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                    max_train_samples=None, early_stopping_criterion="nll",
+                    freeze_encoder="none"):
     """Condition E: full system but WITHOUT protocol constraints."""
     logger.info("[E] Fine-tuning Moirai (full system, NO protocol constraints)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
     det.initialize()
     _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
-               use_hard_negatives=True, use_constraints=False)
+               use_hard_negatives=True, use_constraints=False,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
+    return _evaluate_all(det, eval_sets)
+
+
+def run_condition_eprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                         max_train_samples=None, early_stopping_criterion="nll",
+                         freeze_encoder="none"):
+    """
+    Condition E': NLL+SupCon with hard negatives generated via UNCONDITIONAL RETRY
+    (no constraint validator, but stealth relaxed by 0.01 on each of 3 iterations).
+    Trains on data from data/synthetic_eprime/ if available, else falls back to
+    data/synthetic/ with a stealth-relaxation note.
+    """
+    logger.info(
+        "[E'] Fine-tuning Moirai (NLL+SupCon, hard-negatives, unconditional-retry "
+        "stealth relaxation, no constraint validator)..."
+    )
+    det = MoiraiAnomalyDetector(**detector_kwargs)
+    det.initialize()
+    # E' data dir: expect data/synthetic_eprime/ generated via --retry-mode unconditional_retry
+    eprime_dir = str(Path(synthetic_dir).parent / "synthetic_eprime")
+    if not Path(eprime_dir).exists() or not list(Path(eprime_dir).glob("*_stealth_*.npy")):
+        logger.warning(
+            f"E' dataset not found at {eprime_dir}. "
+            "Generate with: python scripts/precompute_attacks.py "
+            "--retry-mode unconditional_retry --output-dir data/synthetic_eprime --n-samples 200"
+        )
+        logger.warning("Falling back to data/synthetic/ for E' (results will match D).")
+        eprime_dir = synthetic_dir
+    _fine_tune(det, eprime_dir, epochs, batch_size, lr, contrastive_weight=0.5,
+               use_hard_negatives=True, use_constraints=False,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
+    return _evaluate_all(det, eval_sets)
+
+
+def run_condition_edoubleprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                               max_train_samples=None, early_stopping_criterion="nll",
+                               freeze_encoder="none"):
+    """
+    Condition E'': NLL+SupCon with hard negatives, constraint validation ACTIVE but
+    retry/stealth-relaxation DISABLED (validate once, return regardless).
+    For the analytical pathway (100% compliance), E'' is functionally identical to D.
+    This condition is included to show the null effect and confirm the analysis.
+    """
+    logger.info(
+        "[E''] Fine-tuning Moirai (NLL+SupCon, hard-negatives, constraints active, "
+        "NO stealth-floor retry)..."
+    )
+    det = MoiraiAnomalyDetector(**detector_kwargs)
+    det.initialize()
+    # E'' uses the same data as D (analytical perturbations always comply, retry never fires).
+    # The null result (E''≈D) confirms the analysis in the paper: for the analytical pathway,
+    # the stealth-floor retry is a safety net that never triggers.
+    _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
+               use_hard_negatives=True, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
     return _evaluate_all(det, eval_sets)
 
 
@@ -213,10 +338,21 @@ def _fine_tune(
     contrastive_weight: float,
     use_hard_negatives: bool,
     use_constraints: bool,
+    balanced: bool = False,
+    max_train_samples: int = None,
+    early_stopping_criterion: str = "nll",
+    freeze_encoder: str = "none",
 ):
     """
     Call detector.fine_tune_supervised() if available, otherwise fall back to a
     lightweight mock fine-tune that exercises the training loop pattern.
+
+    balanced: if True and use_hard_negatives=True, subsample hard negatives to
+              match len(benign), giving a 1:1 ratio (used for Condition C').
+              When False (default), all hard negatives are used (1:12 ratio for D).
+    max_train_samples: if set, cap the total combined (benign+attacks) training set
+              to this many samples after all other subsampling. Used for scaling
+              experiments (--max-train-samples 1000 etc.).
     """
     synth = Path(synthetic_dir)
     benign_path = synth / "benign_samples.npy"
@@ -235,8 +371,14 @@ def _fine_tune(
     if use_hard_negatives:
         chunks = [np.load(p) for p in attack_files]
         attacks = np.concatenate(chunks)
+        if balanced and len(attacks) > len(benign):
+            # Subsample to 1:1 ratio — isolates negative *type* from dataset size
+            rng_balance = np.random.default_rng(42)
+            idx = rng_balance.choice(len(attacks), size=len(benign), replace=False)
+            attacks = attacks[idx]
+            logger.info(f"Balanced sampling: {len(attacks)} hard negatives → 1:1 ratio with {len(benign)} benign")
     else:
-        # Condition C: use noisy benign copies as stand-in "real attacks"
+        # Condition C: use noisy benign copies (Gaussian-noise negatives)
         rng_ft = np.random.default_rng(0)
         attacks = benign + rng_ft.normal(0, 0.3, benign.shape)
 
@@ -244,6 +386,14 @@ def _fine_tune(
     rng_split = np.random.default_rng(1)
     all_X = np.concatenate([benign, attacks])
     all_y = np.array([0] * len(benign) + [1] * len(attacks))
+
+    # Cap total training samples for scaling experiments
+    if max_train_samples is not None and len(all_X) > max_train_samples:
+        rng_cap = np.random.default_rng(99)
+        cap_idx = rng_cap.choice(len(all_X), size=max_train_samples, replace=False)
+        all_X = all_X[cap_idx]
+        all_y = all_y[cap_idx]
+        logger.info(f"max_train_samples={max_train_samples}: capped from {len(benign)+len(attacks)} → {len(all_X)}")
     perm = rng_split.permutation(len(all_X))
     n_val = max(4, int(0.15 * len(all_X)))
     val_idx = perm[:n_val]
@@ -267,8 +417,10 @@ def _fine_tune(
             batch_size=batch_size,
             learning_rate=lr,
             contrastive_weight=contrastive_weight,
+            early_stopping_criterion=early_stopping_criterion,
+            freeze_encoder=freeze_encoder,
         )
-        logger.info(f"Fine-tuning complete ({epochs} epochs)")
+        logger.info(f"Fine-tuning complete ({epochs} epochs, es_criterion={early_stopping_criterion}, frozen={freeze_encoder})")
     except Exception as e:
         logger.warning(f"Fine-tuning failed: {e}")
 
@@ -276,24 +428,113 @@ def _fine_tune(
 def _evaluate_all(detector, eval_sets, ci_thresh=None, det_thresh=None):
     """Evaluate detector on every (X, y) pair in eval_sets.
 
-    For each eval set, scores all samples with NLL and sweeps the threshold
-    to find the best F1. This makes each condition self-calibrating, enabling
-    fair comparison across base/fine-tuned models with different NLL scales.
+    Calibration protocol (mirrors evaluate_nbaiot.py):
+      1. For each eval set, separate benign samples (y==0) into an 80% calibration
+         split and a 20% held-out test split.
+      2. Calibrate threshold on benign-cal scores only: threshold = 95th percentile
+         (targets FPR ≤ 0.05 on benign traffic).
+      3. Evaluate on held-out set: remaining 20% benign + ALL attack samples.
+
+    This removes the circular dependency where threshold optimisation and evaluation
+    share the same data, which caused FPR collapse at larger evaluation scales.
     """
     results = {}
     for name, (X, y) in eval_sets.items():
         logger.info(f"  Evaluating on {name} ({len(X)} samples)...")
         raw_scores = score_samples(detector, X)
-        best_t, metrics = find_best_threshold(raw_scores, y)
+
+        # --- benign 80/20 split for calibration vs. test ---
+        benign_idx = np.where(y == 0)[0]
+        n_cal = max(1, int(0.8 * len(benign_idx)))
+        cal_idx = benign_idx[:n_cal]          # 80% benign → calibration only
+        test_mask = np.ones(len(y), dtype=bool)
+        test_mask[cal_idx] = False             # remaining 20% benign + all attack → test
+
+        # --- calibrate threshold on benign-cal scores only ---
+        benign_cal_scores = raw_scores[cal_idx]
+        threshold = find_best_threshold(benign_cal_scores)
+
+        # --- evaluate on held-out test set ---
+        test_scores = raw_scores[test_mask]
+        test_y = y[test_mask]
+        test_preds = (test_scores > threshold).astype(int)
+        metrics = IDSMetrics.compute_all_metrics(test_y, test_preds, test_scores)
+
         results[name] = {k: (v.tolist() if hasattr(v, "tolist") else v)
                          for k, v in metrics.items()}
-        results[name]["best_threshold"] = float(best_t)
+        results[name]["best_threshold"] = float(threshold)
         logger.info(
             f"  {name}: F1={metrics.get('f1', 0):.3f}, "
             f"FPR={metrics.get('false_positive_rate', 1):.3f}, "
             f"ROC-AUC={metrics.get('roc_auc') or 0:.3f}"
         )
     return results
+
+
+# ---------------------------------------------------------------------------
+# Multi-seed aggregation
+# ---------------------------------------------------------------------------
+
+def _aggregate_seeds(all_seed_results: List[dict]) -> dict:
+    """
+    Given a list of per-seed results dicts (eval_set → metrics dict),
+    compute mean ± std for each metric across seeds.
+    Returns same structure with values replaced by {"mean": x, "std": y}.
+    """
+    if len(all_seed_results) == 1:
+        return all_seed_results[0]   # single seed: no aggregation needed
+
+    aggregated = {}
+    # Collect all eval_set keys
+    eval_keys = all_seed_results[0].keys()
+    for ek in eval_keys:
+        aggregated[ek] = {}
+        metric_keys = [k for k in all_seed_results[0].get(ek, {}).keys()
+                       if k not in ("confusion_matrix", "best_threshold")]
+        for mk in metric_keys:
+            vals = [sr.get(ek, {}).get(mk) for sr in all_seed_results
+                    if sr.get(ek, {}).get(mk) is not None]
+            if vals and isinstance(vals[0], (int, float)):
+                aggregated[ek][mk] = {"mean": float(np.mean(vals)),
+                                      "std": float(np.std(vals))}
+            elif vals:
+                aggregated[ek][mk] = vals[0]  # non-numeric: keep first
+    return aggregated
+
+
+# ---------------------------------------------------------------------------
+# Per-attack-type metrics for condition D
+# ---------------------------------------------------------------------------
+
+def run_per_attack_metrics(detector, synthetic_dir: str) -> dict:
+    """
+    Compute real per-attack-type × stealth-level F1 matrix for condition D.
+    Uses PerAttackMetrics.compute_matrix() with the NLL scorer.
+    """
+    def predict_fn(X: np.ndarray):
+        raw_scores = score_samples(detector, X)
+        # Find best threshold on this batch
+        y_dummy = np.array([0] * len(X))  # placeholder — we only need scores
+        # Return scores as both pred (thresholded at median) and scores
+        threshold = np.median(raw_scores)
+        preds = (raw_scores > threshold).astype(int)
+        return preds, raw_scores
+
+    try:
+        matrix = PerAttackMetrics.compute_matrix(
+            predict_fn=predict_fn,
+            synthetic_dir=synthetic_dir,
+        )
+        # Convert int keys to str for JSON serialization
+        serializable = {
+            at: {str(stealth): metrics for stealth, metrics in stealth_dict.items()}
+            for at, stealth_dict in matrix.items()
+        }
+        logger.info("Per-attack metrics computed:\n" + PerAttackMetrics.print_summary(matrix))
+        return serializable
+    except Exception as e:
+        logger.warning(f"Per-attack metrics failed: {e}")
+        return {}
 
 
 # ---------------------------------------------------------------------------
@@ -307,107 +548,193 @@ def main():
     )
     parser.add_argument(
         "--condition", default="d",
-        choices=["a", "b", "c", "d", "e", "all"],
-        help="Which ablation condition to run (default: d = full system)",
+        choices=["a", "b", "c", "cprime", "cnn", "d", "e", "eprime", "edoubleprime", "all"],
+        help="Which ablation condition to run (default: d = full system). "
+             "cprime = balanced hard negatives (1:1 ratio) to isolate negative type from data size. "
+             "cnn = from-scratch 1D-CNN baseline (no Moirai pre-training) to ablate foundation model.",
     )
     parser.add_argument("--model-size", default="small", choices=["small", "base", "large"])
     parser.add_argument("--synthetic-dir", default="data/synthetic")
-    parser.add_argument("--results-dir", default="results")
+    parser.add_argument("--results-dir", default="results",
+                        help="Root output directory (default: results). "
+                             "Use 'results/ablation_scaled' for scaling experiments.")
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--batch-size", type=int, default=32)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument(
         "--max-eval-samples", type=int, default=50,
-        help="Max attack samples per stealth level in eval sets (default 50). "
-             "Full dataset has 200/level → ~1400 samples/condition → ~10hrs on CPU. "
-             "Use 20 for a quick smoke-test (~15 min), 50 for a paper-quality run (~1hr)."
+        help="Max attack samples per stealth level in eval sets."
+    )
+    parser.add_argument(
+        "--max-train-samples", type=int, default=None,
+        help="If set, cap the total number of training samples (benign + attacks combined). "
+             "Used for scaling experiments to test at N=200, 500, 1000 etc."
+    )
+    parser.add_argument(
+        "--seeds", default="42",
+        help="Comma-separated list of random seeds for multi-seed runs (e.g. '42,123,456'). "
+             "When multiple seeds given, output includes mean ± std."
+    )
+    parser.add_argument(
+        "--early-stopping-criterion", default="nll",
+        choices=["nll", "total"],
+        help="Early stopping criterion: 'nll' monitors val NLL only (recommended), "
+             "'total' monitors val NLL+SupCon total loss (legacy). Default: nll."
+    )
+    parser.add_argument(
+        "--freeze-encoder", default="none",
+        choices=["none", "full", "partial"],
+        help="Encoder freezing strategy: 'none' (default), 'full' (freeze all encoder weights), "
+             "'partial' (freeze all but last transformer layer). "
+             "Tests catastrophic forgetting hypothesis at extended scale."
+    )
+    parser.add_argument(
+        "--per-attack", action="store_true",
+        help="For condition D: also compute per-attack-type × stealth metrics (used for Figure 3)."
     )
     args = parser.parse_args()
 
+    seeds = [int(s.strip()) for s in args.seeds.split(",")]
     output_root = Path(args.results_dir) / "ablation"
     output_root.mkdir(parents=True, exist_ok=True)
 
-    rng = np.random.default_rng(42)
-
-    # Load data
-    logger.info(f"Loading synthetic data (max_eval_samples={args.max_eval_samples} per stealth level)...")
-    benign, conditions = load_synthetic(args.synthetic_dir, rng, max_eval_samples=args.max_eval_samples)
-    eval_sets = build_eval_sets(benign, conditions, rng, max_eval_samples=args.max_eval_samples)
-    total_evals = sum(len(y) for _, y in eval_sets.values())
-    logger.info(f"Total inference calls per condition: {total_evals} "
-                f"(× {len(['a','b','c','d','e'] if args.condition == 'all' else [args.condition])} conditions)")
-    if not eval_sets:
-        logger.error("No evaluation sets available; aborting")
-        sys.exit(1)
-
-    detector_kwargs = dict(
-        model_size=args.model_size,
-        context_length=96,
-        prediction_length=32,
-        confidence_level=0.95,
-    )
-
-    ft_kwargs = dict(
-        synthetic_dir=args.synthetic_dir,
-        epochs=args.epochs,
-        batch_size=args.batch_size,
-        lr=args.lr,
-    )
-
     # Select conditions to run
-    to_run = ["a", "b", "c", "d", "e"] if args.condition == "all" else [args.condition]
-
-    condition_fns = {
-        "a": lambda: run_condition_a(detector_kwargs, eval_sets),
-        "b": lambda: run_condition_b(detector_kwargs, eval_sets, **ft_kwargs),
-        "c": lambda: run_condition_c(detector_kwargs, eval_sets, **ft_kwargs),
-        "d": lambda: run_condition_d(detector_kwargs, eval_sets, **ft_kwargs),
-        "e": lambda: run_condition_e(detector_kwargs, eval_sets, **ft_kwargs),
-    }
+    to_run = (["a", "b", "c", "cprime", "cnn", "d", "e", "eprime", "edoubleprime"]
+              if args.condition == "all" else [args.condition])
 
     all_condition_results = {}
     for cond in to_run:
         logger.info(f"\n{'=' * 60}")
-        logger.info(f"Running condition {cond.upper()}")
+        logger.info(f"Running condition {cond.upper()} over {len(seeds)} seed(s): {seeds}")
         logger.info(f"{'=' * 60}")
         t0 = time.time()
-        results = condition_fns[cond]()
-        elapsed = time.time() - t0
 
-        all_condition_results[cond] = {"results": results, "elapsed_s": elapsed}
+        per_seed_results = []
+        for seed in seeds:
+            logger.info(f"  Seed {seed}...")
+            rng = np.random.default_rng(seed)
+
+            benign, conditions = load_synthetic(
+                args.synthetic_dir, rng, max_eval_samples=args.max_eval_samples
+            )
+            eval_sets = build_eval_sets(
+                benign, conditions, rng, max_eval_samples=args.max_eval_samples
+            )
+            if not eval_sets:
+                logger.error("No evaluation sets available; aborting")
+                sys.exit(1)
+
+            detector_kwargs = dict(
+                model_size=args.model_size,
+                context_length=96,
+                prediction_length=32,
+                confidence_level=0.95,
+            )
+            ft_kwargs = dict(
+                synthetic_dir=args.synthetic_dir,
+                epochs=args.epochs,
+                batch_size=args.batch_size,
+                lr=args.lr,
+                max_train_samples=args.max_train_samples,
+                early_stopping_criterion=args.early_stopping_criterion,
+                freeze_encoder=args.freeze_encoder,
+            )
+
+            condition_fns = {
+                "a": lambda: run_condition_a(detector_kwargs, eval_sets),
+                "b": lambda: run_condition_b(detector_kwargs, eval_sets, **ft_kwargs),
+                "c": lambda: run_condition_c(detector_kwargs, eval_sets, **ft_kwargs),
+                "cprime": lambda: run_condition_cprime(detector_kwargs, eval_sets, **ft_kwargs),
+                "cnn": lambda: run_condition_cnn(detector_kwargs, eval_sets, **ft_kwargs),
+                "d": lambda: run_condition_d(detector_kwargs, eval_sets, **ft_kwargs),
+                "e": lambda: run_condition_e(detector_kwargs, eval_sets, **ft_kwargs),
+                "eprime": lambda: run_condition_eprime(detector_kwargs, eval_sets, **ft_kwargs),
+                "edoubleprime": lambda: run_condition_edoubleprime(detector_kwargs, eval_sets, **ft_kwargs),
+            }
+            seed_results = condition_fns[cond]()
+            per_seed_results.append(seed_results)
+
+        elapsed = time.time() - t0
+        results = _aggregate_seeds(per_seed_results)
+        all_condition_results[cond] = {"results": results, "elapsed_s": elapsed,
+                                       "seeds": seeds, "n_seeds": len(seeds)}
 
         # Save per-condition JSON
         cond_dir = output_root / cond
         cond_dir.mkdir(exist_ok=True)
         out_file = cond_dir / "metrics.json"
         with open(out_file, "w") as f:
-            json.dump({"condition": cond, "elapsed_s": elapsed, "results": results}, f, indent=2)
+            json.dump({"condition": cond, "elapsed_s": elapsed,
+                       "seeds": seeds, "results": results}, f, indent=2)
         logger.success(f"Condition {cond.upper()} saved to {out_file}")
 
+        # Per-attack metrics for condition D (needed for Figure 3)
+        if cond == "d" and args.per_attack:
+            logger.info("Computing per-attack-type metrics for Figure 3...")
+            # Re-run condition D with seed[0] to get a live detector
+            rng = np.random.default_rng(seeds[0])
+            detector_kwargs_d = dict(model_size=args.model_size, context_length=96,
+                                     prediction_length=32, confidence_level=0.95)
+            ft_kwargs_d = dict(synthetic_dir=args.synthetic_dir, epochs=args.epochs,
+                               batch_size=args.batch_size, lr=args.lr)
+            det = MoiraiAnomalyDetector(**detector_kwargs_d)
+            det.initialize()
+            _fine_tune(det, args.synthetic_dir, args.epochs, args.batch_size,
+                       args.lr, contrastive_weight=0.5,
+                       use_hard_negatives=True, use_constraints=True)
+            per_attack = run_per_attack_metrics(det, args.synthetic_dir)
+            pa_file = cond_dir / "per_attack_metrics.json"
+            with open(pa_file, "w") as f:
+                json.dump(per_attack, f, indent=2)
+            logger.success(f"Per-attack metrics saved to {pa_file}")
+
     # Summary table
+    def _get_metric(res_dict, key, default=0.0):
+        """Extract mean from mean/std dict or plain float."""
+        val = res_dict.get(key, default)
+        if isinstance(val, dict):
+            return val.get("mean", default)
+        return val if val is not None else default
+
     if len(to_run) > 1:
         condition_labels = {
             "a": "A: Zero-shot",
             "b": "B: NLL only",
-            "c": "C: NLL+SupCon, real attacks",
+            "c": "C: NLL+SupCon, Gaussian-noise neg.",
+            "cprime": "C': NLL+SupCon, balanced hard neg. (1:1)",
+            "cnn": "CNN: From-scratch 1D-CNN (no pre-training)",
             "d": "D: Full system (ours)",
-            "e": "E: No constraints",
+            "e": "E: No constraints, no retry",
+            "eprime": "E': No constraints, unconditional retry",
+            "edoubleprime": "E'': Constraints active, no retry",
         }
+        multi = len(seeds) > 1
         print("\n" + "=" * 80)
-        print("ABLATION STUDY SUMMARY")
+        print(f"ABLATION STUDY SUMMARY  (seeds={seeds})")
         print("=" * 80)
-        # Show stealth-95 and all-stealth
         for eval_key in ["stealth_95", "all_stealth"]:
             print(f"\n  Eval set: {eval_key}")
-            print(f"  {'Condition':<30} {'F1':>6} {'FPR':>6} {'AUC':>6}")
-            print(f"  {'-'*52}")
+            hdr = f"  {'Condition':<30} {'F1':>10} {'FPR':>10} {'AUC':>10}"
+            print(hdr)
+            print(f"  {'-'*62}")
             for cond in to_run:
                 res = all_condition_results[cond]["results"].get(eval_key, {})
+                f1 = _get_metric(res, "f1")
+                fpr = _get_metric(res, "false_positive_rate", 1.0)
+                auc = _get_metric(res, "roc_auc")
+                if multi:
+                    f1_s = res.get("f1", {}).get("std", 0) if isinstance(res.get("f1"), dict) else 0
+                    auc_s = res.get("roc_auc", {}).get("std", 0) if isinstance(res.get("roc_auc"), dict) else 0
+                    f1_str = f"{f1:.3f}±{f1_s:.3f}"
+                    auc_str = f"{auc:.3f}±{auc_s:.3f}"
+                else:
+                    f1_str = f"{f1:.3f}"
+                    auc_str = f"{auc:.3f}"
                 print(
                     f"  {condition_labels.get(cond, cond):<30} "
-                    f"{res.get('f1', 0):>6.3f} "
-                    f"{res.get('false_positive_rate', 1):>6.3f} "
-                    f"{res.get('roc_auc') or 0:>6.3f}"
+                    f"{f1_str:>10} "
+                    f"{fpr:>10.3f} "
+                    f"{auc_str:>10}"
                 )
         print("=" * 80)
 

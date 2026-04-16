@@ -35,6 +35,7 @@ import json
 import sys
 import time
 from pathlib import Path
+from typing import Dict, List, Optional
 
 import numpy as np
 from loguru import logger
@@ -53,7 +54,8 @@ from src.evaluation.metrics import IDSMetrics
 # Data helpers
 # ---------------------------------------------------------------------------
 
-def load_data(synthetic_dir: str, max_samples: int = 200, val_frac: float = 0.20):
+def load_data(synthetic_dir: str, max_samples: int = 200, val_frac: float = 0.20,
+              seed: int = 42):
     """
     Build train/test arrays from pre-generated synthetic .npy files.
 
@@ -64,7 +66,7 @@ def load_data(synthetic_dir: str, max_samples: int = 200, val_frac: float = 0.20
     eval_sets        : dict of {name: (X, y)} for per-condition breakdown
     """
     synth = Path(synthetic_dir)
-    rng = np.random.default_rng(42)
+    rng = np.random.default_rng(seed)
 
     # Load benign
     benign_path = synth / "benign_samples.npy"
@@ -143,7 +145,18 @@ def load_data(synthetic_dir: str, max_samples: int = 200, val_frac: float = 0.20
 # ---------------------------------------------------------------------------
 
 def evaluate_method(name: str, ids, X_train, y_train, X_test, y_test, eval_sets):
-    """Fit, predict, and collect metrics for one IDS."""
+    """Fit, predict, and collect metrics for one IDS.
+
+    Calibration:
+      Traditional methods (ThresholdIDS, StatisticalIDS, MLBasedIDS, etc.) calibrate
+      their decision boundary during fit() using benign training data — ids.predict()
+      is already benign-calibrated and not circular.
+      Deep-learning baselines (USAD, TranAD, etc.) use an arbitrary fixed 0.5 threshold
+      after min-max/sigmoid normalisation; for these we apply a benign-calibrated
+      percentile threshold: score X_train, set threshold = 95th percentile (5% FPR
+      target), apply to X_test.  A degenerate threshold (≥ max test score or ≤ 0) falls
+      back to ids.predict() to avoid zeroing out all detections.
+    """
     logger.info(f"  [{name}] Fitting...")
     t0 = time.time()
     try:
@@ -154,22 +167,45 @@ def evaluate_method(name: str, ids, X_train, y_train, X_test, y_test, eval_sets)
     fit_time = time.time() - t0
     logger.info(f"  [{name}] Fit in {fit_time:.1f}s")
 
+    # Attempt benign-calibrated threshold for DL methods with arbitrary 0.5 default.
+    # Traditional methods' scores saturate at 0 or 1 on training data (by design),
+    # so the 95th-percentile approach degenerates for them; those fall through to
+    # ids.predict() via the degenerate-threshold check below.
+    threshold = None
+    try:
+        train_scores = ids.predict_proba(X_train)
+        test_scores_sample = ids.predict_proba(X_test)
+        cal_thresh = float(np.percentile(train_scores, 95))
+        max_test = float(test_scores_sample.max())
+        # Accept calibrated threshold only if it is non-degenerate
+        if 0.0 < cal_thresh < max_test:
+            threshold = cal_thresh
+            logger.info(f"  [{name}] Calibrated threshold={threshold:.4f} (95th pctile benign train)")
+        else:
+            logger.info(f"  [{name}] Degenerate cal threshold ({cal_thresh:.4f}); using ids.predict()")
+    except Exception as e:
+        logger.warning(f"  [{name}] Calibration failed ({e}); using ids.predict()")
+
+    def _eval(X, y):
+        sc = ids.predict_proba(X)
+        if threshold is not None:
+            preds = (sc > threshold).astype(int)
+        else:
+            preds = ids.predict(X)
+        return IDSMetrics.compute_all_metrics(y, preds, sc)
+
     results = {}
 
     # Main test set
     try:
-        y_pred = ids.predict(X_test)
-        y_scores = ids.predict_proba(X_test)
-        results["main"] = IDSMetrics.compute_all_metrics(y_test, y_pred, y_scores)
+        results["main"] = _eval(X_test, y_test)
     except Exception as e:
         logger.error(f"  [{name}] predict() on main test failed: {e}")
 
     # Per-condition (stealth level)
     for cname, (X_c, y_c) in eval_sets.items():
         try:
-            y_pred_c = ids.predict(X_c)
-            y_scores_c = ids.predict_proba(X_c)
-            results[cname] = IDSMetrics.compute_all_metrics(y_c, y_pred_c, y_scores_c)
+            results[cname] = _eval(X_c, y_c)
         except Exception as e:
             logger.warning(f"  [{name}] predict() on {cname} failed: {e}")
 
@@ -184,6 +220,44 @@ def evaluate_method(name: str, ids, X_train, y_train, X_test, y_test, eval_sets)
 # Main
 # ---------------------------------------------------------------------------
 
+def _aggregate_seeds(all_seed_results: List[dict]) -> dict:
+    """
+    Aggregate per-seed result dicts (method → {fit_time_s, results}).
+    Returns same structure with metric values replaced by {"mean": x, "std": y}.
+    """
+    if len(all_seed_results) == 1:
+        return all_seed_results[0]
+
+    aggregated: dict = {}
+    method_names = all_seed_results[0].keys()
+    for method in method_names:
+        aggregated[method] = {"results": {}, "fit_time_s": []}
+        eval_keys = all_seed_results[0][method]["results"].keys()
+        for ek in eval_keys:
+            aggregated[method]["results"][ek] = {}
+            metric_keys = [
+                k for k in all_seed_results[0][method]["results"].get(ek, {}).keys()
+                if k != "confusion_matrix"
+            ]
+            for mk in metric_keys:
+                vals = [
+                    sr[method]["results"].get(ek, {}).get(mk)
+                    for sr in all_seed_results
+                    if sr.get(method, {}).get("results", {}).get(ek, {}).get(mk) is not None
+                ]
+                if vals and isinstance(vals[0], (int, float)):
+                    aggregated[method]["results"][ek][mk] = {
+                        "mean": float(np.mean(vals)),
+                        "std": float(np.std(vals)),
+                    }
+                elif vals:
+                    aggregated[method]["results"][ek][mk] = vals[0]
+        # Average fit time
+        times = [sr[method].get("fit_time_s", 0) for sr in all_seed_results if method in sr]
+        aggregated[method]["fit_time_s"] = float(np.mean(times)) if times else 0.0
+    return aggregated
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Evaluate all 9 IDS baselines on a unified split",
@@ -197,41 +271,63 @@ def main():
                         help="Skip deep-learning baselines (faster run)")
     parser.add_argument("--epochs", type=int, default=20,
                         help="Training epochs for DL baselines (default 20)")
+    parser.add_argument(
+        "--seeds", default="42",
+        help="Comma-separated random seeds for multi-seed runs (e.g. '42,123,456'). "
+             "When multiple seeds given, output includes mean ± std."
+    )
     args = parser.parse_args()
 
+    seeds = [int(s.strip()) for s in args.seeds.split(",")]
     output_path = Path(args.output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    logger.info("Loading data...")
-    X_train, y_train, X_test, y_test, eval_sets = load_data(
-        args.synthetic_dir, max_samples=args.max_samples
-    )
+    per_seed_results: List[dict] = []
+    for seed in seeds:
+        logger.info(f"\n{'=' * 60}")
+        logger.info(f"Seed {seed} — loading data...")
+        logger.info(f"{'=' * 60}")
 
-    # --- Define all methods ---
-    traditional = {
-        "Threshold": ThresholdIDS(),
-        "Signature": SignatureIDS(),
-        "Statistical": StatisticalIDS(),
-        "IsolationForest": MLBasedIDS(),
-        "Ensemble": CombinedBaselineIDS(),
-    }
+        X_train, y_train, X_test, y_test, eval_sets = load_data(
+            args.synthetic_dir, max_samples=args.max_samples, seed=seed
+        )
 
-    dl_baselines = {} if args.skip_dl else {
-        "USAD": USADIDS(epochs=args.epochs),
-        "TranAD": TranADIDS(epochs=args.epochs),
-        "AnomalyTransformer": AnomalyTransformerIDS(epochs=args.epochs),
-        "PatchTST-Anomaly": PatchTSTAnomalyIDS(epochs=args.epochs),
-    }
+        # Set torch seed if available
+        try:
+            import torch
+            torch.manual_seed(seed)
+        except ImportError:
+            pass
 
-    all_methods = {**traditional, **dl_baselines}
+        # --- Define all methods ---
+        traditional = {
+            "Threshold": ThresholdIDS(),
+            "Signature": SignatureIDS(),
+            "Statistical": StatisticalIDS(),
+            "IsolationForest": MLBasedIDS(),
+            "Ensemble": CombinedBaselineIDS(),
+        }
 
-    # --- Run evaluation ---
-    all_results = {}
-    for name, ids in all_methods.items():
-        logger.info(f"\nEvaluating: {name}")
-        res = evaluate_method(name, ids, X_train, y_train, X_test, y_test, eval_sets)
-        if res is not None:
-            all_results[name] = res
+        dl_baselines = {} if args.skip_dl else {
+            "USAD": USADIDS(epochs=args.epochs),
+            "TranAD": TranADIDS(epochs=args.epochs),
+            "AnomalyTransformer": AnomalyTransformerIDS(epochs=args.epochs),
+            "PatchTST-Anomaly": PatchTSTAnomalyIDS(epochs=args.epochs),
+        }
+
+        all_methods = {**traditional, **dl_baselines}
+
+        # --- Run evaluation for this seed ---
+        seed_results: dict = {}
+        for name, ids in all_methods.items():
+            logger.info(f"\nEvaluating: {name} (seed={seed})")
+            res = evaluate_method(name, ids, X_train, y_train, X_test, y_test, eval_sets)
+            if res is not None:
+                seed_results[name] = res
+        per_seed_results.append(seed_results)
+
+    # Aggregate across seeds
+    all_results = _aggregate_seeds(per_seed_results)
 
     # --- Serialize (convert numpy → Python for JSON) ---
     def _to_python(obj):
@@ -249,25 +345,36 @@ def main():
 
     out_json = output_path / "all_baselines_evaluation.json"
     with open(out_json, "w") as f:
-        json.dump(_to_python(all_results), f, indent=2)
+        json.dump(_to_python({"seeds": seeds, "results": all_results}), f, indent=2)
     logger.success(f"Saved JSON results to {out_json}")
 
     # --- Text comparison table ---
-    lines = ["=" * 90, "ALL BASELINES — MAIN TEST SET", "=" * 90]
-    header = f"{'Method':<22} {'Acc':>6} {'Prec':>6} {'Rec':>6} {'F1':>6} {'FPR':>6} {'AUC':>6} {'Time':>8}"
+    multi = len(seeds) > 1
+
+    def _get(m, key, default=0.0):
+        val = m.get(key, default)
+        return val.get("mean", default) if isinstance(val, dict) else (val or default)
+
+    lines = ["=" * 90, f"ALL BASELINES — MAIN TEST SET  (seeds={seeds})", "=" * 90]
+    header = (f"{'Method':<22} {'F1':>10} {'FPR':>6} {'AUC':>10} {'Time':>8}")
     lines.append(header)
-    lines.append("-" * 90)
+    lines.append("-" * 60)
     for name, data in all_results.items():
         m = data["results"].get("main", {})
+        f1 = _get(m, "f1")
+        fpr = _get(m, "false_positive_rate", 1.0)
+        auc = _get(m, "roc_auc")
+        fit_t = data.get("fit_time_s", 0)
+        if multi:
+            f1_s = m.get("f1", {}).get("std", 0) if isinstance(m.get("f1"), dict) else 0
+            auc_s = m.get("roc_auc", {}).get("std", 0) if isinstance(m.get("roc_auc"), dict) else 0
+            f1_str = f"{f1:.3f}±{f1_s:.3f}"
+            auc_str = f"{auc:.3f}±{auc_s:.3f}"
+        else:
+            f1_str = f"{f1:.3f}"
+            auc_str = f"{auc:.3f}"
         lines.append(
-            f"{name:<22} "
-            f"{m.get('accuracy', 0):>6.3f} "
-            f"{m.get('precision', 0):>6.3f} "
-            f"{m.get('recall', 0):>6.3f} "
-            f"{m.get('f1', 0):>6.3f} "
-            f"{m.get('false_positive_rate', 1):>6.3f} "
-            f"{m.get('roc_auc') or 0:>6.3f} "
-            f"{data.get('fit_time_s', 0):>7.1f}s"
+            f"{name:<22} {f1_str:>10} {fpr:>6.3f} {auc_str:>10} {fit_t:>7.1f}s"
         )
     lines.append("=" * 90)
     comparison = "\n".join(lines)

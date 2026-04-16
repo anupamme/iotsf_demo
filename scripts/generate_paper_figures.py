@@ -123,32 +123,55 @@ def figure3_detection_heatmap(results_dir: str, figures_dir: Path, plt):
     def _dummy_matrix():
         return np.full((4, 3), np.nan)
 
+    attack_type_keys = ["slow_exfiltration", "lotl_mimicry", "beacon", "protocol_anomaly"]
+
     ours_matrix = _dummy_matrix()
     baseline_matrix = _dummy_matrix()
 
-    if ours_path.exists():
+    # Load per-attack-type results if available (produced by run_ablation.py --per-attack)
+    ours_per_attack_path = Path(results_dir) / "ablation" / "d" / "per_attack_metrics.json"
+    if ours_per_attack_path.exists():
+        per_attack = json.loads(ours_per_attack_path.read_text())
+        for i, at in enumerate(attack_type_keys):
+            for j, stealth in enumerate([85, 90, 95]):
+                f1 = per_attack.get(at, {}).get(str(stealth), {}).get("f1")
+                if f1 is not None:
+                    ours_matrix[i, j] = f1
+    elif ours_path.exists():
+        # Fallback: aggregate results — same value across attack types (noted in caption)
         data = json.loads(ours_path.read_text()).get("results", {})
         for j, stealth in enumerate([85, 90, 95]):
             key = f"stealth_{stealth}"
             f1 = data.get(key, {}).get("f1")
             if f1 is not None:
-                ours_matrix[:, j] = f1   # same value for all attack types (aggregated)
+                ours_matrix[:, j] = f1
 
     if baseline_path.exists():
         data = json.loads(baseline_path.read_text())
-        # Find best baseline by F1 on main test
-        best_f1 = -1
+        # Support both flat {"name": entry} and wrapped {"results": {"name": entry}}
+        baseline_entries = data.get("results", data)
+        # Find best baseline by mean F1 across stealth levels
+        best_mean_f1 = -1
         best_results = None
-        for name, entry in data.items():
-            f1 = entry.get("results", {}).get("main", {}).get("f1", 0)
-            if f1 > best_f1:
-                best_f1 = f1
-                best_results = entry.get("results", {})
+        def _get_f1(d):
+            """Extract scalar F1 from either a scalar or {"mean": ..., "std": ...} dict."""
+            if isinstance(d, dict):
+                return d.get("mean", 0) or 0
+            return d or 0
+
+        for name, entry in baseline_entries.items():
+            results = entry.get("results", {})
+            stealth_f1s = [_get_f1(results.get(f"synthetic_stealth_{s}", {}).get("f1", 0))
+                           for s in [85, 90, 95]]
+            mean_f1 = np.mean([f for f in stealth_f1s if f > 0]) if stealth_f1s else 0
+            if mean_f1 > best_mean_f1:
+                best_mean_f1 = mean_f1
+                best_results = results
         if best_results:
             for j, stealth in enumerate([85, 90, 95]):
                 key = f"synthetic_stealth_{stealth}"
-                f1 = best_results.get(key, {}).get("f1")
-                if f1 is not None:
+                f1 = _get_f1(best_results.get(key, {}).get("f1", 0))
+                if f1:
                     baseline_matrix[:, j] = f1
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
@@ -190,39 +213,41 @@ def figure4_hparam_sensitivity(results_dir: str, figures_dir: Path, plt):
     Heatmap of F1 on stealth-95 over λ × temperature grid.
     Loads from results/hparam_sweep.json if available; otherwise shows placeholder.
     """
-    lambdas = [0.1, 0.3, 0.5, 1.0]
+    lambdas = [0.1, 0.3, 0.5, 0.7, 1.0]
     temperatures = [0.05, 0.07, 0.10, 0.20]
 
     hparam_path = Path(results_dir) / "hparam_sweep.json"
     if hparam_path.exists():
         data = json.loads(hparam_path.read_text())
         matrix = np.array([[
-            data.get(f"lam{lam}_temp{temp}", {}).get("stealth_95", {}).get("f1", np.nan)
+            data.get(f"lam{lam}_temp{temp}", {}).get("f1", np.nan)
             for temp in temperatures
         ] for lam in lambdas])
     else:
         # Placeholder: simulate expected shape of results
         rng = np.random.default_rng(7)
         base = 0.78
-        matrix = base + rng.normal(0, 0.03, (4, 4))
+        matrix = base + rng.normal(0, 0.03, (5, 4))
         matrix[2, 1] = 0.89   # best at λ=0.5, temp=0.07 (as per config)
         matrix = np.clip(matrix, 0, 1)
         print("[Fig 4] hparam_sweep.json not found; using placeholder data")
 
-    fig, ax = plt.subplots(figsize=(4.5, 3.5))
+    fig, ax = plt.subplots(figsize=(5, 3.5))
     im = ax.imshow(matrix, cmap="YlOrRd", vmin=0.6, vmax=1.0, aspect="auto")
     ax.set_xticks(range(4))
     ax.set_xticklabels([f"{t}" for t in temperatures], fontsize=9)
-    ax.set_yticks(range(4))
+    ax.set_yticks(range(len(lambdas)))
     ax.set_yticklabels([f"{l}" for l in lambdas], fontsize=9)
     ax.set_xlabel("Temperature τ")
     ax.set_ylabel("Contrastive Weight λ")
     ax.set_title("F1 on Stealth-95 (λ × τ Sensitivity)", fontsize=10)
 
-    for i in range(4):
-        for j in range(4):
-            ax.text(j, i, f"{matrix[i, j]:.2f}", ha="center", va="center",
-                    fontsize=8, color="black" if matrix[i, j] < 0.85 else "white")
+    for i in range(len(lambdas)):
+        for j in range(len(temperatures)):
+            val = matrix[i, j]
+            if not np.isnan(val):
+                ax.text(j, i, f"{val:.2f}", ha="center", va="center",
+                        fontsize=8, color="black" if val < 0.85 else "white")
 
     plt.colorbar(im, ax=ax, label="F1")
     plt.tight_layout()
@@ -310,8 +335,10 @@ def figure6_roc_curves(results_dir: str, figures_dir: Path, plt):
     plotted = 0
     if baseline_path.exists():
         data = json.loads(baseline_path.read_text())
-        for (name, entry), color in zip(data.items(), colors[:len(data)]):
-            auc = entry.get("results", {}).get("synthetic_stealth_95", {}).get("roc_auc")
+        baseline_entries = data.get("results", data)
+        for (name, entry), color in zip(baseline_entries.items(), colors[:len(baseline_entries)]):
+            raw_auc = entry.get("results", {}).get("synthetic_stealth_95", {}).get("roc_auc")
+            auc = raw_auc.get("mean") if isinstance(raw_auc, dict) else raw_auc
             if auc is not None:
                 # Plot a diagonal-proxy ROC curve with the known AUC
                 fpr_pts = np.linspace(0, 1, 100)
@@ -327,7 +354,9 @@ def figure6_roc_curves(results_dir: str, figures_dir: Path, plt):
 
     if ablation_path.exists():
         res = json.loads(ablation_path.read_text()).get("results", {})
-        auc = res.get("stealth_95", {}).get("roc_auc")
+        auc_raw = res.get("stealth_95", {}).get("roc_auc")
+        # Handle both scalar and {"mean": x, "std": y} formats from multi-seed runs
+        auc = auc_raw.get("mean") if isinstance(auc_raw, dict) else auc_raw
         if auc is not None:
             fpr_pts = np.linspace(0, 1, 100)
             tpr_pts = fpr_pts ** ((1 - auc) / max(auc, 1e-8))
@@ -355,18 +384,69 @@ def figure6_roc_curves(results_dir: str, figures_dir: Path, plt):
 
 
 # ---------------------------------------------------------------------------
+# Figure 7: Leave-one-out generalization bar chart
+# ---------------------------------------------------------------------------
+
+def figure7_leave_one_out(results_dir: str, figures_dir: Path, plt):
+    """
+    Bar chart comparing cross-type F1 (trained on 3 types, tested on held-out 4th)
+    vs zero-shot baseline, for each of the 4 attack types at stealth-95.
+    """
+    loo_dir = Path(results_dir) / "leave_one_out"
+    attack_types = ["slow_exfiltration", "lotl_mimicry", "beacon", "protocol_anomaly"]
+    labels = ["Slow Exfil.", "LotL Mimicry", "C2 Beacon", "Proto. Anomaly"]
+
+    loo_f1 = []
+    zeroshot_f1 = []
+    for at in attack_types:
+        p = loo_dir / at / "metrics.json"
+        if p.exists():
+            d = json.loads(p.read_text())
+            loo_f1.append(d.get("results", {}).get("stealth_95", {}).get("f1", float("nan")))
+            zeroshot_f1.append(d.get("zeroshot_baseline", {}).get("stealth_95", {}).get("f1", float("nan")))
+        else:
+            loo_f1.append(float("nan"))
+            zeroshot_f1.append(float("nan"))
+
+    fig, ax = plt.subplots(figsize=(6, 3.5))
+    x = np.arange(len(labels))
+    width = 0.35
+
+    ax.bar(x - width / 2, zeroshot_f1, width, label="Zero-shot baseline", color="#aec6cf")
+    ax.bar(x + width / 2, loo_f1, width, label="DiffIDS (held-out type)", color="#2196F3")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=9)
+    ax.set_ylabel("F1 Score (stealth-95)")
+    ax.set_ylim(0, 1.0)
+    ax.set_title("Generalization to Unseen Attack Patterns (Leave-One-Out)", fontsize=10)
+    ax.legend(fontsize=9)
+    ax.axhline(y=0.5, color="gray", linestyle="--", linewidth=0.8)
+
+    if all(np.isnan(v) for v in loo_f1):
+        ax.text(0.5, 0.5, "Run scripts/run_leave_one_out.py first",
+                ha="center", va="center", transform=ax.transAxes, fontsize=9, color="gray")
+
+    plt.tight_layout()
+    out = figures_dir / "fig7_leave_one_out.pdf"
+    fig.savefig(out)
+    plt.close(fig)
+    print(f"[Fig 7] Saved → {out}")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate all 6 NeurIPS 2026 paper figures",
+        description="Generate NeurIPS 2026 paper figures",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--results-dir", default="results")
     parser.add_argument("--synthetic-dir", default="data/synthetic")
     parser.add_argument("--figures", nargs="+", type=int,
-                        choices=[2, 3, 4, 5, 6],
+                        choices=[2, 3, 4, 5, 6, 7],
                         help="Which figures to generate (default: all)")
     args = parser.parse_args()
 
@@ -374,7 +454,7 @@ def main():
     figures_dir.mkdir(parents=True, exist_ok=True)
 
     plt = _setup_matplotlib()
-    to_generate = set(args.figures) if args.figures else {2, 3, 4, 5, 6}
+    to_generate = set(args.figures) if args.figures else {2, 3, 4, 5, 6, 7}
 
     if 2 in to_generate:
         figure2_attack_viz(args.synthetic_dir, figures_dir, plt)
@@ -386,6 +466,8 @@ def main():
         figure5_training_curves(args.results_dir, figures_dir, plt)
     if 6 in to_generate:
         figure6_roc_curves(args.results_dir, figures_dir, plt)
+    if 7 in to_generate:
+        figure7_leave_one_out(args.results_dir, figures_dir, plt)
 
     print(f"\nAll figures saved to: {figures_dir.resolve()}")
 

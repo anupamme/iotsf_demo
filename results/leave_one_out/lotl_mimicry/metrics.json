@@ -1,0 +1,457 @@
+{
+  "held_out": "lotl_mimicry",
+  "trained_on": [
+    "slow_exfiltration",
+    "beacon",
+    "protocol_anomaly"
+  ],
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "zeroshot_baseline": {
+    "stealth_85": {
+      "mean": 0.11785714285714284,
+      "std": 0.0934504852704303
+    },
+    "stealth_90": {
+      "mean": 0.12073294615989112,
+      "std": 0.04570647248409555
+    },
+    "stealth_95": {
+      "mean": 0.11373873873873874,
+      "std": 0.08862834400878829
+    }
+  },
+  "results": {
+    "stealth_85": {
+      "mean": 0.4466484268125855,
+      "std": 0.1554369099677616
+    },
+    "stealth_90": {
+      "mean": 0.1595238095238095,
+      "std": 0.04882403965335685
+    },
+    "stealth_95": {
+      "mean": 0.3670634920634921,
+      "std": 0.17144051251768214
+    }
+  },
+  "raw_seed_results": [
+    {
+      "zeroshot": {
+        "stealth_85": {
+          "accuracy": 0.1388888888888889,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion_matrix": [
+            [
+              5,
+              1
+            ],
+            [
+              30,
+              0
+            ]
+          ],
+          "true_negatives": 5,
+          "false_positives": 1,
+          "false_negatives": 30,
+          "true_positives": 0,
+          "false_positive_rate": 0.16666666666666666,
+          "roc_auc": 0.49444444444444446
+        },
+        "stealth_90": {
+          "accuracy": 0.19444444444444445,
+          "precision": 0.6666666666666666,
+          "recall": 0.06666666666666667,
+          "f1": 0.12121212121212122,
+          "confusion_matrix": [
+            [
+              5,
+              1
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 5,
+          "false_positives": 1,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.16666666666666666,
+          "roc_auc": 0.5777777777777777
+        },
+        "stealth_95": {
+          "accuracy": 0.16666666666666666,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              30,
+              0
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 30,
+          "true_positives": 0,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.5
+        }
+      },
+      "finetuned": {
+        "stealth_85": {
+          "accuracy": 0.4444444444444444,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              20,
+              10
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 20,
+          "true_positives": 10,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.5111111111111112
+        },
+        "stealth_90": {
+          "accuracy": 0.2222222222222222,
+          "precision": 1.0,
+          "recall": 0.06666666666666667,
+          "f1": 0.125,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.6722222222222223
+        },
+        "stealth_95": {
+          "accuracy": 0.4444444444444444,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "f1": 0.5,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              20,
+              10
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 20,
+          "true_positives": 10,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.7333333333333334
+        }
+      }
+    },
+    {
+      "zeroshot": {
+        "stealth_85": {
+          "accuracy": 0.25,
+          "precision": 0.8,
+          "recall": 0.13333333333333333,
+          "f1": 0.22857142857142856,
+          "confusion_matrix": [
+            [
+              5,
+              1
+            ],
+            [
+              26,
+              4
+            ]
+          ],
+          "true_negatives": 5,
+          "false_positives": 1,
+          "false_negatives": 26,
+          "true_positives": 4,
+          "false_positive_rate": 0.16666666666666666,
+          "roc_auc": 0.6166666666666667
+        },
+        "stealth_90": {
+          "accuracy": 0.19444444444444445,
+          "precision": 1.0,
+          "recall": 0.03333333333333333,
+          "f1": 0.06451612903225806,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              29,
+              1
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 29,
+          "true_positives": 1,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.6666666666666667
+        },
+        "stealth_95": {
+          "accuracy": 0.19444444444444445,
+          "precision": 0.5714285714285714,
+          "recall": 0.13333333333333333,
+          "f1": 0.21621621621621623,
+          "confusion_matrix": [
+            [
+              3,
+              3
+            ],
+            [
+              26,
+              4
+            ]
+          ],
+          "true_negatives": 3,
+          "false_positives": 3,
+          "false_negatives": 26,
+          "true_positives": 4,
+          "false_positive_rate": 0.5,
+          "roc_auc": 0.26111111111111107
+        }
+      },
+      "finetuned": {
+        "stealth_85": {
+          "accuracy": 0.5277777777777778,
+          "precision": 1.0,
+          "recall": 0.43333333333333335,
+          "f1": 0.6046511627906976,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              17,
+              13
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 17,
+          "true_positives": 13,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.8222222222222222
+        },
+        "stealth_90": {
+          "accuracy": 0.25,
+          "precision": 0.8,
+          "recall": 0.13333333333333333,
+          "f1": 0.22857142857142856,
+          "confusion_matrix": [
+            [
+              5,
+              1
+            ],
+            [
+              26,
+              4
+            ]
+          ],
+          "true_negatives": 5,
+          "false_positives": 1,
+          "false_negatives": 26,
+          "true_positives": 4,
+          "false_positive_rate": 0.16666666666666666,
+          "roc_auc": 0.5888888888888888
+        },
+        "stealth_95": {
+          "accuracy": 0.2222222222222222,
+          "precision": 1.0,
+          "recall": 0.06666666666666667,
+          "f1": 0.125,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.3666666666666667
+        }
+      }
+    },
+    {
+      "zeroshot": {
+        "stealth_85": {
+          "accuracy": 0.2222222222222222,
+          "precision": 1.0,
+          "recall": 0.06666666666666667,
+          "f1": 0.125,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.5222222222222223
+        },
+        "stealth_90": {
+          "accuracy": 0.2222222222222222,
+          "precision": 0.75,
+          "recall": 0.1,
+          "f1": 0.17647058823529413,
+          "confusion_matrix": [
+            [
+              5,
+              1
+            ],
+            [
+              27,
+              3
+            ]
+          ],
+          "true_negatives": 5,
+          "false_positives": 1,
+          "false_negatives": 27,
+          "true_positives": 3,
+          "false_positive_rate": 0.16666666666666666,
+          "roc_auc": 0.5277777777777778
+        },
+        "stealth_95": {
+          "accuracy": 0.2222222222222222,
+          "precision": 1.0,
+          "recall": 0.06666666666666667,
+          "f1": 0.125,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.6000000000000001
+        }
+      },
+      "finetuned": {
+        "stealth_85": {
+          "accuracy": 0.2777777777777778,
+          "precision": 1.0,
+          "recall": 0.13333333333333333,
+          "f1": 0.23529411764705882,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              26,
+              4
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 26,
+          "true_positives": 4,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.7388888888888889
+        },
+        "stealth_90": {
+          "accuracy": 0.2222222222222222,
+          "precision": 1.0,
+          "recall": 0.06666666666666667,
+          "f1": 0.125,
+          "confusion_matrix": [
+            [
+              6,
+              0
+            ],
+            [
+              28,
+              2
+            ]
+          ],
+          "true_negatives": 6,
+          "false_positives": 0,
+          "false_negatives": 28,
+          "true_positives": 2,
+          "false_positive_rate": 0.0,
+          "roc_auc": 0.6055555555555556
+        },
+        "stealth_95": {
+          "accuracy": 0.3888888888888889,
+          "precision": 0.8333333333333334,
+          "recall": 0.3333333333333333,
+          "f1": 0.47619047619047616,
+          "confusion_matrix": [
+            [
+              4,
+              2
+            ],
+            [
+              20,
+              10
+            ]
+          ],
+          "true_negatives": 4,
+          "false_positives": 2,
+          "false_negatives": 20,
+          "true_positives": 10,
+          "false_positive_rate": 0.3333333333333333,
+          "roc_auc": 0.5833333333333334
+        }
+      }
+    }
+  ]
+}

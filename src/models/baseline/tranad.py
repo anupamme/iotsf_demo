@@ -116,7 +116,7 @@ class TranADIDS(BaseIDS):
         feature_dim: int = 12,
         d_model: int = 64,
         n_heads: int = 4,
-        n_layers: int = 1,
+        n_layers: int = 2,
         dim_ff: int = 128,
         epochs: int = 30,
         batch_size: int = 32,
