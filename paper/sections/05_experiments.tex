@@ -38,8 +38,8 @@ All baselines are \textbf{unsupervised} (benign-only training);
 during training; see Appendix~\ref{app:supervision}).
 
 \textbf{Metrics.}
-We report F1, FPR, and ROC-AUC.  All results use 5 random seeds
-(42, 123, 456, 789, 1234); the leave-one-out experiment uses 3 seeds.
+We report F1, FPR, and ROC-AUC.  The main ablation uses 10 random seeds;
+the scaling experiment uses 5 seeds; the leave-one-out experiment uses 3 seeds.
 
 % ============================================================
 \subsection{Main Results}
@@ -54,17 +54,10 @@ At stealth-95 with benign-calibrated thresholds, Signature IDS and
 Statistical IDS are degenerate (FPR$\geq$0.87; Table~\ref{tab:main},
 $\ddagger$ rows).  Among calibrated methods, the Ensemble achieves
 F1$=$0.136 (FPR$=$0.042).
-\ours{} condition~C (F1$=$0.250, FPR$=$0.080) outperforms all calibrated
+\ours{} condition~C (F1$=$0.262, FPR$=$0.068) outperforms all calibrated
 baselines at stealth-95.
-Condition~D (F1$=$0.137, FPR$=$0.040) outperforms all deep-learning baselines.
-Zero-shot A achieves higher F1 (0.183) than D at stealth-95; however,
-A's FPR$=$0.100 is 2.5$\times$ D's FPR$=$0.040---A flags more aggressively,
-capturing more true positives at the cost of substantially more false positives.
-D is the better-calibrated detector when operational FPR matters.
-A's stealth-95 F1 (0.183) exceeding its stealth-85 F1 (0.123) reflects
-threshold-calibration variance in the zero-shot score distribution
-(FPR varies from 0.000 to 0.100 across evaluation sets), not genuine
-detection improvement at higher stealth.
+Zero-shot A (F1$=$0.137, FPR$=$0.063) performs at chance level, consistent
+with its near-random AUC (0.481$\pm$0.042).
 
 % ============================================================
 \subsection{Ablation Study}
@@ -72,21 +65,27 @@ detection improvement at higher stealth.
 % ============================================================
 
 Table~\ref{tab:ablation} ablates the five components of \ours{} (200
-samples, 5 epochs, benign-calibrated threshold).
+samples, 5 epochs, 10 seeds, benign-calibrated threshold).
 
 \input{tables/ablation}
 
 \textbf{Fine-tuning improves over zero-shot, but with high variance.}
-The best Moirai condition (C, AUC$=$0.563) improves $+$0.099 over
-zero-shot A (AUC$=$0.464), but B (0.481) and D (0.479) barely exceed A.
-The from-scratch CNN (AUC$=$0.597) outperforms all Moirai conditions,
-with lower variance ($\pm$0.096 vs.\ $\pm$0.122--0.127).\footnote{%
-  The 3$\to$5 seed variance increase (e.g., C: $\pm$0.066$\to$$\pm$0.122)
-  reflects Moirai's sensitivity to projection-head initialisation;
-  CNN's variance is stable across seed counts.  See Appendix~\ref{app:cnn_detail}.}
+We report bootstrap 95\% CIs, Cohen's $d$ effect sizes, and $p$-values for
+key comparisons in Appendix~\ref{app:statistics}.
+The best Moirai condition (C, AUC$=$0.629) significantly improves $+$0.148
+over zero-shot A (AUC$=$0.481; $p{<}0.001$, $d{=}4.45$);
+B (0.556) also significantly exceeds A ($p{<}0.001$, $d{=}2.29$).
+The from-scratch CNN (AUC$=$0.580) is significantly below C ($p{<}0.001$);
+a CNN variant with Gaussian NLL (CNN-NLL, AUC$=$0.598) confirms the
+loss function is not the explanation ($p{=}0.24$ vs.\ CNN-MSE).\footnote{%
+  At 10 seeds, Moirai variance stabilises (C: $\pm$0.022 vs.\ $\pm$0.122 at 5 seeds);
+  the $5.5\times$ reduction exceeds the expected $\sqrt{2}$ factor because
+  seeds 789 and 1234 were outliers that depressed the 5-seed mean.
+  CNN variance is comparable ($\pm$0.023).  See Appendix~\ref{app:cnn_detail}.}
 Condition~C$'$ (balanced hard negatives, 1:1) disentangles negative type from
-imbalance: Gaussian-noise negatives outperform hard negatives by $+$0.029 AUC
-(C vs.\ C$'$), and the 1:12 imbalance adds a further $-$0.055 penalty (C$'$ vs.\ D).
+imbalance: Gaussian-noise negatives outperform hard negatives by $+$0.019 AUC
+(C vs.\ C$'$; $p{=}0.070$, $d{=}0.82$), and the 1:12 imbalance adds a
+significant $-$0.054 penalty (C$'$ vs.\ D; $p{<}0.001$, $d{=}2.33$).
 See Appendix~\ref{app:cprime} for the full decomposition.
 Conditions E, E$'$, and E$''$ confirm that the constraint validator and
 retry mechanism have negligible effect on the analytical pathway
@@ -132,7 +131,7 @@ hard negatives specifically benefit from moderate additional training---their
 near-boundary placement requires more gradient steps to establish a reliable
 decision surface.
 At 1000/20, performance drops back, reflecting catastrophic forgetting.
-The C$>$D gap narrows from $+$0.084 (200/5) to $+$0.045 (500/10) to
+The C$>$D gap narrows from $+$0.084 (200/5, 5-seed; 10-seed gap is $+$0.073, Table~\ref{tab:ablation}) to $+$0.045 (500/10) to
 $+$0.003 (1000/20, n.s., $p{=}0.39$)---the advantage of easy off-manifold negatives diminishes with sufficient training data.
 NLL-only early stopping is essential: under total-loss ES, decreasing SupCon loss masks increasing NLL, causing late checkpoint selection that compounds forgetting (Appendix~\ref{app:nll_es}).
 

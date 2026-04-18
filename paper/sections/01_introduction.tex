@@ -40,7 +40,7 @@ stealth level $s$ using closed-form perturbations
 (Modbus, MQTT, CoAP) via a multi-tier validation framework.
 Second, we fine-tune Moirai~\cite{woo2024moirai}, a universal time-series
 forecasting foundation model, using a combined NLL and supervised contrastive
-(SupCon) loss~\cite{khosla2020supcon}, with a five-condition ablation that isolates
+(SupCon) loss~\cite{khosla2020supcon}, with a multi-condition ablation (10 seeds) that isolates
 the contribution of hard negatives from SupCon and fine-tuning in general.
 
 \textbf{Why build a hard-negative pipeline?}
@@ -67,12 +67,12 @@ yields the highest AUC in a specific regime.
     (384$\to$256$\to$128 dimensions) that bridges probabilistic forecasting and
     discriminative anomaly detection.
     The recipe is backbone-agnostic: it improves detection for both
-    Moirai (condition~C, AUC$=$0.563) and a from-scratch 1D-CNN
-    (AUC$=$0.597) over their respective NLL-only baselines, and
+    Moirai (condition~C, AUC$=$0.629) and a from-scratch 1D-CNN
+    (AUC$=$0.580--0.598) over their respective NLL-only baselines, and
     generalises cross-domain to N-BaIoT (AUC$=$\nbaiotAUC{}).
-    At the 200-sample / 5-epoch scale, the CNN outperforms all Moirai
-    conditions with lower variance, indicating that pre-training on
-    non-IoT domains does not confer a measurable advantage at this scale;
+    A CNN variant with Gaussian NLL (CNN-NLL, AUC$=$0.598) confirms the
+    loss function is not the explanation for architecture differences
+    ($p{=}0.24$ vs.\ CNN-MSE);
     the frozen-encoder result at 1000/20 (Contribution~3) shows that
     preserving pre-trained features \emph{does} help at larger scale.\footnote{%
       Enabling fine-tuning required fixing an in-place tensor operation in

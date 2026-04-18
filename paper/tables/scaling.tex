@@ -18,9 +18,11 @@
   (3)~Freezing the encoder at 1000/20 recovers AUC, often exceeding the 200/5
   baseline, confirming \textbf{catastrophic forgetting} of pre-trained features at scale.
   (4)~Frozen AUC recovery does not translate to F1 recovery under calibrated thresholds.
+  \emph{Note}: the 200/5 column uses 5 seeds for consistency within this scaling
+  experiment; the authoritative 10-seed ablation values are in Table~\ref{tab:ablation}.
 }
 \label{tab:scaling}
-\small
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llcccccccccc@{}}
 \toprule
 & & \multicolumn{2}{c}{200\,/\,5} & \multicolumn{2}{c}{500\,/\,10} & \multicolumn{2}{c}{1000\,/\,20} & \multicolumn{2}{c}{Frozen} & \multicolumn{2}{c}{Partial} \\
@@ -35,5 +37,6 @@ D      & Hard neg 1:12 (\ours{}) & $.479_{\pm.123}$ & $.137_{\pm.086}$ & $.547_{
 \bottomrule
 \multicolumn{12}{@{}l}{\scriptsize ``---'': configuration not run (lower-priority condition).
 ``(n/a)'': inapplicable (CNN has no pre-training to freeze).} \\
-\end{tabular}
+\end{tabular}%
+}
 \end{table}

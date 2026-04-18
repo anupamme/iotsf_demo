@@ -4,14 +4,15 @@
 % ============================================================
 
 We investigated whether synthetic hard negatives improve contrastive
-anomaly detection for IoT IDS, using a five-condition ablation with
+anomaly detection for IoT IDS, using a ten-seed ablation with
 protocol-constrained stealth-attack synthesis and benign-calibrated thresholds.
 Three key findings emerge.
 
 First, the NLL$+$SupCon training recipe is \emph{backbone-agnostic}:
-it improves detection for both Moirai (C, AUC$=$0.563) and a from-scratch
-CNN (AUC$=$0.597) at 200/5, and generalises cross-domain to N-BaIoT
-(AUC$=$\nbaiotAUC{}).
+it improves detection for both Moirai (C, AUC$=$0.629) and a from-scratch
+CNN (AUC$=$0.580--0.598) at 200/5, and generalises cross-domain to N-BaIoT
+(AUC$=$\nbaiotAUC{}).  A CNN-NLL control experiment confirms the loss
+function is not the explanation for architecture differences ($p{=}0.24$).
 Second, the C$>$D gap (Gaussian-noise vs.\ hard negatives) collapses
 to near-zero at 5$\times$ scale with NLL-only early stopping---a
 small-scale training artefact: the advantage of easy negatives diminishes

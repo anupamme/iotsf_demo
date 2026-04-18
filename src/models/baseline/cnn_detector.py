@@ -75,12 +75,18 @@ class _CNNEncoder(nn.Module):
 
 
 class _CNNDecoder(nn.Module):
-    """Mirror decoder: (B, embed_dim) → (B, seq_len, n_features) for reconstruction."""
+    """Mirror decoder: (B, embed_dim) → (B, seq_len, n_features) for reconstruction.
 
-    def __init__(self, n_features: int = 12, seq_len: int = 128, embed_dim: int = 128):
+    When distributional=True, outputs (mu, log_sigma) for Gaussian NLL.
+    """
+
+    def __init__(self, n_features: int = 12, seq_len: int = 128, embed_dim: int = 128,
+                 distributional: bool = False):
         super().__init__()
         self.seq_len = seq_len
         self.n_features = n_features
+        self.distributional = distributional
+        out_channels = n_features * 2 if distributional else n_features
         self.project = nn.Linear(embed_dim, embed_dim * seq_len)
         self.net = nn.Sequential(
             nn.ConvTranspose1d(embed_dim, 128, kernel_size=3, padding=1),
@@ -89,34 +95,46 @@ class _CNNDecoder(nn.Module):
             nn.ConvTranspose1d(128, 64, kernel_size=5, padding=2),
             nn.BatchNorm1d(64),
             nn.ReLU(inplace=True),
-            nn.ConvTranspose1d(64, n_features, kernel_size=7, padding=3),
+            nn.ConvTranspose1d(64, out_channels, kernel_size=7, padding=3),
         )
 
-    def forward(self, z: torch.Tensor) -> torch.Tensor:
-        """z: (B, embed_dim) → (B, seq_len, n_features)."""
+    def forward(self, z: torch.Tensor):
+        """z: (B, embed_dim) → (B, seq_len, n_features) or ((B,seq,F), (B,seq,F))."""
         B = z.shape[0]
         h = self.project(z).view(B, -1, self.seq_len)   # (B, embed_dim, seq_len)
-        out = self.net(h)                                 # (B, n_features, seq_len)
-        return out.permute(0, 2, 1)                       # (B, seq_len, n_features)
+        out = self.net(h)                                 # (B, out_channels, seq_len)
+        out = out.permute(0, 2, 1)                        # (B, seq_len, out_channels)
+        if self.distributional:
+            mu = out[..., :self.n_features]
+            log_sigma = out[..., self.n_features:]
+            return mu, log_sigma
+        return out
 
 
 class _CNNAutoencoder(nn.Module):
     """Full autoencoder + projection head."""
 
-    def __init__(self, n_features: int = 12, seq_len: int = 128, embed_dim: int = 128):
+    def __init__(self, n_features: int = 12, seq_len: int = 128, embed_dim: int = 128,
+                 distributional: bool = False):
         super().__init__()
+        self.distributional = distributional
         self.encoder = _CNNEncoder(n_features, embed_dim)
-        self.decoder = _CNNDecoder(n_features, seq_len, embed_dim)
+        self.decoder = _CNNDecoder(n_features, seq_len, embed_dim,
+                                   distributional=distributional)
         self.proj_head = ProjectionHead(
             input_dim=embed_dim, hidden_dim=64, output_dim=32
         )
 
     def forward(self, x: torch.Tensor):
-        """Returns (recon, embedding, projection)."""
+        """Returns (decoder_out, embedding, projection).
+
+        decoder_out is a single tensor (recon) for MSE mode, or a tuple
+        (mu, log_sigma) for distributional mode.
+        """
         z = self.encoder(x)
-        recon = self.decoder(z)
+        decoder_out = self.decoder(z)
         proj = self.proj_head(z)
-        return recon, z, proj
+        return decoder_out, z, proj
 
 
 # ---------------------------------------------------------------------------
@@ -140,11 +158,13 @@ class CNNAnomalyDetector:
         n_features: int = 12,
         seq_len: int = 128,
         embed_dim: int = 128,
+        distributional: bool = False,
         **kwargs,          # absorbs unused MoiraiAnomalyDetector kwargs (model_size etc.)
     ):
         self.n_features = n_features
         self.seq_len = seq_len
         self.embed_dim = embed_dim
+        self.distributional = distributional
         self._model: Optional[_CNNAutoencoder] = None
         self._device = torch.device("cpu")
         self._initialized = False
@@ -156,10 +176,12 @@ class CNNAnomalyDetector:
             n_features=self.n_features,
             seq_len=self.seq_len,
             embed_dim=self.embed_dim,
+            distributional=self.distributional,
         ).to(self._device)
         self._initialized = True
         n_params = sum(p.numel() for p in self._model.parameters())
-        logger.info(f"[CNN] Initialized from scratch — {n_params:,} parameters")
+        mode = "Gaussian NLL" if self.distributional else "MSE"
+        logger.info(f"[CNN] Initialized from scratch ({mode}) — {n_params:,} parameters")
 
     # ------------------------------------------------------------------
     # Training
@@ -221,10 +243,14 @@ class CNNAnomalyDetector:
 
             for xb, yb in loader:
                 xb, yb = xb.to(self._device), yb.to(self._device)
-                recon, _z, proj = model(xb)
+                decoder_out, _z, proj = model(xb)
 
-                # NLL surrogate: MSE reconstruction loss
-                nll_loss = F.mse_loss(recon, xb)
+                if self.distributional:
+                    mu, log_sigma = decoder_out
+                    sigma_sq = torch.exp(2 * log_sigma).clamp(min=1e-6)
+                    nll_loss = 0.5 * (log_sigma + (xb - mu) ** 2 / sigma_sq).mean()
+                else:
+                    nll_loss = F.mse_loss(decoder_out, xb)
 
                 # SupCon on projection
                 con_loss = supcon(proj, yb) if contrastive_weight > 0 else torch.tensor(0.0)
@@ -243,8 +269,13 @@ class CNNAnomalyDetector:
             # Validation
             model.eval()
             with torch.no_grad():
-                val_recon, _vz, _vp = model(val_X.to(self._device))
-                val_nll = F.mse_loss(val_recon, val_X.to(self._device)).item()
+                val_out, _vz, _vp = model(val_X.to(self._device))
+                if self.distributional:
+                    val_mu, val_log_sigma = val_out
+                    val_sigma_sq = torch.exp(2 * val_log_sigma).clamp(min=1e-6)
+                    val_nll = 0.5 * (val_log_sigma + (val_X.to(self._device) - val_mu) ** 2 / val_sigma_sq).mean().item()
+                else:
+                    val_nll = F.mse_loss(val_out, val_X.to(self._device)).item()
 
             avg_loss = epoch_loss / max(n_batches, 1)
             avg_nll = epoch_nll / max(n_batches, 1)
@@ -298,22 +329,32 @@ class CNNAnomalyDetector:
         self._model.eval()
         with torch.no_grad():
             x = torch.tensor(sample, dtype=torch.float32).unsqueeze(0)  # (1, seq_len, n_feat)
-            recon, _z, _proj = self._model(x.to(self._device))
-            # Per-timestep reconstruction error, averaged over features
-            mse_per_ts = ((recon - x.to(self._device)) ** 2).mean(dim=-1).squeeze(0)
-            scores = mse_per_ts.cpu().numpy()          # (seq_len,)
-            recon_np = recon.squeeze(0).cpu().numpy()  # (seq_len, n_features)
+            decoder_out, _z, _proj = self._model(x.to(self._device))
 
-        clamp = np.clip(threshold, 0.0, 1.0)   # ensure [0, 1] contract
-        is_anomaly_arr = (scores > scores.mean()).astype(bool)   # per-timestep flag
+            if self.distributional:
+                mu, log_sigma = decoder_out
+                sigma_sq = torch.exp(2 * log_sigma).clamp(min=1e-6)
+                # Per-timestep Gaussian NLL, averaged over features
+                nll_per_ts = 0.5 * (log_sigma + (x.to(self._device) - mu) ** 2 / sigma_sq)
+                scores = nll_per_ts.mean(dim=-1).squeeze(0).cpu().numpy()
+                recon_np = mu.squeeze(0).cpu().numpy()
+                method = "cnn_gaussian_nll"
+            else:
+                mse_per_ts = ((decoder_out - x.to(self._device)) ** 2).mean(dim=-1).squeeze(0)
+                scores = mse_per_ts.cpu().numpy()
+                recon_np = decoder_out.squeeze(0).cpu().numpy()
+                method = "cnn_mse"
+
+        clamp = np.clip(threshold, 0.0, 1.0)
+        is_anomaly_arr = (scores > scores.mean()).astype(bool)
 
         return AnomalyResult(
             predictions=recon_np,
             actuals=sample,
-            confidence_lower=recon_np - scores[:, None],
-            confidence_upper=recon_np + scores[:, None],
+            confidence_lower=recon_np - np.abs(scores[:, None]),
+            confidence_upper=recon_np + np.abs(scores[:, None]),
             anomaly_scores=scores,
             is_anomaly=is_anomaly_arr,
             threshold=clamp,
-            metadata={"mean_mse": float(scores.mean()), "method": "cnn_mse"},
+            metadata={"mean_score": float(scores.mean()), "method": method},
         )

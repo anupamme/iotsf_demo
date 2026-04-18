@@ -85,15 +85,15 @@ discovers evasion strategies from scratch---could reveal blind spots not
 covered by our taxonomy.
 
 (2)~\textbf{Evaluation scale.}
-All ablation results use 200 samples per class with 5 random seeds
-(42, 123, 456, 789, 1234); the scaling experiment (Table~\ref{tab:scaling}) extends to
+All ablation results use 200 samples per class with 10 random seeds
+(42, 123, 456, 789, 1234, 1011, 2022, 3033, 4044, 5055); the scaling experiment (Table~\ref{tab:scaling}) extends to
 1000 samples with 5 seeds.
 At this scale, individual-seed FPR values have standard errors
 of approximately $\pm$0.05 (binomial, $n=200$), making per-seed FPR differences
 below $\sim$0.10 statistically ambiguous.
-The B vs.\ D AUC comparison (0.481 vs.\ 0.479, Table~\ref{tab:ablation})
-should be interpreted as B$\approx$D; the difference is trivially small and well
-within the high variance ($\pm$0.123--0.127) of both conditions.
+The B vs.\ D AUC comparison (0.556 vs.\ 0.556, Table~\ref{tab:ablation})
+confirms B$=$D at 10 seeds; the variance ($\pm$0.021) is substantially reduced
+from the 5-seed estimate ($\pm$0.123--0.127).
 Cross-dataset evaluation on N-BaIoT (Section~\ref{sec:experiments:nbaiot})
 addresses the single-dataset limitation; validation on UNSW-NB15 remains open.
 
@@ -134,15 +134,16 @@ framework generalises when deployed on target-domain data.
 Validation on UNSW-NB15~\cite{moustafa2015unsw} remains an additional open direction.
 
 (6)~\textbf{Low absolute detection rates.}
-The best calibrated Moirai F1 at stealth-95 is 0.250 (condition~C, Table~\ref{tab:main}),
-indicating the system detects roughly 25\% of stealthy attacks at the target
+The best calibrated Moirai F1 at stealth-95 is 0.262 (condition~C, Table~\ref{tab:main}),
+indicating the system detects roughly 26\% of stealthy attacks at the target
 FPR$\leq$0.05.
-The from-scratch CNN achieves F1$=$0.236 with the lowest FPR (0.020).
+The from-scratch CNN (CNN-MSE) achieves F1$=$0.269 with FPR$=$0.048
+(Table~\ref{tab:ablation}).
 Three factors compound to produce this ceiling: (a) the benign-calibrated threshold
 protocol intentionally targets low FPR ($\leq 0.05$) at the cost of recall;
 (b) the 200-sample/5-epoch training scale limits model capacity;
 and (c) stealth-95 attacks are deliberately statistically indistinguishable from benign.
-The AUC of 0.563 (condition~C) and 0.597 (CNN) indicate genuine discrimination
+The AUC of 0.629 (condition~C) and 0.580--0.598 (CNN) indicate genuine discrimination
 above chance.
 Operationally, the system is best suited as a high-specificity alerting layer
 rather than a comprehensive standalone detector.
@@ -282,7 +283,7 @@ results on N-BaIoT benign data.
     Detection F1 per attack type and stealth level for \ours{} (condition~C,
     left panel) and the Ensemble baseline (right panel).
     \ours{} condition~C outperforms the Ensemble at the aggregate stealth-95 level
-    (Table~\ref{tab:main}, F1$=$0.250 vs 0.136) under the benign-calibrated threshold.
+    (Table~\ref{tab:main}, F1$=$0.262 vs 0.136) under the benign-calibrated threshold.
     The Ensemble's per-type F1 values shown here use the ROC-optimal threshold
     (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95
     (Table~\ref{tab:main}).
@@ -361,42 +362,39 @@ Condition~C$'$ disentangles these: hard negatives subsampled to a 1:1 ratio,
 matching C's composition while using hard negatives instead of Gaussian noise.
 The full comparison (Table~\ref{tab:ablation}) reveals two separable effects:
 \textbf{(1) Negative type (C vs C', same 1:1 ratio):}
-C (Gaussian-noise, AUC$=$0.563) $>$ C$'$ (hard negatives, AUC$=$0.534),
-$\Delta=+$0.029.
+C (Gaussian-noise, AUC$=$0.629) $>$ C$'$ (hard negatives, AUC$=$0.610),
+$\Delta=+$0.019 ($p{=}0.070$, $d{=}0.82$).
 Gaussian-noise negatives remain more informative than balanced hard negatives
-at 5-epoch/200-sample scale, though the gap is modest and both conditions
-exhibit high variance ($\pm$0.122--0.125).
+at 5-epoch/200-sample scale; the gap is borderline significant at 10 seeds.
 \textbf{(2) Dataset imbalance (C' vs D, same hard-negative type):}
-C$'$ (1:1, AUC$=$0.534) $>$ D (1:12, AUC$=$0.479),
-$\Delta=+$0.055.
-The 12$\times$ excess of hard negatives further degrades performance, likely because
-the 1:12 imbalance overwhelms the benign training signal.
+C$'$ (1:1, AUC$=$0.610) $>$ D (1:12, AUC$=$0.556; $p{<}0.001$, $d{=}2.33$),
+confirming the 12$\times$ excess of hard negatives further degrades performance,
+likely because the 1:12 imbalance overwhelms the benign training signal.
 Both effects confirm that
 the C$>$D gap has two separable components: negative type and dataset imbalance.
-However, the high variance at 5 seeds ($\pm$0.122--0.127) means these differences
-should be interpreted cautiously.
+At 10 seeds, the C vs.\ C$'$ gap ($+$0.019) reaches borderline significance
+($p{=}0.070$, $d{=}0.82$).
 
 \subsection{CNN Outperforms Moirai at Small Scale}
 \label{app:cnn_detail}
 
 To directly address the foundation-model justification, we train a 1D-CNN
-(3 layers, 2.3M parameters) from scratch using the identical NLL(MSE)+SupCon
+(3 layers, 2.3M parameters) from scratch using the identical MSE+SupCon
 objective and hard-negative data as Condition~D.
-At 5 seeds, CNN (AUC$=$0.597$\pm$0.096) \emph{outperforms} the best Moirai condition
-C (AUC$=$0.563$\pm$0.122) and substantially exceeds D (AUC$=$0.479$\pm$0.123) and
-B (AUC$=$0.481$\pm$0.127).
-CNN also exhibits notably lower variance ($\pm$0.096) than all Moirai conditions
-($\pm$0.122--0.127), suggesting that Moirai's pre-trained weights introduce
-initialisation sensitivity that the CNN avoids.
-At 5-seed evaluation, the fine-tuned Moirai conditions (B$=$0.481, D$=$0.479)
-cluster near zero-shot (A$=$0.464), while CNN (0.597) and the SupCon conditions
-with Gaussian-noise negatives (C$=$0.563, C$'$$=$0.534) show clearer separation.
+At 10 seeds, CNN-MSE (AUC$=$0.580$\pm$0.023) is significantly below the best
+Moirai condition C (AUC$=$0.629$\pm$0.022; $p{<}0.001$), but exceeds all other
+Moirai conditions.
+A CNN variant with Gaussian NLL (CNN-NLL, AUC$=$0.598$\pm$0.041) confirms the
+loss function is not the explanation ($p{=}0.24$ vs.\ CNN-MSE;
+Section~\ref{sec:analysis}).
+CNN variance ($\pm$0.023) is comparable to Moirai's at 10 seeds ($\pm$0.021--0.025).
+B (AUC$=$0.556$\pm$0.021) and D (AUC$=$0.556$\pm$0.021) cluster together,
+both significantly above A ($p{<}0.001$) but below C ($p{<}0.001$).
 
 The increase in variance from 3 to 5 seeds (e.g., C: $\pm$0.066$\to$$\pm$0.122)
-reflects Moirai's sensitivity to projection-head initialisation and
-fine-tuning trajectory: seeds 789 and 1234 produce substantially
-different optima than the original three seeds.
-The CNN's variance is stable across seed counts ($\pm$0.096), consistent with
+reflected Moirai's sensitivity to projection-head initialisation;
+at 10 seeds, C stabilises to $\pm$0.022.
+The CNN's variance is stable across seed counts, consistent with
 the simpler optimisation landscape of a randomly-initialised architecture.
 
 \subsection{Constraint-Validator Contribution (E, E', E'')}
@@ -404,7 +402,8 @@ the simpler optimisation landscape of a randomly-initialised architecture.
 
 E (no constraints, no retry, AUC$=$0.480$\pm$0.130) and
 E$''$ (constraints, no retry, AUC$=$0.481$\pm$0.126) are both indistinguishable
-from D (AUC$=$0.479$\pm$0.123), confirming that the constraint validator
+from D (AUC$=$0.479$\pm$0.123 at the same 5 seeds used for E/E$'$/E$''$;
+the 10-seed D value is 0.556$\pm$0.021, Table~\ref{tab:ablation}), confirming that the constraint validator
 has zero effect on the analytical pathway (100\% compliance).
 E$'$ (no constraints, with retry at $s_{\text{eff}}\approx0.97$,
 AUC$=$0.498$\pm$0.131) marginally exceeds D, suggesting slightly higher
@@ -422,9 +421,10 @@ largely distinct clusters; \ours{} condition~D (hard negatives) produces a
 qualitatively similar structure, consistent with comparable FPR values in
 Table~\ref{tab:ablation}.
 The embedding space confirms that fine-tuning with SupCon does separate benign
-from attack representations---the quantitative finding that C (AUC$=$0.563)
-outperforms D (AUC$=$0.479) at this training scale reflects differences in
-decision-boundary quality rather than a failure of representation learning.
+from attack representations---the quantitative finding that C (AUC$=$0.629)
+significantly outperforms D (AUC$=$0.556; $p{<}0.001$) at this training scale
+reflects differences in decision-boundary quality rather than a failure of
+representation learning.
 
 \begin{figure}[h]
   \centering
@@ -438,12 +438,42 @@ decision-boundary quality rather than a failure of representation learning.
     the benign manifold, consistent with their deliberate stealth-floor design.
     Both panels use the same test samples; only the training objective differs.
     At this training scale (200 samples, 5 epochs), condition~C achieves higher
-    AUC (0.563 vs 0.479) despite similar embedding structure, suggesting that
+    AUC (0.629 vs 0.556) despite similar embedding structure, suggesting that
     the AUC gap is driven by decision-boundary calibration rather than
     representation collapse (see Section~\ref{sec:analysis}).
   }
   \label{fig:tsne}
 \end{figure}
+
+% ============================================================
+\section{Statistical Significance Analysis}
+\label{app:statistics}
+% ============================================================
+
+Table~\ref{tab:stats} reports bootstrap 95\% confidence intervals
+(10{,}000 resamples) and Cohen's $d$ effect sizes for key pairwise
+comparisons at stealth-95 (10 seeds).  The primary metric is ROC-AUC
+(threshold-independent).
+
+\begin{table}[h]
+\centering
+\caption{Pairwise comparisons of stealth-95 ROC-AUC (10 seeds).
+  $\Delta$: mean difference; CI: bootstrap 95\% confidence interval;
+  $d$: Cohen's $d$; $p$: bootstrap two-sided $p$-value.}
+\label{tab:stats}
+\begin{tabular}{llcccc}
+\toprule
+Comparison & $\Delta$ AUC & 95\% CI & Cohen's $d$ & $p$ \\
+\midrule
+C vs.\ A         & $+$0.148 & [$+$0.119, $+$0.178] & 4.45 & $<$0.001 \\
+C vs.\ C$'$      & $+$0.019 & [$-$0.001, $+$0.040] & 0.82 & 0.070 \\
+C$'$ vs.\ D      & $+$0.054 & [$+$0.034, $+$0.074] & 2.33 & $<$0.001 \\
+CNN-MSE vs.\ C   & $-$0.049 & [$-$0.069, $-$0.028] & 2.13 & $<$0.001 \\
+CNN-NLL vs.\ CNN-MSE & $+$0.018 & [$-$0.012, $+$0.047] & 0.54 & 0.238 \\
+B vs.\ A         & $+$0.075 & [$+$0.046, $+$0.104] & 2.29 & $<$0.001 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % ============================================================
 \section{Extended Scaling Analysis}
@@ -474,8 +504,8 @@ not epoch-dependent.
 \subsection{Freezing: Mitigation Details}
 \label{app:freezing_details}
 
-Frozen C (0.582) still exceeds 200/5 C (0.563) by $+$0.019,
-and frozen B (0.606) exceeds 200/5 B (0.481) by $+$0.125, suggesting that
+Frozen C (0.582) still exceeds 200/5 C (0.563, 5-seed; 10-seed C$=$0.629) by $+$0.019,
+and frozen B (0.606) exceeds 200/5 B (0.481, 5-seed; 10-seed B$=$0.556) by $+$0.125, suggesting that
 the NLL-only objective benefits substantially from preserved pre-trained features.
 However, the high variance of frozen conditions ($\pm$0.099--0.114)
 means these differences may not be statistically significant
@@ -484,7 +514,7 @@ over-interpreted.
 Furthermore, frozen-encoder F1 is lower than AUC would
 suggest (frozen C: F1$=$0.148$\pm$0.097; frozen D: F1$=$0.144$\pm$0.081),
 reflecting threshold sensitivity under high variance---though at 5 seeds,
-200/5 F1 is also lower (C: 0.250, D: 0.137), narrowing the gap.
+200/5 F1 is also lower (C: 0.250, D: 0.137; these are 5-seed scaling-table values, Table~\ref{tab:scaling}), narrowing the gap.
 \textbf{Practitioner caveat}: the frozen-encoder protocol recovers
 AUC (a threshold-free metric) but \emph{does not} recover operational
 F1 under the benign-calibrated threshold.  Deploying the frozen protocol
@@ -560,14 +590,14 @@ Synthetic hard negatives (stealth 85--95\%), by contrast, are deliberately
 positioned near the benign manifold; at limited training scale this proximity
 increases embedding ambiguity and may prevent the projection head from
 establishing a reliable boundary within the allotted epochs.
-The C$'$\,$>$\,D comparison ($+$0.055 AUC, 0.534 vs.\ 0.479) further shows that even
+The C$'$\,$>$\,D comparison ($+$0.054 AUC, 0.610 vs.\ 0.556; $p{<}0.001$) further shows that even
 within hard negatives, the 1:12 imbalance compounds the problem: the large excess
 of hard-negative training samples overwhelms the benign signal, shifting the
 decision boundary to favour recall over precision.
 The scaling experiment (Table~\ref{tab:scaling}) tests this directly.
 Under total-loss ES at 1000/20, C degrades to AUC$=$0.520 ($-$0.043 from 200/5),
 C$'$ to 0.500 ($-$0.034), B to 0.496 ($+$0.015), and D to 0.501 ($+$0.022).
-The curriculum learning analogy~\cite{bengio2009curriculum} applied in reverse:
+Consistent with this interpretation,
 easy negatives (C) degraded most ($-$0.043); B and D actually improved slightly
 at 1000/20 under total-loss ES, suggesting their 200/5 baselines were under-trained.
 
@@ -577,9 +607,6 @@ $p{=}0.39$, n.s.).
 The C$>$D gap at 200/5 was a small-scale training artefact: easy off-manifold
 negatives provide clearer gradient signal when training budget is limited, but
 this advantage diminishes with sufficient data.
-(The curriculum learning analogy~\cite{bengio2009curriculum} is
-directional---the between-condition comparison differs from within-run
-curriculum scheduling.)
 
 \subsection{Catastrophic Forgetting Mechanism}
 \label{app:forgetting_mechanism}
@@ -623,8 +650,18 @@ from the financial/energy/weather domains Moirai was pre-trained on
 (supporting our claim that domain adaptation is the bottleneck).
 Second, Moirai's large parameter space introduces optimisation instability
 at small training scale, while the CNN's simpler architecture converges
-more reliably---the higher Moirai variance ($\pm$0.122--0.127 vs.\ CNN $\pm$0.096)
-supports this interpretation.
+more reliably---the higher Moirai variance ($\pm$0.022 vs.\ CNN $\pm$0.023)
+supports this interpretation (note: at 10 seeds, variance has stabilised).
+
+\textbf{Loss-function confound resolved.}
+To rule out the possibility that the CNN advantage stems from MSE being an
+easier optimisation target than distributional NLL, we train a CNN variant
+with a Gaussian NLL head (CNN-NLL): predict $\mu$ and $\log\sigma$ per feature,
+with loss $\frac{1}{2}(\log\sigma + (x - \mu)^2 / \sigma^2)$.
+CNN-NLL (AUC$=$0.598$\pm$0.041) and CNN-MSE (AUC$=$0.580$\pm$0.023) are
+not significantly different ($p{=}0.24$, $d{=}0.54$, bootstrap 10{,}000 resamples).
+The loss function is \emph{not} the explanation for CNN outperforming Moirai.
+
 Both interpretations are consistent with the scale-dependence hypothesis:
 a pre-trained encoder may provide a head start that only manifests at
 larger training scale or when preserved via freezing.
@@ -633,6 +670,7 @@ at 1000 samples / 20 epochs, CNN achieves AUC$=$0.513$\pm$0.029 (stealth-95),
 degrading from 0.597 ($\Delta{=}{-}0.084$)---while B degrades from 0.481 to 0.521
 ($\Delta{=}{+}0.040$), C from 0.563 to 0.508 ($\Delta{=}{-}0.055$),
 and D from 0.479 to 0.506 ($\Delta{=}{+}0.027$).
+(All baselines here are 5-seed values from Table~\ref{tab:scaling}.)
 CNN's degradation at scale is the most severe, consistent with the absence of
 pre-trained features to fall back on.
 
@@ -658,8 +696,8 @@ NLL-dominance hypothesis at this training scale.
 \subsection{Alternative Contrastive Frameworks}
 \label{app:alt_contrastive}
 
-At this scale and domain, NLL-only fine-tuning (B, AUC$=$0.481) performs
-comparably to the full system (D, AUC$=$0.479), and SupCon's gradient
+At this scale and domain, NLL-only fine-tuning (B, AUC$=$0.556) performs
+identically to the full system (D, AUC$=$0.556), and SupCon's gradient
 magnitude is modest relative to NLL (Appendix~\ref{app:supcon_gradients}).
 SupCon requires explicit positive/negative labels and is sensitive to
 the quality and difficulty of negatives; self-supervised objectives

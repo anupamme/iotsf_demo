@@ -236,6 +236,27 @@ def run_condition_cnn(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_s
     return _evaluate_all(det, eval_sets)
 
 
+def run_condition_cnn_nll(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
+                         max_train_samples=None, early_stopping_criterion="nll",
+                         freeze_encoder="none"):
+    """
+    Condition CNN-NLL: 1D-CNN with Gaussian NLL (distributional output) + SupCon.
+
+    Closes the MSE-vs-NLL loss confound: if CNN-NLL ≈ CNN-MSE, the loss function
+    is not the explanation for CNN > Moirai.  If CNN-NLL < CNN-MSE, the MSE
+    advantage is confirmed.
+    """
+    logger.info("[CNN-NLL] Training 1D-CNN from scratch (Gaussian NLL+SupCon, hard negatives)...")
+    det = CNNAnomalyDetector(n_features=12, seq_len=128, embed_dim=128, distributional=True)
+    det.initialize()
+    _fine_tune(det, synthetic_dir, epochs, batch_size, lr, contrastive_weight=0.5,
+               use_hard_negatives=True, use_constraints=True,
+               max_train_samples=max_train_samples,
+               early_stopping_criterion=early_stopping_criterion,
+               freeze_encoder=freeze_encoder)
+    return _evaluate_all(det, eval_sets)
+
+
 def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                     max_train_samples=None, early_stopping_criterion="nll",
                     freeze_encoder="none"):
@@ -548,10 +569,11 @@ def main():
     )
     parser.add_argument(
         "--condition", default="d",
-        choices=["a", "b", "c", "cprime", "cnn", "d", "e", "eprime", "edoubleprime", "all"],
+        choices=["a", "b", "c", "cprime", "cnn", "cnn_nll", "d", "e", "eprime", "edoubleprime", "all"],
         help="Which ablation condition to run (default: d = full system). "
              "cprime = balanced hard negatives (1:1 ratio) to isolate negative type from data size. "
-             "cnn = from-scratch 1D-CNN baseline (no Moirai pre-training) to ablate foundation model.",
+             "cnn = from-scratch 1D-CNN baseline (MSE, no Moirai pre-training). "
+             "cnn_nll = 1D-CNN with Gaussian NLL (closes MSE-vs-NLL confound).",
     )
     parser.add_argument("--model-size", default="small", choices=["small", "base", "large"])
     parser.add_argument("--synthetic-dir", default="data/synthetic")
@@ -599,7 +621,7 @@ def main():
     output_root.mkdir(parents=True, exist_ok=True)
 
     # Select conditions to run
-    to_run = (["a", "b", "c", "cprime", "cnn", "d", "e", "eprime", "edoubleprime"]
+    to_run = (["a", "b", "c", "cprime", "cnn", "cnn_nll", "d", "e", "eprime", "edoubleprime"]
               if args.condition == "all" else [args.condition])
 
     all_condition_results = {}
@@ -646,6 +668,7 @@ def main():
                 "c": lambda: run_condition_c(detector_kwargs, eval_sets, **ft_kwargs),
                 "cprime": lambda: run_condition_cprime(detector_kwargs, eval_sets, **ft_kwargs),
                 "cnn": lambda: run_condition_cnn(detector_kwargs, eval_sets, **ft_kwargs),
+                "cnn_nll": lambda: run_condition_cnn_nll(detector_kwargs, eval_sets, **ft_kwargs),
                 "d": lambda: run_condition_d(detector_kwargs, eval_sets, **ft_kwargs),
                 "e": lambda: run_condition_e(detector_kwargs, eval_sets, **ft_kwargs),
                 "eprime": lambda: run_condition_eprime(detector_kwargs, eval_sets, **ft_kwargs),
@@ -702,7 +725,8 @@ def main():
             "b": "B: NLL only",
             "c": "C: NLL+SupCon, Gaussian-noise neg.",
             "cprime": "C': NLL+SupCon, balanced hard neg. (1:1)",
-            "cnn": "CNN: From-scratch 1D-CNN (no pre-training)",
+            "cnn": "CNN: From-scratch 1D-CNN, MSE (no pre-training)",
+            "cnn_nll": "CNN-NLL: From-scratch 1D-CNN, Gaussian NLL",
             "d": "D: Full system (ours)",
             "e": "E: No constraints, no retry",
             "eprime": "E': No constraints, unconditional retry",
