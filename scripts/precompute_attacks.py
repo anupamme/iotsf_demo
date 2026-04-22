@@ -38,7 +38,8 @@ def generate_attacks(
         seq_length=config.get("models.diffusion_ts.seq_length", 128),
         feature_dim=config.get("models.diffusion_ts.feature_dim", 12)
     )
-    generator.initialize()
+    checkpoint_path = config.get("models.diffusion_ts.checkpoint", "models/diffusion_ts.pt")
+    generator.initialize(checkpoint_path=checkpoint_path)
 
     # Create output directory
     output_path = Path(output_dir)

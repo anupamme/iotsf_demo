@@ -47,6 +47,13 @@ These correspond to slow exfiltration~\eqref{eq:slow},
 LotL mimicry~\eqref{eq:lotl}, C2 beaconing~\eqref{eq:beacon},
 and protocol timing anomalies~\eqref{eq:proto}.
 Feature indices are 1-based (Appendix~\ref{app:features}).
+We use ``hard negative'' to denote stealth-controlled proximity to
+the benign boundary (high cosine similarity, Eq.~\ref{eq:stealth}),
+not model-loss-based difficulty in the online hard-example-mining
+sense~\cite{shrivastava2016ohem}.
+A more precise term is \emph{stealth-controlled analytical negatives};
+we retain ``hard negatives'' for brevity while acknowledging this
+distinction.
 
 \textbf{Protocol compliance.}
 A generated sequence must satisfy IoT protocol constraints

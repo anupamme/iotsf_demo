@@ -257,12 +257,15 @@ def fine_tune_on_nbaiot_benign(
     learning_rate: float = 1e-4,
     contrastive_weight: float = 0.5,
     noise_sigma: float = 0.3,
+    negative_type: str = "gaussian",
+    diffts_data_dir: str = None,
 ) -> Dict:
     """
-    Fine-tune detector on N-BaIoT benign windows + Gaussian-noise negatives.
+    Fine-tune detector on N-BaIoT benign windows + synthetic negatives.
 
-    Creates synthetic attack examples by adding Gaussian noise to benign
-    windows, then trains with supervised contrastive loss (NLL + SupCon).
+    Creates synthetic attack examples using either Gaussian noise or
+    pre-generated Diffusion-TS negatives, then trains with supervised
+    contrastive loss (NLL + SupCon).
 
     Parameters
     ----------
@@ -282,15 +285,37 @@ def fine_tune_on_nbaiot_benign(
         Weight of the supervised contrastive loss term.
     noise_sigma : float
         Standard deviation of Gaussian noise added to benign windows.
+    negative_type : str
+        "gaussian" for Gaussian noise, "diffts" for Diffusion-TS negatives.
+    diffts_data_dir : str
+        Directory containing pre-generated DiffTS negatives (required if
+        negative_type="diffts").
 
     Returns
     -------
     dict
         Training history from fine_tune_supervised().
     """
-    # Generate Gaussian-noise negatives from benign training windows
-    rng_ft = np.random.default_rng(seed)
-    noise_negatives = X_train + rng_ft.normal(0, noise_sigma, X_train.shape)
+    if negative_type == "diffts":
+        if diffts_data_dir is None:
+            raise ValueError("--diffts-data-dir required when negative_type='diffts'")
+        diffts_path = Path(diffts_data_dir)
+        attack_files = sorted(diffts_path.glob("*_stealth_*.npy"))
+        if not attack_files:
+            raise FileNotFoundError(f"No attack files found in {diffts_path}")
+        attacks = [np.load(f) for f in attack_files]
+        noise_negatives = np.concatenate(attacks)
+        rng_ft = np.random.default_rng(seed)
+        if len(noise_negatives) > len(X_train):
+            idx = rng_ft.choice(len(noise_negatives), len(X_train), replace=False)
+            noise_negatives = noise_negatives[idx]
+        elif len(noise_negatives) < len(X_train):
+            idx = rng_ft.choice(len(noise_negatives), len(X_train), replace=True)
+            noise_negatives = noise_negatives[idx]
+        logger.info(f"Loaded {len(noise_negatives)} DiffTS negatives from {diffts_path}")
+    else:
+        rng_ft = np.random.default_rng(seed)
+        noise_negatives = X_train + rng_ft.normal(0, noise_sigma, X_train.shape)
 
     # Build balanced training set: benign (y=0) + noise negatives (y=1)
     all_X = np.concatenate([X_train, noise_negatives])
@@ -360,6 +385,10 @@ def main():
     parser.add_argument("--epochs",     type=int,   default=5,    help="Fine-tuning epochs (default: 5)")
     parser.add_argument("--batch-size", type=int,   default=32,   help="Fine-tuning batch size (default: 32)")
     parser.add_argument("--lr",         type=float, default=1e-4, help="Fine-tuning learning rate (default: 1e-4)")
+    parser.add_argument("--negative-type", default="gaussian", choices=["gaussian", "diffts"],
+                        help="Type of synthetic negatives: gaussian (default) or diffts")
+    parser.add_argument("--diffts-data-dir", default=None,
+                        help="Directory of pre-generated DiffTS negatives (required if --negative-type=diffts)")
     args = parser.parse_args()
 
     seeds = [int(s.strip()) for s in args.seeds.split(",")]
@@ -420,10 +449,11 @@ def main():
         )
         detector.initialize()
 
-        # Fine-tune on N-BaIoT benign data + Gaussian-noise negatives
+        # Fine-tune on N-BaIoT benign data + synthetic negatives
+        neg_desc = "DiffTS" if args.negative_type == "diffts" else "Gaussian-noise"
         logger.info(
             f"Fine-tuning on N-BaIoT benign data ({len(X_train_s)} windows) "
-            f"+ Gaussian-noise negatives for {args.epochs} epochs ..."
+            f"+ {neg_desc} negatives for {args.epochs} epochs ..."
         )
         fine_tune_on_nbaiot_benign(
             detector,
@@ -434,6 +464,8 @@ def main():
             learning_rate=args.lr,
             contrastive_weight=0.5,
             noise_sigma=0.3,
+            negative_type=args.negative_type,
+            diffts_data_dir=args.diffts_data_dir,
         )
         logger.info("Fine-tuning complete. Evaluating on N-BaIoT attacks ...")
 
@@ -470,8 +502,9 @@ def main():
         "n_benign_val_windows":  int(len(X_val_0)),
         "n_attack_windows":      int(len(X_atk_0)),
         "fine_tuning": {
-            "method":              "nbaiot_benign_gaussian_noise",
-            "noise_sigma":         0.3,
+            "method":              f"nbaiot_benign_{args.negative_type}",
+            "negative_type":       args.negative_type,
+            "noise_sigma":         0.3 if args.negative_type == "gaussian" else None,
             "contrastive_weight":  0.5,
             "epochs":              args.epochs,
             "batch_size":          args.batch_size,

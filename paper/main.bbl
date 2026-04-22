@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{33}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -87,6 +87,16 @@ Prannay Khosla et~al.
   (NeurIPS)}, 2020.
 \newblock URL \url{https://arxiv.org/abs/2004.11362}.
 
+\bibitem[Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz, Veness,
+  Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska,
+  et~al.]{kirkpatrick2017ewc}
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume
+  Desjardins, Andrei~A. Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka
+  Grabska-Barwinska, et~al.
+\newblock Overcoming catastrophic forgetting in neural networks.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 114\penalty0
+  (13):\penalty0 3521--3526, 2017.
+
 \bibitem[Lin et~al.(2022)]{lin2018idsgan}
 Zilong Lin et~al.
 \newblock {IDSGAN}: Generative adversarial networks for attack generation
@@ -108,6 +118,13 @@ Aleksander Madry, Aleksandar Makelov, Ludwig Schmidt, Dimitris Tsipras, and
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2018.
 \newblock URL \url{https://arxiv.org/abs/1706.06083}.
+
+\bibitem[Mallya and Lazebnik(2018)]{mallya2018packnet}
+Arun Mallya and Svetlana Lazebnik.
+\newblock {PackNet}: Adding multiple tasks to a single network by iterative
+  pruning.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 7765--7773, 2018.
 
 \bibitem[Meidan et~al.(2018)Meidan, Bohadana, Mathov, Mirsky, Shabtai,
   Breitenbacher, and Elovici]{meidan2018n}
@@ -139,6 +156,14 @@ Yuqi Nie et~al.
   (ICLR)}, 2023.
 \newblock URL \url{https://arxiv.org/abs/2211.14730}.
 
+\bibitem[Qiu et~al.(2021)Qiu, Pfrommer, Kloft, Mber, and
+  Rudolph]{qiu2021neutral}
+Chen Qiu, Timo Pfrommer, Marius Kloft, Stephan Mber, and Marco Rudolph.
+\newblock Neural transformation learning for deep anomaly detection beyond
+  images.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+  8703--8714, 2021.
+
 \bibitem[Reiss et~al.(2021)]{reiss2021panda}
 Tal Reiss et~al.
 \newblock {PANDA}: Adapting pretrained features for anomaly detection and
@@ -146,12 +171,40 @@ Tal Reiss et~al.
 \newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
   (CVPR)}, 2021.
 
+\bibitem[Rusu et~al.(2016)Rusu, Rabinowitz, Desjardins, Soyer, Kirkpatrick,
+  Kavukcuoglu, Pascanu, and Hadsell]{rusu2016progressive}
+Andrei~A. Rusu, Neil~C. Rabinowitz, Guillaume Desjardins, Hubert Soyer, James
+  Kirkpatrick, Koray Kavukcuoglu, Razvan Pascanu, and Raia Hadsell.
+\newblock Progressive neural networks.
+\newblock \emph{arXiv preprint arXiv:1606.04671}, 2016.
+
+\bibitem[Sehwag et~al.(2021)Sehwag, Chiang, and Mittal]{sehwag2021ssd}
+Vikash Sehwag, Mung Chiang, and Prateek Mittal.
+\newblock {SSD}: A unified framework for self-supervised outlier detection.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2021.
+
+\bibitem[Shrivastava et~al.(2016)Shrivastava, Gupta, and
+  Girshick]{shrivastava2016ohem}
+Abhinav Shrivastava, Abhinav Gupta, and Ross Girshick.
+\newblock Training region-based object detectors with online hard example
+  mining.
+\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, pages 761--769, 2016.
+
 \bibitem[Sohn et~al.(2020)]{sohn2020fixmatch}
 Kihyuk Sohn et~al.
 \newblock {FixMatch}: Simplifying semi-supervised learning with consistency and
   confidence.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, 2020.
+
+\bibitem[Tack et~al.(2020)Tack, Mo, Jeong, and Shin]{tack2020csi}
+Jihoon Tack, Sangwoo Mo, Jongheon Jeong, and Jinwoo Shin.
+\newblock {CSI}: Novelty detection via contrastive learning on distributionally
+  shifted instances.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, volume~33, pages 11839--11852, 2020.
 
 \bibitem[Tuli et~al.(2022)]{tuli2022tranad}
 Shreshth Tuli et~al.

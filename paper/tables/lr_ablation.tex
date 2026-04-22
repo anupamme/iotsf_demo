@@ -1,0 +1,49 @@
+% Table: Learning Rate and LoRA Ablation
+% All stealth-95, benign-calibrated threshold, 5 seeds, 1000 samples, 20 epochs
+
+\begin{table}[h]
+\centering
+\caption{
+  Learning-rate and LoRA ablation at 1000/20 (stealth-95, 5 seeds,
+  benign-calibrated threshold).  Frozen encoder results from
+  Table~\ref{tab:scaling} included for reference.
+  \textbf{Key findings}:
+  (1)~$10^{-5}$ partially mitigates degradation for C but not B or D.
+  (2)~$10^{-6}$ underfits across all conditions.
+  (3)~LoRA (rank$=$8) underperforms full freezing, suggesting
+  low-rank adapters lack capacity for this task.
+  (4)~Full encoder freezing remains the most effective mitigation.
+}
+\label{tab:lr_ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+& & \multicolumn{2}{c}{AUC} & \multicolumn{2}{c}{F1} & \multicolumn{2}{c}{FPR} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+Cond. & Configuration & mean & std & mean & std & mean & std \\
+\midrule
+\multicolumn{8}{@{}l}{\emph{Unfrozen encoder (baseline, Table~\ref{tab:scaling})}} \\
+B & lr$=$1e-4 & .521 & .024 & .177 & .031 & .060 & .049 \\
+C & lr$=$1e-4 & .508 & .041 & .175 & .048 & .060 & .049 \\
+D & lr$=$1e-4 & .506 & .029 & .164 & .059 & .060 & .049 \\
+\midrule
+\multicolumn{8}{@{}l}{\emph{Lower learning rate}} \\
+B & lr$=$1e-5 & .480 & .131 & .152 & .046 & .060 & .049 \\
+C & lr$=$1e-5 & .557 & .103 & .243 & .086 & .100 & .063 \\
+D & lr$=$1e-5 & .476 & .131 & .177 & .067 & .080 & .040 \\
+B & lr$=$1e-6 & .465 & .123 & .138 & .074 & .020 & .040 \\
+C & lr$=$1e-6 & .471 & .092 & .087 & .087 & .080 & .075 \\
+D & lr$=$1e-6 & .465 & .125 & .138 & .074 & .020 & .040 \\
+\midrule
+\multicolumn{8}{@{}l}{\emph{Parameter-efficient fine-tuning}} \\
+C & LoRA (r$=$8) & .484 & .108 & .234 & .097 & .100 & .063 \\
+D & LoRA (r$=$8) & .484 & .133 & .214 & .089 & .100 & .063 \\
+\midrule
+\multicolumn{8}{@{}l}{\emph{Frozen encoder (reference, Table~\ref{tab:scaling})}} \\
+B & Frozen & .606 & .114 & .130 & .094 & .060 & .049 \\
+C & Frozen & .582 & .099 & .148 & .097 & .040 & .049 \\
+D & Frozen & .573 & .097 & .144 & .081 & .060 & .049 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

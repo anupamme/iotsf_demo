@@ -212,6 +212,13 @@ class MoiraiAnomalyDetector:
         self._mock_mode = False
         self.projection_head = None  # set after fine_tune_supervised()
 
+    def _get_encoder(self):
+        """Get the encoder module, handling both normal and LoRA-wrapped models."""
+        module = self.model.module
+        if hasattr(module, 'base_model'):
+            return module.base_model.model.encoder
+        return module.encoder
+
     def initialize(self, checkpoint_path: Optional[str] = None):
         """
         Initialize the model and load weights.
@@ -1270,6 +1277,10 @@ class MoiraiAnomalyDetector:
             n_total = sum(1 for p in self.model.parameters())
             trainable_params = [p for p in self.model.parameters() if p.requires_grad] + list(projection_head.parameters())
             logger.info(f"Encoder partially frozen ({n_frozen}/{n_total} params frozen) — last layer + norm + param_proj trainable")
+        elif freeze_encoder == "lora":
+            from src.models.lora_adapter import apply_lora
+            self.model = apply_lora(self.model, rank=8, alpha=16)
+            trainable_params = [p for p in self.model.parameters() if p.requires_grad] + list(projection_head.parameters())
         else:
             trainable_params = list(self.model.parameters()) + list(projection_head.parameters())
         optimizer = torch.optim.AdamW(trainable_params, lr=learning_rate)
@@ -1580,7 +1591,7 @@ class MoiraiAnomalyDetector:
         def capture_hook(module, input, output):
             captured_embeddings['encoder'] = output
 
-        encoder_hook = self.model.module.encoder.register_forward_hook(capture_hook)
+        encoder_hook = self._get_encoder().register_forward_hook(capture_hook)
 
         logger.info("Starting supervised training loop...")
 
@@ -1719,8 +1730,7 @@ class MoiraiAnomalyDetector:
         def _hook(module, input, output):
             captured_embeddings['encoder'] = output
 
-        # Register hook on the encoder sub-module (same as in fine_tune_supervised)
-        hook = self.model.module.encoder.register_forward_hook(_hook)
+        hook = self._get_encoder().register_forward_hook(_hook)
 
         patch_size = self.patch_size if self.patch_size != 'auto' else 32
         all_embeddings = []

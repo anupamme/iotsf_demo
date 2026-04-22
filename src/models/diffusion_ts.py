@@ -139,7 +139,7 @@ class IoTDiffusionGenerator:
             'n_layer_dec': 6,
             'd_model': 256,
             'timesteps': self.n_diffusion_steps,
-            'sampling_timesteps': None,  # Will default to same as timesteps
+            'sampling_timesteps': 50,
             'loss_type': 'l1',
             'beta_schedule': 'cosine'
         }
@@ -209,12 +209,14 @@ class IoTDiffusionGenerator:
             else:
                 x_0 = self.diffusion.sample(shape)
 
-            # Note: target_statistics and guidance_scale are not currently supported
-            # with the real Diffusion-TS model. Would need custom implementation.
-            if target_statistics:
-                logger.warning("target_statistics not supported with real Diffusion-TS yet")
+            samples = x_0.cpu().numpy()
 
-            return x_0.cpu().numpy()
+            if target_statistics:
+                samples = self._apply_post_hoc_guidance(
+                    samples, target_statistics, guidance_scale
+                )
+
+            return samples
 
     def _generate_mock(
         self,
@@ -265,6 +267,34 @@ class IoTDiffusionGenerator:
             samples.append(sample)
 
         return np.array(samples)
+
+    def _apply_post_hoc_guidance(
+        self,
+        samples: np.ndarray,
+        target_statistics: Dict,
+        guidance_scale: float
+    ) -> np.ndarray:
+        """Rescale generated samples to match target mean/std.
+
+        Blends the raw sample toward the target statistics proportionally
+        to guidance_scale (0 = no change, 5 = strong pull).
+        """
+        alpha = min(guidance_scale / HARD_NEG_GUIDANCE_SCALE_MULTIPLIER, 1.0)
+        result = samples.copy()
+        for i in range(len(result)):
+            s = result[i]
+            if 'mean' in target_statistics:
+                target_mean = target_statistics['mean']
+                current_mean = s.mean()
+                s = s + alpha * (target_mean - current_mean)
+            if 'std' in target_statistics:
+                target_std = target_statistics['std']
+                current_std = s.std()
+                if current_std > 1e-8:
+                    ratio = alpha * (target_std / current_std) + (1 - alpha) * 1.0
+                    s = (s - s.mean()) * ratio + s.mean()
+            result[i] = s
+        return result
 
     def _create_guidance_fn(
         self,

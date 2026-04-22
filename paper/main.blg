@@ -5,45 +5,45 @@ The style file: plainnat.bst
 Database file #1: bibliography.bib
 Warning--can't use both volume and number fields in liu2012isolation
 Warning--can't use both volume and number fields in tuli2022tranad
-You've used 26 entries,
+You've used 33 entries,
             2773 wiz_defined-function locations,
-            717 strings with 9335 characters,
-and the built_in function-call counts, 11738 in all, are:
-= -- 979
-> -- 744
-< -- 22
-+ -- 254
-- -- 228
-* -- 831
-:= -- 1818
-add.period$ -- 92
-call.type$ -- 26
-change.case$ -- 139
-chr.to.int$ -- 26
-cite$ -- 54
-duplicate$ -- 603
-empty$ -- 1034
-format.name$ -- 272
-if$ -- 2512
+            749 strings with 10709 characters,
+and the built_in function-call counts, 16509 in all, are:
+= -- 1393
+> -- 1088
+< -- 28
++ -- 369
+- -- 336
+* -- 1228
+:= -- 2511
+add.period$ -- 113
+call.type$ -- 33
+change.case$ -- 195
+chr.to.int$ -- 33
+cite$ -- 68
+duplicate$ -- 807
+empty$ -- 1376
+format.name$ -- 389
+if$ -- 3538
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 25
-newline$ -- 151
-num.names$ -- 104
-pop$ -- 353
+missing$ -- 32
+newline$ -- 186
+num.names$ -- 132
+pop$ -- 478
 preamble$ -- 1
-purify$ -- 112
+purify$ -- 161
 quote$ -- 0
-skip$ -- 430
+skip$ -- 617
 stack$ -- 0
-substring$ -- 127
-swap$ -- 67
-text.length$ -- 4
+substring$ -- 332
+swap$ -- 124
+text.length$ -- 9
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 286
+type$ -- 363
 warning$ -- 2
-while$ -- 86
+while$ -- 121
 width$ -- 0
-write$ -- 354
+write$ -- 444
 (There were 2 warnings)

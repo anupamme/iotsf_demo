@@ -13,9 +13,10 @@ Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline:
   \resizebox{\textwidth}{!}{\input{figures/architecture.tikz}}
   \caption{
     \ours{} architecture.
-    \textbf{Stage 1}: Closed-form perturbation generates hard-negative sequences
-    with a constraint-retry loop ensuring protocol validity (Algorithm~\ref{alg:hng},
-    Appendix~\ref{app:algorithm}).
+    \textbf{Stage 1}: Hard-negative sequences are generated via closed-form
+    perturbation (analytical) or Diffusion-TS (learned), with a
+    constraint-retry loop ensuring protocol validity
+    (Appendix~\ref{app:algorithm}).
     \textbf{Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss.
   }
   \label{fig:architecture}
@@ -33,11 +34,44 @@ $\mathbf{X}_a = P_k(\mathbf{X}_b, s)$.
 Each perturbation is deterministic and CPU-reproducible ($<$2\,s/sample).
 
 Raw generated samples may violate IoT protocol specifications.
-A constraint-retry loop (Algorithm~\ref{alg:hng},
-Appendix~\ref{app:algorithm}) iterates up to $R{=}3$ times, relaxing
+A constraint-retry loop (Appendix~\ref{app:algorithm})
+iterates up to $R{=}3$ times, relaxing
 stealth by $+$0.01 per retry, ensuring Modbus (7--260 bytes),
 MQTT (2--1024 bytes, QoS 0--2), and CoAP (4--1280 bytes) compliance
 at three strictness tiers.
+
+% ============================================================
+\subsection{Stage 1b: Learned Negatives via Diffusion-TS}
+\label{sec:method:diffts}
+% ============================================================
+
+To test whether \emph{learned} negatives outperform the analytical
+perturbations above, we train a Diffusion-TS~\cite{zhang2024diffusionts}
+generative model on CICIoT2023 benign traffic.
+
+\textbf{Model and training.}
+Diffusion-TS uses a decomposition-aware architecture
+(encoder: 3 layers, decoder: 6 layers, $d_{\text{model}}{=}256$)
+with a cosine noise schedule (1000 diffusion steps).
+We train for 300 epochs on the benign training windows
+($\text{seq\_length}{=}128$, $\text{features}{=}12$) with Adam
+($\eta{=}10^{-4}$, batch size 32), selecting the checkpoint with
+lowest validation loss (0.238).
+
+\textbf{Sampling and guidance.}
+At inference, we use 50 DDIM denoising steps ($20\times$ speedup)
+to generate benign base samples in batches.
+Post-hoc statistical guidance rescales each generated sample to match
+a target distribution: given reference benign sample $\mathbf{X}_b$
+and stealth level $s$, we set
+$\mu_{\text{target}} = \mu(\mathbf{X}_b)$ and
+$\sigma_{\text{target}} = \sigma(\mathbf{X}_b) \cdot (1 + (1{-}s) \cdot 0.5)$,
+then rescale the generated sample to these moments.
+The same analytical perturbation pipeline
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}) is applied to the DiffTS
+base samples, creating \emph{learned negatives} (condition D-DiffTS)
+that can be compared directly with the analytical negatives
+(condition~D).
 
 % ============================================================
 \subsection{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}

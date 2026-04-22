@@ -3,27 +3,39 @@
 \label{sec:conclusion}
 % ============================================================
 
-We investigated whether synthetic hard negatives improve contrastive
-anomaly detection for IoT IDS, using a ten-seed ablation with
-protocol-constrained stealth-attack synthesis and benign-calibrated thresholds.
-Three key findings emerge.
+We investigated whether the quality of synthetic negatives affects
+scale robustness when fine-tuning foundation models for IoT
+anomaly detection.  Three key findings emerge.
 
-First, the NLL$+$SupCon training recipe is \emph{backbone-agnostic}:
-it improves detection for both Moirai (C, AUC$=$0.629) and a from-scratch
-CNN (AUC$=$0.580--0.598) at 200/5, and generalises cross-domain to N-BaIoT
-(AUC$=$\nbaiotAUC{}).  A CNN-NLL control experiment confirms the loss
-function is not the explanation for architecture differences ($p{=}0.24$).
-Second, the C$>$D gap (Gaussian-noise vs.\ hard negatives) collapses
-to near-zero at 5$\times$ scale with NLL-only early stopping---a
-small-scale training artefact: the advantage of easy negatives diminishes
-with sufficient data.
-Third, \textbf{catastrophic forgetting} is the dominant failure mode at
-extended scale: freezing the encoder recovers AUC
-(frozen B$=$0.606, C$=$0.582, D$=$0.573 vs.\ unfrozen 0.506--0.521),
-confirming that fine-tuning destroys the pre-trained features that
-provide discriminative power.
+First, \textbf{learned negatives maintain higher detection across
+training scales}: D-DiffTS matches Gaussian noise at 200/5
+(AUC$=$0.621 vs.\ 0.629), improves at 500/10 (0.680 vs.\ 0.592),
+and stabilises at 2000/30 (0.578 vs.\ 0.506; full-range
+degradation $-$6.9\% vs.\ $-$19.6\%).
+With a frozen encoder, learned negatives achieve the best AUC in
+the paper (0.728, $+$0.146 over frozen Gaussian).
+A generator ablation isolates this advantage to the learned base
+distribution rather than post-hoc guidance.
+Second, \textbf{catastrophic forgetting} drives scale degradation
+for all negative types: freezing the encoder recovers AUC
+(frozen B$=$0.606, C$=$0.582, D$=$0.573),
+and converging evidence from a learning-rate ablation and LoRA experiment
+rules out hyperparameter misconfiguration.
+Third, the NLL$+$SupCon training recipe transfers between the two
+architectures tested: it improves detection for both Moirai and from-scratch CNN, and
+generalises cross-domain to N-BaIoT with Gaussian negatives
+(AUC$=$0.928$\pm$0.041); D-DiffTS on N-BaIoT achieves AUC$=$0.660$\pm$0.427,
+as the 310-sample training set is insufficient for the generative model to
+learn a robust benign distribution ($\geq$500 samples required based on
+CICIoT2023 scaling).
 
-The practical implication: freeze the encoder when fine-tuning foundation
-models at scale; use CNN at small scale; recalibrate thresholds on
+The practical implication: when fine-tuning foundation models for
+anomaly detection, invest in generative-model-quality training
+negatives rather than increasing training scale with low-quality
+negatives.  When generative training is not feasible, freeze the encoder;
+use CNN at small scale; always recalibrate thresholds on
 deployment-specific benign traffic.
+We caution that no configuration achieves operationally useful F1 at
+stealth-95 (best: 0.262); the system is a diagnostic framework for
+understanding detection failure modes, not a production-ready IDS.
 We release all code, datasets, and calibration scripts.

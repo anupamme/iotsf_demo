@@ -605,9 +605,10 @@ def main():
     )
     parser.add_argument(
         "--freeze-encoder", default="none",
-        choices=["none", "full", "partial"],
+        choices=["none", "full", "partial", "lora"],
         help="Encoder freezing strategy: 'none' (default), 'full' (freeze all encoder weights), "
-             "'partial' (freeze all but last transformer layer). "
+             "'partial' (freeze all but last transformer layer), "
+             "'lora' (freeze base, add LoRA adapters to attention layers). "
              "Tests catastrophic forgetting hypothesis at extended scale."
     )
     parser.add_argument(
