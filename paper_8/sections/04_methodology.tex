@@ -1,0 +1,81 @@
+% ============================================================
+\section{\ours{}: Methodology}
+\label{sec:method}
+% ============================================================
+
+Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline:
+(1) protocol-constrained hard-negative generation and
+(2) supervised contrastive fine-tuning of Moirai.
+
+% --- Figure 1: Architecture ---
+\begin{figure}[t]
+  \centering
+  \input{figures/architecture.tikz}
+  \caption{
+    \ours{} architecture.
+    \textbf{Stage 1}: Closed-form perturbation generates hard-negative sequences
+    with a constraint-retry loop ensuring protocol validity (Algorithm~\ref{alg:hng},
+    Appendix~\ref{app:algorithm}).
+    \textbf{Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss.
+  }
+  \label{fig:architecture}
+\end{figure}
+
+% ============================================================
+\subsection{Stage 1: Protocol-Constrained Hard-Negative Generation}
+\label{sec:method:gen}
+% ============================================================
+
+We synthesise hard-negative attacks via closed-form perturbations
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}): given benign $\mathbf{X}_b$,
+pattern $P_k$, and stealth $s$, the hard-negative is
+$\mathbf{X}_a = P_k(\mathbf{X}_b, s)$.
+Each perturbation is deterministic and CPU-reproducible ($<$2\,s/sample).
+
+Raw generated samples may violate IoT protocol specifications.
+A constraint-retry loop (Algorithm~\ref{alg:hng},
+Appendix~\ref{app:algorithm}) iterates up to $R{=}3$ times, relaxing
+stealth by $+$0.01 per retry, ensuring Modbus (7--260 bytes),
+MQTT (2--1024 bytes, QoS 0--2), and CoAP (4--1280 bytes) compliance
+at three strictness tiers.
+
+% ============================================================
+\subsection{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}
+\label{sec:method:finetune}
+% ============================================================
+
+\textbf{Moirai for anomaly scoring.}
+Moirai~\cite{woo2024moirai} predicts a distribution over
+$\mathbf{X}_{97:128}$ given context $\mathbf{X}_{1:96}$.
+The anomaly score is the fraction of timesteps falling outside the
+$1{-}\alpha$ CI ($\alpha{=}0.05$):
+\begin{equation}
+  \hat{s}(\mathbf{X}) = \frac{1}{T'}\sum_{t=97}^{128}
+    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right].
+\end{equation}
+A sample is classified as an attack if $\hat{s}(\mathbf{X}) > \delta$,
+where $\delta$ is calibrated on a benign validation set
+(Section~\ref{sec:experiments:setup}).
+
+\textbf{Combined training objective.}
+We fine-tune with:
+\begin{equation}
+  \label{eq:combined_loss}
+  \mathcal{L}(\theta) =
+    \mathcal{L}_{\text{NLL}}(\theta) +
+    \lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau),
+\end{equation}
+where $\lambda = 0.5$ and $\tau = 0.07$ (sensitivity in
+Appendix~\ref{app:hparams}; stable within $\pm$0.02 AUC).
+$\mathcal{L}_{\text{SupCon}}$~\cite{khosla2020supcon} is applied to
+L2-normalised embeddings from a projection head
+$h_\phi: \R^{384} \to \R^{256} \to \text{ReLU} \to \R^{128}$.
+
+\textbf{Training details.}
+AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$),
+batch size 32, up to 10 epochs (5 in the main ablation,
+10--20 in scaling experiments), early stopping (patience 3),
+gradient clipping at 1.0.  Moirai-Small (13.8M parameters).\footnote{%
+  An in-place tensor operation in \texttt{uni2ts} \texttt{PackedStdScaler}
+  was replaced with a differentiable \texttt{torch.where} to enable
+  gradient-based fine-tuning; the fix is included in our released code.}

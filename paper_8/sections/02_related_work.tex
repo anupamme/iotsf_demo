@@ -1,0 +1,51 @@
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+% ============================================================
+
+\textbf{Traditional IoT IDS.}
+Statistical methods (Z-score, IQR) and Isolation
+Forest~\cite{liu2012isolation} flag individual flow features deviating
+from learned normals; ensemble approaches~\cite{garcia2014empirical}
+improve precision.  All share a weakness: calibration on known,
+high-magnitude attacks and failure on stealthy perturbations.
+We use the \dataset{} dataset~\cite{neto2023ciciot} throughout.
+
+\textbf{Deep-learning anomaly detection.}
+USAD~\cite{audibert2020usad} uses adversarially trained dual-autoencoders.
+TranAD~\cite{tuli2022tranad} applies context-aware Transformers.
+The Anomaly Transformer~\cite{xu2022anomaly} introduces association
+discrepancy for anomalous timestep detection.
+PatchTST~\cite{nie2023patchtst} captures long-range dependencies via
+patch-based Transformers.
+We include all four as baselines.
+
+\textbf{Generative augmentation for security.}
+GANs~\cite{lin2018idsgan} suffer mode collapse; TimeGAN~\cite{yoon2019timegan}
+improves temporal fidelity; Diffusion-TS~\cite{zhang2024diffusionts}
+achieves state-of-the-art quality.
+Ours is the first to apply hard-negative contrastive augmentation for
+IoT IDS with protocol constraints, using closed-form perturbations
+(Diffusion-TS backbone deferred to future work).
+
+\textbf{Adversarial training.}
+FGSM~\cite{goodfellow2015adversarial} and PGD~\cite{madry2018pgd} generate
+adversarial perturbations at test time.  We generate adversarial
+\emph{training data} via closed-form perturbations targeting the
+traffic-generation threat model, with protocol constraints ensuring
+domain validity.
+
+\textbf{Time-series foundation models.}
+Moirai~\cite{woo2024moirai}, trained on 27B+ time points, supports
+probabilistic multivariate forecasting.
+Its confidence-interval output maps naturally to anomaly scoring.
+MOMENT~\cite{goswami2024moment} and TimesFM~\cite{das2024timeseries}
+offer complementary architectures.
+
+\textbf{Contrastive learning for anomaly detection.}
+Supervised contrastive learning~\cite{khosla2020supcon} has been applied
+to tabular~\cite{sohn2020fixmatch} and time-series~\cite{eldele2021ts2vec}
+anomaly detection.  Our CombinedLoss adapts~\cite{reiss2021panda}'s
+reconstruction$+$contrastive principle to IoT time series.
+Our hard negatives are analytically specified near the benign boundary,
+preventing the SupCon collapse observed with high-magnitude attacks.

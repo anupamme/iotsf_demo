@@ -17,7 +17,8 @@ from src.utils.config import Config
 def generate_attacks(
     n_samples: int = 10,
     output_dir: str = "data/synthetic",
-    seed: int = 42
+    seed: int = 42,
+    retry_mode: str = 'full',
 ):
     """
     Pre-generate synthetic attacks for demo.
@@ -37,7 +38,8 @@ def generate_attacks(
         seq_length=config.get("models.diffusion_ts.seq_length", 128),
         feature_dim=config.get("models.diffusion_ts.feature_dim", 12)
     )
-    generator.initialize()
+    checkpoint_path = config.get("models.diffusion_ts.checkpoint", "models/diffusion_ts.pt")
+    generator.initialize(checkpoint_path=checkpoint_path)
 
     # Create output directory
     output_path = Path(output_dir)
@@ -69,7 +71,8 @@ def generate_attacks(
                 attack, metadata = generator.generate_hard_negative(
                     benign_sample=benign_ref,
                     attack_pattern=attack_type,
-                    stealth_level=stealth_level
+                    stealth_level=stealth_level,
+                    retry_mode=retry_mode,
                 )
 
                 attacks.append(attack)
@@ -119,6 +122,17 @@ def main():
         default=42,
         help='Random seed (default: 42)'
     )
+    parser.add_argument(
+        '--retry-mode',
+        type=str,
+        default='full',
+        choices=['full', 'unconditional_retry', 'none'],
+        help='Retry mode for hard-negative generation: '
+             '"full" (condition D: generate at fixed stealth), '
+             '"unconditional_retry" (condition E\': iterate 3x with stealth relaxation), '
+             '"none" (condition E: generate once with no retry). '
+             'Default: full'
+    )
 
     args = parser.parse_args()
 
@@ -128,13 +142,15 @@ def main():
     logger.info(f"Samples per type: {args.n_samples}")
     logger.info(f"Output directory: {args.output_dir}")
     logger.info(f"Random seed: {args.seed}")
+    logger.info(f"Retry mode: {args.retry_mode}")
     logger.info("=" * 50 + "\n")
 
     try:
         generate_attacks(
             n_samples=args.n_samples,
             output_dir=args.output_dir,
-            seed=args.seed
+            seed=args.seed,
+            retry_mode=args.retry_mode,
         )
     except Exception as e:
         logger.error(f"Error generating attacks: {e}")

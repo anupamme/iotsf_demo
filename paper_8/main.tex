@@ -1,0 +1,99 @@
+% ============================================================
+% NeurIPS 2026 Submission
+% "Fighting AI-Powered Threats with AI-Generated Defense"
+% ============================================================
+% Use neurips_2025.sty until neurips_2026.sty is released.
+% Download from: https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
+% Place as paper/neurips_2025.sty
+% ============================================================
+
+\documentclass{article}
+
+% ---- NeurIPS style ----
+\usepackage{neurips_2024}  % neurips_2026.sty not yet released; will update before camera-ready
+% Fallback geometry if style not loaded: \usepackage[margin=1in]{geometry}
+
+% ---- Core packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{hidelinks, colorlinks=false}
+\usepackage{url}
+\usepackage{booktabs}         % professional tables
+\usepackage{amsmath, amssymb}
+\usepackage{mathtools}          % provides \coloneqq and extends amsmath
+\usepackage{graphicx}
+\usepackage{subcaption}       % subfigures
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---- Macros ----
+\newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
+\newcommand{\dataset}{CICIoT2023}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
+
+\title{When Do Synthetic Hard Negatives Help?
+       Scale-Dependent Contrastive Learning for IoT Intrusion Detection}
+
+\author{
+  Anupam Chattopadhyay\thanks{Correspondence: \texttt{anupam@example.com}} \\
+  % Add remaining authors / affiliations here
+}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+Do synthetic hard negatives improve contrastive anomaly detection for IoT
+intrusion detection?  We investigate using \ours{} (\textbf{H}ard-\textbf{N}egative
+\textbf{IDS}), a framework that synthesises stealth-controlled IoT attacks via
+closed-form perturbations with protocol compliance (Modbus, MQTT, CoAP), and
+fine-tunes Moirai~\cite{woo2024moirai} with combined NLL and supervised
+contrastive loss.  A five-condition ablation at three stealth levels with
+benign-calibrated thresholds isolates the contributions of hard negatives,
+contrastive learning, and fine-tuning against nine IDS baselines.
+
+\textbf{Our central finding is catastrophic forgetting of pre-trained features.}
+At increased training scale, performance is non-monotonic: 500 samples
+improves over 200 (suggesting the smallest regime is under-trained), but
+degrades from 500 to 1000 samples as catastrophic forgetting erases
+pre-trained features.  Freezing the encoder and
+training only the projection head recovers AUC substantially, confirming that
+extended fine-tuning destroys the pre-trained representations that provide
+discriminative power---collapsing performance to from-scratch CNN level.
+Freezing is a mitigation, not a complete solution: AUC recovers but
+operational F1 under calibrated thresholds remains low due to
+projection-head initialisation variance.
+
+At small scale, Gaussian-noise negatives outperform hard negatives; at
+5$\times$ scale with NLL-only early stopping this gap collapses to
+near-zero---the advantage of easy negatives diminishes with sufficient
+training data.  Cross-dataset validation on N-BaIoT~\cite{meidan2018n}
+(AUC$=$\nbaiotAUC{}) confirms framework generalisation.
+We release code, datasets, and calibration scripts.
+\end{abstract}
+
+% ============================================================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_problem_formulation}
+\input{sections/04_methodology}
+\input{sections/05_experiments}
+\input{sections/06_analysis}
+\input{sections/07_conclusion}
+\input{sections/appendix}
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}

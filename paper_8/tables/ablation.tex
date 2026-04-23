@@ -1,0 +1,49 @@
+% Table 2: Ablation Study
+% Results from run_ablation.py --condition all --seeds 42,123,456,789,1234 --epochs 5 --max-eval-samples 200
+% All conditions: 5 random seeds, full neural pipeline (Moirai), benign-calibrated threshold
+% (95th percentile of benign-only held-out scores; see §5.1).
+% E'' ≡ D analytically (100% constraint compliance; see §5.3).
+% ± values are standard deviation across 5 seeds.
+% C' (balanced hard negatives): run_ablation.py --condition cprime --epochs 5 --seeds 42,123,456,789,1234
+
+\begin{table}[h]
+\centering
+\caption{
+  Ablation study on stealth-95 and all-stealth evaluation sets.
+  All conditions use 5 random seeds with the full Moirai neural pipeline; $\pm$ values are
+  standard deviations across seeds.  Threshold calibrated on benign-only held-out scores
+  (95th percentile, targeting FPR\,$\leq$\,0.05;
+  see Section~\ref{sec:experiments:setup}).
+  ROC-AUC is threshold-independent and the primary ranking metric.
+  E$''$ is analytically identical to D for the analytical perturbation pathway
+  (100\% constraint compliance, retry never fires);
+  all fine-tuned conditions (B--E$'$, CNN) outperform zero-shot (A).
+}
+\label{tab:ablation}
+\begin{tabular}{llccccc}
+\toprule
+& & \multicolumn{3}{c}{Stealth 95\%} & \multicolumn{2}{c}{All Stealth} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Cond. & Description & F1 & FPR & AUC & F1 & AUC \\
+\midrule
+A      & Moirai zero-shot                                   & $0.183_{\pm.071}$ & $0.100$ & $0.464_{\pm.060}$ & $0.106_{\pm.071}$ & $0.519_{\pm.080}$ \\
+B      & $+$ Fine-tune, NLL only                            & $0.131_{\pm.061}$ & $0.060$ & $0.481_{\pm.127}$ & $0.265_{\pm.081}$ & $0.615_{\pm.064}$ \\
+C      & $+$ SupCon (Gaussian-noise neg., 1:1)              & $0.250_{\pm.135}$ & $0.080$ & $0.563_{\pm.122}$ & $0.329_{\pm.082}$ & $0.701_{\pm.075}$ \\
+C$'$   & $+$ SupCon (balanced hard neg., 1:1)$^\star$       & $0.183_{\pm.084}$ & $0.080$ & $0.534_{\pm.125}$ & $0.317_{\pm.071}$ & $0.663_{\pm.063}$ \\
+D      & $+$ Hard negatives, 1:12 (\ours{}$^\dagger$)       & $0.137_{\pm.086}$ & $0.040$ & $0.479_{\pm.123}$ & $0.264_{\pm.069}$ & $0.617_{\pm.063}$ \\
+CNN    & 1D-CNN from scratch, NLL$+$SupCon$^\P$             & $0.236_{\pm.069}$ & $0.020$ & $0.597_{\pm.096}$ & $0.381_{\pm.080}$ & $0.608_{\pm.056}$ \\
+E      & D w/o constraints, w/o retry                       & $0.124_{\pm.073}$ & $0.040$ & $0.480_{\pm.130}$ & $0.268_{\pm.071}$ & $0.615_{\pm.063}$ \\
+E$'$   & D w/o constraints, \emph{with} retry$^\ddagger$    & $0.150_{\pm.079}$ & $0.060$ & $0.498_{\pm.131}$ & $0.287_{\pm.064}$ & $0.637_{\pm.060}$ \\
+E$''$ & D \emph{with} constraints, w/o retry$^\S$     & \multicolumn{5}{c}{$\equiv$ D (analytically)} \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\begin{flushleft}
+\footnotesize
+$\star$ C$'$ uses the same hard negatives as D, but subsampled to match the benign count (1:1 ratio), isolating negative \emph{type} from dataset \emph{size/balance}. \\
+$\dagger$ Full system: NLL$+$SupCon, hard negatives, protocol constraint validator, stealth-floor retry. \\
+$\P$ CNN: 3-layer 1D-CNN (2.3M parameters) trained from scratch with identical NLL(MSE)+SupCon objective and hard-negative data as D; no Moirai pre-training. CNN (AUC$=$0.597) now outperforms all Moirai conditions at stealth-95 (best Moirai: C$=$0.563), suggesting Moirai pre-training provides no benefit at this scale and CNN's lower variance yields more reliable detection. \\
+$\ddagger$ E$'$ uses unconditional retry (s$_{\text{eff}}\approx$0.97 vs.\ requested s$=$0.95); isolates constraint-validator contribution. \\
+$\S$ E$''$ activates the constraint validator but exits the retry loop after one attempt; for analytical perturbations (100\% pass-rate), E$''$ $\equiv$ D and no experimental run is needed.
+\end{flushleft}
+\end{table}

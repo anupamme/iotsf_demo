@@ -1,0 +1,97 @@
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+The proliferation of Internet-of-Things (IoT) devices---projected to exceed
+29 billion by 2030~\cite{iotanalyticsmarket2023}---has dramatically expanded
+the attack surface available to adversaries.  Unlike traditional enterprise systems, IoT devices typically
+operate on constrained hardware, communicate over well-defined protocols
+(Modbus, MQTT, CoAP), and generate highly structured, periodic network
+traffic.  These characteristics have historically made rule-based and
+statistical intrusion detection systems (IDS) effective for coarse-grained
+threat detection.
+
+\textbf{The AI-powered threat gap.}
+Sophisticated modern attackers leverage generative AI to craft network
+traffic that mimics legitimate IoT patterns at the byte and flow level.
+Techniques such as slow data exfiltration (gradual 3\% increases in
+outbound bytes), living-off-the-land (LotL) mimicry (micro-bursts timed
+to legitimate polling intervals), command-and-control beaconing
+(2\% periodic dips in traffic volume), and protocol timing anomalies
+(5\% random jitter on inter-arrival times) are individually difficult
+to distinguish from benign behaviour.  We formalise these as
+\emph{hard-negative} attacks: sequences where the statistical similarity
+to benign traffic exceeds a stealth threshold $s \in \{0.85, 0.90, 0.95\}$
+(see Section~\ref{sec:problem}).
+Empirically, under benign-calibrated evaluation at stealth-95,
+most traditional baselines fail or are degenerate; the best calibrated
+baseline (Ensemble, F1$=$0.136) reflects its fixed training distribution
+(Section~\ref{sec:experiments}).
+
+\textbf{Research question and approach.}
+We ask: \emph{do synthetic hard negatives improve SupCon-based anomaly detection
+for IoT IDS, and if so, at what training scale?}
+To answer this, we build \ours{} (\textbf{H}ard-\textbf{N}egative \textbf{IDS}),
+a two-stage experimental system.
+First, we generate synthetic hard-negative attacks at a precisely controlled
+stealth level $s$ using closed-form perturbations
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}), while enforcing IoT protocol constraints
+(Modbus, MQTT, CoAP) via a multi-tier validation framework.
+Second, we fine-tune Moirai~\cite{woo2024moirai}, a universal time-series
+forecasting foundation model, using a combined NLL and supervised contrastive
+(SupCon) loss~\cite{khosla2020supcon}, with a five-condition ablation that isolates
+the contribution of hard negatives from SupCon and fine-tuning in general.
+
+\textbf{Why build a hard-negative pipeline?}
+Even though Gaussian-noise negatives outperform hard negatives at small scale,
+the hard-negative infrastructure provides protocol-compliant generation,
+stealth-controlled evaluation, and adversarial augmentation without real
+attack traffic---a reusable evaluation tool independent of which negative type
+yields the highest AUC in a specific regime.
+
+\textbf{Contributions.}  We make three contributions:
+\begin{enumerate}
+  \item \textbf{Stealth-Attack Benchmark with Protocol Constraints.}
+    Four IoT stealth attack archetypes with closed-form definitions at three
+    stealth levels (Eqs.~\ref{eq:slow}--\ref{eq:proto}), a multi-tier protocol
+    validation layer (Modbus, MQTT, CoAP), and a leave-one-out experiment
+    showing positive transfer for all four held-out types (mean $+$0.186 F1).
+    Code and datasets released at \url{https://github.com/anupamme/iotsf_demo}.
+
+  \item \textbf{A Backbone-Agnostic Training Recipe for IoT Anomaly Detection.}
+    We present a combined NLL and SupCon training
+    recipe~\cite{khosla2020supcon}
+    $\mathcal{L} = \mathcal{L}_{\text{NLL}} + \lambda\,\mathcal{L}_{\text{SupCon}}$
+    ($\lambda=0.5$, $\tau=0.07$) with a projection head
+    (384$\to$256$\to$128 dimensions) that bridges probabilistic forecasting and
+    discriminative anomaly detection.
+    The recipe is backbone-agnostic: it improves detection for both
+    Moirai (condition~C, AUC$=$0.563) and a from-scratch 1D-CNN
+    (AUC$=$0.597) over their respective NLL-only baselines, and
+    generalises cross-domain to N-BaIoT (AUC$=$\nbaiotAUC{}).
+    At the 200-sample / 5-epoch scale, the CNN outperforms all Moirai
+    conditions with lower variance, indicating that pre-training on
+    non-IoT domains does not confer a measurable advantage at this scale;
+    the frozen-encoder result at 1000/20 (Contribution~3) shows that
+    preserving pre-trained features \emph{does} help at larger scale.\footnote{%
+      Enabling fine-tuning required fixing an in-place tensor operation in
+      the \texttt{uni2ts} \texttt{PackedStdScaler} that silently blocked
+      gradient flow; the fix is included in our released code.}
+
+  \item \textbf{Catastrophic Forgetting Diagnosis and Scale-Dependent Analysis.}
+    Performance improves from 200/5 to 500/10 but degrades at 1000/20.
+    Freezing the encoder recovers AUC (frozen B$=$0.606, C$=$0.582, D$=$0.573),
+    identifying catastrophic forgetting as the mechanism.
+    The Gaussian-noise vs.\ hard-negative gap collapses to near-zero at scale,
+    revealing a small-scale training artefact rather than a property of negative type.
+    N-BaIoT validation (AUC$=$\nbaiotAUC{}) confirms cross-domain generalisation.
+\end{enumerate}
+
+\textbf{Paper organisation.}
+Section~\ref{sec:related} reviews related work.
+Section~\ref{sec:problem} formalises the problem.
+Section~\ref{sec:method} describes \ours{}.
+Section~\ref{sec:experiments} presents experimental results.
+Section~\ref{sec:analysis} discusses findings and limitations.
+Section~\ref{sec:conclusion} concludes.

@@ -139,7 +139,7 @@ class IoTDiffusionGenerator:
             'n_layer_dec': 6,
             'd_model': 256,
             'timesteps': self.n_diffusion_steps,
-            'sampling_timesteps': None,  # Will default to same as timesteps
+            'sampling_timesteps': 50,
             'loss_type': 'l1',
             'beta_schedule': 'cosine'
         }
@@ -209,12 +209,14 @@ class IoTDiffusionGenerator:
             else:
                 x_0 = self.diffusion.sample(shape)
 
-            # Note: target_statistics and guidance_scale are not currently supported
-            # with the real Diffusion-TS model. Would need custom implementation.
-            if target_statistics:
-                logger.warning("target_statistics not supported with real Diffusion-TS yet")
+            samples = x_0.cpu().numpy()
 
-            return x_0.cpu().numpy()
+            if target_statistics:
+                samples = self._apply_post_hoc_guidance(
+                    samples, target_statistics, guidance_scale
+                )
+
+            return samples
 
     def _generate_mock(
         self,
@@ -266,6 +268,34 @@ class IoTDiffusionGenerator:
 
         return np.array(samples)
 
+    def _apply_post_hoc_guidance(
+        self,
+        samples: np.ndarray,
+        target_statistics: Dict,
+        guidance_scale: float
+    ) -> np.ndarray:
+        """Rescale generated samples to match target mean/std.
+
+        Blends the raw sample toward the target statistics proportionally
+        to guidance_scale (0 = no change, 5 = strong pull).
+        """
+        alpha = min(guidance_scale / HARD_NEG_GUIDANCE_SCALE_MULTIPLIER, 1.0)
+        result = samples.copy()
+        for i in range(len(result)):
+            s = result[i]
+            if 'mean' in target_statistics:
+                target_mean = target_statistics['mean']
+                current_mean = s.mean()
+                s = s + alpha * (target_mean - current_mean)
+            if 'std' in target_statistics:
+                target_std = target_statistics['std']
+                current_std = s.std()
+                if current_std > 1e-8:
+                    ratio = alpha * (target_std / current_std) + (1 - alpha) * 1.0
+                    s = (s - s.mean()) * ratio + s.mean()
+            result[i] = s
+        return result
+
     def _create_guidance_fn(
         self,
         target_statistics: Dict,
@@ -301,7 +331,10 @@ class IoTDiffusionGenerator:
         self,
         benign_sample: np.ndarray,
         attack_pattern: str = 'slow_exfiltration',
-        stealth_level: float = 0.95
+        stealth_level: float = 0.95,
+        retry_mode: str = 'full',
+        max_retries: int = 3,
+        stealth_relax_step: float = 0.01,
     ) -> Tuple[np.ndarray, Dict]:
         """
         Generate a hard-negative attack that mimics benign traffic.
@@ -310,6 +343,17 @@ class IoTDiffusionGenerator:
             benign_sample: Reference benign traffic to mimic
             attack_pattern: Type of attack pattern to inject
             stealth_level: 0-1, higher means more similar to benign
+            retry_mode: Controls the retry/constraint behaviour for ablation.
+                'full'               — condition D: generate once at stealth_level,
+                                       return immediately (constraint retry handled
+                                       externally by HardNegativeGenerator).
+                'unconditional_retry'— condition E': iterate max_retries times,
+                                       relaxing stealth by stealth_relax_step each
+                                       iteration regardless of any constraint check;
+                                       returns the last generated sample.
+                'none'               — condition E: generate once, no retry.
+            max_retries: Number of unconditional iterations for 'unconditional_retry'.
+            stealth_relax_step: Step size for stealth relaxation per iteration.
 
         Returns:
             Tuple of (generated_attack, attack_metadata)
@@ -318,27 +362,29 @@ class IoTDiffusionGenerator:
         - HARD_NEG_STD_DEVIATION_SCALING: Controls statistical deviation
         - HARD_NEG_GUIDANCE_SCALE_MULTIPLIER: Converts stealth level to guidance scale
         """
-        # Extract statistics from benign sample
-        target_stats = {
-            'mean': float(benign_sample.mean()),
-            'std': float(benign_sample.std()) * (1 + (1 - stealth_level) * HARD_NEG_STD_DEVIATION_SCALING),
-            # Match variance within threshold
-        }
+        s = stealth_level
+        n_iters = max_retries if retry_mode == 'unconditional_retry' else 1
 
-        # Generate with guidance
-        generated = self.generate(
-            n_samples=1,
-            target_statistics=target_stats,
-            guidance_scale=stealth_level * HARD_NEG_GUIDANCE_SCALE_MULTIPLIER
-        )[0]
-
-        # Inject attack pattern (subtle modifications)
-        generated = self._inject_attack_pattern(generated, attack_pattern)
+        generated = None
+        for _ in range(n_iters):
+            target_stats = {
+                'mean': float(benign_sample.mean()),
+                'std': float(benign_sample.std()) * (1 + (1 - s) * HARD_NEG_STD_DEVIATION_SCALING),
+            }
+            generated = self.generate(
+                n_samples=1,
+                target_statistics=target_stats,
+                guidance_scale=s * HARD_NEG_GUIDANCE_SCALE_MULTIPLIER
+            )[0]
+            generated = self._inject_attack_pattern(generated, attack_pattern)
+            if retry_mode == 'unconditional_retry':
+                s = min(s + stealth_relax_step, 1.0)  # relax stealth each iteration
 
         metadata = {
             'attack_type': attack_pattern,
-            'stealth_level': stealth_level,
-            'target_stats': target_stats,
+            'stealth_level': s,           # effective stealth of the returned sample
+            'requested_stealth': stealth_level,
+            'retry_mode': retry_mode,
             'mean_diff': abs(generated.mean() - benign_sample.mean()),
             'std_diff': abs(generated.std() - benign_sample.std())
         }

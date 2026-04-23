@@ -1,0 +1,26 @@
+{
+  "model_size": "small",
+  "checkpoint": "models/moirai_supervised/best_moirai_supervised.pt",
+  "detection_method": "nll",
+  "n_val_samples": 250,
+  "n_benign": 50,
+  "n_attack": 200,
+  "score_distributions": {
+    "benign_mean": -31.027372360229492,
+    "benign_std": 1.6745760440826416,
+    "attack_mean": -27.04541778564453,
+    "attack_std": 4.005411148071289
+  },
+  "optimal": {
+    "anomaly_score_threshold": -31.72617336541564,
+    "detection_rate_threshold": -31.72617336541564
+  },
+  "optimal_metrics": {
+    "f1": 0.909952606635071,
+    "accuracy": 0.848,
+    "precision": 0.8648648648648649,
+    "recall": 0.96,
+    "false_positive_rate": 0.6,
+    "roc_auc": 0.8111
+  }
+}

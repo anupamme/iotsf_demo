@@ -1,0 +1,37 @@
+% Table: Scaling Experiment
+% Seven regimes: 200/5 (original), 500/10 NLL-ES, 1000/20 NLL-only ES,
+%                2000/30 NLL-only ES, 1000/20 frozen encoder, 1000/20 partial freeze
+% All stealth-95, benign-calibrated threshold, 5 seeds
+
+\begin{table}[h]
+\centering
+\caption{
+  Scale degradation and encoder-freezing experiment (stealth-95, 5 seeds,
+  benign-calibrated threshold, NLL-only early stopping).
+  \textbf{Key findings}:
+  (1)~D-DiffTS improves from 200/5 to 500/10 (0.621$\to$0.680), then stabilises;
+  C/D degrade.
+  (2)~Frozen D-DiffTS achieves best AUC (0.728, $+$0.146 over frozen C).
+  2000/30 column shows only C, D, D-DiffTS; B, C$'$, CNN not run at this scale.
+  \emph{Note}: 200/5 uses 5 seeds for consistency; authoritative 10-seed values in Table~\ref{tab:ablation}.
+}
+\label{tab:scaling}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llcccccccccc@{}}
+\toprule
+& & \multicolumn{2}{c}{200\,/\,5} & \multicolumn{2}{c}{500\,/\,10} & \multicolumn{2}{c}{1000\,/\,20} & \multicolumn{2}{c}{2000\,/\,30} & \multicolumn{2}{c}{Frozen 1000/20} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
+Cond. & Description & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 \\
+\midrule
+B      & NLL only                & $.481_{\pm.127}$ & $.131_{\pm.061}$ & $.538_{\pm.038}$ & $.250_{\pm.073}$ & $.521_{\pm.024}$ & $.177_{\pm.031}$ & --- & --- & $.606_{\pm.114}$ & $.130_{\pm.094}$ \\
+C      & SupCon $+$ Gaussian     & $.563_{\pm.122}$ & $.250_{\pm.135}$ & $.592_{\pm.063}$ & $.280_{\pm.101}$ & $.508_{\pm.041}$ & $.175_{\pm.048}$ & $.506_{\pm.140}$ & $.192_{\pm.117}$ & $.582_{\pm.099}$ & $.148_{\pm.097}$ \\
+C$'$   & SupCon $+$ hard neg 1:1 & $.534_{\pm.125}$ & $.183_{\pm.084}$ & $.580_{\pm.064}$ & $.265_{\pm.121}$ & $.508_{\pm.025}$ & $.158_{\pm.040}$ & --- & --- & \multicolumn{2}{c}{---} \\
+CNN    & 1D-CNN from scratch     & $.597_{\pm.096}$ & $.236_{\pm.069}$ & \multicolumn{2}{c}{---} & $.513_{\pm.029}$ & $.207_{\pm.017}$ & --- & --- & \multicolumn{2}{c}{(n/a)} \\
+D      & Hard neg 1:12 (\ours{}) & $.479_{\pm.123}$ & $.137_{\pm.086}$ & $.547_{\pm.044}$ & $.250_{\pm.073}$ & $.506_{\pm.029}$ & $.164_{\pm.059}$ & $.488_{\pm.070}$ & $.164_{\pm.117}$ & $.573_{\pm.097}$ & $.144_{\pm.081}$ \\
+\addlinespace[2pt]
+D-DiffTS & Learned neg (Diffusion-TS) & $.621_{\pm.056}$ & $.213_{\pm.118}$ & $\mathbf{.680}_{\pm.064}$ & $.297_{\pm.104}$ & $.576_{\pm.045}$ & $.253_{\pm.109}$ & $.578_{\pm.117}$ & $.257_{\pm.102}$ & $\mathbf{.728}_{\pm.080}$ & $.249_{\pm.125}$ \\
+\bottomrule
+\multicolumn{12}{@{}l}{\scriptsize ``---'': not run. ``(n/a)'': CNN has no pre-training. D-DiffTS 200/5: 10 seeds; others: 5 seeds.} \\
+\end{tabular}%
+}
+\end{table}
