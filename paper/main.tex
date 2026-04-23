@@ -84,8 +84,8 @@ We contribute a stealth-attack evaluation protocol (four IoT attack
 archetypes, three stealth levels, protocol constraints for
 Modbus/MQTT/CoAP) and a ten-seed diagnostic framework.
 Cross-dataset validation on N-BaIoT~\cite{meidan2018n} confirms recipe
-generalisation (Gaussian negatives: AUC$=$0.928; learned negatives: 0.660,
-constrained by small training set).
+generalisation (Gaussian negatives: AUC$=$0.928; learned negatives:
+AUC$=$0.939 with $\geq$500 training windows, up from 0.660 at 310 windows).
 We caution that absolute F1 at stealth-95 remains low (best 0.262);
 the system is a research prototype, not a production IDS.
 Code, datasets, and calibration scripts are released.

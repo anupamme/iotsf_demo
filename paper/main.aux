@@ -98,20 +98,20 @@
 \newlabel{sec:conclusion}{{7}{12}{Conclusion}{section.7}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {A}CICIoT2023 Feature Set}{12}{appendix.A}\protected@file@percent }
 \newlabel{app:features}{{A}{12}{CICIoT2023 Feature Set}{appendix.A}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Protocol Constraint Compliance}{12}{appendix.B}\protected@file@percent }
-\newlabel{app:constraints}{{B}{12}{Protocol Constraint Compliance}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces The 12 network-flow features extracted from CICIoT2023{}.}}{13}{table.caption.6}\protected@file@percent }
+\newlabel{tab:features}{{5}{13}{The 12 network-flow features extracted from \dataset {}}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Protocol Constraint Compliance}{13}{appendix.B}\protected@file@percent }
+\newlabel{app:constraints}{{B}{13}{Protocol Constraint Compliance}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces  Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph  {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead. }}{13}{table.caption.7}\protected@file@percent }
+\newlabel{tab:constraints}{{6}{13}{Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead}{table.caption.7}{}}
 \citation{zhang2024diffusionts}
 \citation{meidan2018n}
 \citation{moustafa2015unsw}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces The 12 network-flow features extracted from CICIoT2023{}.}}{13}{table.caption.6}\protected@file@percent }
-\newlabel{tab:features}{{5}{13}{The 12 network-flow features extracted from \dataset {}}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Full Limitations and Future Work}{13}{appendix.C}\protected@file@percent }
-\newlabel{app:limitations}{{C}{13}{Full Limitations and Future Work}{appendix.C}{}}
 \citation{meidan2018n}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces  Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph  {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead. }}{14}{table.caption.7}\protected@file@percent }
-\newlabel{tab:constraints}{{6}{14}{Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {D}N-BaIoT Feature Mapping}{14}{appendix.D}\protected@file@percent }
-\newlabel{app:nbaiot}{{D}{14}{N-BaIoT Feature Mapping}{appendix.D}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Full Limitations and Future Work}{14}{appendix.C}\protected@file@percent }
+\newlabel{app:limitations}{{C}{14}{Full Limitations and Future Work}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}N-BaIoT Feature Mapping}{15}{appendix.D}\protected@file@percent }
+\newlabel{app:nbaiot}{{D}{15}{N-BaIoT Feature Mapping}{appendix.D}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces  Mapping from the 12 CICIoT2023 features expected by \textsc  {HNIDS}{} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt  {L5}) unless noted. }}{15}{table.caption.8}\protected@file@percent }
 \newlabel{tab:nbaiot_mapping}{{7}{15}{Mapping from the 12 CICIoT2023 features expected by \ours {} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt {L5}) unless noted}{table.caption.8}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {E}N-BaIoT Per-Attack Results}{15}{appendix.E}\protected@file@percent }
@@ -206,21 +206,25 @@
 \bibstyle{plainnat}
 \bibdata{bibliography}
 \bibcite{audibert2020usad}{Audibert et~al.(2020)}
-\bibcite{chen2020simclr}{Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton}
-\bibcite{das2024timeseries}{Das et~al.(2024)}
-\bibcite{eldele2021ts2vec}{Eldele et~al.(2021)}
-\bibcite{garcia2014empirical}{Garcia et~al.(2014)}
 \@writefile{toc}{\contentsline {section}{\numberline {M}Extended N-BaIoT Analysis}{28}{appendix.M}\protected@file@percent }
 \newlabel{app:extended_nbaiot}{{M}{28}{Extended N-BaIoT Analysis}{appendix.M}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {M.1}Zero-Shot Failure Analysis}{28}{subsection.M.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {M.2}Preprocessing Details}{28}{subsection.M.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {M.3}Recipe Generalisation Interpretation}{28}{subsection.M.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {N}Baseline Hyperparameter Tuning}{28}{appendix.N}\protected@file@percent }
+\newlabel{app:baseline_tuning}{{N}{28}{Baseline Hyperparameter Tuning}{appendix.N}{}}
+\bibcite{chen2020simclr}{Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton}
+\bibcite{das2024timeseries}{Das et~al.(2024)}
+\bibcite{eldele2021ts2vec}{Eldele et~al.(2021)}
+\bibcite{garcia2014empirical}{Garcia et~al.(2014)}
 \bibcite{goodfellow2015adversarial}{Goodfellow et~al.(2015)Goodfellow, Shlens, and Szegedy}
 \bibcite{goswami2024moment}{Goswami et~al.(2024)}
 \bibcite{grill2020byol}{Grill et~al.(2020)}
 \bibcite{houlsby2019adapters}{Houlsby et~al.(2019)Houlsby, Giurgiu, Jastrzebski, Morber, Larsson, Gesmundo, Attariyan, and Gelly}
 \bibcite{hu2022lora}{Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}
 \bibcite{iotanalyticsmarket2023}{{IoT Analytics}(2023)}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces  Baseline hyperparameter tuning (stealth-95, 200 eval samples, 3 seeds). ``Default AUC'' uses published hyperparameters (10 seeds, from Table~\ref {tab:main}); ``Tuned AUC'' uses the best grid-search configuration. Tuning does not change the ranking: no baseline exceeds USAD's tuned AUC of 0.565, which remains below \textsc  {HNIDS}{} C (0.629). }}{29}{table.caption.21}\protected@file@percent }
+\newlabel{tab:baseline_tuning}{{16}{29}{Baseline hyperparameter tuning (stealth-95, 200 eval samples, 3 seeds). ``Default AUC'' uses published hyperparameters (10 seeds, from Table~\ref {tab:main}); ``Tuned AUC'' uses the best grid-search configuration. Tuning does not change the ranking: no baseline exceeds USAD's tuned AUC of 0.565, which remains below \ours {} C (0.629)}{table.caption.21}{}}
 \bibcite{khosla2020supcon}{Khosla et~al.(2020)}
 \bibcite{kirkpatrick2017ewc}{Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz, Veness, Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska, et~al.}
 \bibcite{lin2018idsgan}{Lin et~al.(2022)}

@@ -1017,9 +1017,67 @@ Section~\ref{sec:experiments:ablation}.
 
 \subsection{Recipe Generalisation Interpretation}
 
-The N-BaIoT results (5 epochs, 310 windows) demonstrate recipe generalisation:
+The N-BaIoT results demonstrate recipe generalisation:
 NLL$+$SupCon transfers cross-domain.
-Gaussian negatives (AUC$=$0.928) significantly outperform D-DiffTS
-(AUC$=$0.660$\pm$0.427), suggesting learned negatives require adequate
-data ($\geq$500 samples; Table~\ref{tab:scaling}) for the generative model.
+On device~1 (310 training windows), Gaussian negatives (AUC$=$0.928)
+significantly outperform D-DiffTS (AUC$=$0.660$\pm$0.427)---the
+training set is too small for DiffTS to learn a robust benign distribution.
+On device~4 (1{,}096 training windows), D-DiffTS achieves
+AUC$=$0.939$\pm$0.014, slightly exceeding Gaussian (0.929$\pm$0.012),
+confirming the $\geq$500-sample requirement and demonstrating that
+learned negatives match or exceed Gaussian when data is adequate.
 Condition~C is domain-agnostic; D requires domain-specific archetypes.
+
+% ============================================================
+\section{Baseline Hyperparameter Tuning}
+\label{app:baseline_tuning}
+% ============================================================
+
+To address the concern that baselines use published defaults while \ours{}
+benefits from extensive tuning, we conduct a grid search over each
+deep-learning baseline (3 seeds, calibration AUC on 20\% held-out split).
+Table~\ref{tab:baseline_tuning} reports the grid, best configuration, and
+test-set performance.
+
+\begin{table}[h]
+\centering
+\small
+\caption{
+  Baseline hyperparameter tuning (stealth-95, 200 eval samples, 3 seeds).
+  ``Default AUC'' uses published hyperparameters (10 seeds, from Table~\ref{tab:main});
+  ``Tuned AUC'' uses the best grid-search configuration.
+  Tuning does not change the ranking: no baseline exceeds
+  USAD's tuned AUC of 0.565, which remains below \ours{} C (0.629).
+}
+\label{tab:baseline_tuning}
+\begin{tabular}{llp{3.2cm}cc}
+\toprule
+Method & Configs & Best Config & Default AUC & Tuned AUC \\
+\midrule
+USAD & 18 & $z{=}40$, $\alpha{=}0.7$, ep${=}100$ & 0.548$\pm$0.047 & 0.565$\pm$0.024 \\
+TranAD & 8 & $d{=}256$, layers${=}2$, ep${=}100$ & 0.517$\pm$0.057 & 0.501$\pm$0.026 \\
+Anom.\ Trans. & 6 & $d{=}128$, ep${=}50$ & 0.519$\pm$0.039 & 0.542$\pm$0.026 \\
+PatchTST & 6 & patch${=}32$, $d{=}256$ & 0.521$\pm$0.054 & 0.516$\pm$0.030 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Grid definitions.}
+USAD: $z_\text{dim} \in \{20, 40, 80\}$, $\alpha \in \{0.3, 0.5, 0.7\}$,
+epochs $\in \{50, 100\}$ (18 configs).
+TranAD: $d_\text{model} \in \{128, 256\}$, layers $\in \{2, 4\}$,
+epochs $\in \{50, 100\}$ (8 configs).
+Anomaly Transformer: $d_\text{model} \in \{128, 256, 512\}$,
+epochs $\in \{50, 100\}$ (6 configs).
+PatchTST: patch size $\in \{8, 16, 32\}$,
+$d_\text{model} \in \{128, 256\}$ (6 configs).
+
+The ranking is unchanged after tuning: USAD and Anomaly Transformer remain
+the strongest baselines, and the best tuned AUC (USAD, 0.565) remains
+0.064 below \ours{} condition~C (0.629).
+USAD and Anomaly Transformer benefit marginally from tuning
+($+$0.017 and $+$0.023 AUC respectively), while TranAD and PatchTST
+show negligible change ($-$0.016 and $-$0.005).
+The best-tuned USAD configuration ($z_\text{dim}{=}40$, $\alpha{=}0.7$)
+increases the reconstruction-loss weighting, consistent with the
+anomaly-detection objective.

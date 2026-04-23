@@ -88,8 +88,9 @@ Gaussian-noise negatives degrade substantially.
     misconfiguration---drives degradation for all negative types.
     The analytical-negative ablation (conditions A--E) provides the diagnostic
     scaffolding that enabled Contribution~1.
-    N-BaIoT validation (AUC$=$\nbaiotAUC{}) confirms cross-domain
-    generalisation.\footnote{%
+    N-BaIoT validation (Gaussian AUC$=$\nbaiotAUC{};
+    D-DiffTS AUC$=$0.939 with $\geq$500 training windows) confirms
+    cross-domain generalisation.\footnote{%
       Enabling fine-tuning required fixing an in-place tensor operation in
       the \texttt{uni2ts} \texttt{PackedStdScaler} that silently blocked
       gradient flow; the fix is included in our released code.}

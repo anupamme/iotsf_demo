@@ -157,7 +157,8 @@ We identify seven limitations (full details in Appendix~\ref{app:limitations}):
 generative model training on CICIoT2023 benign traffic;
 (5)~circular evaluation (addressed by N-BaIoT, \S\ref{sec:experiments:nbaiot});
 (6)~low absolute F1 (best 0.262; system is a high-specificity alerting layer);
-(7)~baselines use published defaults.
+(7)~baselines are tuned via grid search (Appendix~\ref{app:baseline_tuning})
+but the search space is necessarily finite.
 
 \textbf{Responsible disclosure.}
 We release code and data for defensive research, not to enable attacks.

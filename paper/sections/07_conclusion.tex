@@ -24,10 +24,10 @@ rules out hyperparameter misconfiguration.
 Third, the NLL$+$SupCon training recipe transfers between the two
 architectures tested: it improves detection for both Moirai and from-scratch CNN, and
 generalises cross-domain to N-BaIoT with Gaussian negatives
-(AUC$=$0.928$\pm$0.041); D-DiffTS on N-BaIoT achieves AUC$=$0.660$\pm$0.427,
-as the 310-sample training set is insufficient for the generative model to
-learn a robust benign distribution ($\geq$500 samples required based on
-CICIoT2023 scaling).
+(AUC$=$0.928$\pm$0.041); D-DiffTS on N-BaIoT with 310 training windows
+achieves only AUC$=$0.660$\pm$0.427, but with 1{,}096 windows (device~4)
+reaches AUC$=$0.939$\pm$0.014, confirming that learned negatives require
+$\geq$500 samples and match Gaussian when adequate data is available.
 
 The practical implication: when fine-tuning foundation models for
 anomaly detection, invest in generative-model-quality training

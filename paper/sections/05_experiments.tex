@@ -157,7 +157,7 @@ plateau/decline (C$=$0.506, D$=$0.488).
 The degradation from 500/10 to 1000/20 is
 $-$0.104 for D-DiffTS vs.\ $-$0.084 for C; however, D-DiffTS starts
 from a much higher 500/10 baseline, and over the full training range
-(200/5 to 2000/30) loses only $-$7.0\% vs.\ C's $-$19.2\%.
+(200/5 to 2000/30) loses only $-$6.9\% vs.\ C's $-$19.6\%.
 NLL-only early stopping is essential: under total-loss ES, decreasing SupCon loss masks increasing NLL, causing late checkpoint selection that compounds forgetting (Appendix~\ref{app:nll_es}).
 
 \textbf{Encoder freezing confirms catastrophic forgetting; learned negatives benefit most.}
@@ -238,14 +238,17 @@ When fine-tuned on N-BaIoT benign traffic with Gaussian-noise negatives
 AUC$=$\nbaiotAUC{} (3 seeds), with 8/10 attack variants above 0.83
 (operational FPR$=$0.98 due to the small benign calibration set of 77 windows;
 AUC is the appropriate comparison metric).
-D-DiffTS learned negatives (310 DiffTS-generated samples, same 5 epochs)
-achieve AUC$=$0.660$\pm$0.427 (3 seeds), significantly lower than Gaussian
-with high variance.
-The 310-window training set is insufficient for DiffTS to learn a robust
-benign distribution; the result confirms recipe generalisation
-(NLL$+$SupCon transfers to N-BaIoT) but also highlights that learned
-negatives require adequate data ($\geq$500 samples, based on
-CICIoT2023 scaling, Table~\ref{tab:scaling}).
+D-DiffTS learned negatives on device~1 (310 training windows)
+achieve only AUC$=$0.660$\pm$0.427 (3 seeds), significantly lower
+than Gaussian with high variance---the training set is insufficient
+for DiffTS to learn a robust benign distribution.
+To test this data-size hypothesis directly, we repeat the experiment
+on device~4 (Philips B120N10, 1{,}096 training windows):
+D-DiffTS achieves AUC$=$0.939$\pm$0.014, slightly exceeding
+Gaussian on the same device (0.929$\pm$0.012).
+This confirms that learned negatives require $\geq$500 samples
+and match or exceed Gaussian when adequate data is available,
+consistent with CICIoT2023 scaling (Table~\ref{tab:scaling}).
 
 Against unsupervised baselines (Table~\ref{tab:nbaiot_baselines},
 Appendix~\ref{app:extended_nbaiot}), Isolation Forest (AUC$=$0.991) leads
