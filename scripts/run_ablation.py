@@ -164,7 +164,7 @@ def run_condition_a(detector_kwargs, eval_sets):
 
 def run_condition_b(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                     max_train_samples=None, early_stopping_criterion="nll",
-                    freeze_encoder="none"):
+                    freeze_encoder="none", l2sp_weight=0.0):
     """Condition B: fine-tuned with NLL only (contrastive_weight=0.0)."""
     logger.info("[B] Fine-tuning Moirai (NLL only, no contrastive loss)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
@@ -173,13 +173,13 @@ def run_condition_b(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_siz
                use_hard_negatives=True, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_c(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                     max_train_samples=None, early_stopping_criterion="nll",
-                    freeze_encoder="none"):
+                    freeze_encoder="none", l2sp_weight=0.0):
     """Condition C: fine-tuned NLL+SupCon with Gaussian-noise negatives (no hard negatives)."""
     logger.info("[C] Fine-tuning Moirai (NLL+SupCon, Gaussian-noise negatives, no hard negatives)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
@@ -188,13 +188,13 @@ def run_condition_c(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_siz
                use_hard_negatives=False, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_cprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                          max_train_samples=None, early_stopping_criterion="nll",
-                         freeze_encoder="none"):
+                         freeze_encoder="none", l2sp_weight=0.0):
     """
     Condition C': NLL+SupCon with BALANCED hard negatives (1:1 ratio, subsampled to
     match benign count).  Isolates negative *type* from dataset composition:
@@ -211,13 +211,13 @@ def run_condition_cprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batc
                use_hard_negatives=True, use_constraints=True, balanced=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_cnn(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                       max_train_samples=None, early_stopping_criterion="nll",
-                      freeze_encoder="none"):
+                      freeze_encoder="none", l2sp_weight=0.0):
     """
     Condition CNN: 1D-CNN trained from scratch with NLL(MSE)+SupCon on hard negatives.
 
@@ -232,13 +232,13 @@ def run_condition_cnn(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_s
                use_hard_negatives=True, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_cnn_nll(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                          max_train_samples=None, early_stopping_criterion="nll",
-                         freeze_encoder="none"):
+                         freeze_encoder="none", l2sp_weight=0.0):
     """
     Condition CNN-NLL: 1D-CNN with Gaussian NLL (distributional output) + SupCon.
 
@@ -253,13 +253,13 @@ def run_condition_cnn_nll(detector_kwargs, eval_sets, synthetic_dir, epochs, bat
                use_hard_negatives=True, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                     max_train_samples=None, early_stopping_criterion="nll",
-                    freeze_encoder="none"):
+                    freeze_encoder="none", l2sp_weight=0.0):
     """Condition D: full system (NLL+SupCon + hard negatives + constraints)."""
     logger.info("[D] Fine-tuning Moirai (full system)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
@@ -268,13 +268,13 @@ def run_condition_d(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_siz
                use_hard_negatives=True, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_e(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                     max_train_samples=None, early_stopping_criterion="nll",
-                    freeze_encoder="none"):
+                    freeze_encoder="none", l2sp_weight=0.0):
     """Condition E: full system but WITHOUT protocol constraints."""
     logger.info("[E] Fine-tuning Moirai (full system, NO protocol constraints)...")
     det = MoiraiAnomalyDetector(**detector_kwargs)
@@ -283,13 +283,13 @@ def run_condition_e(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_siz
                use_hard_negatives=True, use_constraints=False,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_eprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                          max_train_samples=None, early_stopping_criterion="nll",
-                         freeze_encoder="none"):
+                         freeze_encoder="none", l2sp_weight=0.0):
     """
     Condition E': NLL+SupCon with hard negatives generated via UNCONDITIONAL RETRY
     (no constraint validator, but stealth relaxed by 0.01 on each of 3 iterations).
@@ -316,13 +316,13 @@ def run_condition_eprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batc
                use_hard_negatives=True, use_constraints=False,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
 def run_condition_edoubleprime(detector_kwargs, eval_sets, synthetic_dir, epochs, batch_size, lr,
                                max_train_samples=None, early_stopping_criterion="nll",
-                               freeze_encoder="none"):
+                               freeze_encoder="none", l2sp_weight=0.0):
     """
     Condition E'': NLL+SupCon with hard negatives, constraint validation ACTIVE but
     retry/stealth-relaxation DISABLED (validate once, return regardless).
@@ -342,7 +342,7 @@ def run_condition_edoubleprime(detector_kwargs, eval_sets, synthetic_dir, epochs
                use_hard_negatives=True, use_constraints=True,
                max_train_samples=max_train_samples,
                early_stopping_criterion=early_stopping_criterion,
-               freeze_encoder=freeze_encoder)
+               freeze_encoder=freeze_encoder, l2sp_weight=l2sp_weight)
     return _evaluate_all(det, eval_sets)
 
 
@@ -363,6 +363,7 @@ def _fine_tune(
     max_train_samples: int = None,
     early_stopping_criterion: str = "nll",
     freeze_encoder: str = "none",
+    l2sp_weight: float = 0.0,
 ):
     """
     Call detector.fine_tune_supervised() if available, otherwise fall back to a
@@ -429,7 +430,9 @@ def _fine_tune(
         return
 
     try:
-        ft_method(
+        import tempfile
+        ckpt_dir = tempfile.mkdtemp(prefix="moirai_ckpt_")
+        ft_kwargs = dict(
             train_data=train_data,
             train_labels=train_labels,
             val_data=val_data,
@@ -440,7 +443,11 @@ def _fine_tune(
             contrastive_weight=contrastive_weight,
             early_stopping_criterion=early_stopping_criterion,
             freeze_encoder=freeze_encoder,
+            checkpoint_dir=ckpt_dir,
         )
+        if l2sp_weight > 0.0:
+            ft_kwargs['l2sp_weight'] = l2sp_weight
+        ft_method(**ft_kwargs)
         logger.info(f"Fine-tuning complete ({epochs} epochs, es_criterion={early_stopping_criterion}, frozen={freeze_encoder})")
     except Exception as e:
         logger.warning(f"Fine-tuning failed: {e}")
@@ -577,6 +584,12 @@ def main():
     )
     parser.add_argument("--model-size", default="small", choices=["small", "base", "large"])
     parser.add_argument("--synthetic-dir", default="data/synthetic")
+    parser.add_argument(
+        "--eval-synthetic-dir", default=None,
+        help="If set, load EVALUATION data from this directory instead of --synthetic-dir. "
+             "Training negatives still come from --synthetic-dir. "
+             "Use for controlled cross-evaluation (e.g., train on DiffTS, eval on analytical)."
+    )
     parser.add_argument("--results-dir", default="results",
                         help="Root output directory (default: results). "
                              "Use 'results/ablation_scaled' for scaling experiments.")
@@ -615,9 +628,17 @@ def main():
         "--per-attack", action="store_true",
         help="For condition D: also compute per-attack-type × stealth metrics (used for Figure 3)."
     )
+    parser.add_argument(
+        "--l2sp-weight", type=float, default=0.0,
+        help="L2-SP regularization weight penalizing drift from pretrained weights. "
+             "0.0 = disabled (default). Typical values: 0.01 or 0.1."
+    )
     args = parser.parse_args()
 
     seeds = [int(s.strip()) for s in args.seeds.split(",")]
+    eval_synthetic_dir = args.eval_synthetic_dir if args.eval_synthetic_dir else args.synthetic_dir
+    if args.eval_synthetic_dir:
+        logger.info(f"Cross-evaluation mode: train from '{args.synthetic_dir}', eval from '{eval_synthetic_dir}'")
     output_root = Path(args.results_dir) / "ablation"
     output_root.mkdir(parents=True, exist_ok=True)
 
@@ -638,7 +659,7 @@ def main():
             rng = np.random.default_rng(seed)
 
             benign, conditions = load_synthetic(
-                args.synthetic_dir, rng, max_eval_samples=args.max_eval_samples
+                eval_synthetic_dir, rng, max_eval_samples=args.max_eval_samples
             )
             eval_sets = build_eval_sets(
                 benign, conditions, rng, max_eval_samples=args.max_eval_samples
@@ -661,6 +682,7 @@ def main():
                 max_train_samples=args.max_train_samples,
                 early_stopping_criterion=args.early_stopping_criterion,
                 freeze_encoder=args.freeze_encoder,
+                l2sp_weight=args.l2sp_weight,
             )
 
             condition_fns = {

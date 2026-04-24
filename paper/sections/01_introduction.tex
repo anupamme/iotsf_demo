@@ -21,7 +21,7 @@ to legitimate polling intervals), command-and-control beaconing
 (2\% periodic dips in traffic volume), and protocol timing anomalies
 (5\% random jitter on inter-arrival times) are individually difficult
 to distinguish from benign behaviour.  We formalise these as
-\emph{hard-negative} attacks: sequences where the statistical similarity
+\emph{stealth-controlled negative} attacks: sequences where the statistical similarity
 to benign traffic exceeds a stealth threshold $s \in \{0.85, 0.90, 0.95\}$
 (see Section~\ref{sec:problem}).
 Empirically, under benign-calibrated evaluation at stealth-95,
@@ -30,11 +30,12 @@ baseline (Ensemble, F1$=$0.136) reflects its fixed training distribution
 (Section~\ref{sec:experiments}).
 
 \textbf{Research question and approach.}
-We ask: \emph{does the quality of synthetic negatives affect catastrophic
-forgetting when fine-tuning foundation models for IoT anomaly detection?}
+We ask: \emph{what failure modes arise when fine-tuning foundation models
+for IoT anomaly detection, and how does negative-sample quality interact
+with these failure modes?}
 To answer this, we build \ours{} (\textbf{H}ard-\textbf{N}egative \textbf{IDS}),
-a two-stage experimental system.
-First, we generate synthetic hard-negative attacks at a precisely controlled
+a diagnostic framework.
+First, we generate stealth-controlled synthetic negatives at
 stealth level $s$ using both closed-form perturbations
 (Eqs.~\ref{eq:slow}--\ref{eq:proto}) and learned negatives from
 Diffusion-TS~\cite{zhang2024diffusionts}, while enforcing IoT protocol
@@ -45,55 +46,58 @@ forecasting foundation model, using a combined NLL and supervised contrastive
 (10 seeds) that isolates the contributions of negative type, negative
 quality, contrastive learning, and training scale.
 
-\textbf{Why build a hard-negative pipeline?}
-The hard-negative infrastructure provides protocol-compliant generation,
-stealth-controlled evaluation, and adversarial augmentation without real
+\textbf{Why build a stealth-controlled negative pipeline?}
+The stealth-controlled infrastructure provides protocol-compliant generation,
+calibrated evaluation, and adversarial augmentation without real
 attack traffic.
-Crucially, it enables the comparison between analytical and learned negatives
-that reveals our central finding: learned negatives from Diffusion-TS maintain
-higher absolute detection across training scales, while analytical and
-Gaussian-noise negatives degrade substantially.
+Crucially, it enables a controlled diagnosis of catastrophic forgetting:
+by varying negative quality (Gaussian, analytical, learned), training scale
+(200/5 to 2000/30), and encoder freezing strategies, we isolate how
+pre-trained feature corruption interacts with negative-sample quality.
 
 \textbf{Contributions.}  We make three contributions:
 \begin{enumerate}
-  \item \textbf{Scale-Robust Detection via Learned Negatives.}
-    We show that negative-sample quality mediates scale robustness
-    when fine-tuning foundation models.
-    Diffusion-TS-generated negatives match Gaussian noise at small scale
-    (200/5: AUC$=$0.621 vs.\ 0.629, 10 seeds) and outperform all
-    other negative types at larger scale (1000/20: AUC$=$0.576 vs.\
-    0.506--0.508).  Over the full training range, learned negatives
-    lose 6.9\% AUC vs.\ 19.6\% for Gaussian (200/5 to 2000/30); with a frozen encoder,
-    they achieve 0.728 ($+$0.146 over frozen Gaussian).
-    A generator ablation isolates this to the learned base distribution.
-
-  \item \textbf{Stealth-Attack Diagnostic Tool.}
-    Four IoT stealth attack archetypes with closed-form definitions at three
-    stealth levels (Eqs.~\ref{eq:slow}--\ref{eq:proto}), a multi-tier protocol
-    validation layer (Modbus, MQTT, CoAP), and a leave-one-out experiment
-    showing positive transfer for all four held-out types (mean $+$0.186 F1).
-    The archetypes are hand-designed diagnostic probes rather than a comprehensive
-    benchmark; validation against real attack corpora is future work.
-    Code and datasets released at \url{https://github.com/anupamme/iotsf_demo}.
-
-  \item \textbf{Diagnostic Methodology for Scale-Dependent Behaviour.}
-    A ten-seed ablation across five conditions with a
-    training recipe (NLL$+$SupCon) that transfers between the two architectures
-    tested (Moirai and from-scratch CNN)
-    reveals non-monotonic scaling behaviour: performance improves from 200/5
-    to 500/10, then degrades at 1000/20.
-    Encoder freezing recovers AUC (frozen B$=$0.606, C$=$0.582, D$=$0.573);
-    a learning-rate ablation ($10^{-4}$ to $10^{-6}$) and LoRA (rank$=$8)
-    provide converging evidence that catastrophic forgetting---not LR
-    misconfiguration---drives degradation for all negative types.
-    The analytical-negative ablation (conditions A--E) provides the diagnostic
-    scaffolding that enabled Contribution~1.
+  \item \textbf{Catastrophic Forgetting Diagnosis.}
+    We provide a systematic, scale-dependent analysis of catastrophic
+    forgetting when fine-tuning foundation models for IoT anomaly detection.
+    With 10-seed evaluation, all conditions degrade monotonically from
+    200/5 onward as pre-trained features are overwritten.
+    Encoder freezing (10 seeds) yields identical AUC across conditions
+    (B$=$C$=$D$=$0.549), confirming that NLL-based evaluation depends
+    on the frozen encoder alone; learning-rate ablation ($10^{-4}$ to
+    $10^{-6}$), LoRA (rank$=$8), and L2-SP regularisation provide
+    converging evidence that encoder-weight corruption---not
+    hyperparameter misconfiguration---drives degradation.
+    Controlled cross-evaluations (frozen and unfrozen D-DiffTS both evaluated
+    on the same analytical negatives as B/C/D) reveal AUC$=$0.464 and
+    AUC$=$0.463 respectively---confirming that both the frozen 0.728 and the
+    unfrozen apparent advantage of learned negatives were evaluation-distribution
+    artifacts (Appendix~\ref{app:controlled_frozen}).
     N-BaIoT validation (Gaussian AUC$=$\nbaiotAUC{};
     D-DiffTS AUC$=$0.939 with $\geq$500 training windows) confirms
     cross-domain generalisation.\footnote{%
       Enabling fine-tuning required fixing an in-place tensor operation in
       the \texttt{uni2ts} \texttt{PackedStdScaler} that silently blocked
       gradient flow; the fix is included in our released code.}
+
+  \item \textbf{Training Recipe Validated on Two Architectures.}
+    An NLL$+$SupCon training recipe with NLL-only early stopping,
+    tested on both Moirai (foundation model) and a from-scratch 1D-CNN.
+    CNN baselines (AUC$=$0.580--0.598) confirm that Moirai's pre-trained
+    features are valuable \emph{when preserved}, but provide no benefit
+    when overwritten by extended training.
+    Supervised classifiers (LogReg, XGBoost, MLP) on the same labeled negatives
+    establish the labeled-data baseline, isolating the temporal-modeling
+    contribution from the label-availability effect.
+    Code and datasets released at \url{https://github.com/anupamme/iotsf_demo}.
+
+  \item \textbf{Stealth-Controlled Evaluation Protocol.}
+    Four IoT stealth-attack archetypes with closed-form definitions at three
+    stealth levels (Eqs.~\ref{eq:slow}--\ref{eq:proto}), a multi-tier protocol
+    validation layer (Modbus, MQTT, CoAP), and a leave-one-out experiment
+    showing positive transfer for all four held-out types.
+    The archetypes are hand-designed diagnostic probes rather than a comprehensive
+    benchmark; validation against real attack corpora is future work.
 \end{enumerate}
 
 \textbf{Paper organisation.}

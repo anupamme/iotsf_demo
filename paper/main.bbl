@@ -1,4 +1,4 @@
-\begin{thebibliography}{33}
+\begin{thebibliography}{35}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -50,6 +50,14 @@ Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 
+\bibitem[Gretton et~al.(2012)Gretton, Borgwardt, Rasch, Sch{\"o}lkopf, and
+  Smola]{gretton2012kernel}
+Arthur Gretton, Karsten~M. Borgwardt, Malte~J. Rasch, Bernhard Sch{\"o}lkopf,
+  and Alexander Smola.
+\newblock A kernel two-sample test.
+\newblock \emph{Journal of Machine Learning Research}, 13:\penalty0 723--773,
+  2012.
+
 \bibitem[Grill et~al.(2020)]{grill2020byol}
 Jean-Bastien Grill et~al.
 \newblock Bootstrap your own latent: A new approach to self-supervised
@@ -96,6 +104,13 @@ James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume
 \newblock Overcoming catastrophic forgetting in neural networks.
 \newblock \emph{Proceedings of the National Academy of Sciences}, 114\penalty0
   (13):\penalty0 3521--3526, 2017.
+
+\bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
+Xuhong Li, Yves Grandvalet, and Franck Davoine.
+\newblock Explicit inductive bias for transfer learning with convolutional
+  networks.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+  2825--2834, 2018.
 
 \bibitem[Lin et~al.(2022)]{lin2018idsgan}
 Zilong Lin et~al.

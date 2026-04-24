@@ -1,19 +1,31 @@
 % Table: Scaling Experiment
-% Seven regimes: 200/5 (original), 500/10 NLL-ES, 1000/20 NLL-only ES,
-%                2000/30 NLL-only ES, 1000/20 frozen encoder, 1000/20 partial freeze
-% All stealth-95, benign-calibrated threshold, 5 seeds
+% Updated with 10-seed results for 500/10, 1000/20, and frozen (B, C, D)
+% DiffTS: 10 seeds at 200/5; 5 seeds at 500/10, 1000/20, 2000/30, frozen
+% Frozen B/C/D: 10 seeds (identical B=C=D=0.549 because NLL eval bypasses projection head)
+% Frozen D-DiffTS (DiffTS eval): 5 seeds, DIFFERENT eval distribution — controlled comparison added
+% Frozen D-DiffTS (analytical eval): 5 seeds, SAME eval as B/C/D — AUC=0.464 (artifact confirmed)
+% Unfrozen D-DiffTS (analytical eval): 5 seeds, SAME eval as B/C/D — AUC=0.463 (artifact also confirmed for unfrozen)
+% All stealth-95, benign-calibrated threshold, NLL-only early stopping
 
 \begin{table}[h]
 \centering
 \caption{
-  Scale degradation and encoder-freezing experiment (stealth-95, 5 seeds,
+  Scale degradation and encoder-freezing experiment (stealth-95,
   benign-calibrated threshold, NLL-only early stopping).
+  B, C, D use 10 seeds at all scales including frozen;
+  D-DiffTS uses 10 seeds at 200/5, 5 seeds elsewhere.
   \textbf{Key findings}:
-  (1)~D-DiffTS improves from 200/5 to 500/10 (0.621$\to$0.680), then stabilises;
-  C/D degrade.
-  (2)~Frozen D-DiffTS achieves best AUC (0.728, $+$0.146 over frozen C).
-  2000/30 column shows only C, D, D-DiffTS; B, C$'$, CNN not run at this scale.
-  \emph{Note}: 200/5 uses 5 seeds for consistency; authoritative 10-seed values in Table~\ref{tab:ablation}.
+  (1)~All conditions degrade monotonically from 200/5 onward; the
+  5-seed appearance of 500/10 improvement was unstable (see text).
+  (2)~The C$>$D gap narrows from $+$0.073 (200/5) to $+$0.045 (500/10)
+  to $+$0.024 (1000/20, n.s.).
+  (3)~Frozen B$=$C$=$D are identical (0.549) because NLL evaluation depends
+  only on the frozen encoder.
+  (4)~Controlled cross-evaluation: both frozen and unfrozen D-DiffTS
+  evaluated on the same analytical negatives as B/C/D yield
+  AUC$\approx$0.464 ($\S$), confirming that D-DiffTS figures evaluated
+  on their own DiffTS negatives are evaluation-distribution artifacts.
+  2000/30 column shows only C, D, D-DiffTS.
 }
 \label{tab:scaling}
 \resizebox{\textwidth}{!}{%
@@ -23,15 +35,17 @@
 \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
 Cond. & Description & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 \\
 \midrule
-B      & NLL only                & $.481_{\pm.127}$ & $.131_{\pm.061}$ & $.538_{\pm.038}$ & $.250_{\pm.073}$ & $.521_{\pm.024}$ & $.177_{\pm.031}$ & --- & --- & $.606_{\pm.114}$ & $.130_{\pm.094}$ \\
-C      & SupCon $+$ Gaussian     & $.563_{\pm.122}$ & $.250_{\pm.135}$ & $.592_{\pm.063}$ & $.280_{\pm.101}$ & $.508_{\pm.041}$ & $.175_{\pm.048}$ & $.506_{\pm.140}$ & $.192_{\pm.117}$ & $.582_{\pm.099}$ & $.148_{\pm.097}$ \\
-C$'$   & SupCon $+$ hard neg 1:1 & $.534_{\pm.125}$ & $.183_{\pm.084}$ & $.580_{\pm.064}$ & $.265_{\pm.121}$ & $.508_{\pm.025}$ & $.158_{\pm.040}$ & --- & --- & \multicolumn{2}{c}{---} \\
-CNN    & 1D-CNN from scratch     & $.597_{\pm.096}$ & $.236_{\pm.069}$ & \multicolumn{2}{c}{---} & $.513_{\pm.029}$ & $.207_{\pm.017}$ & --- & --- & \multicolumn{2}{c}{(n/a)} \\
-D      & Hard neg 1:12 (\ours{}) & $.479_{\pm.123}$ & $.137_{\pm.086}$ & $.547_{\pm.044}$ & $.250_{\pm.073}$ & $.506_{\pm.029}$ & $.164_{\pm.059}$ & $.488_{\pm.070}$ & $.164_{\pm.117}$ & $.573_{\pm.097}$ & $.144_{\pm.081}$ \\
+B      & NLL only                & $.556_{\pm.021}$ & $.174_{\pm.024}$ & $.535_{\pm.065}$ & $.187_{\pm.106}$ & $.550_{\pm.088}$ & $.192_{\pm.071}$ & --- & --- & \multirow{3}{*}{$.549_{\pm.109}$} & \multirow{3}{*}{$.152_{\pm.077}$} \\
+C      & SupCon $+$ Gaussian     & $.629_{\pm.022}$ & $.262_{\pm.043}$ & $.581_{\pm.075}$ & $.197_{\pm.134}$ & $.581_{\pm.082}$ & $.206_{\pm.080}$ & $.506_{\pm.140}$ & $.192_{\pm.117}$ & & \\
+D      & Stealth-ctrl neg 1:12 (\ours{}) & $.556_{\pm.021}$ & $.176_{\pm.032}$ & $.536_{\pm.065}$ & $.197_{\pm.117}$ & $.557_{\pm.088}$ & $.167_{\pm.065}$ & $.488_{\pm.070}$ & $.164_{\pm.117}$ & & \\
 \addlinespace[2pt]
-D-DiffTS & Learned neg (Diffusion-TS) & $.621_{\pm.056}$ & $.213_{\pm.118}$ & $\mathbf{.680}_{\pm.064}$ & $.297_{\pm.104}$ & $.576_{\pm.045}$ & $.253_{\pm.109}$ & $.578_{\pm.117}$ & $.257_{\pm.102}$ & $\mathbf{.728}_{\pm.080}$ & $.249_{\pm.125}$ \\
+C$'$   & SupCon $+$ stealth-ctrl neg 1:1 & $.610_{\pm.025}$ & $.241_{\pm.043}$ & $.580_{\pm.064}^\dagger$ & $.265_{\pm.121}^\dagger$ & $.508_{\pm.025}^\dagger$ & $.158_{\pm.040}^\dagger$ & --- & --- & \multicolumn{2}{c}{---} \\
+CNN    & 1D-CNN from scratch     & $.580_{\pm.023}$ & $.269_{\pm.044}$ & \multicolumn{2}{c}{---} & $.513_{\pm.029}^\dagger$ & $.207_{\pm.017}^\dagger$ & --- & --- & \multicolumn{2}{c}{(n/a)} \\
+\addlinespace[2pt]
+D-DiffTS & Learned neg (Diffusion-TS) & $.621_{\pm.056}$ & $.213_{\pm.118}$ & $\mathbf{.680}_{\pm.064}^{\dagger\ddagger}$ & $.297_{\pm.104}^{\dagger\ddagger}$ & $.576_{\pm.045}^{\dagger\ddagger}$ / $.463_{\pm.073}^{\dagger\S}$ & $.253_{\pm.109}^{\dagger\ddagger}$ & $.578_{\pm.117}^{\dagger\ddagger}$ & $.257_{\pm.102}^{\dagger\ddagger}$ & $.728_{\pm.080}^{\dagger\ddagger}$ / $.464_{\pm.060}^{\dagger\S}$ & $.249^{\dagger\ddagger}$ / $.183^{\dagger\S}$ \\
 \bottomrule
-\multicolumn{12}{@{}l}{\scriptsize ``---'': not run. ``(n/a)'': CNN has no pre-training. D-DiffTS 200/5: 10 seeds; others: 5 seeds.} \\
+\multicolumn{12}{@{}l}{\scriptsize ``---'': not run. ``(n/a)'': CNN has no pre-training. $\dagger$: 5 seeds (unmarked: 10 seeds).} \\
+\multicolumn{12}{@{}l}{\scriptsize $\ddagger$: DiffTS eval distribution (biased; not comparable to B/C/D). $\S$: controlled --- same analytical negatives as B/C/D (Appendix~\ref{app:controlled_frozen}).} \\
 \end{tabular}%
 }
 \end{table}
