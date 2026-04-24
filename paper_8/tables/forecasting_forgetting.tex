@@ -1,22 +1,22 @@
 \begin{table}[t]
 \centering
-\caption{Catastrophic forgetting diagnosis on ETTh2 forecasting (mean $\pm$ std across 5 seeds).
+\caption{Catastrophic forgetting diagnosis on ETTh2 forecasting (mean $\pm$ std across 10 seeds).
 Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable.
-Fine-tuning (B, C) degrades performance 9--13\% while freezing the encoder (D) preserves it.}
+Fine-tuning (B, C) degrades performance 10--16\% while freezing the encoder (D) preserves it.}
 \label{tab:forecasting_forgetting}
 \small
 \begin{tabular}{l cccc cccc}
 \toprule
-& \multicolumn{4}{c}{$h=96$ (ZS MSE: 0.124)} & \multicolumn{4}{c}{$h=192$ (ZS MSE: 0.158)} \\
+& \multicolumn{4}{c}{$h=96$ (ZS MSE: 0.126)} & \multicolumn{4}{c}{$h=192$ (ZS MSE: 0.158)} \\
 \cmidrule(lr){2-5} \cmidrule(lr){6-9}
 Condition & MSE & Forg.\% & CKA & Drift & MSE & Forg.\% & CKA & Drift \\
 \midrule
-B: NLL-only    & .135{\tiny$\pm$.016} & +8.9{\tiny$\pm$7.9}  & .939{\tiny$\pm$.032} & 3.89{\tiny$\pm$.72}
-               & .178{\tiny$\pm$.010} & +12.6{\tiny$\pm$7.4} & .971{\tiny$\pm$.006} & 4.28{\tiny$\pm$.28} \\
-C: NLL+SupCon  & .135{\tiny$\pm$.013} & +9.0{\tiny$\pm$3.3}  & .942{\tiny$\pm$.015} & 3.88{\tiny$\pm$.35}
-               & .179{\tiny$\pm$.013} & +13.1{\tiny$\pm$9.3} & .957{\tiny$\pm$.017} & 4.12{\tiny$\pm$.41} \\
-D: Frozen enc. & \textbf{.125}{\tiny$\pm$.008} & \textbf{+0.9}{\tiny$\pm$2.7}  & \textbf{1.00}{\tiny$\pm$.000} & \textbf{1.04}{\tiny$\pm$.18}
-               & \textbf{.155}{\tiny$\pm$.002} & \textbf{$-$1.7}{\tiny$\pm$2.6} & \textbf{1.00}{\tiny$\pm$.000} & \textbf{1.26}{\tiny$\pm$.17} \\
+B: NLL-only    & .140{\tiny$\pm$.014} & +11.1{\tiny$\pm$7.7}  & .937{\tiny$\pm$.028} & 3.96{\tiny$\pm$.56}
+               & .183{\tiny$\pm$.020} & +15.7{\tiny$\pm$13.3} & .970{\tiny$\pm$.009} & 4.12{\tiny$\pm$.32} \\
+C: NLL+SupCon  & .138{\tiny$\pm$.010} & +10.1{\tiny$\pm$3.2}  & .949{\tiny$\pm$.014} & 3.72{\tiny$\pm$.43}
+               & .178{\tiny$\pm$.011} & +12.9{\tiny$\pm$7.4} & .964{\tiny$\pm$.015} & 3.97{\tiny$\pm$.34} \\
+D: Frozen enc. & \textbf{.126}{\tiny$\pm$.006} & \textbf{+0.5}{\tiny$\pm$2.1}  & \textbf{1.00}{\tiny$\pm$.000} & \textbf{1.11}{\tiny$\pm$.15}
+               & \textbf{.155}{\tiny$\pm$.002} & \textbf{$-$1.7}{\tiny$\pm$2.3} & \textbf{1.00}{\tiny$\pm$.000} & \textbf{1.30}{\tiny$\pm$.18} \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -1,0 +1,110 @@
+% ============================================================
+\section{Cross-Domain Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+
+\textbf{Forgetting is domain-general.}
+The forgetting diagnosis replicates across both domains
+(Table~\ref{tab:cross_domain}).
+In ETTh2, where pre-trained features provide a 28--45\% MSE advantage,
+fine-tuning degrades performance by 10--16\%.
+In IoT, where the pre-training advantage is marginal (AUC: 0.549 vs.\
+0.481), unfrozen fine-tuning collapses Moirai to CNN-level performance.
+In both cases, freezing the encoder eliminates or substantially reduces
+forgetting.
+This cross-domain replication rules out the alternative interpretation
+that IoT forgetting was merely ``the task has low signal and models
+overfit the synthetic distribution.''
+
+\begin{table}[t]
+\centering
+\caption{Cross-domain forgetting comparison.  The mechanism replicates
+regardless of whether pre-trained features are useful.}
+\label{tab:cross_domain}
+\small
+\begin{tabular}{lcc}
+\toprule
+& IoT Anomaly Det. & ETTh2 Forecasting \\
+\midrule
+Pre-training value        & Marginal (0.549 vs.\ 0.481) & Strong (28--45\%) \\
+Forgetting (unfrozen)     & $+$7--15\% AUC drop & $+$10--16\% MSE rise \\
+Frozen encoder recovery   & Yes (AUC: 0.549--0.606) & Yes (MSE: $\approx$zero-shot) \\
+CKA degradation           & 0.426$\to$0.183 & 0.937--0.964 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Contrastive loss does not regularise against forgetting.}
+In both domains, condition C (NLL$+$SupCon) shows comparable or slightly
+worse forgetting than B (NLL-only): $+$10.1\% vs.\ $+$11.1\% at $h{=}96$
+on ETTh2, and comparable AUC degradation on IoT.
+The contrastive objective pushes representations toward task-specific
+clustering, which does not preserve the distributional structure that
+makes zero-shot performance effective.
+
+\textbf{CNN-NLL control resolves the loss-function confound.}
+The from-scratch CNN (AUC$=$0.580$\pm$0.023 with MSE) outperforms
+unfrozen Moirai at small scale.
+A natural question is whether this advantage reflects MSE being an
+easier optimisation target, not architecture.
+We train the CNN with the same distributional NLL loss (Gaussian head):
+CNN-NLL achieves AUC$=$0.598$\pm$0.042, slightly \emph{outperforming}
+CNN-MSE.
+This rules out the loss-function confound: the CNN advantage is not an
+artefact of MSE being easier to optimise.
+Rather, the CNN---lacking pre-trained features to destroy---is immune
+to forgetting.
+
+\textbf{Why does the C$>$D gap collapse at scale?}
+At 200/5, Gaussian-noise negatives (C) outperform hard negatives (D)
+because ``easy'' off-manifold negatives provide unambiguous gradient signal
+at limited scale.  At 1000/20 with NLL-only ES, the gap collapses to
+near-zero ($p{=}0.39$, n.s.), consistent with easy negatives providing
+clearer gradient signal when training budget is limited, but this
+advantage becoming unnecessary with sufficient data
+(Appendix~\ref{app:gaussian_mechanism}).
+
+\textbf{Threat model as diagnostic tool.}
+The closed-form perturbations (Eqs.~\ref{eq:slow}--\ref{eq:proto}) define
+a simplified threat model deliberately chosen as a clean diagnostic for
+studying forgetting dynamics, not as a realistic adversarial benchmark.
+The leave-one-out experiment (mean $+$0.186 F1) partially addresses
+generalisation to unseen attack patterns; testing against learned evasion
+strategies (e.g., RL-based adaptive attackers) is future work.
+
+\textbf{Baseline tuning asymmetry.}
+DL baselines use published defaults while \ours{} benefits from
+ablation-driven tuning.
+Since the paper's central contribution is the forgetting diagnosis---not
+SOTA IDS performance---this asymmetry does not affect the forgetting
+conclusions.
+The baselines serve as reference points for the detection task difficulty,
+not as direct competitors in a detection benchmark.
+
+\textbf{Recommended operating point.}
+For IoT anomaly detection at small scale ($\leq$200 samples), the 1D-CNN
+achieves the highest AUC (0.598 with NLL, 0.580 with MSE) with lowest
+variance and no pre-training dependency.
+When pre-trained features are available and training budget exceeds 200
+samples, freeze the encoder, train only the projection head, use NLL-only
+early stopping, and recalibrate on deployment-specific benign traffic.
+LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters} offer
+a principled middle ground between full freezing and full fine-tuning;
+this is future work.
+\emph{Caveat}: neither configuration achieves operationally useful F1 at
+stealth-95 under calibrated thresholds (best: C F1$=$0.250,
+frozen C F1$=$0.148); the system is a research prototype best suited as
+a high-specificity alerting layer, not a standalone detector.
+
+\textbf{Limitations.}
+We identify seven limitations (full details in Appendix~\ref{app:limitations}):
+(1)~hand-designed attack archetypes, not learned evasion;
+(2)~10 seeds on IoT, 10 seeds on ETTh2 (larger seed counts may reduce variance);
+(3)~Moirai-Small only (13.8M parameters; larger variants may show different forgetting dynamics);
+(4)~Diffusion-TS backbone deferred;
+(5)~circular evaluation on IoT (addressed by N-BaIoT, \S\ref{sec:iot:nbaiot});
+(6)~low absolute F1 (best 0.250; system is a high-specificity alerting layer);
+(7)~baselines use published defaults (see above).
+
+\textbf{Responsible disclosure.}
+We release code and data for defensive research, not to enable attacks.

@@ -42,6 +42,23 @@ Its confidence-interval output maps naturally to anomaly scoring.
 MOMENT~\cite{goswami2024moment} and TimesFM~\cite{das2024timeseries}
 offer complementary architectures.
 
+\textbf{Catastrophic forgetting in foundation models.}
+Catastrophic forgetting---where learning new tasks overwrites previously
+learned representations---is well-studied in continual
+learning~\cite{kirkpatrick2017ewc, li2017lwf}.
+Regularisation approaches include EWC~\cite{kirkpatrick2017ewc}
+(penalising changes to important parameters), LwF~\cite{li2017lwf}
+(knowledge distillation from the original model), and
+L2-SP~\cite{li2018l2sp} ($\ell_2$ penalty toward pre-trained weights).
+In NLP, parameter-efficient methods such as
+LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters}
+mitigate forgetting by restricting the parameter update space.
+Recent work documents forgetting during LLM
+fine-tuning~\cite{luo2024forgetting}, but systematic diagnosis for
+time-series foundation models is lacking.
+Our work provides controlled cross-domain evidence of forgetting in
+Moirai, using CKA and weight drift as diagnostic measures.
+
 \textbf{Contrastive learning for anomaly detection.}
 Supervised contrastive learning~\cite{khosla2020supcon} has been applied
 to tabular~\cite{sohn2020fixmatch} and time-series~\cite{eldele2021ts2vec}

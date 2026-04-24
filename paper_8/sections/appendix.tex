@@ -94,7 +94,7 @@ below $\sim$0.10 statistically ambiguous.
 The B vs.\ D AUC comparison (0.481 vs.\ 0.479, Table~\ref{tab:ablation})
 should be interpreted as B$\approx$D; the difference is trivially small and well
 within the high variance ($\pm$0.123--0.127) of both conditions.
-Cross-dataset evaluation on N-BaIoT (Section~\ref{sec:experiments:nbaiot})
+Cross-dataset evaluation on N-BaIoT (Section~\ref{sec:iot:nbaiot})
 addresses the single-dataset limitation; validation on UNSW-NB15 remains open.
 
 (3)~\textbf{Fixed evaluation scope.}
@@ -124,7 +124,7 @@ assesses whether a detector trained on analytically-specified archetypes
 can detect instances of those same archetypes at test time---but it means
 results may not transfer to real-world attacks that deviate from the
 analytic formulas.
-Section~\ref{sec:experiments:nbaiot} presents external validation
+Section~\ref{sec:iot:nbaiot} presents external validation
 on N-BaIoT~\cite{meidan2018n}, an independent benchmark with Mirai and BASHLITE
 botnet traffic not seen during training.
 Zero-shot transfer fails (AUC $0.01$--$0.28$), but fine-tuning on N-BaIoT
@@ -227,7 +227,7 @@ approximately in the CICIoT2023 dataset).  Feature 12 (\texttt{bwd\_iat\_mean})
 has no direct analogue in N-BaIoT; we use the shortest available jitter
 window as a proxy.  These limitations are transparent and documented here
 so that readers can assess how strongly to weight the N-BaIoT results
-relative to same-distribution evaluation (Section~\ref{sec:experiments:nbaiot}).
+relative to same-distribution evaluation (Section~\ref{sec:iot:nbaiot}).
 
 % ============================================================
 \section{N-BaIoT Per-Attack Results}
@@ -235,7 +235,7 @@ relative to same-distribution evaluation (Section~\ref{sec:experiments:nbaiot}).
 % ============================================================
 
 Table~\ref{tab:nbaiot} reports per-attack-variant F1, FPR, and ROC-AUC for the
-external N-BaIoT evaluation described in Section~\ref{sec:experiments:nbaiot}.
+external N-BaIoT evaluation described in Section~\ref{sec:iot:nbaiot}.
 Table~\ref{tab:nbaiot_finetuned} compares zero-shot transfer against fine-tuned
 results on N-BaIoT benign data.
 

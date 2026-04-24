@@ -1,9 +1,15 @@
-\begin{thebibliography}{28}
+\begin{thebibliography}{32}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ansari et~al.(2024)]{ansari2024chronos}
+Abdul~Fatir Ansari et~al.
+\newblock Chronos: Learning the language of time series.
+\newblock In \emph{Transactions on Machine Learning Research}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2403.07815}.
 
 \bibitem[Audibert et~al.(2020)]{audibert2020usad}
 Julien Audibert et~al.
@@ -79,18 +85,34 @@ Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2022.
 
-\bibitem[{IoT Analytics}(2023)]{iotanalyticsmarket2023}
-{IoT Analytics}.
-\newblock {IoT} analytics: State of {IoT} -- spring 2023.
-\newblock Technical report, IoT Analytics GmbH, 2023.
-\newblock URL \url{https://iot-analytics.com/number-connected-iot-devices/}.
-
 \bibitem[Khosla et~al.(2020)]{khosla2020supcon}
 Prannay Khosla et~al.
 \newblock Supervised contrastive learning.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, 2020.
 \newblock URL \url{https://arxiv.org/abs/2004.11362}.
+
+\bibitem[Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz, Veness,
+  Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska,
+  et~al.]{kirkpatrick2017ewc}
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume
+  Desjardins, Andrei~A. Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka
+  Grabska-Barwinska, et~al.
+\newblock Overcoming catastrophic forgetting in neural networks.
+\newblock In \emph{Proceedings of the National Academy of Sciences (PNAS)},
+  volume 114, pages 3521--3526, 2017.
+
+\bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
+Xuhong Li, Yves Grandvalet, and Franck Davoine.
+\newblock Explicit inductive bias for transfer learning with convolutional
+  networks.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2018.
+
+\bibitem[Li and Hoiem(2018)]{li2017lwf}
+Zhizhong Li and Derek Hoiem.
+\newblock Learning without forgetting.
+\newblock In \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, volume~40, pages 2935--2947, 2018.
 
 \bibitem[Lin et~al.(2022)]{lin2018idsgan}
 Zilong Lin et~al.
@@ -104,6 +126,12 @@ Fei~Tony Liu, Kai~Ming Ting, and Zhi-Hua Zhou.
 \newblock Isolation-based anomaly detection.
 \newblock In \emph{ACM Transactions on Knowledge Discovery from Data (TKDD)},
   volume~6, 2012.
+
+\bibitem[Luo et~al.(2024)]{luo2024forgetting}
+Yun Luo et~al.
+\newblock An empirical study of catastrophic forgetting in large language
+  models during continual fine-tuning.
+\newblock \emph{arXiv preprint arXiv:2308.08747}, 2024.
 
 \bibitem[Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and
   Vladu]{madry2018pgd}

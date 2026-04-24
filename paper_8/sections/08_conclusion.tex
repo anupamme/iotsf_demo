@@ -1,0 +1,30 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+Fine-tuning foundation time-series models catastrophically forgets
+pre-trained features across domains.  On ETTh2 forecasting, where
+Moirai zero-shot outperforms Linear baselines by 28--45\%, fine-tuning
+with NLL or NLL$+$SupCon degrades MSE by 10--16\% after 20 epochs.
+On IoT anomaly detection, unfrozen fine-tuning collapses Moirai to
+from-scratch CNN level.  In both cases, freezing the encoder eliminates
+forgetting (CKA$=$1.000, near-zero performance loss).
+
+Three findings generalise across domains.
+First, contrastive loss does not prevent forgetting---it pushes
+representations toward task-specific clustering without preserving the
+distributional structure that makes pre-trained features effective.
+Second, a from-scratch CNN trained with the same distributional NLL loss
+(AUC$=$0.598$\pm$0.042) rules out the loss-function confound, confirming
+that architecture-specific forgetting drives the degradation.
+Third, encoder freezing is an effective but incomplete mitigation:
+it preserves AUC but operational F1 under calibrated thresholds remains
+limited by projection-head initialisation variance.
+
+For practitioners fine-tuning foundation time-series models:
+freeze the encoder at scale; use NLL-only early stopping;
+recalibrate thresholds on deployment-specific data.
+LoRA and adapter methods offer a principled middle ground between
+full freezing and full fine-tuning.
+We release all code, datasets, and calibration scripts.

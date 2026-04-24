@@ -39,8 +39,9 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
 
-\title{When Do Synthetic Hard Negatives Help?
-       Scale-Dependent Contrastive Learning for IoT Intrusion Detection}
+\title{Catastrophic Forgetting in Foundation Model Fine-Tuning:\\
+       Cross-Domain Evidence from Time-Series Forecasting\\
+       and IoT Anomaly Detection}
 
 \author{
   Anupam Chattopadhyay\thanks{Correspondence: \texttt{anupam@example.com}} \\
@@ -53,32 +54,29 @@
 
 % ============================================================
 \begin{abstract}
-Do synthetic hard negatives improve contrastive anomaly detection for IoT
-intrusion detection?  We investigate using \ours{} (\textbf{H}ard-\textbf{N}egative
-\textbf{IDS}), a framework that synthesises stealth-controlled IoT attacks via
-closed-form perturbations with protocol compliance (Modbus, MQTT, CoAP), and
-fine-tunes Moirai~\cite{woo2024moirai} with combined NLL and supervised
-contrastive loss.  A five-condition ablation at three stealth levels with
-benign-calibrated thresholds isolates the contributions of hard negatives,
-contrastive learning, and fine-tuning against nine IDS baselines.
+Fine-tuning foundation time-series models destroys the pre-trained features
+that make them effective.  We demonstrate this \emph{catastrophic forgetting}
+mechanism across two domains with controlled experiments on
+Moirai~\cite{woo2024moirai} (13.8M parameters).
 
-\textbf{Our central finding is catastrophic forgetting of pre-trained features.}
-At increased training scale, performance is non-monotonic: 500 samples
-improves over 200 (suggesting the smallest regime is under-trained), but
-degrades from 500 to 1000 samples as catastrophic forgetting erases
-pre-trained features.  Freezing the encoder and
-training only the projection head recovers AUC substantially, confirming that
-extended fine-tuning destroys the pre-trained representations that provide
-discriminative power---collapsing performance to from-scratch CNN level.
-Freezing is a mitigation, not a complete solution: AUC recovers but
-operational F1 under calibrated thresholds remains low due to
-projection-head initialisation variance.
+On \textbf{ETTh2 forecasting}---where Moirai zero-shot outperforms Linear
+baselines by 28--45\%---fine-tuning with NLL or NLL$+$SupCon loss degrades
+MSE by 11--16\% after 20 epochs (10 seeds), while CKA between pre-trained
+and fine-tuned representations drops to 0.937--0.964.
+Freezing the encoder eliminates forgetting (CKA$=$1.000, $<$1\% MSE change).
 
-At small scale, Gaussian-noise negatives outperform hard negatives; at
-5$\times$ scale with NLL-only early stopping this gap collapses to
-near-zero---the advantage of easy negatives diminishes with sufficient
-training data.  Cross-dataset validation on N-BaIoT~\cite{meidan2018n}
-(AUC$=$\nbaiotAUC{}) confirms framework generalisation.
+On \textbf{IoT anomaly detection}---using stealth-controlled synthetic attacks
+with protocol constraints (Modbus, MQTT, CoAP)---the same forgetting pattern
+emerges: unfrozen fine-tuning collapses Moirai to from-scratch CNN level
+(AUC$\approx$0.56), while freezing recovers AUC to 0.606.
+A CNN trained with the same distributional NLL loss (AUC$=$0.598$\pm$0.042)
+rules out the loss-function confound, confirming that architecture-specific
+forgetting---not the training objective---drives the degradation.
+
+Three findings generalise across domains:
+(1)~contrastive loss does not prevent forgetting;
+(2)~forgetting scales with task complexity (longer horizons, higher stealth);
+(3)~encoder freezing is an effective but incomplete mitigation.
 We release code, datasets, and calibration scripts.
 \end{abstract}
 
@@ -87,10 +85,10 @@ We release code, datasets, and calibration scripts.
 \input{sections/02_related_work}
 \input{sections/03_problem_formulation}
 \input{sections/04_methodology}
-\input{sections/05_experiments}
-\input{sections/05b_forecasting_experiments}
-\input{sections/06_analysis}
-\input{sections/07_conclusion}
+\input{sections/05_forecasting}
+\input{sections/06_iot_experiments}
+\input{sections/07_analysis}
+\input{sections/08_conclusion}
 \input{sections/appendix}
 
 % ============================================================
