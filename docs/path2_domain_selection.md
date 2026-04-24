@@ -80,17 +80,47 @@ If Moirai's advantage on ETTh1 is <20%, try:
 
 **Critical:** Must establish that pre-trained features are valuable before proceeding. Path 2 fails if we can't find a domain where Moirai >> baselines.
 
-## Expected Baseline Numbers (Placeholder - Verify with Paper)
+## Actual Results (Verified 2026-04-24)
 
-**ETTh1 (horizon=96, MSE):**
-- Linear: ~0.400
-- DLinear: ~0.380
-- Zero-shot Moirai: ~0.300 (expected ~25% improvement over Linear)
-- Gap: (0.400 - 0.300) / 0.400 = 25% ✓
+### ETTh1: FAILED GATE
 
-**If actual gap is confirmed >20%, ETTh1 is our domain.**
+Moirai zero-shot is dramatically worse than Linear on ETTh1 at all horizons:
+
+| Horizon | Linear MSE | DLinear MSE | Moirai MSE | Gap |
+|---------|-----------|-------------|------------|-----|
+| 96 | 0.524 | 1.062 | 0.739* | -41% |
+| 192 | 0.697 | 1.195 | - | - |
+| 336 | 0.842 | 1.290 | - | - |
+| 720 | 1.069 | 1.516 | - | - |
+
+ETTh1 is known to be "too simple" for transformers (Zeng et al., "Are Transformers Effective for TSF?"). Published Moirai paper shows ETTh1 zero-shot MSE=0.400 (averaged) vs DLinear 0.456 — only 12% improvement, and this is the paper's own best-case number.
+
+### ETTh2: PASSES GATE (Selected Domain)
+
+ETTh2 shows strong Moirai advantage (using median point forecast, robust to mixture distribution tails):
+
+| Horizon | Linear MSE | DLinear MSE | Moirai MSE (median) | Gap vs Linear |
+|---------|-----------|-------------|---------------------|--------------|
+| 96 | 0.373 | 0.556 | **0.269** | **+28.0%** |
+| 192 | 0.544 | 0.695 | **0.299** | **+45.0%** |
+
+Important: Must use median (not mean) of forecast samples due to heavy-tailed mixture distribution (NegBin/LogNormal components produce extreme outliers). Using mean caused MSE blowup (8.58 vs 0.30 with median).
+
+Published Moirai paper: ETTh2 averaged MSE = 0.341 (Small) vs DLinear 0.559 — 39% improvement. Our results (28-45%) are consistent.
+
+**Decision: ETTh2 is our domain for Path 2. Use horizons 96 and 192.**
+
+### Moirai Paper Reference Numbers (Table 6, averaged across horizons)
+
+| Dataset | DLinear | MoiraiSmall | Gap |
+|---------|---------|-------------|-----|
+| ETTh1 | 0.456 | 0.400 | +12% |
+| **ETTh2** | **0.559** | **0.341** | **+39%** |
+| ETTm2 | 0.350 | 0.300 | +14% |
+| Electricity | 0.212 | 0.233 | -10% |
+| Weather | 0.265 | 0.242 | +9% |
 
 ---
 
-**Status:** Research in progress. Need to download and read Moirai paper Tables 1-3.
-**Next:** Confirm ETTh1 numbers, download dataset, implement loader (Task #14).
+**Status:** Domain selected (ETTh2). Gate passed at BOTH horizons: h=96 (28.0%), h=192 (45.0%). Ready for Phase 2.
+**Next:** Design temporal negative sampling for contrastive loss, implement fine-tuning pipeline.

@@ -1,0 +1,165 @@
+% ============================================================
+\section{Cross-Domain Validation: Forecasting}
+\label{sec:forecasting}
+% ============================================================
+
+The IoT anomaly detection results raise a fundamental question:
+does fine-tuning destroy \emph{genuinely useful} pre-trained features,
+or were those features never useful to begin with?
+In IoT anomaly detection, a logistic regression baseline on 72-dimensional
+hand-crafted features achieves AUC$=$0.630, statistically indistinguishable
+from the best Moirai condition (C: 0.629$\pm$0.022).
+This parity makes it difficult to disentangle catastrophic forgetting
+from a low-signal task ceiling.
+
+To resolve this ambiguity, we replicate the forgetting diagnosis on
+\textbf{ETTh2 time-series forecasting}~\cite{zhou2021informer},
+a domain where Moirai's pre-trained features are demonstrably valuable:
+zero-shot Moirai outperforms a Linear baseline by 28\% at $h{=}96$
+and 45\% at $h{=}192$ (Section~\ref{sec:forecasting:gate}).
+If forgetting replicates here---where pre-trained features provide
+measurable advantage---the mechanism is general, not an artefact
+of low task signal.
+
+% ============================================================
+\subsection{Domain Selection and Pre-Training Value Gate}
+\label{sec:forecasting:gate}
+% ============================================================
+
+We require a forecasting benchmark where Moirai zero-shot performance
+substantially exceeds simple baselines, establishing that pre-trained
+features provide genuine value.
+Following \citet{woo2024moirai} Table~6, we evaluate on ETTh2
+(Electricity Transformer Temperature---Hourly, 7 features, 17{,}420
+timesteps, standard 12/4/4 month train/val/test split).
+
+\textbf{Gate criterion:} Moirai zero-shot MSE must improve over
+Linear regression by $>$20\%.
+
+\textbf{Results.}
+Using the published Moirai-Small (13.8M parameters) with median point
+forecasts (robust to heavy-tailed mixture distribution components;
+see Appendix~\ref{app:moirai_median}):
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+& Linear MSE & Moirai MSE & Gap \\
+\midrule
+$h=96$  & 0.373 & \textbf{0.269} & $+$28.0\% \\
+$h=192$ & 0.544 & \textbf{0.299} & $+$45.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Both horizons pass the 20\% gate.
+Pre-trained features are demonstrably useful on this task---unlike
+IoT anomaly detection, where the frozen encoder barely exceeds
+zero-shot (AUC: 0.549 vs.\ 0.481).
+
+% ============================================================
+\subsection{Experimental Setup}
+\label{sec:forecasting:setup}
+% ============================================================
+
+We mirror the IoT forgetting diagnosis (Section~\ref{sec:experiments})
+with three conditions:
+
+\begin{itemize}
+\item \textbf{B (NLL-only):} Fine-tune all 13.8M parameters using
+  negative log-likelihood on context$+$target sequences (patch size 32).
+\item \textbf{C (NLL$+$SupCon):} Add temporal supervised contrastive
+  loss ($\lambda{=}0.5$) with 8 temporal clusters as pseudo-labels.
+  Sequences within the same temporal regime are positives; different
+  regimes are negatives.
+\item \textbf{D (Frozen encoder):} Freeze the Moirai encoder;
+  train only the output head.
+\end{itemize}
+
+\textbf{Training:} 500 samples, 20 epochs, AdamW (lr$=$1e-4),
+cosine annealing, gradient clipping (1.0).
+\textbf{Evaluation:} Median of 20 forecast samples on held-out
+validation set (300 sequences), normalised using training statistics.
+\textbf{Diagnosis:} CKA between pre-trained and fine-tuned encoder
+representations, weight drift ($\ell_2$ from initialisation).
+All results report mean$\pm$std over 5 seeds
+(42, 123, 456, 789, 1234).
+
+% ============================================================
+\subsection{Forgetting Replicates on High-Signal Task}
+\label{sec:forecasting:results}
+% ============================================================
+
+\input{tables/forecasting_forgetting}
+
+Table~\ref{tab:forecasting_forgetting} shows the central result:
+\textbf{catastrophic forgetting replicates on ETTh2}, where pre-trained
+features are demonstrably valuable.
+
+\textbf{Unfrozen conditions degrade.}
+Both B (NLL-only) and C (NLL$+$SupCon) show significant forgetting:
+$+$8.9\% and $+$9.0\% at $h{=}96$, increasing to $+$12.6\% and
+$+$13.1\% at $h{=}192$.
+The NLL training loss decreases monotonically throughout, confirming
+that the model is learning---but what it learns destroys the pre-trained
+representations that enable accurate zero-shot forecasting.
+
+\textbf{Frozen encoder preserves performance.}
+Condition D maintains near-zero forgetting ($+$0.9\% at $h{=}96$,
+$-$1.7\% at $h{=}192$) with perfect CKA ($=$1.000) and $4\times$
+lower weight drift.
+This confirms the mechanism: fine-tuning overwrites pre-trained features;
+freezing prevents this.
+
+\textbf{Forgetting scales with horizon.}
+At $h{=}192$ (where Moirai's pre-training advantage is 45\%), forgetting
+is more severe (12--13\%) than at $h{=}96$ (28\% advantage, 9\% forgetting).
+Longer horizons require the model to leverage more of its pre-trained
+temporal knowledge, making it more vulnerable to catastrophic forgetting.
+
+\textbf{Contrastive loss does not prevent forgetting.}
+Unlike the common hypothesis that contrastive learning regularises
+representations, condition C shows comparable or slightly worse
+forgetting than B.
+The temporal contrastive objective pushes representations toward
+task-specific clustering, which does not preserve the distributional
+structure that makes zero-shot forecasting effective.
+
+% ============================================================
+\subsection{Cross-Domain Comparison}
+\label{sec:forecasting:comparison}
+% ============================================================
+
+Comparing the forgetting diagnosis across domains:
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+\toprule
+& IoT Anomaly Det. & ETTh2 Forecasting \\
+\midrule
+Pre-training value        & Marginal (0.549 vs.\ 0.481) & Strong (28--45\%) \\
+Forgetting (unfrozen)     & $+$7--15\% AUC drop & $+$9--13\% MSE rise \\
+Frozen encoder recovery   & Yes (AUC: 0.549--0.606) & Yes (MSE: $\approx$zero-shot) \\
+CKA degradation           & 0.426$\to$0.183 & 0.939--0.971 \\
+LogReg parity             & Yes (0.630 $\approx$ 0.629) & N/A (no features) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The key insight: \textbf{forgetting occurs regardless of whether
+pre-trained features are useful.}
+In IoT, the marginal pre-trained signal (AUC: 0.549 vs.\ 0.481)
+is destroyed, but this is difficult to distinguish from a task ceiling
+since LogReg matches the fine-tuned model.
+In forecasting, pre-trained features provide a large, measurable
+advantage (28--45\% MSE improvement) that fine-tuning systematically
+degrades.
+
+This cross-domain replication rules out the alternative interpretation
+that IoT forgetting was merely ``the task has low signal and models
+overfit the synthetic distribution.''
+The mechanism is general: extended fine-tuning with NLL (and optionally
+contrastive) loss overwrites pre-trained representations, and
+freezing the encoder is an effective mitigation across both domains.

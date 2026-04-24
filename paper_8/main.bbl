@@ -1,4 +1,4 @@
-\begin{thebibliography}{27}
+\begin{thebibliography}{28}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -192,5 +192,13 @@ Xinyu Zhang et~al.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2403.01742}.
+
+\bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
+  Zhang]{zhou2021informer}
+Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong,
+  and Wancai Zhang.
+\newblock Informer: Beyond efficient transformer for long sequence time-series
+  forecasting.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, 2021.
 
 \end{thebibliography}

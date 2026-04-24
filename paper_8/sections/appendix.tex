@@ -816,3 +816,60 @@ the frozen-encoder recommendation applies primarily to extended training
 Condition~D requires domain-specific attack archetypes (CICIoT2023
 perturbation equations); condition~C (Gaussian-noise negatives) is
 domain-agnostic and the appropriate protocol for cross-dataset validation.
+
+% ============================================================
+\section{Moirai Median Forecast Selection}
+\label{app:moirai_median}
+% ============================================================
+
+Moirai generates probabilistic forecasts as a mixture of distributions
+(StudentT, NormalFixedScale, NegativeBinomial, LogNormal).
+The heavy-tailed components (NegBin, LogNormal) produce extreme right-tail
+outliers when using the \emph{mean} of forecast samples as the point
+prediction---for ETTh2 at $h{=}192$, sample means reached 21{,}431
+against a target maximum of 45.5, inflating MSE from 0.30 to 8.58.
+
+We use the \emph{median} of 20 forecast samples as the robust point
+prediction, consistent with the Moirai paper's evaluation protocol.
+This eliminates sensitivity to the heavy-tailed mixture components
+while preserving the distributional forecast's central tendency.
+
+% ============================================================
+\section{ETTh2 Forecasting Details}
+\label{app:etth2_details}
+% ============================================================
+
+\textbf{Dataset.}
+ETTh2 (Electricity Transformer Temperature---Hourly, dataset 2)
+contains 17{,}420 timesteps of 7 features (HUFL, HULL, MUFL, MULL,
+LUFL, LULL, OT) recorded hourly from electrical transformers.
+We use the standard chronological split: 12 months training,
+4 months validation, 4 months test.
+
+\textbf{Training protocol.}
+For NLL training, we concatenate context (96 timesteps) and target
+(96 or 192 timesteps) as input to Moirai's \texttt{\_val\_loss}
+with fixed patch size 32.
+For evaluation, we use extended lookback sequences
+(context\_length $+$ prediction\_length timesteps) with
+\texttt{patch\_size='auto'} and take the median of 20 forecast samples.
+All data is fed to Moirai in raw scale (Moirai's internal
+PackedStdScaler handles instance normalization); predictions and targets
+are then normalized using training-set mean and standard deviation
+for MSE/MAE computation, matching the standard time-series forecasting
+evaluation protocol.
+
+\textbf{Temporal contrastive labels.}
+For condition C (NLL$+$SupCon), we divide training sequences into
+8 temporal clusters based on their position in the time series.
+Sequences within the same cluster are positive pairs; sequences from
+different clusters are negatives.
+This encourages the encoder to maintain temporal-regime awareness,
+analogous to the attack-archetype labels in IoT anomaly detection.
+
+\textbf{Horizon selection.}
+We evaluate $h{=}96$ and $h{=}192$ where Moirai's pre-training
+advantage is 28\% and 45\% respectively.
+Horizons $h{=}336$ and $h{=}720$ exceed Moirai-Small's
+\texttt{max\_seq\_len}$=$512 constraint when combined with the
+required extended lookback and are omitted.
