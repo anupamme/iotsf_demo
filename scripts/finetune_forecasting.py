@@ -602,6 +602,8 @@ def main():
                         help="EWC regularization weight (condition G)")
     parser.add_argument('--lora-rank', type=int, default=8, help="LoRA rank (condition E)")
     parser.add_argument('--lora-alpha', type=int, default=16, help="LoRA alpha (condition E)")
+    parser.add_argument('--lora-target-modules', nargs='+', default=None,
+                        help="LoRA target module names (condition E, default q_proj v_proj out_proj). Used for reviewer Q4 ablation.")
     parser.add_argument('--results-dir', default='results/forecasting_finetune')
     parser.add_argument('--device', default='cpu')
     parser.add_argument('--seed', type=int, default=42)
@@ -706,7 +708,8 @@ def main():
     # Apply LoRA if condition E
     if args.condition == 'E':
         from src.models.lora_adapter import apply_lora
-        model = apply_lora(model, rank=args.lora_rank, alpha=args.lora_alpha)
+        model = apply_lora(model, rank=args.lora_rank, alpha=args.lora_alpha,
+                           target_modules=args.lora_target_modules)
 
     # Subsample eval data for speed
     eval_limit = args.max_eval_sequences
