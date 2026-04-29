@@ -10,9 +10,9 @@ where $T = 128$ timesteps correspond to a sliding window of flow records
 and $F = 12$ features capture packet counts, byte volumes, inter-arrival
 times, and flow duration (see Appendix A for the full feature list).
 
-\textbf{Hard-negative attack.}
+\textbf{Stealth-controlled negative attack.}
 Let $\mathbf{X}_b$ be a benign sequence.  An adversarial sequence
-$\mathbf{X}_a$ is a \emph{hard-negative attack} at stealth level $s$ if:
+$\mathbf{X}_a$ is a \emph{stealth-controlled negative} at stealth level $s$ if:
 \begin{align}
   \label{eq:stealth}
   \text{CosSim}(\phi(\mathbf{X}_a),\, \phi(\mathbf{X}_b)) \geq s,
@@ -47,13 +47,13 @@ These correspond to slow exfiltration~\eqref{eq:slow},
 LotL mimicry~\eqref{eq:lotl}, C2 beaconing~\eqref{eq:beacon},
 and protocol timing anomalies~\eqref{eq:proto}.
 Feature indices are 1-based (Appendix~\ref{app:features}).
-We use ``hard negative'' to denote stealth-controlled proximity to
-the benign boundary (high cosine similarity, Eq.~\ref{eq:stealth}),
-not model-loss-based difficulty in the online hard-example-mining
-sense~\cite{shrivastava2016ohem}.
-A more precise term is \emph{stealth-controlled analytical negatives};
-we retain ``hard negatives'' for brevity while acknowledging this
-distinction.
+We use ``stealth-controlled negatives'' to denote proximity to
+the benign boundary controlled by the stealth parameter $s$
+(Eq.~\ref{eq:stealth}).
+This is distinct from model-loss-based difficulty in the online
+hard-example-mining sense~\cite{shrivastava2016ohem}: our negatives
+are hard by \emph{construction} (high cosine similarity to benign),
+not by training-time selection.
 
 \textbf{Protocol compliance.}
 A generated sequence must satisfy IoT protocol constraints
@@ -71,4 +71,4 @@ binary label $\hat{y} \in \{0, 1\}$ (0 = benign, 1 = attack) and an
 anomaly score $\hat{s} \in [0,1]$.  The goal is to minimise the
 false positive rate (FPR $= \text{FP}/(\text{FP}+\text{TN})$) while
 maximising recall (detection rate) and F1 score, specifically on
-hard-negative attacks where $s \geq 0.85$.
+stealth-controlled negative attacks where $s \geq 0.85$.

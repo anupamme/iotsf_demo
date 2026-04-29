@@ -1,179 +1,84 @@
 % ============================================================
-\section{Forgetting Replication: IoT Anomaly Detection}
+\section{Contrasting Domain: IoT Anomaly Detection}
 \label{sec:iot}
 % ============================================================
 
-We replicate the forgetting diagnosis on a second domain---IoT intrusion
-detection---using stealth-controlled synthetic attacks.  While pre-trained
-features are less valuable here (marginal over zero-shot), the same
-forgetting pattern emerges, confirming the mechanism is general.
+We replicate the representation drift diagnosis on a contrasting
+domain---IoT intrusion detection---using stealth-controlled synthetic
+attacks.  Here, pre-trained features have marginal value (zero-shot
+AUC: 0.481), and fine-tuning \emph{improves} performance because
+domain adaptation compensates.
+CKA drops far more aggressively (to 0.31--0.45, 10 seeds) than on ETT
+(0.937--0.964), consistent with the finding that drift occurs in every
+fine-tuning regime we ran; its task-level consequences depend on whether
+the lost features were useful.
+A from-scratch CNN with NLL loss (F1$=$0.288, AUC$=$0.598) matches
+fine-tuned Moirai at this data scale, so we present \ours{} as
+a diagnostic contrast rather than an architecture recommendation; the
+load-bearing finding is the drift--utility dissociation, not the
+pipeline.
 
 % ============================================================
-\subsection{Experimental Setup}
+\subsection{Setup and Main Results}
 \label{sec:experiments:setup}
 % ============================================================
 
-\textbf{Dataset.}
-We use \dataset{}~\cite{neto2023ciciot}, a publicly available benchmark
-of labelled IoT network flows captured from 105 IoT devices spanning
-33 attack categories.  We extract 12 network-flow features and create
-128-timestep sliding windows with stride 128, using a stratified 80/20
-train/test split.
+We use \dataset{}~\cite{neto2023ciciot} (105 IoT devices, 12 features,
+128-timestep windows).  Four attack archetypes
+(Appendix~\ref{app:attack_equations}) at 3 stealth levels yield 12
+evaluation conditions.  Hard-negative attacks are synthesised via
+deterministic closed-form perturbations ($<$2\,s/sample); thresholds
+are set at the 95th percentile of benign-only scores.
+We compare against 9 baselines (5 traditional, 4 DL;
+Appendix~\ref{app:baseline_tuning}); all baselines are unsupervised,
+\ours{} is supervised (Appendix~\ref{app:supervision}).
+All results: 10 seeds, bootstrap CIs.
 
-\textbf{Synthetic hard negatives.}
-We generate 4 attack types (Eqs.~\ref{eq:slow}--\ref{eq:proto})
-at 3 stealth levels (85\%, 90\%, 95\%), yielding 12 evaluation
-conditions.  Protocol constraints (Modbus, MQTT, CoAP) are enforced
-at the \emph{moderate} strictness tier.
-Hard-negative generation uses closed-form analytical perturbations;
-a Diffusion-TS backbone for within-archetype diversity is left to future
-work (Limitation~4, Section~\ref{sec:analysis}).
-
-\textbf{Threshold calibration.}
-We set the anomaly threshold at the 95th percentile of a benign-only
-held-out set (20\% of benign samples), targeting FPR\,$\leq$\,0.05.
-This protocol is applied uniformly to all methods; only benign data
-inform the threshold (details in Appendix~\ref{app:threshold}).
-
-\textbf{Baselines.}
-We compare against nine methods (5 traditional, 4 deep-learning; see
-Appendix~\ref{app:baseline_tuning}).
-All baselines are \textbf{unsupervised} (benign-only training);
-\ours{} conditions B--D are \textbf{supervised} (labeled negatives
-during training; see Appendix~\ref{app:supervision}).
-
-\textbf{Metrics.}
-We report F1, FPR, and ROC-AUC.  All results use 10 random seeds;
-the leave-one-out experiment uses 3 seeds.
-Bootstrap CIs (10{,}000 replicates) with Cohen's $d$ and $p$-values
-are reported for all headline comparisons.
-
-% ============================================================
-\subsection{Main Results}
-\label{sec:experiments:main}
-% ============================================================
-
-Table~\ref{tab:main} compares all methods across three synthetic stealth levels.
-
-\input{tables/main_results}
-
-At stealth-95 with benign-calibrated thresholds, Signature IDS and
-Statistical IDS are degenerate (FPR$\geq$0.87; Table~\ref{tab:main},
-$\ddagger$ rows).  Among calibrated methods, the Ensemble achieves
-F1$=$0.136 (FPR$=$0.042).
-\ours{} condition~C (F1$=$0.262, FPR$=$0.068) outperforms all calibrated
-baselines at stealth-95.
+Table~\ref{tab:main} (Appendix) compares all methods across three stealth levels.
+At stealth-95, \ours{} condition~C (F1$=$0.262, FPR$=$0.068) outperforms all
+calibrated baselines; the best baseline is Ensemble (F1$=$0.136).
 The C vs.\ D difference is significant
-($\Delta{=}+$0.073, 95\% CI $[+$0.059, $+$0.087$]$, $d{=}4.32$, $p{<}0.001$;
-10{,}000-replicate bootstrap).
-B and D are statistically indistinguishable
-($\Delta{=}-$0.000, CI $[-$0.014, $+$0.013$]$, $d{=}-$0.01, $p{=}0.49$).
+($\Delta{=}+$0.073, $d{=}4.32$, $p{<}0.001$; two-sided bootstrap,
+10{,}000 resamples; the large $d$ reflects low cross-seed variance,
+pooled std$=$0.017, rather than large absolute effect).
+B and D are indistinguishable ($p{=}0.49$, two-sided bootstrap).
 
 % ============================================================
-\subsection{Ablation Study}
+\subsection{Ablation and Drift Diagnosis}
 \label{sec:experiments:ablation}
 % ============================================================
 
-Table~\ref{tab:ablation} ablates the components of \ours{} (200
-samples, 5 epochs, benign-calibrated threshold, 10 seeds).
-
 \input{tables/ablation}
 
-\textbf{Fine-tuning improves over zero-shot.}
-The best Moirai condition (C, AUC$=$0.629$\pm$0.022) improves $+$0.148 over
-zero-shot A (AUC$=$0.481$\pm$0.042).
-B (0.556) and D (0.556) improve moderately but are statistically
-indistinguishable from each other ($p{=}0.49$).
+Table~\ref{tab:ablation} ablates \ours{} (200 samples, 5 epochs,
+benign-calibrated threshold, 10 seeds).
+The best Moirai condition (C, AUC$=$0.629) improves $+$0.148 over zero-shot
+(A, 0.481); B and D are indistinguishable ($p{=}0.49$).
+CNN-NLL (0.598) outperforms CNN-MSE (0.580) and is competitive with
+unfrozen Moirai, ruling out the loss-function confound and indicating
+that at this data scale (200 benign windows) a purpose-built CNN with
+NLL loss is a reasonable non-foundation baseline.
+A further ablation shows Gaussian-noise negatives (condition C) match or
+exceed analytically specified hard negatives (C$'$ and D) under equal
+training budgets; off-manifold diversity, not boundary-proximity, is
+what drives adaptation in this regime (Appendix~\ref{app:gaussian_mechanism}).
 
-\textbf{CNN-NLL resolves the loss-function confound.}
-CNN-NLL (AUC$=$0.598$\pm$0.041) slightly outperforms CNN-MSE
-(0.580$\pm$0.023), confirming that the CNN advantage over unfrozen
-Moirai is not an artefact of MSE being an easier objective.
+LoRA ($r{=}8$, 3 seeds) achieves all-stealth AUC$=$0.656$\pm$0.040 but
+stealth-95 AUC$=$0.430$\pm$0.135---\emph{below} zero-shot (0.481).
+LoRA restricts adaptation too aggressively where pre-trained features
+are marginal, contrasting sharply with forecasting where LoRA
+\emph{improves} over zero-shot (Table~\ref{tab:mitigation_spectrum}).
 
-Condition~C$'$ (balanced hard negatives, 1:1) disentangles negative type from
-imbalance: Gaussian-noise negatives outperform hard negatives by $+$0.019 AUC
-(C vs.\ C$'$), and the 1:12 imbalance adds a further $-$0.054 penalty (C$'$ vs.\ D).
-See Appendix~\ref{app:cprime} for the full decomposition.
-
-% Protocol constraint compliance (100% at all tiers) is reported in
-% Appendix~\ref{app:constraints}; this is expected for the analytical pathway.
 \label{sec:experiments:constraints}
 
-% ============================================================
-\subsection{Generalization to Unseen Attack Patterns}
-\label{sec:experiments:loo}
-% ============================================================
-
-A leave-one-out experiment trains condition~D on three attack types and
-evaluates on the held-out fourth (3 seeds, 30 eval samples per stealth level).
-All four folds show positive transfer: fine-tuning improves over zero-shot
-for every held-out attack type, with a mean delta of $+$0.186 F1 at stealth-95
-(Table~\ref{tab:loo}, Appendix~\ref{app:loo_detail}).
-The largest gain is for \texttt{lotl\_mimicry} ($+$0.253), suggesting
-that low-amplitude mimicry benefits most from boundary-shaping by
-the other archetypes.
-
-% ============================================================
-\subsection{Scaling Experiment}
-\label{sec:experiments:scaling}
-% ============================================================
-
-Table~\ref{tab:scaling} compares stealth-95 metrics at three scales
-(200/5, 500/10, 1000/20) under NLL-only early stopping (5 seeds),
-plus an encoder-freezing diagnostic at 1000/20.
-
-\input{tables/scaling}
-
-\textbf{Scale effects are non-monotonic.}
-At 500/10, all conditions improve over 200/5
-(C: $+$0.029, D: $+$0.068, B: $+$0.057),
-suggesting 200/5 is under-trained.
-D's improvement ($+$0.068) is the largest of any condition, suggesting
-hard negatives specifically benefit from moderate additional training---their
-near-boundary placement requires more gradient steps to establish a reliable
-decision surface.
-At 1000/20, performance drops back, reflecting catastrophic forgetting.
-The C$>$D gap narrows from $+$0.084 (200/5) to $+$0.045 (500/10) to
-$+$0.003 (1000/20, n.s., $p{=}0.39$)---the advantage of easy off-manifold negatives diminishes with sufficient training data.
-NLL-only early stopping is essential: under total-loss ES, decreasing SupCon loss masks increasing NLL, causing late checkpoint selection that compounds forgetting (Appendix~\ref{app:nll_es}).
-
-\textbf{Encoder freezing confirms catastrophic forgetting.}
-Freezing the encoder at 1000/20 recovers AUC:
-frozen B$=$0.606$\pm$0.114 ($+$0.085), frozen C$=$0.582$\pm$0.099 ($+$0.074),
-frozen D$=$0.573$\pm$0.097 ($+$0.067).
-Unfrozen fine-tuning erases pre-trained features down to CNN level (0.513).
-However, frozen-encoder F1 remains low (0.130--0.148) due to projection-head
-initialisation variance; AUC recovery does not translate to operational F1
-under calibrated thresholds (details in Appendix~\ref{app:freezing_details}).
-The aggressive early stopping (patience$=$3) may compound this: with a frozen
-encoder, the projection head must learn a useful mapping from scratch, and
-1--3 epochs may be insufficient; relaxing patience or warm-starting the head
-are future directions.
-Partial freezing yields modest further gains
-(Appendix~\ref{app:partial_freeze}).
-
-% ============================================================
-\subsection{External Validation on N-BaIoT}
-\label{sec:iot:nbaiot}
-% ============================================================
-
-To address circular evaluation (Limitation~5), we evaluate on
-N-BaIoT~\cite{meidan2018n}, an independent IoT botnet benchmark.
-Zero-shot transfer from CICIoT2023 fails (AUC$<$0.30), as expected
-given the distribution shift (Appendix~\ref{app:extended_nbaiot}).
-When fine-tuned on N-BaIoT benign traffic with Gaussian-noise negatives
-(310 windows, 5 epochs), the framework achieves
-AUC$=$\nbaiotAUC{} (3 seeds), with 8/10 attack variants above 0.83
-(operational FPR$=$0.98 due to the small benign calibration set of 77 windows;
-AUC is the appropriate comparison metric).
-This confirms \emph{recipe transferability}: the training recipe
-(NLL$+$SupCon) transfers to a new domain, though the features
-themselves do not (zero-shot transfer fails).
-
-Table~\ref{tab:nbaiot_baselines} compares against unsupervised baselines:
-Isolation Forest (AUC$=$0.991) outperforms all methods using 72
-hand-engineered features; \ours{} fine-tuned (AUC$=$\nbaiotAUC{})
-matches One-Class SVM (0.931) using a general-purpose backbone
-without hand-crafted features.
-
-\input{tables/nbaiot_baselines}
+\textbf{CKA reveals aggressive drift.}
+CKA drops to 0.31--0.45 across conditions and scales
+(e.g., C/200: $0.420\pm0.026$, D/1000: $0.306\pm0.044$; 10 seeds),
+far below ETTh2's 0.94, yet performance
+\emph{improves} over zero-shot because pre-trained features are marginal.
+Freezing the encoder yields AUC$=$0.549 (comparable to unfrozen B/D
+but below C), confirming C's advantage comes from learned features.
+A leave-one-out experiment (3 seeds) shows positive transfer for all
+four held-out attack types ($+$0.186 mean F1).
+Scaling and N-BaIoT external validation are in
+Appendices~\ref{app:extended_scaling} and~\ref{app:nbaiot}.

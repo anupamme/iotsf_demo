@@ -185,9 +185,14 @@ class AnomalyTransformerIDS(BaseIDS):
         self.lr = lr
         self.sigma = sigma
 
-        self._device = torch.device(
-            device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        )
+        if device:
+            self._device = torch.device(device)
+        elif torch.cuda.is_available():
+            self._device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            self._device = torch.device('mps')
+        else:
+            self._device = torch.device('cpu')
         self._model: Optional[nn.Module] = None
 
     # ------------------------------------------------------------------

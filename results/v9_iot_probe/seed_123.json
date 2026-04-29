@@ -1,0 +1,11 @@
+{
+  "seed": 123,
+  "n_eval_benign": 500,
+  "n_eval_attack": 600,
+  "d_model": 384,
+  "probe_auc_pre": 0.3229263183338033,
+  "probe_auc_post": 0.32903624326901126,
+  "probe_auc_delta": 0.006109924935207955,
+  "cka": 0.3913814893447253,
+  "elapsed_s": 1076.8224530220032
+}

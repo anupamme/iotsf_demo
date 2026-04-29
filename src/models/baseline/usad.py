@@ -97,9 +97,14 @@ class USADIDS(BaseIDS):
         self.lr = lr
         self.alpha = alpha                   # anomaly score mixing coefficient
 
-        self._device = torch.device(
-            device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        )
+        if device:
+            self._device = torch.device(device)
+        elif torch.cuda.is_available():
+            self._device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            self._device = torch.device('mps')
+        else:
+            self._device = torch.device('cpu')
         self._input_dim = seq_length * feature_dim
         self._encoder: Optional[_Encoder] = None
         self._decoder1: Optional[_Decoder] = None

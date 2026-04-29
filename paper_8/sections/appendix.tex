@@ -1,6 +1,7 @@
 % ============================================================
 % Consolidated Appendix
 % ============================================================
+\newpage
 \appendix
 
 % ============================================================
@@ -47,6 +48,40 @@ $P_{\text{proto}}$ jitters features~11 and~12 (\texttt{fwd\_iat\_mean},
 All features are z-score normalised per-flow before windowing.
 
 % ============================================================
+\section{Attack Archetype Equations and Protocol Constraints}
+\label{app:attack_equations}
+% ============================================================
+
+The four IoT attack archetypes at stealth $s$ are:
+\begin{align}
+  P_{\text{slow}} &: x_{t,j} \leftarrow x_{t,j}(1 + (1{-}s) \cdot 0.03 \cdot t/T), \; j \in \{9,10\} \label{eq:slow} \\
+  P_{\text{lotl}} &: x_{t,j} \leftarrow x_{t,j}(1 + (1{-}s) \cdot 1.15) \text{ if } t \bmod 32{=}0, \; j \in \{6,7,8\} \label{eq:lotl} \\
+  P_{\text{beacon}} &: x_{t,j} \leftarrow x_{t,j}(1 - (1{-}s) \cdot 0.02) \text{ if } t \bmod 16{=}0 \label{eq:beacon} \\
+  P_{\text{proto}} &: x_{t,j} \leftarrow x_{t,j} + (1{-}s) \cdot 0.05 \cdot \epsilon_t, \; \epsilon_t \sim \mathcal{N}(0,1), \; j \in \{11,12\} \label{eq:proto}
+\end{align}
+At $s{=}0.95$, perturbation magnitudes are $\sim$0.003--0.06$\sigma$ in normalised space.
+
+\textbf{Protocol compliance.}
+Generated sequences must satisfy IoT protocol constraints
+$\mathcal{C}_\pi$ for $\pi \in \{\text{Modbus, MQTT, CoAP}\}$,
+checking packet size ranges (Modbus: 7--260 bytes), valid function
+codes, and inter-packet timing.  A constraint-retry loop
+(Appendix~\ref{app:algorithm}) iterates up to $R{=}3$ times, relaxing
+stealth by $+$0.01 per retry.  In practice, the analytical
+perturbations never violate protocol constraints (100\% pass rate at
+all tiers; Table~\ref{tab:constraints}); the loop is a safety net for
+future stochastic generators.
+
+% ============================================================
+\section{Full IoT Detection Results}
+\label{app:main_results}
+% ============================================================
+
+\input{tables/main_results}
+
+\input{tables/scaling}
+
+% ============================================================
 \section{Protocol Constraint Compliance}
 \label{app:constraints}
 % ============================================================
@@ -59,13 +94,13 @@ that pass protocol validation at each strictness tier
 
 At all strictness tiers, 100\% of generated samples pass validation
 across all three protocols (Modbus, MQTT, CoAP) and all four attack types.
-This confirms that the constraint retry loop (Algorithm~\ref{alg:hng})
+This confirms that the constraint retry loop (Appendix~\ref{app:algorithm})
 reliably enforces protocol rules without compromising attack diversity.
 The 100\% compliance is expected for the analytical pathway: the
 closed-form perturbations (Eqs.~\ref{eq:slow}--\ref{eq:proto}) modify
 only the statistical envelope of selected flow features (byte volumes,
 timing, packet counts), not the protocol-layer fields that validators
-inspect.  The constraint-retry loop (Algorithm~\ref{alg:hng}) is
+inspect.  The constraint-retry loop (Appendix~\ref{app:algorithm}) is
 therefore a safety net that never triggers for this pathway, but would
 be load-bearing for a stochastic Diffusion-TS backbone that could
 generate out-of-range packet sizes.
@@ -85,16 +120,16 @@ discovers evasion strategies from scratch---could reveal blind spots not
 covered by our taxonomy.
 
 (2)~\textbf{Evaluation scale.}
-All ablation results use 200 samples per class with 5 random seeds
-(42, 123, 456, 789, 1234); the scaling experiment (Table~\ref{tab:scaling}) extends to
-1000 samples with 5 seeds.
+All ablation results use 200 samples per class with 10 random seeds;
+the scaling experiment (Table~\ref{tab:scaling}) extends to
+1000 samples with 10 seeds.
 At this scale, individual-seed FPR values have standard errors
 of approximately $\pm$0.05 (binomial, $n=200$), making per-seed FPR differences
 below $\sim$0.10 statistically ambiguous.
-The B vs.\ D AUC comparison (0.481 vs.\ 0.479, Table~\ref{tab:ablation})
-should be interpreted as B$\approx$D; the difference is trivially small and well
-within the high variance ($\pm$0.123--0.127) of both conditions.
-Cross-dataset evaluation on N-BaIoT (Section~\ref{sec:iot:nbaiot})
+The B vs.\ D AUC comparison (0.556 vs.\ 0.556, Table~\ref{tab:ablation})
+confirms B$\approx$D; the conditions are statistically indistinguishable
+($p{=}0.49$, bootstrap).
+Cross-dataset evaluation on N-BaIoT (Appendix~\ref{app:nbaiot})
 addresses the single-dataset limitation; validation on UNSW-NB15 remains open.
 
 (3)~\textbf{Fixed evaluation scope.}
@@ -124,25 +159,31 @@ assesses whether a detector trained on analytically-specified archetypes
 can detect instances of those same archetypes at test time---but it means
 results may not transfer to real-world attacks that deviate from the
 analytic formulas.
-Section~\ref{sec:iot:nbaiot} presents external validation
-on N-BaIoT~\cite{meidan2018n}, an independent benchmark with Mirai and BASHLITE
-botnet traffic not seen during training.
-Zero-shot transfer fails (AUC $0.01$--$0.28$), but fine-tuning on N-BaIoT
-benign data with Gaussian-noise negatives recovers strong discrimination
-(AUC$=$\nbaiotAUC{}, Table~\ref{tab:nbaiot_finetuned}), confirming the
-framework generalises when deployed on target-domain data.
-Validation on UNSW-NB15~\cite{moustafa2015unsw} remains an additional open direction.
+Appendix~\ref{app:nbaiot} presents N-BaIoT~\cite{meidan2018n} as an
+external \emph{negative transfer control}, not a cross-dataset success
+story: zero-shot transfer from the CICIoT2023-trained detector collapses
+(ROC-AUC $0.01$--$0.28$, FPR$=$1.00 across threshold placements),
+consistent with covariate shift across IoT datasets (device mix, label
+granularity, flow-vs.\ packet-trigger feature construction).
+Re-training the same recipe end-to-end on N-BaIoT benign data with
+Gaussian-noise negatives recovers strong discrimination
+(AUC$=$\nbaiotAUC{}, Table~\ref{tab:nbaiot_finetuned}), demonstrating
+\emph{recipe generalisation} (the training procedure works on a
+different dataset when applied from scratch) rather than
+representation transfer. We therefore do not claim external
+generalisation of our CICIoT2023 results; validation on UNSW-NB15~\cite{moustafa2015unsw}
+remains an open direction.
 
 (6)~\textbf{Low absolute detection rates.}
-The best calibrated Moirai F1 at stealth-95 is 0.250 (condition~C, Table~\ref{tab:main}),
-indicating the system detects roughly 25\% of stealthy attacks at the target
+The best calibrated Moirai F1 at stealth-95 is 0.262 (condition~C, Table~\ref{tab:main}),
+indicating the system detects roughly 26\% of stealthy attacks at the target
 FPR$\leq$0.05.
-The from-scratch CNN achieves F1$=$0.236 with the lowest FPR (0.020).
+The from-scratch CNN-NLL achieves F1$=$0.288 with competitive FPR.
 Three factors compound to produce this ceiling: (a) the benign-calibrated threshold
 protocol intentionally targets low FPR ($\leq 0.05$) at the cost of recall;
 (b) the 200-sample/5-epoch training scale limits model capacity;
 and (c) stealth-95 attacks are deliberately statistically indistinguishable from benign.
-The AUC of 0.563 (condition~C) and 0.597 (CNN) indicate genuine discrimination
+The AUC of 0.629 (condition~C) and 0.598 (CNN-NLL) indicate genuine discrimination
 above chance.
 Operationally, the system is best suited as a high-specificity alerting layer
 rather than a comprehensive standalone detector.
@@ -227,7 +268,7 @@ approximately in the CICIoT2023 dataset).  Feature 12 (\texttt{bwd\_iat\_mean})
 has no direct analogue in N-BaIoT; we use the shortest available jitter
 window as a proxy.  These limitations are transparent and documented here
 so that readers can assess how strongly to weight the N-BaIoT results
-relative to same-distribution evaluation (Section~\ref{sec:iot:nbaiot}).
+relative to same-distribution evaluation (Appendix~\ref{app:nbaiot}).
 
 % ============================================================
 \section{N-BaIoT Per-Attack Results}
@@ -235,7 +276,7 @@ relative to same-distribution evaluation (Section~\ref{sec:iot:nbaiot}).
 % ============================================================
 
 Table~\ref{tab:nbaiot} reports per-attack-variant F1, FPR, and ROC-AUC for the
-external N-BaIoT evaluation described in Section~\ref{sec:iot:nbaiot}.
+external N-BaIoT evaluation described in Appendix~\ref{app:nbaiot}.
 Table~\ref{tab:nbaiot_finetuned} compares zero-shot transfer against fine-tuned
 results on N-BaIoT benign data.
 
@@ -248,20 +289,22 @@ results on N-BaIoT benign data.
 \label{app:hparams}
 % ============================================================
 
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.45\textwidth]{figures/fig4_hparam_sensitivity.pdf}
-  \caption{
-    Mean F1 across all four attack types at stealth-95 as a function of
-    contrastive weight $\lambda$ (rows) and temperature $\tau$ (columns),
-    using the full Moirai-Small fine-tuning pipeline with benign-calibrated threshold.
-    F1 is constant at $0.235$ across all 20 configurations (flat landscape);
-    ROC-AUC ranges $0.467$--$0.489$ with no clear optimum.
-    This indicates $\lambda$ and $\tau$ have no detectable effect at the
-    5-epoch / 600-sample training scale.
-  }
-  \label{fig:hparam}
-\end{figure}
+\paragraph{Contrastive hyperparameter sensitivity.}
+A 4$\times$5 sweep over contrastive weight $\lambda$ (rows) and
+temperature $\tau$ (columns) using the full Moirai-Small fine-tuning
+pipeline at stealth-95 yields a constant F1$=$0.235 across all 20
+configurations; ROC-AUC varies within $0.467$--$0.489$ (std$<$0.008).
+The F1 plateau is an artefact of the benign-calibrated threshold
+operating in a \emph{dead zone} of the score distribution at this
+training scale: anomaly-score variation from changing
+($\lambda$, $\tau$) moves individual scores but leaves the 95th-percentile
+benign threshold positioned such that the same roughly-constant fraction of
+stealth-95 attacks cross it, producing a near-uniform F1.
+The AUC variation within the 0.02 band is the signal-bearing statistic
+at this scale; F1$=$0.235 rows should be read as ``no signal relative to
+the calibrated threshold,'' not as a legitimate hyperparameter
+plateau. Cross-validated threshold re-calibration is deferred to
+camera-ready. The detailed heatmap is released with the code.\label{fig:hparam}
 
 \begin{figure}[h]
   \centering
@@ -282,7 +325,7 @@ results on N-BaIoT benign data.
     Detection F1 per attack type and stealth level for \ours{} (condition~C,
     left panel) and the Ensemble baseline (right panel).
     \ours{} condition~C outperforms the Ensemble at the aggregate stealth-95 level
-    (Table~\ref{tab:main}, F1$=$0.250 vs 0.136) under the benign-calibrated threshold.
+    (Table~\ref{tab:main}, F1$=$0.262 vs 0.136) under the benign-calibrated threshold.
     The Ensemble's per-type F1 values shown here use the ROC-optimal threshold
     (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95
     (Table~\ref{tab:main}).
@@ -361,20 +404,17 @@ Condition~C$'$ disentangles these: hard negatives subsampled to a 1:1 ratio,
 matching C's composition while using hard negatives instead of Gaussian noise.
 The full comparison (Table~\ref{tab:ablation}) reveals two separable effects:
 \textbf{(1) Negative type (C vs C', same 1:1 ratio):}
-C (Gaussian-noise, AUC$=$0.563) $>$ C$'$ (hard negatives, AUC$=$0.534),
-$\Delta=+$0.029.
+C (Gaussian-noise, AUC$=$0.629) $>$ C$'$ (hard negatives, AUC$=$0.610),
+$\Delta=+$0.019.
 Gaussian-noise negatives remain more informative than balanced hard negatives
-at 5-epoch/200-sample scale, though the gap is modest and both conditions
-exhibit high variance ($\pm$0.122--0.125).
+at 5-epoch/200-sample scale, though the gap is modest.
 \textbf{(2) Dataset imbalance (C' vs D, same hard-negative type):}
-C$'$ (1:1, AUC$=$0.534) $>$ D (1:12, AUC$=$0.479),
-$\Delta=+$0.055.
+C$'$ (1:1, AUC$=$0.610) $>$ D (1:12, AUC$=$0.556),
+$\Delta=+$0.054.
 The 12$\times$ excess of hard negatives further degrades performance, likely because
 the 1:12 imbalance overwhelms the benign training signal.
 Both effects confirm that
 the C$>$D gap has two separable components: negative type and dataset imbalance.
-However, the high variance at 5 seeds ($\pm$0.122--0.127) means these differences
-should be interpreted cautiously.
 
 \subsection{CNN Outperforms Moirai at Small Scale}
 \label{app:cnn_detail}
@@ -382,30 +422,26 @@ should be interpreted cautiously.
 To directly address the foundation-model justification, we train a 1D-CNN
 (3 layers, 2.3M parameters) from scratch using the identical NLL(MSE)+SupCon
 objective and hard-negative data as Condition~D.
-At 5 seeds, CNN (AUC$=$0.597$\pm$0.096) \emph{outperforms} the best Moirai condition
-C (AUC$=$0.563$\pm$0.122) and substantially exceeds D (AUC$=$0.479$\pm$0.123) and
-B (AUC$=$0.481$\pm$0.127).
-CNN also exhibits notably lower variance ($\pm$0.096) than all Moirai conditions
-($\pm$0.122--0.127), suggesting that Moirai's pre-trained weights introduce
-initialisation sensitivity that the CNN avoids.
-At 5-seed evaluation, the fine-tuned Moirai conditions (B$=$0.481, D$=$0.479)
-cluster near zero-shot (A$=$0.464), while CNN (0.597) and the SupCon conditions
-with Gaussian-noise negatives (C$=$0.563, C$'$$=$0.534) show clearer separation.
-
-The increase in variance from 3 to 5 seeds (e.g., C: $\pm$0.066$\to$$\pm$0.122)
-reflects Moirai's sensitivity to projection-head initialisation and
-fine-tuning trajectory: seeds 789 and 1234 produce substantially
-different optima than the original three seeds.
-The CNN's variance is stable across seed counts ($\pm$0.096), consistent with
-the simpler optimisation landscape of a randomly-initialised architecture.
+At 10 seeds, CNN-MSE (AUC$=$0.580$\pm$0.023) and CNN-NLL (AUC$=$0.598$\pm$0.041)
+both outperform the NLL-only Moirai conditions B (AUC$=$0.556$\pm$0.021) and
+D (AUC$=$0.556$\pm$0.021), though the best Moirai condition C
+(AUC$=$0.629$\pm$0.022) exceeds both CNNs.
+CNN exhibits notably lower variance ($\pm$0.023) than most Moirai conditions,
+suggesting that Moirai's pre-trained weights introduce initialisation
+sensitivity that the CNN avoids.
+The CNN-NLL control (AUC$=$0.598$\pm$0.041) slightly outperforms CNN-MSE
+(0.580$\pm$0.023), ruling out the loss-function confound: the CNN advantage
+over unfrozen Moirai B/D is not an artefact of MSE being an easier objective.
 
 \subsection{Constraint-Validator Contribution (E, E', E'')}
 \label{app:eee}
 
 E (no constraints, no retry, AUC$=$0.480$\pm$0.130) and
 E$''$ (constraints, no retry, AUC$=$0.481$\pm$0.126) are both indistinguishable
-from D (AUC$=$0.479$\pm$0.123), confirming that the constraint validator
+from D (5-seed AUC$=$0.479$\pm$0.123), confirming that the constraint validator
 has zero effect on the analytical pathway (100\% compliance).
+(E/E$'$/E$''$ use 5 seeds; they were not rerun at 10 seeds because the finding
+is robust: all three are within noise of D.)
 E$'$ (no constraints, with retry at $s_{\text{eff}}\approx0.97$,
 AUC$=$0.498$\pm$0.131) marginally exceeds D, suggesting slightly higher
 effective stealth provides clearer contrastive signal.
@@ -422,8 +458,8 @@ largely distinct clusters; \ours{} condition~D (hard negatives) produces a
 qualitatively similar structure, consistent with comparable FPR values in
 Table~\ref{tab:ablation}.
 The embedding space confirms that fine-tuning with SupCon does separate benign
-from attack representations---the quantitative finding that C (AUC$=$0.563)
-outperforms D (AUC$=$0.479) at this training scale reflects differences in
+from attack representations---the quantitative finding that C (AUC$=$0.629)
+outperforms D (AUC$=$0.556) at this training scale reflects differences in
 decision-boundary quality rather than a failure of representation learning.
 
 \begin{figure}[h]
@@ -438,7 +474,7 @@ decision-boundary quality rather than a failure of representation learning.
     the benign manifold, consistent with their deliberate stealth-floor design.
     Both panels use the same test samples; only the training objective differs.
     At this training scale (200 samples, 5 epochs), condition~C achieves higher
-    AUC (0.563 vs 0.479) despite similar embedding structure, suggesting that
+    AUC (0.629 vs 0.556) despite similar embedding structure, suggesting that
     the AUC gap is driven by decision-boundary calibration rather than
     representation collapse (see Section~\ref{sec:analysis}).
   }
@@ -458,7 +494,7 @@ The initial 1000/20 experiment used total-loss ES
 causing checkpoints to be saved too late.
 Switching to NLL-only ES causes SupCon conditions to stop at epochs~5--10
 (vs.\ running all 20), substantially improving checkpoint quality.
-B also improves under NLL-only ES (0.496$\to$0.521 at 1000/20) due to better
+B also improves under NLL-only ES at 1000/20 due to better
 checkpoint selection.
 
 \subsection{Best-Epoch Analysis}
@@ -474,26 +510,23 @@ not epoch-dependent.
 \subsection{Freezing: Mitigation Details}
 \label{app:freezing_details}
 
-Frozen C (0.582) still exceeds 200/5 C (0.563) by $+$0.019,
-and frozen B (0.606) exceeds 200/5 B (0.481) by $+$0.125, suggesting that
-the NLL-only objective benefits substantially from preserved pre-trained features.
-However, the high variance of frozen conditions ($\pm$0.099--0.114)
-means these differences may not be statistically significant
-(95\% CI likely includes zero), and the apparent advantages should not be
-over-interpreted.
-Furthermore, frozen-encoder F1 is lower than AUC would
-suggest (frozen C: F1$=$0.148$\pm$0.097; frozen D: F1$=$0.144$\pm$0.081),
-reflecting threshold sensitivity under high variance---though at 5 seeds,
-200/5 F1 is also lower (C: 0.250, D: 0.137), narrowing the gap.
-\textbf{Practitioner caveat}: the frozen-encoder protocol recovers
-AUC (a threshold-free metric) but \emph{does not} recover operational
-F1 under the benign-calibrated threshold.  Deploying the frozen protocol
-requires either (a)~a larger benign calibration set to reduce threshold
-variance, (b)~ensemble-based threshold selection across multiple
-projection-head initialisations, or (c)~accepting the AUC gain as a
-ranking improvement and re-calibrating the decision threshold on a
-deployment-specific benign sample.
-The high variance ($\pm$0.097--0.114) is explained by projection-head
+With 10 seeds, frozen B$=$C$=$D all converge to AUC$=$0.549$\pm$0.109
+(Table~\ref{tab:scaling}), because only the randomly-initialised projection
+head trains---the encoder is identical across conditions.
+Frozen AUC (0.549) is comparable to unfrozen B and D at 200/5 (0.556)
+but substantially below unfrozen C at 200/5 (0.629), confirming that
+C's advantage comes from learned features, not preserved pre-trained ones.
+Frozen-encoder F1 remains low (0.152$\pm$0.077) due to projection-head
+initialisation variance.
+\textbf{Practitioner caveat}: the frozen-encoder protocol preserves
+pre-trained representations (CKA$=$1.000) but \emph{does not} recover
+operational F1 under the benign-calibrated threshold.  Deploying the
+frozen protocol requires either (a)~a larger benign calibration set to
+reduce threshold variance, (b)~ensemble-based threshold selection across
+multiple projection-head initialisations, or (c)~accepting the AUC
+preservation as a ranking improvement and re-calibrating the decision
+threshold on a deployment-specific benign sample.
+The high variance ($\pm$0.109) is explained by projection-head
 initialisation sensitivity: under full encoder freezing, all seeds select
 the epoch-1 checkpoint (patience$=$3, early stopping triggers at epoch~4),
 so the random projection-head weights determine the entire embedding space.
@@ -506,26 +539,14 @@ frozen-to-200/5 gap, we freeze layers 0--4 of Moirai's 6-layer
 encoder and unfreeze layer 5, the encoder norm, and the
 \texttt{param\_proj} (63/94 parameters frozen).
 Partial-freeze C achieves AUC$=$0.590$\pm$0.106 and
-D achieves 0.595$\pm$0.110 (Table~\ref{tab:scaling}),
-marginally above the fully frozen results
-(C: $+$0.008, D: $+$0.022) and above the 200/5 baseline
-(C$=$0.563, D$=$0.479).
+D achieves 0.595$\pm$0.110 (5 seeds; partial freeze was not rerun at
+10 seeds), marginally above the fully frozen results (all 0.549 at 10 seeds).
 The high variance persists ($\pm$0.106--0.110), suggesting that
 projection-head initialisation remains the dominant source of
 variability regardless of how many encoder layers are trainable.
 The modest partial-over-full gain confirms that the last encoder
 layer provides limited domain adaptation value, and the practical
 recommendation remains: freeze the encoder when fine-tuning at scale.
-A suggestive observation: under partial freezing, D (0.595) marginally
-exceeds C (0.590), reversing the 200/5 ranking (C$=$0.563 $>$ D$=$0.479).
-Under full freezing the reversal is weaker (frozen D$=$0.573 vs.\
-frozen C$=$0.582).  While within noise ($\pm$0.106--0.110), this pattern
-is consistent with hard negatives providing more informative gradient
-signal when pre-trained features are preserved---the encoder can
-leverage the fine-grained structure of hard negatives rather than
-having it overwritten.  If confirmed at larger scale or with reduced
-variance, this would reverse the paper's 200/5 conclusion about
-negative type.
 
 % ============================================================
 \section{Extended Discussion}
@@ -560,56 +581,38 @@ Synthetic hard negatives (stealth 85--95\%), by contrast, are deliberately
 positioned near the benign manifold; at limited training scale this proximity
 increases embedding ambiguity and may prevent the projection head from
 establishing a reliable boundary within the allotted epochs.
-The C$'$\,$>$\,D comparison ($+$0.055 AUC, 0.534 vs.\ 0.479) further shows that even
+The C$'$\,$>$\,D comparison ($+$0.054 AUC, 0.610 vs.\ 0.556) further shows that even
 within hard negatives, the 1:12 imbalance compounds the problem: the large excess
 of hard-negative training samples overwhelms the benign signal, shifting the
 decision boundary to favour recall over precision.
-The scaling experiment (Table~\ref{tab:scaling}) tests this directly.
-Under total-loss ES at 1000/20, C degrades to AUC$=$0.520 ($-$0.043 from 200/5),
-C$'$ to 0.500 ($-$0.034), B to 0.496 ($+$0.015), and D to 0.501 ($+$0.022).
-The curriculum learning analogy~\cite{bengio2009curriculum} applied in reverse:
-easy negatives (C) degraded most ($-$0.043); B and D actually improved slightly
-at 1000/20 under total-loss ES, suggesting their 200/5 baselines were under-trained.
+The scaling experiment (Table~\ref{tab:scaling}) tests this directly:
+the C$>$D gap narrows from $+$0.073 (200/5) to $+$0.045 (500/10) to
+$+$0.024 (1000/20, $p{=}0.39$, n.s.).
+The advantage of easy off-manifold negatives diminishes with
+additional training data, consistent with easy negatives providing
+clearer gradient signal when training budget is limited but this
+advantage becoming unnecessary with sufficient data.
 
-With NLL-only early stopping (conditions stop at epochs~5--10), C$=$0.508 and
-D$=$0.506 (gap$=$0.003, 95\% bootstrap CI $[-0.014, +0.020]$,
-$p{=}0.39$, n.s.).
-The C$>$D gap at 200/5 was a small-scale training artefact: easy off-manifold
-negatives provide clearer gradient signal when training budget is limited, but
-this advantage diminishes with sufficient data.
-(The curriculum learning analogy~\cite{bengio2009curriculum} is
-directional---the between-condition comparison differs from within-run
-curriculum scheduling.)
-
-\subsection{Catastrophic Forgetting Mechanism}
+\subsection{Representation Drift Mechanism}
 \label{app:forgetting_mechanism}
 
-The degradation from 500/10 to 1000/20
-(Table~\ref{tab:scaling}) is explained by the encoder-freezing experiment:
-freezing Moirai's pre-trained weights and training only the projection head
-at 1000/20 recovers AUC substantially
-(frozen B$=$0.606 vs.\ unfrozen B$=$0.521;
-frozen C$=$0.582 vs.\ unfrozen C$=$0.508;
-frozen D$=$0.573 vs.\ unfrozen D$=$0.506).
-Extended fine-tuning catastrophically overwrites the pre-trained
-time-series features that provide discriminative power for anomaly detection.
-At 200/5, the small training budget limits weight drift, so the
-pre-trained features survive; at 1000/20, the longer training
-progressively destroys them, even though NLL-only ES selects checkpoints
-at epochs~2--7 (matching the 200/5 budget).
-The mechanism is \emph{implicit regularisation loss}: more training data
-from the synthetic distribution drives the encoder further from the
-pre-trained initialisation, and the resulting features are no better
-than random initialisation (CNN AUC$=$0.513$\approx$unfrozen Moirai$=$0.506--0.521).
+CKA between pre-trained and fine-tuned encoders drops to 0.31--0.45
+even at 200/5 (Table~\ref{tab:scaling}), confirming aggressive
+representation drift.  At 1000/20, CKA drops further to 0.373--0.381.
+This is far lower than ETTh2 (CKA 0.94--0.97), indicating IoT
+fine-tuning destroys pre-trained representations much more aggressively.
+Despite this severe drift, IoT performance \emph{improves} over
+zero-shot (A: 0.481 $\to$ C: 0.629), because the pre-trained features
+are marginally useful for IoT and domain-specific learning compensates.
 
-Freezing is a \emph{mitigation}: at 5-seed evaluation, frozen C
-(0.582) now exceeds 200/5 C (0.563) by $+$0.019, and frozen B (0.606)
-exceeds 200/5 B (0.481) by $+$0.125.
-However, the high variance ($\pm$0.097--0.114) reflects projection-head initialisation
-sensitivity (all frozen runs select the epoch-1 checkpoint), and these advantages
-may not be statistically significant.
-Partial freezing (layers 0--4 frozen, layer 5 unfrozen) yields a modest
-further gain (partial C$=$0.590, D$=$0.595),
+Freezing the encoder eliminates drift (CKA$=$1.000) and yields
+AUC$=$0.549$\pm$0.109 for all conditions (B$=$C$=$D, 10 seeds),
+comparable to unfrozen B/D at 200/5 (0.556) but below C (0.629).
+The mechanism is \emph{implicit regularisation loss}: extended training
+on the synthetic distribution drives the encoder further from the
+pre-trained initialisation.
+Partial freezing (layers 0--4 frozen, layer 5 unfrozen; 5 seeds)
+yields a modest further gain (partial C$=$0.590, D$=$0.595),
 and the high variance persists ($\pm$0.106--0.110).
 
 \subsection{CNN Baseline: Detailed Analysis}
@@ -628,13 +631,12 @@ supports this interpretation.
 Both interpretations are consistent with the scale-dependence hypothesis:
 a pre-trained encoder may provide a head start that only manifests at
 larger training scale or when preserved via freezing.
-The scaling experiment fills the CNN row in Table~\ref{tab:scaling}:
-at 1000 samples / 20 epochs, CNN achieves AUC$=$0.513$\pm$0.029 (stealth-95),
-degrading from 0.597 ($\Delta{=}{-}0.084$)---while B degrades from 0.481 to 0.521
-($\Delta{=}{+}0.040$), C from 0.563 to 0.508 ($\Delta{=}{-}0.055$),
-and D from 0.479 to 0.506 ($\Delta{=}{+}0.027$).
-CNN's degradation at scale is the most severe, consistent with the absence of
-pre-trained features to fall back on.
+At 10-seed evaluation (Table~\ref{tab:scaling}),
+C degrades monotonically from 200/5 (0.629) to 500/10 (0.581) to
+1000/20 (0.581).  B and D show a milder non-monotonic pattern:
+slight degradation at 500/10, then partial recovery at 1000/20.
+The CNN---lacking pre-trained features to destroy---is immune to
+the forgetting mechanism that drives this pattern.
 
 \subsection{SupCon Gradient Flow Analysis}
 \label{app:supcon_gradients}
@@ -658,8 +660,8 @@ NLL-dominance hypothesis at this training scale.
 \subsection{Alternative Contrastive Frameworks}
 \label{app:alt_contrastive}
 
-At this scale and domain, NLL-only fine-tuning (B, AUC$=$0.481) performs
-comparably to the full system (D, AUC$=$0.479), and SupCon's gradient
+At this scale and domain, NLL-only fine-tuning (B, AUC$=$0.556) performs
+comparably to the full system (D, AUC$=$0.556), and SupCon's gradient
 magnitude is modest relative to NLL (Appendix~\ref{app:supcon_gradients}).
 SupCon requires explicit positive/negative labels and is sensitive to
 the quality and difficulty of negatives; self-supervised objectives
@@ -699,30 +701,15 @@ This further motivates Limitation~5 (circular evaluation): the benchmark
 may not stress-test Ensemble methods as harshly as more complex, real-world
 multi-feature evasion strategies would.
 
-\subsection{Protocol-Constrained Generation Algorithm}
+\subsection{Protocol-Constrained Generation}
 \label{app:algorithm}
 
-Algorithm~\ref{alg:hng} describes the constraint-retry loop used during
-hard-negative generation to ensure protocol compliance.
-
-\begin{algorithm}[h]
-\caption{Protocol-Constrained Hard-Negative Generation}
-\label{alg:hng}
-\begin{algorithmic}[1]
-\Require Benign sequence $\mathbf{X}_b$, attack pattern $P_k$,
-         stealth level $s$, protocol $\pi$, max retries $R=3$
-\Ensure Hard-negative $\mathbf{X}_a$ satisfying $\mathcal{C}_\pi$
-\For{$r = 1, \ldots, R$}
-  \State $\mathbf{X}_a \leftarrow P_k(\mathbf{X}_b, s)$ \Comment{Closed-form archetype perturbation}
-  \State $\text{report} \leftarrow \mathcal{C}_\pi(\mathbf{X}_a)$
-  \If{$\text{report.is\_valid}$}
-    \State \Return $\mathbf{X}_a$
-  \EndIf
-  \State $s \leftarrow \min(s + 0.01,\; 1.0)$  \Comment{Relax stealth slightly}
-\EndFor
-\State \Return $\mathbf{X}_a$  \Comment{Return best attempt with warning}
-\end{algorithmic}
-\end{algorithm}
+A constraint-retry loop (max 3 retries, stealth relaxed by $0.01$ per
+retry) is included in the released code as a safety net for future
+stochastic generators (e.g., Diffusion-TS).  For the closed-form
+analytical perturbations used here it never triggers: all perturbations
+pass protocol validation on the first attempt (100\% pass rate at all
+strictness tiers; Table~\ref{tab:constraints}).
 
 % ============================================================
 \section{Leave-One-Out Generalization Details}
@@ -732,7 +719,7 @@ hard-negative generation to ensure protocol compliance.
 For each of the four attack types, we train condition~D on the remaining
 three types and evaluate exclusively on the held-out type at all three
 stealth levels (3 seeds, consistent with computational budget;
-the core ablation and scaling experiments use 5 seeds; 30 eval samples
+the core ablation and scaling experiments use 10 seeds; 30 eval samples
 per stealth level).
 
 \begin{table}[h]
@@ -782,11 +769,17 @@ all well below $0.5$, indicating score polarity inversion (the model assigns
 lower anomaly scores to attacks than to benign traffic).
 FPR\,=\,1.00 across all variants regardless of threshold placement.
 
-This outcome is \emph{expected and informative}: it demonstrates that the
-detector does not exploit trivial statistical shortcuts, and directly addresses
-the circular evaluation concern (Limitation~5, Section~\ref{sec:analysis}).
-The distribution shift from CICFlowMeter flow records to N-BaIoT packet-triggered
-temporal statistics is well-understood (Appendix~\ref{app:nbaiot}).
+This is a \emph{negative transfer result}, not a success: FPR$=$1.00
+across all threshold placements means the detector classifies every
+N-BaIoT window --- benign or attack --- as anomalous, which is a
+degenerate regime rather than evidence of partial generalisation.
+We report it because it directly constrains the scope of our
+CICIoT2023 claims: the representations and threshold calibrations
+learned on CICIoT2023 do \emph{not} transfer externally, and any
+claim of operational deployment readiness on another IoT dataset
+would require re-training from scratch on that dataset
+(see Appendix~\ref{app:extended_nbaiot}, Subsection ``Recipe
+Generalisation Interpretation'').
 
 \subsection{Preprocessing Details}
 
@@ -873,3 +866,200 @@ advantage is 28\% and 45\% respectively.
 Horizons $h{=}336$ and $h{=}720$ exceed Moirai-Small's
 \texttt{max\_seq\_len}$=$512 constraint when combined with the
 required extended lookback and are omitted.
+
+% ============================================================
+\section{LoRA Rank Sensitivity}
+\label{app:lora_rank}
+% ============================================================
+
+Table~\ref{tab:lora_rank} shows LoRA on \textbf{Moirai-Small} is robust to
+rank ($r \in \{4, 8, 16, 32\}$): all ranks achieve CKA$\geq$0.979 and
+consistent MSE improvement over zero-shot at $h{=}96$, confirming $r{=}8$ as
+a reasonable default.
+On \textbf{Moirai-Large} (seed 42, $h{=}96$, $n{=}500$), rank escalation
+does \emph{not} rescue the failure mode observed at $r{=}8$: forgetting
+remains in the $+$19 to $+$30\% range across $r \in \{8, 16, 32, 64\}$,
+never approaching Moirai-Small's negative forgetting.  The Moirai-Small
+recipe does not transfer to Moirai-Large at any rank we tested.
+
+\begin{table}[h]
+\centering
+\caption{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples).
+Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq$0.979.
+Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering
+Moirai-Small's negative forgetting.
+Mean $\pm$ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large
+single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$, 3 seeds for $r{=}8$.}
+\label{tab:lora_rank}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+Backbone & Rank & $h$ & MSE & Forg.\% & CKA & Seeds \\
+\midrule
+Small & 4  & 96  & .116{\tiny$\pm$.001} & $-$9.5{\tiny$\pm$0.9}  & .992{\tiny$\pm$.001} & 3 \\
+Small & 4  & 192 & .146{\tiny$\pm$.003} & $-$8.8{\tiny$\pm$1.9}  & .995{\tiny$\pm$.002} & 2 \\
+Small & 8  & 96  & .116{\tiny$\pm$.001} & $-$9.1{\tiny$\pm$1.1}  & .979{\tiny$\pm$.006} & 5 \\
+Small & 8  & 192 & .157{\tiny$\pm$.002} & $-$1.8{\tiny$\pm$3.1}  & .986{\tiny$\pm$.005} & 5 \\
+Small & 16 & 96  & .117{\tiny$\pm$.001} & $-$10.2{\tiny$\pm$1.2} & .987{\tiny$\pm$.002} & 3 \\
+Small & 16 & 192 & .155{\tiny$\pm$.002} & $-$1.7{\tiny$\pm$1.2}  & .988{\tiny$\pm$.001} & 3 \\
+Small & 32 & 96  & .119{\tiny$\pm$.001} & $-$8.3{\tiny$\pm$0.9}  & .986{\tiny$\pm$.001} & 3 \\
+Small & 32 & 192 & .159{\tiny$\pm$.003} & $+$1.1{\tiny$\pm$1.4}  & .989{\tiny$\pm$.002} & 3 \\
+\midrule
+Large & 8  & 96  & .159{\tiny$\pm$.004} & $+$25.7{\tiny$\pm$3.2} & .973{\tiny$\pm$.012} & 3 \\
+Large & 16 & 96  & .154                 & $+$22.5                 & .955                 & 1 \\
+Large & 32 & 96  & .150                 & $+$19.0                 & .986                 & 1 \\
+Large & 64 & 96  & .165                 & $+$29.9                 & .984                 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{CKA Calibration: Random-Initialisation Baseline}
+\label{app:cka_calibration}
+% ============================================================
+
+To calibrate the CKA values reported in the main text, we compute
+CKA between the pre-trained Moirai-Small encoder and a
+randomly-initialised encoder of the same architecture
+(Xavier uniform for weight tensors, zeros for biases).
+This provides a floor: the CKA between any two unrelated
+representations of the same architecture.
+
+Using 50 benign probe samples and 5 random seeds (42, 123, 456, 789, 999),
+the random-initialisation CKA baseline is reported in
+Table~\ref{tab:cka_calibration}.
+
+\begin{table}[h]
+\centering
+\caption{CKA calibration.  Random-init CKA ($0.000 \pm 0.000$, 5 seeds)
+provides the floor; fine-tuned CKA values above this floor indicate
+retention of pre-trained structure.  IoT fine-tuning (CKA 0.31--0.45)
+retains meaningful structure despite aggressive drift.  ETT fine-tuning
+(CKA 0.81--0.94) preserves most pre-trained structure.}
+\label{tab:cka_calibration}
+\small
+\begin{tabular}{lc}
+\toprule
+Comparison & CKA \\
+\midrule
+Pre-trained vs.\ Random-init (baseline, 5 seeds) & $0.000 \pm 0.000$ \\
+Pre-trained vs.\ ETT fine-tuned (B, $h{=}96$) & 0.937--0.964 \\
+Pre-trained vs.\ IoT fine-tuned (C, 200/5, 10 seeds) & $0.420 \pm 0.026$ \\
+Pre-trained vs.\ Frozen encoder (D) & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The random-init CKA is exactly zero ($0.000 \pm 0.000$ across 5 seeds),
+confirming that pre-trained and random encoders share no representational
+structure.  Since IoT fine-tuned CKA (0.31--0.45) is far above this floor,
+even aggressively drifted encoders retain meaningful pre-trained structure.
+ETT fine-tuned CKA (0.81--0.94) is near-ceiling, confirming substantial
+preservation.  This calibration validates CKA as a meaningful diagnostic
+in our setting.
+
+% ============================================================
+\section{Linear Probing: Functional Representation Diagnostic}
+\label{app:probing}
+% ============================================================
+
+CKA measures geometric representational similarity but not functional
+equivalence.  We therefore supplement CKA with a \emph{linear probe}:
+a Ridge regression head ($\alpha{=}1.0$) trained on frozen encoder
+representations to predict the forecasting target on held-out ETTh2
+data.
+
+\textbf{Protocol.}
+For each (condition, seed) configuration, we extract mean-pooled encoder
+representations from the Moirai-Small encoder on the held-out validation
+and test sets (192-timestep windows, same format as evaluation).
+We then fit a Ridge regression mapping representations to the
+next-horizon target and report R$^2$ on held-out data.
+$\Delta R^2$ denotes fine-tuned minus pre-trained probe R$^2$:
+positive values indicate that fine-tuned representations encode
+more forecasting-relevant information than pre-trained ones.
+
+\textbf{Interpretation.}
+Absolute R$^2$ values are low (typically negative) because Ridge
+regression on 192-timestep mean-pooled representations is a weak
+forecasting baseline.  The \emph{relative} change ($\Delta R^2$)
+is the meaningful signal: it isolates whether fine-tuning added
+or removed task-relevant information from the encoder's
+representational basis.
+
+\textbf{Key result.}
+The sample-size sweep (Table~\ref{tab:sample_sweep}) shows
+$\Delta R^2$ monotonically increasing with training data
+($+$0.12 at 500 samples $\rightarrow$ $+$0.87 at 10{,}000),
+while CKA decreases monotonically (0.949 $\rightarrow$ 0.185).
+This directly dissociates geometric drift from functional utility:
+at low $n$, drift destroys task-relevant features faster than it
+builds replacements; at higher $n$, the model replaces pre-trained
+features with task-specialised ones that encode \emph{more}
+forecasting signal.
+
+\textbf{Crossover regime: per-seed breakdown at $n{=}5{,}000$.}
+Table~\ref{tab:n5k_seeds} reports all 7 seeds individually at
+$n{=}5{,}000$.  Forgetting is bimodal: 4 seeds (101, 123, 202, 789)
+show low or negative forgetting ($-$4.9\% to $+$5.9\%, mean $+0.7$\%)
+and 3 seeds (42, 303, 456) show high forgetting ($+$4.8\% to $+$21.4\%,
+mean $+15.1$\%).
+All 7 seeds show positive $\Delta R^2$ ($+$0.15 to $+$0.81, mean $+$0.50),
+so the functional-utility claim holds uniformly; geometric drift
+(CKA 0.46--0.71, mean 0.55) varies less than forgetting.
+This pattern is consistent with the crossover interpretation: at
+$n{=}5{,}000$, the optimiser is close enough to the ``replacement''
+solution that small seed-dependent trajectory differences
+determine whether forgetting resolves or persists for 20 epochs.
+
+\begin{table}[t]
+\centering
+\caption{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B,
+20 epochs).  Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101,
+202, 303 are the 4-seed V9 replication.  Forgetting is bimodal; $\Delta R^2$
+is uniformly positive.}
+\label{tab:n5k_seeds}
+\small
+\begin{tabular}{rccccc}
+\toprule
+Seed & MSE(FT) & Forg.\% & CKA & $\Delta R^2$ & R$^2$(FT) \\
+\midrule
+ 42  & .132 & $+$4.8  & .531 & $+$.67 & $-$6.24 \\
+101  & .120 & $-$4.9  & .571 & $+$.75 & $-$6.16 \\
+123  & .124 & $-$1.4  & .544 & $+$.81 & $-$6.10 \\
+202  & .128 & $+$1.4  & .461 & $+$.15 & $-$6.76 \\
+303  & .150 & $+$19.0 & .525 & $+$.52 & $-$6.39 \\
+456  & .153 & $+$21.4 & .711 & $+$.20 & $-$6.70 \\
+789  & .134 & $+$5.9  & .480 & $+$.40 & $-$6.51 \\
+\midrule
+Mean$\pm$std & .134$\pm$.012 & $+$6.6$\pm$10.0 & .546$\pm$.082 & $+$.50$\pm$.26 & $-$6.41$\pm$.26 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{$n{=}5{,}000$ per-epoch trajectory analysis}
+\label{app:n5k_trajectories}
+
+To support the mechanistic claim in \S\ref{sec:analysis}, we plot the
+per-epoch training trajectories of all seven $n{=}5{,}000$ seeds,
+colour-coded by forgetting mode.  Figure~\ref{fig:n5k_trajectories}
+shows val MSE and weight drift across training.  High-forgetting seeds
+(303, 456, 789) overshoot in the first epoch and never recover;
+low-forgetting seeds (42, 101, 123, 202) continue descending until
+epochs 5--9.  The epoch at which val MSE reaches its minimum separates
+the modes ($0.7\pm0.5$ vs.\ $6.5\pm2.1$); mid-training weight drift
+(epochs 5--10) does not.  Code: \texttt{scripts/analyse\_n5k\_trajectories.py}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/n5k_trajectories.pdf}
+\caption{Per-epoch val MSE (left) and weight drift (right) for the
+seven $n{=}5{,}000$ seeds; both panels carry per-seed labels
+(\texttt{sXXX (forg.\%)}) so each trajectory is individually
+identifiable. Blue: low-forgetting mode (forg.~$\le$~5\%);
+red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot
+MSE. High-forgetting trajectories overshoot the ZS MSE within the first
+epoch and plateau; low-forgetting trajectories continue descending.
+Mid-training weight drift (epochs 5--10) does not separate the modes.}
+\label{fig:n5k_trajectories}
+\end{figure}

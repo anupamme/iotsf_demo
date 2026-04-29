@@ -210,6 +210,58 @@ class ETTh1Loader:
         return context, target, scaler_params
 
 
+class WeatherLoader(ETTh1Loader):
+    """
+    Loader for the Autoformer/Informer Weather benchmark (Jena climate).
+
+    14 features (13 meteorological + OT=temperature target), hourly resolution
+    from 10-min raw, 7:1:2 train/val/test split per LTSF convention.
+    """
+
+    FEATURE_COLUMNS = [
+        'p (mbar)', 'Tpot (K)', 'Tdew (degC)', 'rh (%)', 'VPmax (mbar)',
+        'VPact (mbar)', 'VPdef (mbar)', 'sh (g/kg)', 'H2OC (mmol/mol)',
+        'rho (g/m**3)', 'wv (m/s)', 'max. wv (m/s)', 'wd (deg)', 'OT'
+    ]
+
+    def get_splits(
+        self,
+        train_ratio: float = 0.7,
+        val_ratio: float = 0.1,
+        test_ratio: float = 0.2,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        return super().get_splits(train_ratio, val_ratio, test_ratio)
+
+
+class ElectricityLoader(ETTh1Loader):
+    """
+    Loader for the Autoformer/Informer Electricity benchmark.
+
+    370 hourly series (MT_001..MT_370) over 26,208 timesteps; the last column
+    (MT_370, renamed OT) is the canonical target per LTSF convention.
+    """
+
+    FEATURE_COLUMNS = [f"MT_{i:03d}" for i in range(1, 370)] + ['OT']
+
+    def get_splits(
+        self,
+        train_ratio: float = 0.7,
+        val_ratio: float = 0.1,
+        test_ratio: float = 0.2,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        return super().get_splits(train_ratio, val_ratio, test_ratio)
+
+
+def get_forecasting_loader(data_path: str, **kwargs):
+    """Factory: pick loader by filename stem."""
+    stem = Path(data_path).stem.lower()
+    if stem.startswith('weather'):
+        return WeatherLoader(data_path, **kwargs)
+    if stem.startswith('electricity'):
+        return ElectricityLoader(data_path, **kwargs)
+    return ETTh1Loader(data_path, **kwargs)
+
+
 class ForecastingDataset(Dataset):
     """
     PyTorch Dataset wrapper for forecasting sequences.

@@ -1,11 +1,13 @@
 % ============================================================
-\section{\ours{}: Methodology}
+\section{Fine-Tuning Protocol}
 \label{sec:method}
 % ============================================================
 
-Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline:
-(1) protocol-constrained hard-negative generation and
-(2) supervised contrastive fine-tuning of Moirai.
+This section describes the Moirai fine-tuning protocol shared by both
+the forecasting (Section~\ref{sec:forecasting}) and IoT
+(Section~\ref{sec:iot}) experiments.
+The IoT-specific hard-negative generation pipeline is described
+in Section~\ref{sec:experiments:setup}.
 
 % --- Figure 1: Architecture ---
 \begin{figure}[t]
@@ -14,35 +16,12 @@ Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline:
   \caption{
     \ours{} architecture.
     \textbf{Stage 1}: Closed-form perturbation generates hard-negative sequences
-    with a constraint-retry loop ensuring protocol validity (Algorithm~\ref{alg:hng},
-    Appendix~\ref{app:algorithm}).
+    with a constraint-retry loop ensuring protocol validity
+    (Appendix~\ref{app:algorithm}).
     \textbf{Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss.
   }
   \label{fig:architecture}
 \end{figure}
-
-% ============================================================
-\subsection{Stage 1: Protocol-Constrained Hard-Negative Generation}
-\label{sec:method:gen}
-% ============================================================
-
-We synthesise hard-negative attacks via closed-form perturbations
-(Eqs.~\ref{eq:slow}--\ref{eq:proto}): given benign $\mathbf{X}_b$,
-pattern $P_k$, and stealth $s$, the hard-negative is
-$\mathbf{X}_a = P_k(\mathbf{X}_b, s)$.
-Each perturbation is deterministic and CPU-reproducible ($<$2\,s/sample).
-
-Raw generated samples may violate IoT protocol specifications.
-A constraint-retry loop (Algorithm~\ref{alg:hng},
-Appendix~\ref{app:algorithm}) iterates up to $R{=}3$ times, relaxing
-stealth by $+$0.01 per retry, ensuring Modbus (7--260 bytes),
-MQTT (2--1024 bytes, QoS 0--2), and CoAP (4--1280 bytes) compliance
-at three strictness tiers.
-
-% ============================================================
-\subsection{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}
-\label{sec:method:finetune}
-% ============================================================
 
 \textbf{Moirai for anomaly scoring.}
 Moirai~\cite{woo2024moirai} predicts a distribution over
@@ -51,8 +30,9 @@ The anomaly score is the fraction of timesteps falling outside the
 $1{-}\alpha$ CI ($\alpha{=}0.05$):
 \begin{equation}
   \hat{s}(\mathbf{X}) = \frac{1}{T'}\sum_{t=97}^{128}
-    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right].
+    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right],
 \end{equation}
+where $T' = 128 - 96 = 32$ is the scored-horizon length.
 A sample is classified as an attack if $\hat{s}(\mathbf{X}) > \delta$,
 where $\delta$ is calibrated on a benign validation set
 (Section~\ref{sec:experiments:setup}).
@@ -75,7 +55,27 @@ $h_\phi: \R^{384} \to \R^{256} \to \text{ReLU} \to \R^{128}$.
 AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$),
 batch size 32, up to 10 epochs (5 in the main ablation,
 10--20 in scaling experiments), early stopping (patience 3),
-gradient clipping at 1.0.  Moirai-Small (13.8M parameters).\footnote{%
-  An in-place tensor operation in \texttt{uni2ts} \texttt{PackedStdScaler}
-  was replaced with a differentiable \texttt{torch.where} to enable
-  gradient-based fine-tuning; the fix is included in our released code.}
+gradient clipping at 1.0.
+All model sizes (Small 13.8M, Base 91M, Large 311M) use the same
+protocol.
+
+\textbf{uni2ts PackedStdScaler patch.}
+We identified and patched an in-place tensor mutation in \texttt{uni2ts}'s
+\texttt{PackedStdScaler} that silently detaches autograd on losses
+depending on scaled statistics; a differentiable \texttt{torch.where}
+replaces the in-place write.  All fine-tuning results here use the
+patched scaler (released with our code); unpatched \texttt{uni2ts}
+runs may converge differently.
+
+\textbf{Representation diagnostics.}
+We track representation drift with three complementary metrics:
+(1)~CKA (Centered Kernel Alignment)~\cite{kornblith2019cka} between
+pre-trained and fine-tuned encoder representations---a geometric
+similarity measure;
+(2)~linear probing R$^2$ (Ridge regression on frozen representations
+predicting the forecasting target)---a \emph{functional} measure of
+feature preservation; and
+(3)~weight drift ($\ell_2$ distance from pre-trained parameters).
+A random-initialisation CKA baseline ($<$0.001;
+Appendix~\ref{app:cka_calibration}) confirms our measurements are
+meaningful.

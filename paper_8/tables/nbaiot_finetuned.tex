@@ -11,11 +11,16 @@
   \textbf{Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise
   negatives (condition~C protocol, 310 training windows, 5 epochs,
   $\sigma{=}0.3$).
-  Fine-tuning on target-domain benign data recovers strong discrimination
-  (overall AUC$=$\nbaiotAUC{}), confirming that the zero-shot failure is a
-  distribution-shift artifact.
-  The high FPR (0.98) reflects the small benign calibration set (77 windows);
-  the threshold-free AUC is the appropriate comparison metric.
+  Fine-tuning on target-domain benign data recovers ranking ability
+  (overall AUC$=$\nbaiotAUC{}), but the uniform FPR$=$0.98 indicates
+  \emph{degenerate threshold calibration} from only 77 benign windows
+  --- the model essentially flags all traffic.
+  AUC (threshold-free) is the appropriate metric here; it reflects
+  that fine-tuned anomaly scores successfully separate attack from
+  benign traffic \emph{in ranking}, even though the calibrated threshold
+  is not useful operationally.
+  These results demonstrate recipe transferability (the fine-tuning
+  protocol works on new data) but not deployment readiness.
 }
 \label{tab:nbaiot_finetuned}
 \begin{tabular}{lcc|cc}

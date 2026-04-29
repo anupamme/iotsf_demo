@@ -1,39 +1,38 @@
-% Table: Scaling Experiment
-% Six regimes: 200/5 (original), 500/10 NLL-ES, 1000/20 NLL-only ES,
-%              1000/20 frozen encoder, 1000/20 partial freeze
-% All stealth-95, benign-calibrated threshold, 5 seeds
+% Table: Scaling Experiment (10 seeds throughout)
+% Sources: ablation_10seed (200/5), ablation_500_es_10seed (500/10),
+%          ablation_scaled_es_10seed (1000/20), ablation_frozen_es_10seed (frozen)
+% CKA: single-seed from results/weight_drift_v2.json
 
 \begin{table}[h]
 \centering
 \caption{
-  Scale degradation and encoder-freezing experiment (stealth-95, 5 seeds,
-  benign-calibrated threshold).  All columns report AUC and F1 (mean$\pm$std across seeds).
-  200/5 baseline uses 5 seeds; 500/10 and 1000/20 use NLL-only early stopping.
-  \emph{Frozen}: all Moirai encoder weights frozen, only projection head trained.
-  \emph{Partial}: layers 0--4 frozen, layer 5 $+$ encoder norm $+$ \texttt{param\_proj} unfrozen.
+  Scale-dependent forgetting on IoT anomaly detection (stealth-95, 10 seeds,
+  benign-calibrated threshold).
+  All columns report AUC and F1 (mean$\pm$std).
+  \emph{Frozen}: all encoder weights frozen, only projection head trained at 1000/20.
+  CKA measures representation similarity to pre-trained encoder (1.0$=$identical);
+  multi-seed CKA reported in \S\ref{sec:iot}.
   \textbf{Key findings}:
-  (1)~At 5-seed evaluation, 500/10 \emph{improves} over 200/5 for all conditions;
-  degradation occurs from 500/10$\to$1000/20, suggesting 200/5 is under-trained.
-  (2)~Under NLL-only ES the C$>$D gap collapses to near-zero (n.s.) at 1000/20.
-  (3)~Freezing the encoder at 1000/20 recovers AUC, often exceeding the 200/5
-  baseline, confirming \textbf{catastrophic forgetting} of pre-trained features at scale.
-  (4)~Frozen AUC recovery does not translate to F1 recovery under calibrated thresholds.
+  (1)~C degrades monotonically from 200/5 to 1000/20;
+  B and D show mild non-monotonic pattern.
+  (2)~The C$>$D gap narrows from $+$0.073 (200/5) to $+$0.024 (1000/20).
+  (3)~Frozen encoder converges to 0.549 regardless of condition,
+  confirming pre-trained features are equally useful (or useless) for all objectives.
+  (4)~CKA drops to 0.31--0.45 across conditions and scales, indicating aggressive representation drift.
 }
 \label{tab:scaling}
 \small
 \begin{tabular}{@{}llcccccccccc@{}}
 \toprule
-& & \multicolumn{2}{c}{200\,/\,5} & \multicolumn{2}{c}{500\,/\,10} & \multicolumn{2}{c}{1000\,/\,20} & \multicolumn{2}{c}{Frozen} & \multicolumn{2}{c}{Partial} \\
-\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
-Cond. & Description & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 \\
+& & \multicolumn{2}{c}{200\,/\,5} & \multicolumn{2}{c}{500\,/\,10} & \multicolumn{2}{c}{1000\,/\,20} & \multicolumn{2}{c}{Frozen} & CKA \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-11}
+Cond. & Description & AUC & F1 & AUC & F1 & AUC & F1 & AUC & F1 & (1k) \\
 \midrule
-B      & NLL only                & $.481_{\pm.127}$ & $.131_{\pm.061}$ & $.538_{\pm.038}$ & $.250_{\pm.073}$ & $.521_{\pm.024}$ & $.177_{\pm.031}$ & $.606_{\pm.114}$ & $.130_{\pm.094}$ & $.599_{\pm.111}$ & $.173_{\pm.068}$ \\
-C      & SupCon $+$ Gaussian     & $.563_{\pm.122}$ & $.250_{\pm.135}$ & $.592_{\pm.063}$ & $.280_{\pm.101}$ & $.508_{\pm.041}$ & $.175_{\pm.048}$ & $.582_{\pm.099}$ & $.148_{\pm.097}$ & $.590_{\pm.106}$ & $.153_{\pm.058}$ \\
-C$'$   & SupCon $+$ hard neg 1:1 & $.534_{\pm.125}$ & $.183_{\pm.084}$ & $.580_{\pm.064}$ & $.265_{\pm.121}$ & $.508_{\pm.025}$ & $.158_{\pm.040}$ & \multicolumn{2}{c}{---} & \multicolumn{2}{c}{---} \\
-CNN    & 1D-CNN from scratch     & $.597_{\pm.096}$ & $.236_{\pm.069}$ & \multicolumn{2}{c}{---} & $.513_{\pm.029}$ & $.207_{\pm.017}$ & \multicolumn{2}{c}{(n/a)} & \multicolumn{2}{c}{(n/a)} \\
-D      & Hard neg 1:12 (\ours{}) & $.479_{\pm.123}$ & $.137_{\pm.086}$ & $.547_{\pm.044}$ & $.250_{\pm.073}$ & $.506_{\pm.029}$ & $.164_{\pm.059}$ & $.573_{\pm.097}$ & $.144_{\pm.081}$ & $.595_{\pm.110}$ & $.166_{\pm.055}$ \\
+B      & NLL only                & $.556_{\pm.021}$ & $.174_{\pm.024}$ & $.535_{\pm.065}$ & $.187_{\pm.106}$ & $.550_{\pm.088}$ & $.192_{\pm.071}$ & $.549_{\pm.109}$ & $.152_{\pm.077}$ & --- \\
+C      & SupCon $+$ Gaussian     & $\mathbf{.629}_{\pm.022}$ & $\mathbf{.262}_{\pm.043}$ & $.581_{\pm.075}$ & $.197_{\pm.134}$ & $.581_{\pm.082}$ & $.206_{\pm.080}$ & $.549_{\pm.109}$ & $.152_{\pm.077}$ & .373 \\
+D      & Hard neg 1:12 (\ours{}) & $.556_{\pm.021}$ & $.176_{\pm.032}$ & $.536_{\pm.065}$ & $.197_{\pm.117}$ & $.557_{\pm.088}$ & $.167_{\pm.065}$ & $.549_{\pm.109}$ & $.152_{\pm.077}$ & .381 \\
 \bottomrule
-\multicolumn{12}{@{}l}{\scriptsize ``---'': configuration not run (lower-priority condition).
-``(n/a)'': inapplicable (CNN has no pre-training to freeze).} \\
+\multicolumn{11}{@{}l}{\scriptsize CKA column: linear CKA between pre-trained and fine-tuned encoder at 1000/20 (see Appendix~\ref{app:forgetting_mechanism}; multi-seed CKA in \S\ref{sec:iot}).} \\
+\multicolumn{11}{@{}l}{\scriptsize Frozen B$=$C$=$D because with the encoder frozen, only the projection head trains---same architecture and initialisation.} \\
 \end{tabular}
 \end{table}

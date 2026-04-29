@@ -29,8 +29,8 @@ Cond. & Description & F1 & FPR & AUC & F1 & AUC \\
 A      & Moirai zero-shot                                   & $0.137_{\pm.020}$ & $0.063$ & $0.481_{\pm.042}$ & $0.112_{\pm.026}$ & $0.504_{\pm.052}$ \\
 B      & $+$ Fine-tune, NLL only                            & $0.174_{\pm.024}$ & $0.060$ & $0.556_{\pm.021}$ & $0.216_{\pm.042}$ & $0.589_{\pm.047}$ \\
 C      & $+$ SupCon (Gaussian-noise neg., 1:1)              & $0.262_{\pm.043}$ & $0.068$ & $0.629_{\pm.022}$ & $0.295_{\pm.029}$ & $0.661_{\pm.043}$ \\
-C$'$   & $+$ SupCon (balanced hard neg., 1:1)$^\star$       & $0.241_{\pm.043}$ & $0.063$ & $0.610_{\pm.025}$ & $0.285_{\pm.026}$ & $0.638_{\pm.048}$ \\
-D      & $+$ Hard negatives, 1:12 (\ours{}$^\dagger$)       & $0.176_{\pm.032}$ & $0.060$ & $0.556_{\pm.021}$ & $0.217_{\pm.044}$ & $0.589_{\pm.047}$ \\
+C$'$   & $+$ SupCon (balanced stealth-ctrl neg., 1:1)$^\star$       & $0.241_{\pm.043}$ & $0.063$ & $0.610_{\pm.025}$ & $0.285_{\pm.026}$ & $0.638_{\pm.048}$ \\
+D      & $+$ Stealth-ctrl neg., 1:12 (\ours{}$^\dagger$)       & $0.176_{\pm.032}$ & $0.060$ & $0.556_{\pm.021}$ & $0.217_{\pm.044}$ & $0.589_{\pm.047}$ \\
 D-DiffTS & $+$ Learned negatives (Diffusion-TS)$^\diamondsuit$ & $0.213_{\pm.118}$ & $0.050$ & $0.621_{\pm.056}$ & $0.403_{\pm.089}$ & $0.708_{\pm.072}$ \\
 CNN    & 1D-CNN from scratch, MSE$+$SupCon$^\P$             & $0.269_{\pm.044}$ & $0.048$ & $0.580_{\pm.023}$ & $0.362_{\pm.049}$ & $0.625_{\pm.045}$ \\
 CNN-NLL & 1D-CNN from scratch, NLL$+$SupCon$^\P$            & $0.288_{\pm.054}$ & $0.050$ & $0.598_{\pm.041}$ & $0.381_{\pm.052}$ & $0.662_{\pm.037}$ \\
@@ -46,10 +46,10 @@ E$''$ & D \emph{with} constraints, w/o retry$^\S$     & \multicolumn{5}{c}{$\equ
 \vspace{2pt}
 \begin{flushleft}
 \footnotesize
-$\star$ C$'$ uses the same hard negatives as D, but subsampled to match the benign count (1:1 ratio), isolating negative \emph{type} from dataset \emph{size/balance}. \\
-$\dagger$ Full system: NLL$+$SupCon, hard negatives, protocol constraint validator, stealth-floor retry. \\
+$\star$ C$'$ uses the same stealth-controlled negatives as D, but subsampled to match the benign count (1:1 ratio), isolating negative \emph{type} from dataset \emph{size/balance}. \\
+$\dagger$ Full system: NLL$+$SupCon, stealth-controlled negatives, protocol constraint validator, stealth-floor retry. \\
 $\diamondsuit$ D-DiffTS: same pipeline as D but with Diffusion-TS-generated base samples and post-hoc statistical guidance (Section~\ref{sec:method:diffts}). 10 seeds. \\
-$\P$ CNN/CNN-NLL: 3-layer 1D-CNN (2.3M parameters) trained from scratch with SupCon and hard-negative data as D; no Moirai pre-training. CNN uses MSE reconstruction; CNN-NLL uses Gaussian NLL (Section~\ref{sec:experiments:ablation}). \\
+$\P$ CNN/CNN-NLL: 3-layer 1D-CNN (2.3M parameters) trained from scratch with SupCon and stealth-controlled negative data as D; no Moirai pre-training. CNN uses MSE reconstruction; CNN-NLL uses Gaussian NLL (Section~\ref{sec:experiments:ablation}). \\
 $\ddagger$ E$'$ uses unconditional retry (s$_{\text{eff}}\approx$0.97 vs.\ requested s$=$0.95); isolates constraint-validator contribution. \\
 $\S$ E$''$ activates the constraint validator but exits the retry loop after one attempt; for analytical perturbations (100\% pass-rate), E$''$ $\equiv$ D and no experimental run is needed.
 \end{flushleft}

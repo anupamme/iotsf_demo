@@ -12,14 +12,14 @@
   Detection performance across all methods at three stealth levels (200 eval samples per class,
   benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq$ 0.05).
   \textbf{All nine baselines are unsupervised} (benign-only training, 10 seeds);
-  \textbf{\ours{} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives
+  \textbf{\ours{} conditions A--D are supervised} (labeled stealth-controlled negatives or Gaussian-noise negatives
   provided during training, 10 seeds matching Table~\ref{tab:ablation}).
   See Appendix~\ref{app:supervision} for the supervision discussion.
   \textbf{Bold}: best calibrated (non-degenerate) value per column.
   \underline{Underline}: second-best calibrated value per column.
   Threshold IDS and Statistical IDS are marked $\ddagger$: their high F1 arises from
   near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection.
-  Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design.
+  Signature IDS F1 $= 0$ because synthetic stealth-controlled negatives lie outside its rule database by design.
   Bold/underline exclude zero-shot A (near-chance detection, AUC$=$0.481).
   $\dagger$ marks our proposed system; Table~\ref{tab:ablation} gives the full ablation.
 }
@@ -49,7 +49,7 @@ PatchTST-Anomaly    & 0.123 & 0.055 & 0.175 & 0.070 & 0.162 & 0.083 & 0.132 & 0.
 \ours{}$^\dagger$ hard-neg (D) & \underline{0.217} & 0.063 & \underline{0.280} & 0.068 & \underline{0.176} & 0.043 & \underline{0.176} & 0.060 \\
 \ours{}$^\dagger$ SupCon-noise (C) & \textbf{0.295} & 0.053 & \textbf{0.360} & 0.070 & \textbf{0.267} & \underline{0.035} & \textbf{0.262} & 0.068 \\
 \bottomrule
-\multicolumn{9}{@{}l}{\scriptsize $^*$Grid-search tuning (Appendix~\ref{app:baseline_tuning}): best tuned AUC$=$0.565 (USAD); ranking unchanged.} \\
+\multicolumn{9}{@{}l}{\scriptsize $^*$Grid-search tuning (Appendix~\ref{app:baseline_grid}): best tuned AUC$=$0.565 (USAD); ranking unchanged.} \\
 \multicolumn{9}{@{}l}{\scriptsize $\|$ A's combined FPR$=$0.068 with F1$=$0.112 reflects near-chance detection, not calibrated low-FPR performance.} \\
 \end{tabular}
 }

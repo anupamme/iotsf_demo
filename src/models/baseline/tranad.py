@@ -132,9 +132,14 @@ class TranADIDS(BaseIDS):
         self.batch_size = batch_size
         self.lr = lr
 
-        self._device = torch.device(
-            device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        )
+        if device:
+            self._device = torch.device(device)
+        elif torch.cuda.is_available():
+            self._device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            self._device = torch.device('mps')
+        else:
+            self._device = torch.device('cpu')
         self._input_proj: Optional[nn.Linear] = None
         self._pos_enc: Optional[_PositionalEncoding] = None
         self._enc: Optional[_TransformerEncoder] = None

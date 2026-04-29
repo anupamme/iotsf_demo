@@ -633,6 +633,10 @@ def main():
         help="L2-SP regularization weight penalizing drift from pretrained weights. "
              "0.0 = disabled (default). Typical values: 0.01 or 0.1."
     )
+    parser.add_argument(
+        "--device", default="auto",
+        help="Device for computation ('auto', 'cuda', or 'cpu'). Default: auto."
+    )
     args = parser.parse_args()
 
     seeds = [int(s.strip()) for s in args.seeds.split(",")]
@@ -673,6 +677,7 @@ def main():
                 context_length=96,
                 prediction_length=32,
                 confidence_level=0.95,
+                device=args.device,
             )
             ft_kwargs = dict(
                 synthetic_dir=args.synthetic_dir,
@@ -720,7 +725,8 @@ def main():
             # Re-run condition D with seed[0] to get a live detector
             rng = np.random.default_rng(seeds[0])
             detector_kwargs_d = dict(model_size=args.model_size, context_length=96,
-                                     prediction_length=32, confidence_level=0.95)
+                                     prediction_length=32, confidence_level=0.95,
+                                     device=args.device)
             ft_kwargs_d = dict(synthetic_dir=args.synthetic_dir, epochs=args.epochs,
                                batch_size=args.batch_size, lr=args.lr)
             det = MoiraiAnomalyDetector(**detector_kwargs_d)

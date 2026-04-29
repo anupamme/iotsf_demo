@@ -8,7 +8,7 @@
   External validation on N-BaIoT (Danmini doorbell device, 3 seeds,
   39 windows per attack class, 7 benign-validation windows).
   \ours{} (condition D) is trained solely on CICIoT2023 with analyst-specified
-  hard negatives; no N-BaIoT data is used at any stage of training or
+  stealth-controlled negatives; no N-BaIoT data is used at any stage of training or
   scaler fitting.
   The threshold is calibrated on a held-out N-BaIoT benign validation set.
   Attack types are Mirai and BASHLITE (gafgyt) botnet variants distinct
@@ -17,26 +17,27 @@
   assigns lower anomaly scores to attack traffic than to benign traffic
   under the cross-dataset distribution shift, confirming that
   zero-shot transfer from CICIoT2023 to N-BaIoT is poor.
-  FPR\,=\,1.00 across all rows reflects the degenerate decision boundary
-  arising from this score collapse.
+  F1 is omitted because FPR\,=\,1.00 across all rows (degenerate decision
+  boundary); the 39:7 attack-to-benign ratio means predicting all windows as
+  attacks achieves F1\,$\approx$\,0.92, making F1 uninformative.
 }
 \label{tab:nbaiot}
-\begin{tabular}{lccc}
+\begin{tabular}{lcc}
 \toprule
-Attack Type & F1 & FPR & AUC \\
+Attack Type & FPR & AUC \\
 \midrule
-Mirai Scan         & $0.873 \pm 0.007$ & 1.00 & $0.176 \pm 0.024$ \\
-Mirai Ack Flood    & $0.918 \pm 0.000$ & 1.00 & $0.284 \pm 0.127$ \\
-Mirai Syn Flood    & $0.918 \pm 0.000$ & 1.00 & $0.167 \pm 0.066$ \\
-Mirai UDP Flood    & $0.918 \pm 0.000$ & 1.00 & $0.282 \pm 0.104$ \\
-Mirai UDP Plain    & $0.918 \pm 0.000$ & 1.00 & $0.201 \pm 0.083$ \\
-BASHLITE Scan      & $0.900 \pm 0.006$ & 1.00 & $0.093 \pm 0.019$ \\
-BASHLITE Junk      & $0.918 \pm 0.000$ & 1.00 & $0.020 \pm 0.010$ \\
-BASHLITE TCP Flood & $0.887 \pm 0.006$ & 1.00 & $0.051 \pm 0.065$ \\
-BASHLITE UDP Flood & $0.905 \pm 0.000$ & 1.00 & $0.055 \pm 0.070$ \\
-BASHLITE Combo     & $0.918 \pm 0.000$ & 1.00 & $0.013 \pm 0.011$ \\
+Mirai Scan         & 1.00 & $0.176 \pm 0.024$ \\
+Mirai Ack Flood    & 1.00 & $0.284 \pm 0.127$ \\
+Mirai Syn Flood    & 1.00 & $0.167 \pm 0.066$ \\
+Mirai UDP Flood    & 1.00 & $0.282 \pm 0.104$ \\
+Mirai UDP Plain    & 1.00 & $0.201 \pm 0.083$ \\
+BASHLITE Scan      & 1.00 & $0.093 \pm 0.019$ \\
+BASHLITE Junk      & 1.00 & $0.020 \pm 0.010$ \\
+BASHLITE TCP Flood & 1.00 & $0.051 \pm 0.065$ \\
+BASHLITE UDP Flood & 1.00 & $0.055 \pm 0.070$ \\
+BASHLITE Combo     & 1.00 & $0.013 \pm 0.011$ \\
 \midrule
-\textbf{All attacks (overall)} & $\mathbf{0.981 \pm 0.000}$ & \textbf{1.00} & $\mathbf{0.134 \pm 0.051}$ \\
+\textbf{All attacks (overall)} & \textbf{1.00} & $\mathbf{0.134 \pm 0.051}$ \\
 \bottomrule
 \end{tabular}
 \vspace{2pt}
@@ -44,9 +45,7 @@ BASHLITE Combo     & $0.918 \pm 0.000$ & 1.00 & $0.013 \pm 0.011$ \\
 \footnotesize
 The feature mapping from N-BaIoT's 115 features to the 12-dimensional \ours{}
 input space is documented in Appendix~\ref{app:nbaiot}.
-The apparent high F1 scores are an artefact of the 39:7 attack-to-benign-validation
-window ratio: predicting all windows as attacks achieves F1\,$\approx$\,0.92.
-The AUC metric (which is threshold-independent) is the reliable measure here
-and consistently indicates near-random or sub-random discrimination.
+AUC (threshold-independent) is the reliable metric here; all AUC $<$ 0.5
+values indicate inverted score polarity under distribution shift.
 \end{flushleft}
 \end{table}

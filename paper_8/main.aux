@@ -3,207 +3,245 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{woo2024moirai}
-\citation{meidan2018n}
-\citation{iotanalyticsmarket2023}
 \citation{woo2024moirai}
-\citation{khosla2020supcon}
+\citation{ansari2024chronos}
+\citation{das2024timeseries}
+\citation{goswami2024moment}
+\citation{woo2024moirai}
+\citation{kirkpatrick2017ewc,li2017lwf}
+\citation{luo2024forgetting}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\citation{khosla2020supcon}
+\citation{hu2022lora}
+\citation{li2018l2sp}
+\citation{kirkpatrick2017ewc}
+\citation{zhou2021informer}
 \citation{liu2012isolation}
 \citation{garcia2014empirical}
-\citation{neto2023ciciot}
 \citation{audibert2020usad}
 \citation{tuli2022tranad}
 \citation{xu2022anomaly}
 \citation{nie2023patchtst}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
-\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
-\citation{lin2018idsgan}
-\citation{yoon2019timegan}
+\citation{neto2023ciciot}
+\citation{lin2022idsgan}
 \citation{zhang2024diffusionts}
-\citation{goodfellow2015adversarial}
-\citation{madry2018pgd}
+\citation{goodfellow2015adversarial,madry2018pgd}
 \citation{woo2024moirai}
-\citation{goswami2024moment}
-\citation{das2024timeseries}
+\citation{kirkpatrick2017ewc,li2017lwf}
+\citation{luo2024forgetting}
+\citation{li2018l2sp}
+\citation{hu2022lora}
+\citation{hewitt2019structural}
+\citation{pimentel2020information}
+\citation{kornblith2019cka}
 \citation{khosla2020supcon}
-\citation{sohn2020fixmatch}
 \citation{eldele2021ts2vec}
-\citation{reiss2021panda}
+\citation{woo2024moirai}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{3}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{3}{Related Work}{section.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Problem Formulation}{3}{section.3}\protected@file@percent }
 \newlabel{sec:problem}{{3}{3}{Problem Formulation}{section.3}{}}
-\newlabel{eq:stealth}{{1}{3}{Problem Formulation}{equation.1}{}}
-\newlabel{eq:slow}{{2}{3}{Problem Formulation}{equation.2}{}}
-\newlabel{eq:lotl}{{3}{3}{Problem Formulation}{equation.3}{}}
-\newlabel{eq:beacon}{{4}{3}{Problem Formulation}{equation.4}{}}
-\newlabel{eq:proto}{{5}{3}{Problem Formulation}{equation.5}{}}
-\citation{woo2024moirai}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  \textsc  {HNIDS}{} architecture. \textbf  {Stage 1}: Closed-form perturbation generates hard-negative sequences with a constraint-retry loop ensuring protocol validity (Algorithm~\ref {alg:hng}, Appendix~\ref {app:algorithm}). \textbf  {Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss. }}{4}{figure.caption.1}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:architecture}{{1}{4}{\ours {} architecture. \textbf {Stage 1}: Closed-form perturbation generates hard-negative sequences with a constraint-retry loop ensuring protocol validity (Algorithm~\ref {alg:hng}, Appendix~\ref {app:algorithm}). \textbf {Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss}{figure.caption.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}\textsc  {HNIDS}{}: Methodology}{4}{section.4}\protected@file@percent }
-\newlabel{sec:method}{{4}{4}{\ours {}: Methodology}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Stage 1: Protocol-Constrained Hard-Negative Generation}{4}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:method:gen}{{4.1}{4}{Stage 1: Protocol-Constrained Hard-Negative Generation}{subsection.4.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}{4}{subsection.4.2}\protected@file@percent }
-\newlabel{sec:method:finetune}{{4.2}{4}{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Fine-Tuning Protocol}{3}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{3}{Fine-Tuning Protocol}{section.4}{}}
 \citation{khosla2020supcon}
-\citation{neto2023ciciot}
-\newlabel{eq:combined_loss}{{8}{5}{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}{equation.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments}{5}{section.5}\protected@file@percent }
-\newlabel{sec:experiments}{{5}{5}{Experiments}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Experimental Setup}{5}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:experiments:setup}{{5.1}{5}{Experimental Setup}{subsection.5.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Main Results}{5}{subsection.5.2}\protected@file@percent }
-\newlabel{sec:experiments:main}{{5.2}{5}{Main Results}{subsection.5.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces  Detection performance across all methods at three stealth levels (200 eval samples per class, benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq $ 0.05). \textbf  {All nine baselines are unsupervised} (benign-only training, 10 seeds); \textbf  {\textsc  {HNIDS}{} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives provided during training, 5 seeds matching Table~\ref {tab:ablation}). See Appendix~\ref {app:supervision} for the supervision discussion. \textbf  {Bold}: best calibrated (non-degenerate) value per column. \underline  {Underline}: second-best calibrated value per column. Threshold IDS and Statistical IDS are marked $\ddagger $: their high F1 arises from near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection. Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design. Bold/underline exclude zero-shot A at stealth-95 (FPR$=$0.100 exceeds target). $\dagger $ marks our proposed system; Table~\ref {tab:ablation} gives the full ablation. }}{6}{table.caption.2}\protected@file@percent }
-\newlabel{tab:main}{{1}{6}{Detection performance across all methods at three stealth levels (200 eval samples per class, benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq $ 0.05). \textbf {All nine baselines are unsupervised} (benign-only training, 10 seeds); \textbf {\ours {} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives provided during training, 5 seeds matching Table~\ref {tab:ablation}). See Appendix~\ref {app:supervision} for the supervision discussion. \textbf {Bold}: best calibrated (non-degenerate) value per column. \underline {Underline}: second-best calibrated value per column. Threshold IDS and Statistical IDS are marked $\ddagger $: their high F1 arises from near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection. Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design. Bold/underline exclude zero-shot A at stealth-95 (FPR$=$0.100 exceeds target). $\dagger $ marks our proposed system; Table~\ref {tab:ablation} gives the full ablation}{table.caption.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Ablation Study}{6}{subsection.5.3}\protected@file@percent }
-\newlabel{sec:experiments:ablation}{{5.3}{6}{Ablation Study}{subsection.5.3}{}}
-\newlabel{sec:experiments:constraints}{{5.3}{6}{Ablation Study}{table.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Generalization to Unseen Attack Patterns}{6}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:experiments:loo}{{5.4}{6}{Generalization to Unseen Attack Patterns}{subsection.5.4}{}}
-\citation{meidan2018n}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces  Ablation study on stealth-95 and all-stealth evaluation sets. All conditions use 5 random seeds with the full Moirai neural pipeline; $\pm $ values are standard deviations across seeds. Threshold calibrated on benign-only held-out scores (95th percentile, targeting FPR\,$\leq $\,0.05; see Section~\ref {sec:experiments:setup}). ROC-AUC is threshold-independent and the primary ranking metric. E$''$ is analytically identical to D for the analytical perturbation pathway (100\% constraint compliance, retry never fires); all fine-tuned conditions (B--E$'$, CNN) outperform zero-shot (A). }}{7}{table.caption.3}\protected@file@percent }
-\newlabel{tab:ablation}{{2}{7}{Ablation study on stealth-95 and all-stealth evaluation sets. All conditions use 5 random seeds with the full Moirai neural pipeline; $\pm $ values are standard deviations across seeds. Threshold calibrated on benign-only held-out scores (95th percentile, targeting FPR\,$\leq $\,0.05; see Section~\ref {sec:experiments:setup}). ROC-AUC is threshold-independent and the primary ranking metric. E$''$ is analytically identical to D for the analytical perturbation pathway (100\% constraint compliance, retry never fires); all fine-tuned conditions (B--E$'$, CNN) outperform zero-shot (A)}{table.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Scaling Experiment}{7}{subsection.5.5}\protected@file@percent }
-\newlabel{sec:experiments:scaling}{{5.5}{7}{Scaling Experiment}{subsection.5.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces  Scale degradation and encoder-freezing experiment (stealth-95, 5 seeds, benign-calibrated threshold). All columns report AUC and F1 (mean$\pm $std across seeds). 200/5 baseline uses 5 seeds; 500/10 and 1000/20 use NLL-only early stopping. \emph  {Frozen}: all Moirai encoder weights frozen, only projection head trained. \emph  {Partial}: layers 0--4 frozen, layer 5 $+$ encoder norm $+$ \texttt  {param\_proj} unfrozen. \textbf  {Key findings}: (1)~At 5-seed evaluation, 500/10 \emph  {improves} over 200/5 for all conditions; degradation occurs from 500/10$\to $1000/20, suggesting 200/5 is under-trained. (2)~Under NLL-only ES the C$>$D gap collapses to near-zero (n.s.) at 1000/20. (3)~Freezing the encoder at 1000/20 recovers AUC, often exceeding the 200/5 baseline, confirming \textbf  {catastrophic forgetting} of pre-trained features at scale. (4)~Frozen AUC recovery does not translate to F1 recovery under calibrated thresholds. }}{8}{table.caption.4}\protected@file@percent }
-\newlabel{tab:scaling}{{3}{8}{Scale degradation and encoder-freezing experiment (stealth-95, 5 seeds, benign-calibrated threshold). All columns report AUC and F1 (mean$\pm $std across seeds). 200/5 baseline uses 5 seeds; 500/10 and 1000/20 use NLL-only early stopping. \emph {Frozen}: all Moirai encoder weights frozen, only projection head trained. \emph {Partial}: layers 0--4 frozen, layer 5 $+$ encoder norm $+$ \texttt {param\_proj} unfrozen. \textbf {Key findings}: (1)~At 5-seed evaluation, 500/10 \emph {improves} over 200/5 for all conditions; degradation occurs from 500/10$\to $1000/20, suggesting 200/5 is under-trained. (2)~Under NLL-only ES the C$>$D gap collapses to near-zero (n.s.) at 1000/20. (3)~Freezing the encoder at 1000/20 recovers AUC, often exceeding the 200/5 baseline, confirming \textbf {catastrophic forgetting} of pre-trained features at scale. (4)~Frozen AUC recovery does not translate to F1 recovery under calibrated thresholds}{table.caption.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces N-BaIoT cross-dataset comparison (Danmini doorbell, 3-seed mean $\pm $ std). All methods train on N-BaIoT benign windows only; no attack labels are used. Isolation Forest uses 72 hand-engineered statistical features; \textsc  {HNIDS}{} fine-tuned uses a general-purpose Moirai backbone with Gaussian-noise negatives. }}{8}{table.caption.5}\protected@file@percent }
-\newlabel{tab:nbaiot_baselines}{{4}{8}{N-BaIoT cross-dataset comparison (Danmini doorbell, 3-seed mean $\pm $ std). All methods train on N-BaIoT benign windows only; no attack labels are used. Isolation Forest uses 72 hand-engineered statistical features; \ours {} fine-tuned uses a general-purpose Moirai backbone with Gaussian-noise negatives}{table.caption.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}External Validation on N-BaIoT}{8}{subsection.5.6}\protected@file@percent }
-\newlabel{sec:experiments:nbaiot}{{5.6}{8}{External Validation on N-BaIoT}{subsection.5.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Analysis and Discussion}{8}{section.6}\protected@file@percent }
-\newlabel{sec:analysis}{{6}{8}{Analysis and Discussion}{section.6}{}}
+\citation{kornblith2019cka}
+\citation{zhou2021informer}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces  \textsc  {HNIDS}{} architecture. \textbf  {Stage 1}: Closed-form perturbation generates hard-negative sequences with a constraint-retry loop ensuring protocol validity (Appendix~\ref {app:algorithm}). \textbf  {Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss. }}{4}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:architecture}{{1}{4}{\ours {} architecture. \textbf {Stage 1}: Closed-form perturbation generates hard-negative sequences with a constraint-retry loop ensuring protocol validity (Appendix~\ref {app:algorithm}). \textbf {Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss}{figure.caption.1}{}}
+\newlabel{eq:combined_loss}{{2}{4}{Fine-Tuning Protocol}{equation.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Representation Drift Diagnosis: ETT Forecasting}{4}{section.5}\protected@file@percent }
+\newlabel{sec:forecasting}{{5}{4}{Representation Drift Diagnosis: ETT Forecasting}{section.5}{}}
+\citation{woo2024moirai}
 \citation{hu2022lora}
-\citation{houlsby2019adapters}
+\citation{li2018l2sp}
+\citation{kirkpatrick2017ewc}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift.}}{5}{table.caption.2}\protected@file@percent }
+\newlabel{tab:forecasting_forgetting}{{1}{5}{Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Domain Selection and Pre-Training Value Gate}{5}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:forecasting:gate}{{5.1}{5}{Domain Selection and Pre-Training Value Gate}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Experimental Setup}{5}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:forecasting:setup}{{5.2}{5}{Experimental Setup}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Representation Drift Degrades High-Value Features}{5}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:forecasting:results}{{5.3}{5}{Representation Drift Degrades High-Value Features}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Mitigation Spectrum}{5}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:forecasting:mitigation}{{5.4}{5}{Mitigation Spectrum}{subsection.5.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph  {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100.}}{6}{table.caption.3}\protected@file@percent }
+\newlabel{tab:mitigation_spectrum}{{2}{6}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100}{table.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Replication Across Datasets and Model Sizes}{6}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:forecasting:replication}{{5.5}{6}{Replication Across Datasets and Model Sizes}{subsection.5.5}{}}
 \citation{neto2023ciciot}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{10}{section.7}\protected@file@percent }
-\newlabel{sec:conclusion}{{7}{10}{Conclusion}{section.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Sample-size sweep on ETTh2 ($h{=}96$, condition B). Drift grows monotonically with sample size (CKA$\downarrow $ as $n\uparrow $), but forgetting is \emph  {non-monotonic}: severe at $n{\le }1{,}000$, resolves at $n{=}2{,}000$ and $n{=}10{,}000$, with elevated variance at $n{=}5{,}000$ reflecting a crossover regime. We ran 4 additional seeds at $n{=}5{,}000$ (789, 101, 202, 303) to address the bimodality question raised in review; the combined 7-seed mean is $+$6.6\% $\pm $10.0\% and forgetting is indeed bimodal (4 seeds$\le +$5.9\%, 3 seeds$\ge +$4.8\%; Table~\ref {tab:n5k_seeds}). Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from Ridge regression of encoder representations onto the forecasting target on held-out ETTh2) \emph  {increases} with $n$; we also report absolute R$^2$(FT) so readers can judge the noise floor (pre-trained R$^2_{\text  {ZS}}{=}-6.90$ for all rows, single frozen encoder). Representations become \emph  {more} task-functional as they drift, directly dissociating geometric similarity (CKA) from functional utility. Mean $\pm $ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$ which has 7 seeds (42, 123, 456, 789, 101, 202, 303); $n{=}10{,}000$ reports 1 seed (123); seed 42 ran to MPS NaN at the full 10k$\times $20-epoch budget and no replacement seed has yet completed cleanly on laptop MPS---a CUDA run at $\geq $5 seeds is a camera-ready commitment. Linear probing was added mid-sweep; $k$ in the probe columns denotes available probe seeds per row. MLP probe column reports $\Delta R^2$ for an MLP probe ($\textrm  {hidden}{=}64$, $\alpha {=}10^{-3}$, early stopping); seeds per row shown as mean$\pm $std where $k{>}1$. V11 revision adds multi-seed replication at $n{\in }\{2{,}000, 1{,}000, 500\}$.}}{7}{table.caption.4}\protected@file@percent }
+\newlabel{tab:sample_sweep}{{3}{7}{Sample-size sweep on ETTh2 ($h{=}96$, condition B). Drift grows monotonically with sample size (CKA$\downarrow $ as $n\uparrow $), but forgetting is \emph {non-monotonic}: severe at $n{\le }1{,}000$, resolves at $n{=}2{,}000$ and $n{=}10{,}000$, with elevated variance at $n{=}5{,}000$ reflecting a crossover regime. We ran 4 additional seeds at $n{=}5{,}000$ (789, 101, 202, 303) to address the bimodality question raised in review; the combined 7-seed mean is $+$6.6\% $\pm $10.0\% and forgetting is indeed bimodal (4 seeds$\le +$5.9\%, 3 seeds$\ge +$4.8\%; Table~\ref {tab:n5k_seeds}). Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from Ridge regression of encoder representations onto the forecasting target on held-out ETTh2) \emph {increases} with $n$; we also report absolute R$^2$(FT) so readers can judge the noise floor (pre-trained R$^2_{\text {ZS}}{=}-6.90$ for all rows, single frozen encoder). Representations become \emph {more} task-functional as they drift, directly dissociating geometric similarity (CKA) from functional utility. Mean $\pm $ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$ which has 7 seeds (42, 123, 456, 789, 101, 202, 303); $n{=}10{,}000$ reports 1 seed (123); seed 42 ran to MPS NaN at the full 10k$\times $20-epoch budget and no replacement seed has yet completed cleanly on laptop MPS---a CUDA run at $\geq $5 seeds is a camera-ready commitment. Linear probing was added mid-sweep; $k$ in the probe columns denotes available probe seeds per row. MLP probe column reports $\Delta R^2$ for an MLP probe ($\textrm {hidden}{=}64$, $\alpha {=}10^{-3}$, early stopping); seeds per row shown as mean$\pm $std where $k{>}1$. V11 revision adds multi-seed replication at $n{\in }\{2{,}000, 1{,}000, 500\}$}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Contrasting Domain: IoT Anomaly Detection}{7}{section.6}\protected@file@percent }
+\newlabel{sec:iot}{{6}{7}{Contrasting Domain: IoT Anomaly Detection}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Setup and Main Results}{7}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:experiments:setup}{{6.1}{7}{Setup and Main Results}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Ablation and Drift Diagnosis}{8}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:experiments:ablation}{{6.2}{8}{Ablation and Drift Diagnosis}{subsection.6.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces  Ablation study on stealth-95 and all-stealth evaluation sets (10 seeds). $\pm $ values are standard deviations. Threshold calibrated on benign-only held-out scores (95th percentile, targeting FPR\,$\leq $\,0.05; see Section~\ref {sec:experiments:setup}). ROC-AUC is threshold-independent and the primary ranking metric. CNN-NLL resolves the loss-function confound (Section~\ref {sec:analysis}). }}{8}{table.caption.5}\protected@file@percent }
+\newlabel{tab:ablation}{{4}{8}{Ablation study on stealth-95 and all-stealth evaluation sets (10 seeds). $\pm $ values are standard deviations. Threshold calibrated on benign-only held-out scores (95th percentile, targeting FPR\,$\leq $\,0.05; see Section~\ref {sec:experiments:setup}). ROC-AUC is threshold-independent and the primary ranking metric. CNN-NLL resolves the loss-function confound (Section~\ref {sec:analysis})}{table.caption.5}{}}
+\newlabel{sec:experiments:constraints}{{6.2}{8}{Ablation and Drift Diagnosis}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Cross-domain drift ($h{=}96$, condition B). Weather fails the ZS gate (0.41 vs.\ 0.22), delimiting claim scope. Mean$\pm $std across seeds.}}{9}{table.caption.6}\protected@file@percent }
+\newlabel{tab:cross_domain}{{5}{9}{Cross-domain drift ($h{=}96$, condition B). Weather fails the ZS gate (0.41 vs.\ 0.22), delimiting claim scope. Mean$\pm $std across seeds}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Cross-Domain Analysis and Discussion}{9}{section.7}\protected@file@percent }
+\newlabel{sec:analysis}{{7}{9}{Cross-Domain Analysis and Discussion}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{9}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{9}{Conclusion}{section.8}{}}
+\citation{neto2023ciciot}
 \@writefile{toc}{\contentsline {section}{\numberline {A}CICIoT2023 Feature Set}{10}{appendix.A}\protected@file@percent }
 \newlabel{app:features}{{A}{10}{CICIoT2023 Feature Set}{appendix.A}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces The 12 network-flow features extracted from CICIoT2023{}.}}{10}{table.caption.6}\protected@file@percent }
-\newlabel{tab:features}{{5}{10}{The 12 network-flow features extracted from \dataset {}}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Protocol Constraint Compliance}{10}{appendix.B}\protected@file@percent }
-\newlabel{app:constraints}{{B}{10}{Protocol Constraint Compliance}{appendix.B}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces  Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph  {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead. }}{11}{table.caption.7}\protected@file@percent }
-\newlabel{tab:constraints}{{6}{11}{Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Full Limitations and Future Work}{11}{appendix.C}\protected@file@percent }
-\newlabel{app:limitations}{{C}{11}{Full Limitations and Future Work}{appendix.C}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces The 12 network-flow features extracted from CICIoT2023{}.}}{10}{table.caption.7}\protected@file@percent }
+\newlabel{tab:features}{{6}{10}{The 12 network-flow features extracted from \dataset {}}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Attack Archetype Equations and Protocol Constraints}{10}{appendix.B}\protected@file@percent }
+\newlabel{app:attack_equations}{{B}{10}{Attack Archetype Equations and Protocol Constraints}{appendix.B}{}}
+\newlabel{eq:slow}{{3}{10}{Attack Archetype Equations and Protocol Constraints}{equation.3}{}}
+\newlabel{eq:lotl}{{4}{10}{Attack Archetype Equations and Protocol Constraints}{equation.4}{}}
+\newlabel{eq:beacon}{{5}{10}{Attack Archetype Equations and Protocol Constraints}{equation.5}{}}
+\newlabel{eq:proto}{{6}{10}{Attack Archetype Equations and Protocol Constraints}{equation.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Full IoT Detection Results}{10}{appendix.C}\protected@file@percent }
+\newlabel{app:main_results}{{C}{10}{Full IoT Detection Results}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Protocol Constraint Compliance}{10}{appendix.D}\protected@file@percent }
+\newlabel{app:constraints}{{D}{10}{Protocol Constraint Compliance}{appendix.D}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces  Detection performance across all methods at three stealth levels (200 eval samples per class, benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq $ 0.05). \textbf  {All nine baselines are unsupervised} (benign-only training, 10 seeds); \textbf  {\textsc  {HNIDS}{} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives provided during training, 10 seeds matching Table~\ref {tab:ablation}). See Appendix~\ref {app:supervision} for the supervision discussion. \textbf  {Bold}: best calibrated (non-degenerate) value per column. \underline  {Underline}: second-best calibrated value per column. Threshold IDS and Statistical IDS are marked $\ddagger $: their high F1 arises from near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection. Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design. Bold/underline exclude zero-shot A at stealth-95 (FPR$=$0.100 exceeds target). $\dagger $ marks our proposed system; Table~\ref {tab:ablation} gives the full ablation. }}{11}{table.caption.8}\protected@file@percent }
+\newlabel{tab:main}{{7}{11}{Detection performance across all methods at three stealth levels (200 eval samples per class, benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq $ 0.05). \textbf {All nine baselines are unsupervised} (benign-only training, 10 seeds); \textbf {\ours {} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives provided during training, 10 seeds matching Table~\ref {tab:ablation}). See Appendix~\ref {app:supervision} for the supervision discussion. \textbf {Bold}: best calibrated (non-degenerate) value per column. \underline {Underline}: second-best calibrated value per column. Threshold IDS and Statistical IDS are marked $\ddagger $: their high F1 arises from near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection. Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design. Bold/underline exclude zero-shot A at stealth-95 (FPR$=$0.100 exceeds target). $\dagger $ marks our proposed system; Table~\ref {tab:ablation} gives the full ablation}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Full Limitations and Future Work}{11}{appendix.E}\protected@file@percent }
+\newlabel{app:limitations}{{E}{11}{Full Limitations and Future Work}{appendix.E}{}}
 \citation{meidan2018n}
 \citation{moustafa2015unsw}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces  Scale-dependent forgetting on IoT anomaly detection (stealth-95, 10 seeds, benign-calibrated threshold). All columns report AUC and F1 (mean$\pm $std). \emph  {Frozen}: all encoder weights frozen, only projection head trained at 1000/20. CKA measures representation similarity to pre-trained encoder (1.0$=$identical); multi-seed CKA reported in \S  \ref {sec:iot}. \textbf  {Key findings}: (1)~C degrades monotonically from 200/5 to 1000/20; B and D show mild non-monotonic pattern. (2)~The C$>$D gap narrows from $+$0.073 (200/5) to $+$0.024 (1000/20). (3)~Frozen encoder converges to 0.549 regardless of condition, confirming pre-trained features are equally useful (or useless) for all objectives. (4)~CKA drops to 0.31--0.45 across conditions and scales, indicating aggressive representation drift. }}{12}{table.caption.9}\protected@file@percent }
+\newlabel{tab:scaling}{{8}{12}{Scale-dependent forgetting on IoT anomaly detection (stealth-95, 10 seeds, benign-calibrated threshold). All columns report AUC and F1 (mean$\pm $std). \emph {Frozen}: all encoder weights frozen, only projection head trained at 1000/20. CKA measures representation similarity to pre-trained encoder (1.0$=$identical); multi-seed CKA reported in \S \ref {sec:iot}. \textbf {Key findings}: (1)~C degrades monotonically from 200/5 to 1000/20; B and D show mild non-monotonic pattern. (2)~The C$>$D gap narrows from $+$0.073 (200/5) to $+$0.024 (1000/20). (3)~Frozen encoder converges to 0.549 regardless of condition, confirming pre-trained features are equally useful (or useless) for all objectives. (4)~CKA drops to 0.31--0.45 across conditions and scales, indicating aggressive representation drift}{table.caption.9}{}}
 \citation{meidan2018n}
-\@writefile{toc}{\contentsline {section}{\numberline {D}N-BaIoT Feature Mapping}{12}{appendix.D}\protected@file@percent }
-\newlabel{app:nbaiot}{{D}{12}{N-BaIoT Feature Mapping}{appendix.D}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces  Mapping from the 12 CICIoT2023 features expected by \textsc  {HNIDS}{} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt  {L5}) unless noted. }}{13}{table.caption.8}\protected@file@percent }
-\newlabel{tab:nbaiot_mapping}{{7}{13}{Mapping from the 12 CICIoT2023 features expected by \ours {} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt {L5}) unless noted}{table.caption.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {E}N-BaIoT Per-Attack Results}{13}{appendix.E}\protected@file@percent }
-\newlabel{app:nbaiot_results}{{E}{13}{N-BaIoT Per-Attack Results}{appendix.E}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {F}Hyperparameter Sensitivity and Supplementary Figures}{13}{appendix.F}\protected@file@percent }
-\newlabel{app:hparams}{{F}{13}{Hyperparameter Sensitivity and Supplementary Figures}{appendix.F}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Mean F1 across all four attack types at stealth-95 as a function of contrastive weight $\lambda $ (rows) and temperature $\tau $ (columns), using the full Moirai-Small fine-tuning pipeline with benign-calibrated threshold. F1 is constant at $0.235$ across all 20 configurations (flat landscape); ROC-AUC ranges $0.467$--$0.489$ with no clear optimum. This indicates $\lambda $ and $\tau $ have no detectable effect at the 5-epoch / 600-sample training scale. }}{13}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:hparam}{{2}{13}{Mean F1 across all four attack types at stealth-95 as a function of contrastive weight $\lambda $ (rows) and temperature $\tau $ (columns), using the full Moirai-Small fine-tuning pipeline with benign-calibrated threshold. F1 is constant at $0.235$ across all 20 configurations (flat landscape); ROC-AUC ranges $0.467$--$0.489$ with no clear optimum. This indicates $\lambda $ and $\tau $ have no detectable effect at the 5-epoch / 600-sample training scale}{figure.caption.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces  Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph  {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead. }}{13}{table.caption.10}\protected@file@percent }
+\newlabel{tab:constraints}{{9}{13}{Fraction of generated samples passing protocol validation at each strictness tier (strict / moderate / permissive), and average generation retries per sample at the \emph {moderate} tier used during training. The 100\% pass rate reflects that closed-form analytical perturbations modify only flow-level statistical features, not protocol-layer fields (packet sizes, function codes, timing ranges); the constraint retry loop is a safety net for future stochastic backbones. The low average retry count ($\leq $0.3 retries per sample) confirms negligible overhead}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}N-BaIoT Feature Mapping}{13}{appendix.F}\protected@file@percent }
+\newlabel{app:nbaiot}{{F}{13}{N-BaIoT Feature Mapping}{appendix.F}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces  Mapping from the 12 CICIoT2023 features expected by \textsc  {HNIDS}{} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt  {L5}) unless noted. }}{14}{table.caption.11}\protected@file@percent }
+\newlabel{tab:nbaiot_mapping}{{10}{14}{Mapping from the 12 CICIoT2023 features expected by \ours {} to proxy columns in N-BaIoT. All proxy values are drawn from the 60-second temporal decay window (suffix \texttt {L5}) unless noted}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}N-BaIoT Per-Attack Results}{14}{appendix.G}\protected@file@percent }
+\newlabel{app:nbaiot_results}{{G}{14}{N-BaIoT Per-Attack Results}{appendix.G}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}Hyperparameter Sensitivity and Supplementary Figures}{14}{appendix.H}\protected@file@percent }
+\newlabel{app:hparams}{{H}{14}{Hyperparameter Sensitivity and Supplementary Figures}{appendix.H}{}}
+\@writefile{toc}{\contentsline {paragraph}{Contrastive hyperparameter sensitivity.}{14}{paragraph*.14}\protected@file@percent }
+\newlabel{fig:hparam}{{H}{14}{Contrastive hyperparameter sensitivity}{paragraph*.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Extended Experimental Details}{14}{appendix.I}\protected@file@percent }
+\newlabel{app:extended_setup}{{I}{14}{Extended Experimental Details}{appendix.I}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.1}Threshold Calibration Protocol}{14}{subsection.I.1}\protected@file@percent }
+\newlabel{app:threshold}{{I.1}{14}{Threshold Calibration Protocol}{subsection.I.1}{}}
 \citation{tuli2022tranad}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces  External validation on N-BaIoT (Danmini doorbell device, 3 seeds, 39 windows per attack class, 7 benign-validation windows). \textsc  {HNIDS}{} (condition D) is trained solely on CICIoT2023 with analyst-specified hard negatives; no N-BaIoT data is used at any stage of training or scaler fitting. The threshold is calibrated on a held-out N-BaIoT benign validation set. Attack types are Mirai and BASHLITE (gafgyt) botnet variants distinct from the CICIoT2023 training distribution. \textbf  {AUC $<$ 0.5 indicates inverted score polarity}; the detector assigns lower anomaly scores to attack traffic than to benign traffic under the cross-dataset distribution shift, confirming that zero-shot transfer from CICIoT2023 to N-BaIoT is poor. FPR\,=\,1.00 across all rows reflects the degenerate decision boundary arising from this score collapse. }}{14}{table.caption.9}\protected@file@percent }
-\newlabel{tab:nbaiot}{{8}{14}{External validation on N-BaIoT (Danmini doorbell device, 3 seeds, 39 windows per attack class, 7 benign-validation windows). \ours {} (condition D) is trained solely on CICIoT2023 with analyst-specified hard negatives; no N-BaIoT data is used at any stage of training or scaler fitting. The threshold is calibrated on a held-out N-BaIoT benign validation set. Attack types are Mirai and BASHLITE (gafgyt) botnet variants distinct from the CICIoT2023 training distribution. \textbf {AUC $<$ 0.5 indicates inverted score polarity}; the detector assigns lower anomaly scores to attack traffic than to benign traffic under the cross-dataset distribution shift, confirming that zero-shot transfer from CICIoT2023 to N-BaIoT is poor. FPR\,=\,1.00 across all rows reflects the degenerate decision boundary arising from this score collapse}{table.caption.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {G}Extended Experimental Details}{14}{appendix.G}\protected@file@percent }
-\newlabel{app:extended_setup}{{G}{14}{Extended Experimental Details}{appendix.G}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {G.1}Threshold Calibration Protocol}{14}{subsection.G.1}\protected@file@percent }
-\newlabel{app:threshold}{{G.1}{14}{Threshold Calibration Protocol}{subsection.G.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {G.2}Baseline Tuning Protocol}{14}{subsection.G.2}\protected@file@percent }
-\newlabel{app:baseline_tuning}{{G.2}{14}{Baseline Tuning Protocol}{subsection.G.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces  N-BaIoT fine-tuned evaluation (Danmini doorbell, 3 seeds). \textbf  {Left}: zero-shot transfer from CICIoT2023 (condition~D, AUC\,$<$\,0.30, score polarity inverted). \textbf  {Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise negatives (condition~C protocol, 310 training windows, 5 epochs, $\sigma {=}0.3$). Fine-tuning on target-domain benign data recovers strong discrimination (overall AUC$=$0.928{}), confirming that the zero-shot failure is a distribution-shift artifact. The high FPR (0.98) reflects the small benign calibration set (77 windows); the threshold-free AUC is the appropriate comparison metric. }}{15}{table.caption.10}\protected@file@percent }
-\newlabel{tab:nbaiot_finetuned}{{9}{15}{N-BaIoT fine-tuned evaluation (Danmini doorbell, 3 seeds). \textbf {Left}: zero-shot transfer from CICIoT2023 (condition~D, AUC\,$<$\,0.30, score polarity inverted). \textbf {Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise negatives (condition~C protocol, 310 training windows, 5 epochs, $\sigma {=}0.3$). Fine-tuning on target-domain benign data recovers strong discrimination (overall AUC$=$\nbaiotAUC {}), confirming that the zero-shot failure is a distribution-shift artifact. The high FPR (0.98) reflects the small benign calibration set (77 windows); the threshold-free AUC is the appropriate comparison metric}{table.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {G.3}Supervision Discussion}{15}{subsection.G.3}\protected@file@percent }
-\newlabel{app:supervision}{{G.3}{15}{Supervision Discussion}{subsection.G.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {H}Extended Ablation Analysis}{15}{appendix.H}\protected@file@percent }
-\newlabel{app:extended_ablation}{{H}{15}{Extended Ablation Analysis}{appendix.H}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {H.1}Disentangling Negative Type from Dataset Imbalance}{15}{subsection.H.1}\protected@file@percent }
-\newlabel{app:cprime}{{H.1}{15}{Disentangling Negative Type from Dataset Imbalance}{subsection.H.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Synthetic hard-negative attacks (dashed) vs benign traffic (solid green) for each attack type at stealth 85\%, 90\%, 95\%. The flow-duration feature is shown. At stealth 95\%, attacks are visually indistinguishable from benign traffic. }}{16}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:attack_viz}{{3}{16}{Synthetic hard-negative attacks (dashed) vs benign traffic (solid green) for each attack type at stealth 85\%, 90\%, 95\%. The flow-duration feature is shown. At stealth 95\%, attacks are visually indistinguishable from benign traffic}{figure.caption.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {H.2}CNN Outperforms Moirai at Small Scale}{16}{subsection.H.2}\protected@file@percent }
-\newlabel{app:cnn_detail}{{H.2}{16}{CNN Outperforms Moirai at Small Scale}{subsection.H.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {H.3}Constraint-Validator Contribution (E, E', E'')}{16}{subsection.H.3}\protected@file@percent }
-\newlabel{app:eee}{{H.3}{16}{Constraint-Validator Contribution (E, E', E'')}{subsection.H.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  Detection F1 per attack type and stealth level for \textsc  {HNIDS}{} (condition~C, left panel) and the Ensemble baseline (right panel). \textsc  {HNIDS}{} condition~C outperforms the Ensemble at the aggregate stealth-95 level (Table~\ref {tab:main}, F1$=$0.250 vs 0.136) under the benign-calibrated threshold. The Ensemble's per-type F1 values shown here use the ROC-optimal threshold (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95 (Table~\ref {tab:main}). }}{17}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:heatmap}{{4}{17}{Detection F1 per attack type and stealth level for \ours {} (condition~C, left panel) and the Ensemble baseline (right panel). \ours {} condition~C outperforms the Ensemble at the aggregate stealth-95 level (Table~\ref {tab:main}, F1$=$0.250 vs 0.136) under the benign-calibrated threshold. The Ensemble's per-type F1 values shown here use the ROC-optimal threshold (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95 (Table~\ref {tab:main})}{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {H.4}Embedding Visualization}{17}{subsection.H.4}\protected@file@percent }
-\newlabel{app:embeddings}{{H.4}{17}{Embedding Visualization}{subsection.H.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Extended Scaling Analysis}{17}{appendix.I}\protected@file@percent }
-\newlabel{app:extended_scaling}{{I}{17}{Extended Scaling Analysis}{appendix.I}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {I.1}NLL-Only Early Stopping}{17}{subsection.I.1}\protected@file@percent }
-\newlabel{app:nll_es}{{I.1}{17}{NLL-Only Early Stopping}{subsection.I.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {I.2}Best-Epoch Analysis}{17}{subsection.I.2}\protected@file@percent }
-\newlabel{app:best_epoch}{{I.2}{17}{Best-Epoch Analysis}{subsection.I.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {I.3}Freezing: Mitigation Details}{17}{subsection.I.3}\protected@file@percent }
-\newlabel{app:freezing_details}{{I.3}{17}{Freezing: Mitigation Details}{subsection.I.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces  t-SNE projection of projection-head embeddings on stealth-95 test data. \textbf  {Left}: condition~C (SupCon on Gaussian-noise neg.)---benign (green) and attack embeddings form largely distinct clusters. \textbf  {Right}: condition~D (\textsc  {HNIDS}{}, hard-negative SupCon)---qualitatively similar cluster structure; hard-negative attacks lie slightly closer to the benign manifold, consistent with their deliberate stealth-floor design. Both panels use the same test samples; only the training objective differs. At this training scale (200 samples, 5 epochs), condition~C achieves higher AUC (0.563 vs 0.479) despite similar embedding structure, suggesting that the AUC gap is driven by decision-boundary calibration rather than representation collapse (see Section~\ref {sec:analysis}). }}{18}{figure.caption.14}\protected@file@percent }
-\newlabel{fig:tsne}{{5}{18}{t-SNE projection of projection-head embeddings on stealth-95 test data. \textbf {Left}: condition~C (SupCon on Gaussian-noise neg.)---benign (green) and attack embeddings form largely distinct clusters. \textbf {Right}: condition~D (\ours {}, hard-negative SupCon)---qualitatively similar cluster structure; hard-negative attacks lie slightly closer to the benign manifold, consistent with their deliberate stealth-floor design. Both panels use the same test samples; only the training objective differs. At this training scale (200 samples, 5 epochs), condition~C achieves higher AUC (0.563 vs 0.479) despite similar embedding structure, suggesting that the AUC gap is driven by decision-boundary calibration rather than representation collapse (see Section~\ref {sec:analysis})}{figure.caption.14}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {I.4}Partial Freezing}{18}{subsection.I.4}\protected@file@percent }
-\newlabel{app:partial_freeze}{{I.4}{18}{Partial Freezing}{subsection.I.4}{}}
-\citation{bengio2009curriculum}
-\citation{bengio2009curriculum}
-\@writefile{toc}{\contentsline {section}{\numberline {J}Extended Discussion}{19}{appendix.J}\protected@file@percent }
-\newlabel{app:extended_discussion}{{J}{19}{Extended Discussion}{appendix.J}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.1}Why Does Base Moirai Underperform?}{19}{subsection.J.1}\protected@file@percent }
-\newlabel{app:moirai_underperform}{{J.1}{19}{Why Does Base Moirai Underperform?}{subsection.J.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.2}Gaussian-Noise vs Hard-Negative Mechanism}{19}{subsection.J.2}\protected@file@percent }
-\newlabel{app:gaussian_mechanism}{{J.2}{19}{Gaussian-Noise vs Hard-Negative Mechanism}{subsection.J.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.3}Catastrophic Forgetting Mechanism}{19}{subsection.J.3}\protected@file@percent }
-\newlabel{app:forgetting_mechanism}{{J.3}{19}{Catastrophic Forgetting Mechanism}{subsection.J.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces  External validation on N-BaIoT (Danmini doorbell device, 3 seeds, 39 windows per attack class, 7 benign-validation windows). \textsc  {HNIDS}{} (condition D) is trained solely on CICIoT2023 with analyst-specified hard negatives; no N-BaIoT data is used at any stage of training or scaler fitting. The threshold is calibrated on a held-out N-BaIoT benign validation set. Attack types are Mirai and BASHLITE (gafgyt) botnet variants distinct from the CICIoT2023 training distribution. \textbf  {AUC $<$ 0.5 indicates inverted score polarity}; the detector assigns lower anomaly scores to attack traffic than to benign traffic under the cross-dataset distribution shift, confirming that zero-shot transfer from CICIoT2023 to N-BaIoT is poor. FPR\,=\,1.00 across all rows reflects the degenerate decision boundary arising from this score collapse. }}{15}{table.caption.12}\protected@file@percent }
+\newlabel{tab:nbaiot}{{11}{15}{External validation on N-BaIoT (Danmini doorbell device, 3 seeds, 39 windows per attack class, 7 benign-validation windows). \ours {} (condition D) is trained solely on CICIoT2023 with analyst-specified hard negatives; no N-BaIoT data is used at any stage of training or scaler fitting. The threshold is calibrated on a held-out N-BaIoT benign validation set. Attack types are Mirai and BASHLITE (gafgyt) botnet variants distinct from the CICIoT2023 training distribution. \textbf {AUC $<$ 0.5 indicates inverted score polarity}; the detector assigns lower anomaly scores to attack traffic than to benign traffic under the cross-dataset distribution shift, confirming that zero-shot transfer from CICIoT2023 to N-BaIoT is poor. FPR\,=\,1.00 across all rows reflects the degenerate decision boundary arising from this score collapse}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.2}Baseline Tuning Protocol}{15}{subsection.I.2}\protected@file@percent }
+\newlabel{app:baseline_tuning}{{I.2}{15}{Baseline Tuning Protocol}{subsection.I.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.3}Supervision Discussion}{15}{subsection.I.3}\protected@file@percent }
+\newlabel{app:supervision}{{I.3}{15}{Supervision Discussion}{subsection.I.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces  N-BaIoT fine-tuned evaluation (Danmini doorbell, 3 seeds). \textbf  {Left}: zero-shot transfer from CICIoT2023 (condition~D, AUC\,$<$\,0.30, score polarity inverted). \textbf  {Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise negatives (condition~C protocol, 310 training windows, 5 epochs, $\sigma {=}0.3$). Fine-tuning on target-domain benign data recovers ranking ability (overall AUC$=$0.928{}), but the uniform FPR$=$0.98 indicates \emph  {degenerate threshold calibration} from only 77 benign windows --- the model essentially flags all traffic. AUC (threshold-free) is the appropriate metric here; it reflects that fine-tuned anomaly scores successfully separate attack from benign traffic \emph  {in ranking}, even though the calibrated threshold is not useful operationally. These results demonstrate recipe transferability (the fine-tuning protocol works on new data) but not deployment readiness. }}{16}{table.caption.13}\protected@file@percent }
+\newlabel{tab:nbaiot_finetuned}{{12}{16}{N-BaIoT fine-tuned evaluation (Danmini doorbell, 3 seeds). \textbf {Left}: zero-shot transfer from CICIoT2023 (condition~D, AUC\,$<$\,0.30, score polarity inverted). \textbf {Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise negatives (condition~C protocol, 310 training windows, 5 epochs, $\sigma {=}0.3$). Fine-tuning on target-domain benign data recovers ranking ability (overall AUC$=$\nbaiotAUC {}), but the uniform FPR$=$0.98 indicates \emph {degenerate threshold calibration} from only 77 benign windows --- the model essentially flags all traffic. AUC (threshold-free) is the appropriate metric here; it reflects that fine-tuned anomaly scores successfully separate attack from benign traffic \emph {in ranking}, even though the calibrated threshold is not useful operationally. These results demonstrate recipe transferability (the fine-tuning protocol works on new data) but not deployment readiness}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}Extended Ablation Analysis}{16}{appendix.J}\protected@file@percent }
+\newlabel{app:extended_ablation}{{J}{16}{Extended Ablation Analysis}{appendix.J}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J.1}Disentangling Negative Type from Dataset Imbalance}{16}{subsection.J.1}\protected@file@percent }
+\newlabel{app:cprime}{{J.1}{16}{Disentangling Negative Type from Dataset Imbalance}{subsection.J.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J.2}CNN Outperforms Moirai at Small Scale}{16}{subsection.J.2}\protected@file@percent }
+\newlabel{app:cnn_detail}{{J.2}{16}{CNN Outperforms Moirai at Small Scale}{subsection.J.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces  Synthetic hard-negative attacks (dashed) vs benign traffic (solid green) for each attack type at stealth 85\%, 90\%, 95\%. The flow-duration feature is shown. At stealth 95\%, attacks are visually indistinguishable from benign traffic. }}{17}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:attack_viz}{{2}{17}{Synthetic hard-negative attacks (dashed) vs benign traffic (solid green) for each attack type at stealth 85\%, 90\%, 95\%. The flow-duration feature is shown. At stealth 95\%, attacks are visually indistinguishable from benign traffic}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J.3}Constraint-Validator Contribution (E, E', E'')}{17}{subsection.J.3}\protected@file@percent }
+\newlabel{app:eee}{{J.3}{17}{Constraint-Validator Contribution (E, E', E'')}{subsection.J.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J.4}Embedding Visualization}{17}{subsection.J.4}\protected@file@percent }
+\newlabel{app:embeddings}{{J.4}{17}{Embedding Visualization}{subsection.J.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces  Detection F1 per attack type and stealth level for \textsc  {HNIDS}{} (condition~C, left panel) and the Ensemble baseline (right panel). \textsc  {HNIDS}{} condition~C outperforms the Ensemble at the aggregate stealth-95 level (Table~\ref {tab:main}, F1$=$0.262 vs 0.136) under the benign-calibrated threshold. The Ensemble's per-type F1 values shown here use the ROC-optimal threshold (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95 (Table~\ref {tab:main}). }}{18}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:heatmap}{{3}{18}{Detection F1 per attack type and stealth level for \ours {} (condition~C, left panel) and the Ensemble baseline (right panel). \ours {} condition~C outperforms the Ensemble at the aggregate stealth-95 level (Table~\ref {tab:main}, F1$=$0.262 vs 0.136) under the benign-calibrated threshold. The Ensemble's per-type F1 values shown here use the ROC-optimal threshold (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95 (Table~\ref {tab:main})}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Extended Scaling Analysis}{18}{appendix.K}\protected@file@percent }
+\newlabel{app:extended_scaling}{{K}{18}{Extended Scaling Analysis}{appendix.K}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K.1}NLL-Only Early Stopping}{18}{subsection.K.1}\protected@file@percent }
+\newlabel{app:nll_es}{{K.1}{18}{NLL-Only Early Stopping}{subsection.K.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K.2}Best-Epoch Analysis}{18}{subsection.K.2}\protected@file@percent }
+\newlabel{app:best_epoch}{{K.2}{18}{Best-Epoch Analysis}{subsection.K.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K.3}Freezing: Mitigation Details}{18}{subsection.K.3}\protected@file@percent }
+\newlabel{app:freezing_details}{{K.3}{18}{Freezing: Mitigation Details}{subsection.K.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces  t-SNE projection of projection-head embeddings on stealth-95 test data. \textbf  {Left}: condition~C (SupCon on Gaussian-noise neg.)---benign (green) and attack embeddings form largely distinct clusters. \textbf  {Right}: condition~D (\textsc  {HNIDS}{}, hard-negative SupCon)---qualitatively similar cluster structure; hard-negative attacks lie slightly closer to the benign manifold, consistent with their deliberate stealth-floor design. Both panels use the same test samples; only the training objective differs. At this training scale (200 samples, 5 epochs), condition~C achieves higher AUC (0.629 vs 0.556) despite similar embedding structure, suggesting that the AUC gap is driven by decision-boundary calibration rather than representation collapse (see Section~\ref {sec:analysis}). }}{19}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:tsne}{{4}{19}{t-SNE projection of projection-head embeddings on stealth-95 test data. \textbf {Left}: condition~C (SupCon on Gaussian-noise neg.)---benign (green) and attack embeddings form largely distinct clusters. \textbf {Right}: condition~D (\ours {}, hard-negative SupCon)---qualitatively similar cluster structure; hard-negative attacks lie slightly closer to the benign manifold, consistent with their deliberate stealth-floor design. Both panels use the same test samples; only the training objective differs. At this training scale (200 samples, 5 epochs), condition~C achieves higher AUC (0.629 vs 0.556) despite similar embedding structure, suggesting that the AUC gap is driven by decision-boundary calibration rather than representation collapse (see Section~\ref {sec:analysis})}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K.4}Partial Freezing}{19}{subsection.K.4}\protected@file@percent }
+\newlabel{app:partial_freeze}{{K.4}{19}{Partial Freezing}{subsection.K.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {L}Extended Discussion}{19}{appendix.L}\protected@file@percent }
+\newlabel{app:extended_discussion}{{L}{19}{Extended Discussion}{appendix.L}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.1}Why Does Base Moirai Underperform?}{19}{subsection.L.1}\protected@file@percent }
+\newlabel{app:moirai_underperform}{{L.1}{19}{Why Does Base Moirai Underperform?}{subsection.L.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.2}Gaussian-Noise vs Hard-Negative Mechanism}{20}{subsection.L.2}\protected@file@percent }
+\newlabel{app:gaussian_mechanism}{{L.2}{20}{Gaussian-Noise vs Hard-Negative Mechanism}{subsection.L.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.3}Representation Drift Mechanism}{20}{subsection.L.3}\protected@file@percent }
+\newlabel{app:forgetting_mechanism}{{L.3}{20}{Representation Drift Mechanism}{subsection.L.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.4}CNN Baseline: Detailed Analysis}{20}{subsection.L.4}\protected@file@percent }
+\newlabel{app:cnn_analysis}{{L.4}{20}{CNN Baseline: Detailed Analysis}{subsection.L.4}{}}
 \citation{chen2020simclr}
 \citation{grill2020byol}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.4}CNN Baseline: Detailed Analysis}{20}{subsection.J.4}\protected@file@percent }
-\newlabel{app:cnn_analysis}{{J.4}{20}{CNN Baseline: Detailed Analysis}{subsection.J.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.5}SupCon Gradient Flow Analysis}{20}{subsection.J.5}\protected@file@percent }
-\newlabel{app:supcon_gradients}{{J.5}{20}{SupCon Gradient Flow Analysis}{subsection.J.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.6}Alternative Contrastive Frameworks}{20}{subsection.J.6}\protected@file@percent }
-\newlabel{app:alt_contrastive}{{J.6}{20}{Alternative Contrastive Frameworks}{subsection.J.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.7}Ensemble Degradation with Stealth Level}{20}{subsection.J.7}\protected@file@percent }
-\newlabel{app:ensemble_degradation}{{J.7}{20}{Ensemble Degradation with Stealth Level}{subsection.J.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {J.8}Protocol-Constrained Generation Algorithm}{21}{subsection.J.8}\protected@file@percent }
-\newlabel{app:algorithm}{{J.8}{21}{Protocol-Constrained Generation Algorithm}{subsection.J.8}{}}
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Protocol-Constrained Hard-Negative Generation}}{21}{algorithm.1}\protected@file@percent }
-\newlabel{alg:hng}{{1}{21}{Protocol-Constrained Hard-Negative Generation}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {K}Leave-One-Out Generalization Details}{21}{appendix.K}\protected@file@percent }
-\newlabel{app:loo_detail}{{K}{21}{Leave-One-Out Generalization Details}{appendix.K}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.5}SupCon Gradient Flow Analysis}{21}{subsection.L.5}\protected@file@percent }
+\newlabel{app:supcon_gradients}{{L.5}{21}{SupCon Gradient Flow Analysis}{subsection.L.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.6}Alternative Contrastive Frameworks}{21}{subsection.L.6}\protected@file@percent }
+\newlabel{app:alt_contrastive}{{L.6}{21}{Alternative Contrastive Frameworks}{subsection.L.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.7}Ensemble Degradation with Stealth Level}{21}{subsection.L.7}\protected@file@percent }
+\newlabel{app:ensemble_degradation}{{L.7}{21}{Ensemble Degradation with Stealth Level}{subsection.L.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {L.8}Protocol-Constrained Generation}{21}{subsection.L.8}\protected@file@percent }
+\newlabel{app:algorithm}{{L.8}{21}{Protocol-Constrained Generation}{subsection.L.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Leave-One-Out Generalization Details}{22}{appendix.M}\protected@file@percent }
+\newlabel{app:loo_detail}{{M}{22}{Leave-One-Out Generalization Details}{appendix.M}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces  Leave-one-out generalization (stealth-95 F1, mean$\pm $std across 3 seeds, benign-calibrated threshold). Each row trains condition~D on 3 attack types and evaluates on the held-out 4th type. $\Delta $ = \textsc  {HNIDS}{} F1 $-$ zero-shot F1. All four folds show positive transfer under calibrated evaluation. }}{22}{table.caption.18}\protected@file@percent }
+\newlabel{tab:loo}{{13}{22}{Leave-one-out generalization (stealth-95 F1, mean$\pm $std across 3 seeds, benign-calibrated threshold). Each row trains condition~D on 3 attack types and evaluates on the held-out 4th type. $\Delta $ = \ours {} F1 $-$ zero-shot F1. All four folds show positive transfer under calibrated evaluation}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {N}Extended N-BaIoT Analysis}{22}{appendix.N}\protected@file@percent }
+\newlabel{app:extended_nbaiot}{{N}{22}{Extended N-BaIoT Analysis}{appendix.N}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {N.1}Zero-Shot Failure Analysis}{22}{subsection.N.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {N.2}Preprocessing Details}{22}{subsection.N.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {N.3}Recipe Generalisation Interpretation}{23}{subsection.N.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {O}Moirai Median Forecast Selection}{23}{appendix.O}\protected@file@percent }
+\newlabel{app:moirai_median}{{O}{23}{Moirai Median Forecast Selection}{appendix.O}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {P}ETTh2 Forecasting Details}{23}{appendix.P}\protected@file@percent }
+\newlabel{app:etth2_details}{{P}{23}{ETTh2 Forecasting Details}{appendix.P}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {Q}LoRA Rank Sensitivity}{23}{appendix.Q}\protected@file@percent }
+\newlabel{app:lora_rank}{{Q}{23}{LoRA Rank Sensitivity}{appendix.Q}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$, 3 seeds for $r{=}8$.}}{24}{table.caption.19}\protected@file@percent }
+\newlabel{tab:lora_rank}{{14}{24}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$, 3 seeds for $r{=}8$}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {R}CKA Calibration: Random-Initialisation Baseline}{24}{appendix.R}\protected@file@percent }
+\newlabel{app:cka_calibration}{{R}{24}{CKA Calibration: Random-Initialisation Baseline}{appendix.R}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure.}}{24}{table.caption.20}\protected@file@percent }
+\newlabel{tab:cka_calibration}{{15}{24}{CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure}{table.caption.20}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive.}}{25}{table.caption.21}\protected@file@percent }
+\newlabel{tab:n5k_seeds}{{16}{25}{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive}{table.caption.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {S}Linear Probing: Functional Representation Diagnostic}{25}{appendix.S}\protected@file@percent }
+\newlabel{app:probing}{{S}{25}{Linear Probing: Functional Representation Diagnostic}{appendix.S}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {S.1}$n{=}5{,}000$ per-epoch trajectory analysis}{25}{subsection.S.1}\protected@file@percent }
+\newlabel{app:n5k_trajectories}{{S.1}{25}{$n{=}5{,}000$ per-epoch trajectory analysis}{subsection.S.1}{}}
 \bibstyle{plainnat}
 \bibdata{bibliography}
-\bibcite{audibert2020usad}{Audibert et~al.(2020)}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces  Leave-one-out generalization (stealth-95 F1, mean$\pm $std across 3 seeds, benign-calibrated threshold). Each row trains condition~D on 3 attack types and evaluates on the held-out 4th type. $\Delta $ = \textsc  {HNIDS}{} F1 $-$ zero-shot F1. All four folds show positive transfer under calibrated evaluation. }}{22}{table.caption.15}\protected@file@percent }
-\newlabel{tab:loo}{{10}{22}{Leave-one-out generalization (stealth-95 F1, mean$\pm $std across 3 seeds, benign-calibrated threshold). Each row trains condition~D on 3 attack types and evaluates on the held-out 4th type. $\Delta $ = \ours {} F1 $-$ zero-shot F1. All four folds show positive transfer under calibrated evaluation}{table.caption.15}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {L}Extended N-BaIoT Analysis}{22}{appendix.L}\protected@file@percent }
-\newlabel{app:extended_nbaiot}{{L}{22}{Extended N-BaIoT Analysis}{appendix.L}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {L.1}Zero-Shot Failure Analysis}{22}{subsection.L.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {L.2}Preprocessing Details}{22}{subsection.L.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {L.3}Recipe Generalisation Interpretation}{22}{subsection.L.3}\protected@file@percent }
-\bibcite{bengio2009curriculum}{Bengio et~al.(2009)}
-\bibcite{chen2020simclr}{Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton}
-\bibcite{das2024timeseries}{Das et~al.(2024)}
-\bibcite{eldele2021ts2vec}{Eldele et~al.(2021)}
-\bibcite{garcia2014empirical}{Garcia et~al.(2014)}
-\bibcite{goodfellow2015adversarial}{Goodfellow et~al.(2015)Goodfellow, Shlens, and Szegedy}
-\bibcite{goswami2024moment}{Goswami et~al.(2024)}
-\bibcite{grill2020byol}{Grill et~al.(2020)}
-\bibcite{houlsby2019adapters}{Houlsby et~al.(2019)Houlsby, Giurgiu, Jastrzebski, Morber, Larsson, Gesmundo, Attariyan, and Gelly}
-\bibcite{hu2022lora}{Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}
-\bibcite{iotanalyticsmarket2023}{{IoT Analytics}(2023)}
-\bibcite{khosla2020supcon}{Khosla et~al.(2020)}
-\bibcite{lin2018idsgan}{Lin et~al.(2022)}
-\bibcite{liu2012isolation}{Liu et~al.(2012)Liu, Ting, and Zhou}
-\bibcite{madry2018pgd}{Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and Vladu}
-\bibcite{meidan2018n}{Meidan et~al.(2018)Meidan, Bohadana, Mathov, Mirsky, Shabtai, Breitenbacher, and Elovici}
-\bibcite{moustafa2015unsw}{Moustafa and Slay(2015)}
-\bibcite{neto2023ciciot}{Neto et~al.(2023)}
-\bibcite{nie2023patchtst}{Nie et~al.(2023)}
-\bibcite{reiss2021panda}{Reiss et~al.(2021)}
-\bibcite{sohn2020fixmatch}{Sohn et~al.(2020)}
-\bibcite{tuli2022tranad}{Tuli et~al.(2022)}
-\bibcite{woo2024moirai}{Woo et~al.(2024)}
-\bibcite{xu2022anomaly}{Xu et~al.(2022)}
-\bibcite{yoon2019timegan}{Yoon et~al.(2019)Yoon, Jarrett, and van~der Schaar}
-\bibcite{zhang2024diffusionts}{Zhang et~al.(2024)}
-\gdef \@abspage@last{24}
+\bibcite{ansari2024chronos}{{1}{2024}{{Ansari et~al.}}{{}}}
+\bibcite{audibert2020usad}{{2}{2020}{{Audibert et~al.}}{{}}}
+\bibcite{chen2020simclr}{{3}{2020}{{Chen et~al.}}{{Chen, Kornblith, Norouzi, and Hinton}}}
+\bibcite{das2024timeseries}{{4}{2024}{{Das et~al.}}{{}}}
+\bibcite{eldele2021ts2vec}{{5}{2021}{{Eldele et~al.}}{{}}}
+\bibcite{garcia2014empirical}{{6}{2014}{{Garcia et~al.}}{{}}}
+\bibcite{goodfellow2015adversarial}{{7}{2015}{{Goodfellow et~al.}}{{Goodfellow, Shlens, and Szegedy}}}
+\bibcite{goswami2024moment}{{8}{2024}{{Goswami et~al.}}{{}}}
+\bibcite{grill2020byol}{{9}{2020}{{Grill et~al.}}{{}}}
+\bibcite{hewitt2019structural}{{10}{2019}{{Hewitt and Manning}}{{}}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt  {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes.}}{26}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:n5k_trajectories}{{5}{26}{Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes}{figure.caption.22}{}}
+\bibcite{hu2022lora}{{11}{2022}{{Hu et~al.}}{{Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}}}
+\bibcite{khosla2020supcon}{{12}{2020}{{Khosla et~al.}}{{}}}
+\bibcite{kirkpatrick2017ewc}{{13}{2017}{{Kirkpatrick et~al.}}{{Kirkpatrick, Pascanu, Rabinowitz, et~al.}}}
+\bibcite{kornblith2019cka}{{14}{2019}{{Kornblith et~al.}}{{Kornblith, Norouzi, Lee, and Hinton}}}
+\bibcite{li2018l2sp}{{15}{2018}{{Li et~al.}}{{Li, Grandvalet, and Davoine}}}
+\bibcite{li2017lwf}{{16}{2018}{{Li and Hoiem}}{{}}}
+\bibcite{lin2022idsgan}{{17}{2022}{{Lin et~al.}}{{Lin, Shi, and Xue}}}
+\bibcite{liu2012isolation}{{18}{2012}{{Liu et~al.}}{{Liu, Ting, and Zhou}}}
+\bibcite{luo2024forgetting}{{19}{2024}{{Luo et~al.}}{{}}}
+\bibcite{madry2018pgd}{{20}{2018}{{Madry et~al.}}{{Madry, Makelov, Schmidt, Tsipras, and Vladu}}}
+\bibcite{meidan2018n}{{21}{2018}{{Meidan et~al.}}{{Meidan, Bohadana, Mathov, Mirsky, Shabtai, Breitenbacher, and Elovici}}}
+\bibcite{moustafa2015unsw}{{22}{2015}{{Moustafa and Slay}}{{}}}
+\bibcite{neto2023ciciot}{{23}{2023}{{Neto et~al.}}{{}}}
+\bibcite{nie2023patchtst}{{24}{2023}{{Nie et~al.}}{{}}}
+\bibcite{pimentel2020information}{{25}{2020}{{Pimentel et~al.}}{{Pimentel, Valvoda, Maudslay, Zmigrod, Williams, and Cotterell}}}
+\bibcite{tuli2022tranad}{{26}{2022}{{Tuli et~al.}}{{}}}
+\bibcite{woo2024moirai}{{27}{2024}{{Woo et~al.}}{{}}}
+\bibcite{xu2022anomaly}{{28}{2022}{{Xu et~al.}}{{}}}
+\bibcite{zhang2024diffusionts}{{29}{2024}{{Zhang et~al.}}{{}}}
+\bibcite{zhou2021informer}{{30}{2021}{{Zhou et~al.}}{{Zhou, Zhang, Peng, Zhang, Li, Xiong, and Zhang}}}
+\gdef \@abspage@last{28}

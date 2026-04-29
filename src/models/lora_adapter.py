@@ -11,24 +11,23 @@ except ImportError:
     logger.warning("peft not installed. LoRA fine-tuning unavailable.")
 
 
-def apply_lora(model, rank: int = 8, alpha: int = 16) -> torch.nn.Module:
+def apply_lora(model, rank: int = 8, alpha: int = 16, target_modules=None) -> torch.nn.Module:
     """Wrap a MoiraiForecast model's encoder with LoRA adapters.
 
-    Targets q_proj, v_proj, and out_proj in all encoder self-attention layers.
-    The base model parameters are frozen; only LoRA parameters are trainable.
+    Defaults target q_proj, v_proj, and out_proj in all encoder self-attention
+    layers.  Pass a list of strings to override for LoRA-HP ablation (reviewer Q4).
 
     Args:
         model: MoiraiForecast instance (model.module is the MoiraiModule)
         rank: LoRA rank (number of low-rank dimensions)
         alpha: LoRA alpha scaling factor
-
-    Returns:
-        The model with LoRA adapters applied to model.module
+        target_modules: optional list of attention module names (default q_proj, v_proj, out_proj)
     """
     if not PEFT_AVAILABLE:
         raise ImportError("peft is required for LoRA. Install with: pip install peft")
 
-    target_modules = ["q_proj", "v_proj", "out_proj"]
+    if target_modules is None:
+        target_modules = ["q_proj", "v_proj", "out_proj"]
 
     lora_config = LoraConfig(
         r=rank,

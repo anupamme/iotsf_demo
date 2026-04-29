@@ -1,0 +1,7 @@
+{
+  "condition": "A",
+  "zeroshot_mse": 0.6777404492537528,
+  "zeroshot_mae": 0.561593374876268,
+  "horizon": 96,
+  "seed": 999
+}

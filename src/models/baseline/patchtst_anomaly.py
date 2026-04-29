@@ -102,9 +102,14 @@ class PatchTSTAnomalyIDS(BaseIDS):
         self.batch_size = batch_size
         self.lr = lr
 
-        self._device = torch.device(
-            device if device else ("cuda" if torch.cuda.is_available() else "cpu")
-        )
+        if device:
+            self._device = torch.device(device)
+        elif torch.cuda.is_available():
+            self._device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            self._device = torch.device('mps')
+        else:
+            self._device = torch.device('cpu')
 
         # Compute number of patches
         self._n_patches = (seq_length - patch_size) // patch_stride + 1

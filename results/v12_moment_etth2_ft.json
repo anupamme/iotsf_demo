@@ -1,0 +1,23 @@
+{
+  "model_id": "AutonLab/MOMENT-1-base",
+  "horizon": 96,
+  "seed": 42,
+  "device": "mps",
+  "n_test_windows": 300,
+  "linear_baseline_mse_lb96": 0.23500414192676544,
+  "moment_zs_probe_mse": 0.5278818607330322,
+  "moment_zs_probe_r2": 0.0655045285820961,
+  "gate_pass_vs_linear": false,
+  "gate_margin_pct": -147.83,
+  "moment_ft_mse": 0.2681,
+  "moment_ft_vs_linear_pct": -25.87,
+  "moment_ft_cka_vs_pretrained": 0.6211,
+  "forgetting_pct_vs_probe_zs": -49.22,
+  "epochs": 5,
+  "max_train_samples": 500,
+  "history": {
+    "train_loss": [28.4915, 23.3467, 20.1625, 15.5866, 12.2304],
+    "val_mse":   [0.2633, 0.2618, 0.2728, 0.2913, 0.2681]
+  },
+  "note": "Result recovered from /tmp/moment_ft.log after post-train JSON save bug (AttributeError); paired gate JSON at results/v12_moment_etth2_gate.json."
+}

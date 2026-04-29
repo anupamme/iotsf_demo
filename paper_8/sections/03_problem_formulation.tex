@@ -5,63 +5,23 @@
 
 \textbf{IoT traffic representation.}
 We represent network traffic as a multivariate time series
-$\mathbf{X} = (\mathbf{x}_1, \ldots, \mathbf{x}_T) \in \R^{T \times F}$,
-where $T = 128$ timesteps correspond to a sliding window of flow records
-and $F = 12$ features capture packet counts, byte volumes, inter-arrival
-times, and flow duration (see Appendix A for the full feature list).
+$\mathbf{X} \in \R^{T \times F}$ ($T = 128$ timesteps, $F = 12$ flow
+features covering packet counts, byte volumes, inter-arrival times, and
+flow duration; full list in Appendix~\ref{app:features}).
 
-\textbf{Hard-negative attack.}
-Let $\mathbf{X}_b$ be a benign sequence.  An adversarial sequence
-$\mathbf{X}_a$ is a \emph{hard-negative attack} at stealth level $s$ if:
-\begin{align}
-  \label{eq:stealth}
-  \text{CosSim}(\phi(\mathbf{X}_a),\, \phi(\mathbf{X}_b)) \geq s,
-  \qquad s \in [0, 1],
-\end{align}
-where $\phi(\cdot) \in \R^{T \cdot F}$ denotes the flattened feature vector.
-Intuitively, $s = 0.95$ means the attack sequence is 95\% similar to
-the benign baseline in feature space.
-
-\textbf{Attack patterns.}
-We formalise four IoT attack patterns that embed adversarial signals
-with low perceptibility:
-\begin{align}
-  P_{\text{slow}}(\mathbf{X}, s) &:
-    x_{t,j} \leftarrow x_{t,j}\,(1 + (1-s) \cdot 0.03 \cdot t / T),
-    \quad j \in \{9, 10\},
-    \label{eq:slow} \\
-  P_{\text{lotl}}(\mathbf{X}, s) &:
-    x_{t,j} \leftarrow x_{t,j}\,(1 + (1-s) \cdot 1.15)
-    \;\text{ if } t \bmod 32 = 0, \quad j \in \{6,7,8\},
-    \label{eq:lotl} \\
-  P_{\text{beacon}}(\mathbf{X}, s) &:
-    x_{t,j} \leftarrow x_{t,j}\,(1 - (1-s) \cdot 0.02)
-    \;\text{ if } t \bmod 16 = 0, \quad j \in \{1,\ldots,12\},
-    \label{eq:beacon} \\
-  P_{\text{proto}}(\mathbf{X}, s) &:
-    x_{t,j} \leftarrow x_{t,j} + (1-s) \cdot 0.05 \cdot \epsilon_t,
-    \quad \epsilon_t \sim \mathcal{N}(0,1),\; j \in \{11,12\}.
-    \label{eq:proto}
-\end{align}
-These correspond to slow exfiltration~\eqref{eq:slow},
-LotL mimicry~\eqref{eq:lotl}, C2 beaconing~\eqref{eq:beacon},
-and protocol timing anomalies~\eqref{eq:proto}.
-Feature indices are 1-based (Appendix~\ref{app:features}).
-
-\textbf{Protocol compliance.}
-A generated sequence must satisfy IoT protocol constraints
-$\mathcal{C}_\pi$ for protocol $\pi \in \{\text{Modbus, MQTT, CoAP}\}$:
-\begin{equation}
-  \mathbf{X}_a \in \mathcal{F}_\pi \coloneqq
-  \{\mathbf{X} : \mathcal{C}_\pi(\mathbf{X}) = \text{valid}\},
-\end{equation}
-where $\mathcal{C}_\pi$ checks constraints such as packet size ranges
-(Modbus: 7--260 bytes), valid function codes, and inter-packet timing.
+\textbf{Hard-negative attacks.}
+An adversarial sequence $\mathbf{X}_a$ is a hard-negative at stealth
+level $s$ if
+$\text{CosSim}(\phi(\mathbf{X}_a), \phi(\mathbf{X}_b)) \geq s$,
+where $\phi$ is the flattened feature vector and $\mathbf{X}_b$ is
+benign.  We formalise four attack archetypes---slow exfiltration,
+living-off-the-land mimicry, C2 beaconing, and protocol timing
+anomaly---at three stealth levels ($s \in \{0.85, 0.90, 0.95\}$) with
+closed-form perturbations that are deterministic and CPU-reproducible
+(full equations and protocol constraints in
+Appendix~\ref{app:attack_equations}).
 
 \textbf{Detection task.}
-Given a test sequence $\mathbf{X}$, the detector $f_\theta$ outputs a
-binary label $\hat{y} \in \{0, 1\}$ (0 = benign, 1 = attack) and an
-anomaly score $\hat{s} \in [0,1]$.  The goal is to minimise the
-false positive rate (FPR $= \text{FP}/(\text{FP}+\text{TN})$) while
-maximising recall (detection rate) and F1 score, specifically on
-hard-negative attacks where $s \geq 0.85$.
+The detector $f_\theta$ outputs a binary label $\hat{y} \in \{0, 1\}$
+and anomaly score $\hat{s} \in [0,1]$, minimising FPR while maximising
+F1 on hard-negative attacks where $s \geq 0.85$.

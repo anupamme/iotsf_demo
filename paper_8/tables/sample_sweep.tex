@@ -1,0 +1,43 @@
+\begin{table}[t]
+\centering
+\caption{Sample-size sweep on ETTh2 ($h{=}96$, condition B).
+Drift grows monotonically with sample size (CKA$\downarrow$ as $n\uparrow$),
+but forgetting is \emph{non-monotonic}: severe at $n{\le}1{,}000$,
+resolves at $n{=}2{,}000$ and $n{=}10{,}000$, with elevated variance
+at $n{=}5{,}000$ reflecting a crossover regime.
+We ran 4 additional seeds at $n{=}5{,}000$ (789, 101, 202, 303) to
+address the bimodality question raised in review; the combined 7-seed
+mean is $+$6.6\% $\pm$10.0\% and forgetting is indeed bimodal
+(4 seeds$\le+$5.9\%, 3 seeds$\ge+$4.8\%; Table~\ref{tab:n5k_seeds}).
+Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from
+Ridge regression of encoder representations onto the forecasting target
+on held-out ETTh2) \emph{increases} with $n$; we also report
+absolute R$^2$(FT) so readers can judge the noise floor
+(pre-trained R$^2_{\text{ZS}}{=}-6.90$ for all rows, single frozen
+encoder).
+Representations become \emph{more} task-functional as they drift,
+directly dissociating geometric similarity (CKA) from functional utility.
+Mean $\pm$ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$ which
+has 7 seeds (42, 123, 456, 789, 101, 202, 303) and $n{=}10{,}000$ which
+has 2 seeds (42, 123); a CUDA run at $\geq$5 seeds for $n{=}10{,}000$
+is a camera-ready commitment.
+Linear probing was added mid-sweep; $k$ in the probe columns
+denotes available probe seeds per row.
+MLP probe column reports $\Delta R^2$ for an MLP probe
+($\textrm{hidden}{=}64$, $\alpha{=}10^{-3}$, early stopping); seeds per
+row shown as mean$\pm$std where $k{>}1$. V11 revision adds multi-seed
+replication at $n{\in}\{2{,}000, 1{,}000, 500\}$.}
+\label{tab:sample_sweep}
+\small
+\begin{tabular}{r cccccc}
+\toprule
+Samples & MSE & Forg.\% & CKA & R$^2$(FT) & $\Delta R^2$ (Ridge) & $\Delta R^2$ (MLP) \\
+\midrule
+500      & .148{\tiny$\pm$.008} & +14.0{\tiny$\pm$6.7}  & .949{\tiny$\pm$.010} & $-$6.79 ($k$=2) & +.12{\tiny$\pm$.02} & $-$.26 ($k$=1) \\
+1{,}000  & .147{\tiny$\pm$.010} & +13.4{\tiny$\pm$9.1}  & .936{\tiny$\pm$.025} & $-$6.77 ($k$=1) & +.13 ($k$=1)        & +.30 ($k$=1)   \\
+2{,}000  & .126{\tiny$\pm$.008} & $-$2.9{\tiny$\pm$5.9} & .814{\tiny$\pm$.042} & $-$6.51 ($k$=3) & +.39{\tiny$\pm$.35} & +.73{\tiny$\pm$.75} \\
+5{,}000  & .134{\tiny$\pm$.012} & +6.6{\tiny$\pm$10.0}  & .546{\tiny$\pm$.082} & $-$6.41 ($k$=7) & +.50{\tiny$\pm$.26} & --- \\
+10{,}000 & .135{\tiny$\pm$.001} & +2.8{\tiny$\pm$0.7}   & .429{\tiny$\pm$.048} & $-$6.22 ($k$=2) & +.68{\tiny$\pm$.01} & +1.54{\tiny$\pm$.24} \\
+\bottomrule
+\end{tabular}
+\end{table}

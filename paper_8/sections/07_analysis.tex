@@ -3,108 +3,72 @@
 \label{sec:analysis}
 % ============================================================
 
-\textbf{Forgetting is domain-general.}
-The forgetting diagnosis replicates across both domains
-(Table~\ref{tab:cross_domain}).
-In ETTh2, where pre-trained features provide a 28--45\% MSE advantage,
-fine-tuning degrades performance by 10--16\%.
-In IoT, where the pre-training advantage is marginal (AUC: 0.549 vs.\
-0.481), unfrozen fine-tuning collapses Moirai to CNN-level performance.
-In both cases, freezing the encoder eliminates or substantially reduces
-forgetting.
-This cross-domain replication rules out the alternative interpretation
-that IoT forgetting was merely ``the task has low signal and models
-overfit the synthetic distribution.''
+\textbf{Drift is consistent; consequences depend on pre-training value.}
+Table~\ref{tab:cross_domain} spans seven settings: on ETT
+(28--45\% ZS advantage) drift causes forgetting (10--16\% MSE,
+CKA 0.81--0.94); on IoT (marginal ZS) CKA drops further (0.31--0.45)
+yet performance \emph{improves}; on Weather the ZS gate fails
+(0.41 vs 0.22), delimiting the claim.
 
 \begin{table}[t]
 \centering
-\caption{Cross-domain forgetting comparison.  The mechanism replicates
-regardless of whether pre-trained features are useful.}
+\caption{Cross-domain drift ($h{=}96$, condition B). Weather fails
+the ZS gate (0.41 vs.\ 0.22), delimiting claim scope. Mean$\pm$std
+across seeds.}
 \label{tab:cross_domain}
 \small
-\begin{tabular}{lcc}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc|c}
 \toprule
-& IoT Anomaly Det. & ETTh2 Forecasting \\
+& ETTh2-S & ETTh1 & ETTm2 & ETTh2-B & ETTh2-L & Weather & IoT \\
+& (10 sd) & (3 sd) & (3 sd) & (3 sd) & (3 sd) & (1 sd) & (10 sd) \\
 \midrule
-Pre-training value        & Marginal (0.549 vs.\ 0.481) & Strong (28--45\%) \\
-Forgetting (unfrozen)     & $+$7--15\% AUC drop & $+$10--16\% MSE rise \\
-Frozen encoder recovery   & Yes (AUC: 0.549--0.606) & Yes (MSE: $\approx$zero-shot) \\
-CKA degradation           & 0.426$\to$0.183 & 0.937--0.964 \\
+Metric             & MSE & MSE & MSE & MSE & MSE & MSE & AUC \\
+ZS baseline        & 0.126 & 0.679 & 0.175 & 0.231 & 0.128 & 0.410 & 0.481 \\
+FT result          & .140{\tiny$\pm$.014} & .726{\tiny$\pm$.022} & .152{\tiny$\pm$.011} & .129{\tiny$\pm$.013} & .140{\tiny$\pm$.012} & 0.906 & .629{\tiny$\pm$.022} \\
+Forg.\%            & +11.1  & +7.0{\tiny$\pm$3.2} & $-$13.3{\tiny$\pm$6.1} & $-$44.1{\tiny$\pm$5.7} & +10.5{\tiny$\pm$9.5} & \textit{N/A} & +30.8 \\
+CKA                & .937{\tiny$\pm$.028} & .807{\tiny$\pm$.048} & .851{\tiny$\pm$.083} & .460{\tiny$\pm$.200} & .626{\tiny$\pm$.165} & 0.974 & .420{\tiny$\pm$.026} \\
+Effect             & Degrades & Degrades & Improves & Improves & Degrades & Gate fails & Improves \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Contrastive loss does not regularise against forgetting.}
-In both domains, condition C (NLL$+$SupCon) shows comparable or slightly
-worse forgetting than B (NLL-only): $+$10.1\% vs.\ $+$11.1\% at $h{=}96$
-on ETTh2, and comparable AUC degradation on IoT.
-The contrastive objective pushes representations toward task-specific
-clustering, which does not preserve the distributional structure that
-makes zero-shot performance effective.
+\textbf{Model-size replication.}
+Moirai-Base (91M) is a boundary case: unfrozen-Base drifts
+(CKA$=$0.460) and improves $-$44.1\%, while frozen-Base improves
+further to $-$47.4\% at CKA$=$0.997 --- drift and forgetting are
+\emph{dissociable}, not drift is always beneficial; Base's gain is
+capacity and freezing retains it without paying the drift cost.
+Moirai-Large (311M) at $n{=}500$: CKA$=$0.626$\pm$0.165,
+$+$10.5$\pm$9.5\% forg.\ (3 seeds); frozen-Large $+$3.2$\pm$0.6\%;
+LoRA $r{=}8$ fails ($+$25.7$\pm$3.2\%, CKA 0.973, 3 seeds) and
+rank escalation does not rescue it ($r{\in}\{16,32,64\}$: $+$22.5,
+$+$19.0, $+$29.9\%, seed 42; Appendix~\ref{app:lora_rank}) --- the
+Small-recipe does not transfer to Large at any rank we tested.
+A from-scratch CNN-NLL control (AUC$=$0.598$\pm$0.041) outperforms
+unfrozen Moirai at IoT's 200-window scale (Appendix~\ref{app:cnn_detail}).
 
-\textbf{CNN-NLL control resolves the loss-function confound.}
-The from-scratch CNN (AUC$=$0.580$\pm$0.023 with MSE) outperforms
-unfrozen Moirai at small scale.
-A natural question is whether this advantage reflects MSE being an
-easier optimisation target, not architecture.
-We train the CNN with the same distributional NLL loss (Gaussian head):
-CNN-NLL achieves AUC$=$0.598$\pm$0.042, slightly \emph{outperforming}
-CNN-MSE.
-This rules out the loss-function confound: the CNN advantage is not an
-artefact of MSE being easier to optimise.
-Rather, the CNN---lacking pre-trained features to destroy---is immune
-to forgetting.
+\textbf{CKA and linear probing are dissociable.}
+Ridge probing on frozen encoder reps (Table~\ref{tab:sample_sweep})
+shows $\Delta R^2$ rising with $n$ ($+$0.12 at 500 $\to +$0.68 at
+10{,}000) while CKA drops (0.949 $\to$ 0.429); MLP probe replicates
+($+$0.73$\pm$.75 at $n{=}2$k, 3 seeds; $+$1.54$\pm$.24 at $n{=}10$k,
+2 seeds).  At $n{=}10{,}000$ representations have drifted substantially
+yet are \emph{functionally superior} with near-zero forgetting ---
+directly dissociating geometric drift from information loss
+(random-init CKA$<$0.001; Appendix~\ref{app:cka_calibration}).
 
-\textbf{Why does the C$>$D gap collapse at scale?}
-At 200/5, Gaussian-noise negatives (C) outperform hard negatives (D)
-because ``easy'' off-manifold negatives provide unambiguous gradient signal
-at limited scale.  At 1000/20 with NLL-only ES, the gap collapses to
-near-zero ($p{=}0.39$, n.s.), consistent with easy negatives providing
-clearer gradient signal when training budget is limited, but this
-advantage becoming unnecessary with sufficient data
-(Appendix~\ref{app:gaussian_mechanism}).
+\textbf{$n{=}5{,}000$ bimodality.}
+The 7-seed $+$6.6$\pm$10.0\% variance splits into low-forgetting
+(42, 101, 123, 202: $-$0.1$\pm$3.7\%) and high-forgetting
+(303, 456, 789: $+$15.5$\pm$7.3\%) modes. Per-epoch trajectories
+(App.~\ref{app:n5k_trajectories}, Fig.~\ref{fig:n5k_trajectories})
+separate them by val-MSE epoch-of-minimum ($6.5\pm2.1$ vs.\
+$0.7\pm0.5$): high-forg.\ seeds overshoot in epoch 1, motivating
+early-stopping. LR/2 ablation: bimodality persists ($+$5.8$\pm$15.7\%,
+7 seeds) --- not a pure LR artefact.
 
-\textbf{Threat model as diagnostic tool.}
-The closed-form perturbations (Eqs.~\ref{eq:slow}--\ref{eq:proto}) define
-a simplified threat model deliberately chosen as a clean diagnostic for
-studying forgetting dynamics, not as a realistic adversarial benchmark.
-The leave-one-out experiment (mean $+$0.186 F1) partially addresses
-generalisation to unseen attack patterns; testing against learned evasion
-strategies (e.g., RL-based adaptive attackers) is future work.
-
-\textbf{Baseline tuning asymmetry.}
-DL baselines use published defaults while \ours{} benefits from
-ablation-driven tuning.
-Since the paper's central contribution is the forgetting diagnosis---not
-SOTA IDS performance---this asymmetry does not affect the forgetting
-conclusions.
-The baselines serve as reference points for the detection task difficulty,
-not as direct competitors in a detection benchmark.
-
-\textbf{Recommended operating point.}
-For IoT anomaly detection at small scale ($\leq$200 samples), the 1D-CNN
-achieves the highest AUC (0.598 with NLL, 0.580 with MSE) with lowest
-variance and no pre-training dependency.
-When pre-trained features are available and training budget exceeds 200
-samples, freeze the encoder, train only the projection head, use NLL-only
-early stopping, and recalibrate on deployment-specific benign traffic.
-LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters} offer
-a principled middle ground between full freezing and full fine-tuning;
-this is future work.
-\emph{Caveat}: neither configuration achieves operationally useful F1 at
-stealth-95 under calibrated thresholds (best: C F1$=$0.250,
-frozen C F1$=$0.148); the system is a research prototype best suited as
-a high-specificity alerting layer, not a standalone detector.
-
-\textbf{Limitations.}
-We identify seven limitations (full details in Appendix~\ref{app:limitations}):
-(1)~hand-designed attack archetypes, not learned evasion;
-(2)~10 seeds on IoT, 10 seeds on ETTh2 (larger seed counts may reduce variance);
-(3)~Moirai-Small only (13.8M parameters; larger variants may show different forgetting dynamics);
-(4)~Diffusion-TS backbone deferred;
-(5)~circular evaluation on IoT (addressed by N-BaIoT, \S\ref{sec:iot:nbaiot});
-(6)~low absolute F1 (best 0.250; system is a high-specificity alerting layer);
-(7)~baselines use published defaults (see above).
-
-\textbf{Responsible disclosure.}
-We release code and data for defensive research, not to enable attacks.
+An IoT logistic-regression probe also replicates the dissociation
+direction ($\Delta$AUC$=+$0.013$\pm$0.006, CKA$=$0.370, 3 seeds);
+limitations and practitioner guidance: \S\ref{sec:conclusion},
+Appendix~\ref{app:limitations}.

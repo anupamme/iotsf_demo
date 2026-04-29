@@ -3,66 +3,52 @@
 \label{sec:related}
 % ============================================================
 
-\textbf{Traditional IoT IDS.}
-Statistical methods (Z-score, IQR) and Isolation
-Forest~\cite{liu2012isolation} flag individual flow features deviating
-from learned normals; ensemble approaches~\cite{garcia2014empirical}
-improve precision.  All share a weakness: calibration on known,
-high-magnitude attacks and failure on stealthy perturbations.
-We use the \dataset{} dataset~\cite{neto2023ciciot} throughout.
+\textbf{IoT IDS and DL anomaly detection.}
+Traditional methods (Isolation Forest~\cite{liu2012isolation},
+ensembles~\cite{garcia2014empirical}) fail on stealthy perturbations.
+DL approaches---USAD~\cite{audibert2020usad},
+TranAD~\cite{tuli2022tranad}, Anomaly
+Transformer~\cite{xu2022anomaly}, PatchTST~\cite{nie2023patchtst}---serve
+as our baselines on \dataset{}~\cite{neto2023ciciot}.
 
-\textbf{Deep-learning anomaly detection.}
-USAD~\cite{audibert2020usad} uses adversarially trained dual-autoencoders.
-TranAD~\cite{tuli2022tranad} applies context-aware Transformers.
-The Anomaly Transformer~\cite{xu2022anomaly} introduces association
-discrepancy for anomalous timestep detection.
-PatchTST~\cite{nie2023patchtst} captures long-range dependencies via
-patch-based Transformers.
-We include all four as baselines.
-
-\textbf{Generative augmentation for security.}
-GANs~\cite{lin2018idsgan} suffer mode collapse; TimeGAN~\cite{yoon2019timegan}
-improves temporal fidelity; Diffusion-TS~\cite{zhang2024diffusionts}
-achieves state-of-the-art quality.
-Ours is the first to apply hard-negative contrastive augmentation for
-IoT IDS with protocol constraints, using closed-form perturbations
-(Diffusion-TS backbone deferred to future work).
-
-\textbf{Adversarial training.}
-FGSM~\cite{goodfellow2015adversarial} and PGD~\cite{madry2018pgd} generate
-adversarial perturbations at test time.  We generate adversarial
-\emph{training data} via closed-form perturbations targeting the
-traffic-generation threat model, with protocol constraints ensuring
-domain validity.
+\textbf{Generative augmentation and adversarial training.}
+GANs~\cite{lin2022idsgan} suffer mode collapse;
+Diffusion-TS~\cite{zhang2024diffusionts} achieves better quality.
+Unlike FGSM/PGD~\cite{goodfellow2015adversarial, madry2018pgd}
+test-time perturbations, we generate adversarial \emph{training data}
+via closed-form perturbations with protocol constraints.
 
 \textbf{Time-series foundation models.}
-Moirai~\cite{woo2024moirai}, trained on 27B+ time points, supports
-probabilistic multivariate forecasting.
-Its confidence-interval output maps naturally to anomaly scoring.
-MOMENT~\cite{goswami2024moment} and TimesFM~\cite{das2024timeseries}
-offer complementary architectures.
+Moirai~\cite{woo2024moirai} (27B+ pre-training time points) provides
+probabilistic forecasting; its CI output maps to anomaly scoring.
 
-\textbf{Catastrophic forgetting in foundation models.}
-Catastrophic forgetting---where learning new tasks overwrites previously
-learned representations---is well-studied in continual
-learning~\cite{kirkpatrick2017ewc, li2017lwf}.
-Regularisation approaches include EWC~\cite{kirkpatrick2017ewc}
-(penalising changes to important parameters), LwF~\cite{li2017lwf}
-(knowledge distillation from the original model), and
-L2-SP~\cite{li2018l2sp} ($\ell_2$ penalty toward pre-trained weights).
-In NLP, parameter-efficient methods such as
-LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters}
-mitigate forgetting by restricting the parameter update space.
-Recent work documents forgetting during LLM
-fine-tuning~\cite{luo2024forgetting}, but systematic diagnosis for
-time-series foundation models is lacking.
-Our work provides controlled cross-domain evidence of forgetting in
-Moirai, using CKA and weight drift as diagnostic measures.
+\textbf{Catastrophic forgetting and mitigation.}
+Catastrophic forgetting is extensively studied in continual
+learning~\cite{kirkpatrick2017ewc, li2017lwf} and NLP fine-tuning~\cite{luo2024forgetting}.
+The mitigation toolkit---EWC, L2-SP~\cite{li2018l2sp},
+LoRA~\cite{hu2022lora}, encoder freezing---is well-established.
 
-\textbf{Contrastive learning for anomaly detection.}
-Supervised contrastive learning~\cite{khosla2020supcon} has been applied
-to tabular~\cite{sohn2020fixmatch} and time-series~\cite{eldele2021ts2vec}
-anomaly detection.  Our CombinedLoss adapts~\cite{reiss2021panda}'s
-reconstruction$+$contrastive principle to IoT time series.
-Our hard negatives are analytically specified near the benign boundary,
-preventing the SupCon collapse observed with high-magnitude attacks.
+\textbf{Probing and representational similarity.}
+Probing classifiers~\cite{hewitt2019structural} diagnose what a
+frozen encoder encodes; probe accuracy depends on probe capacity as
+well as the encoder~\cite{pimentel2020information}, so relative
+$\Delta$R$^2$ is the interpretable statistic, not absolute R$^2$.
+CKA~\cite{kornblith2019cka} captures geometric rather than functional
+similarity, motivating the CKA-vs.-probe dissociation in
+\S\ref{sec:forecasting:replication}.
+We do not claim novelty in the \emph{mechanisms} of drift or in
+individual mitigations.
+Our contribution is a systematic cross-domain \emph{characterization}
+specific to time-series foundation models: CKA, linear probing,
+weight drift, and frozen-encoder controls across two domains
+with contrasting pre-training value, establishing when drift
+helps vs.\ harms.
+
+\textbf{Contrastive learning.}
+SupCon~\cite{khosla2020supcon} has been applied to time-series anomaly
+detection~\cite{eldele2021ts2vec}.
+Our initial design used analytically specified hard negatives near the
+benign boundary; ablations (Section~\ref{sec:iot}) show that off-manifold
+Gaussian-noise negatives match or exceed these hard negatives, indicating
+that off-manifold diversity matters more than boundary-proximity for
+this task.

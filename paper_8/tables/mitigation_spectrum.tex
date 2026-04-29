@@ -1,0 +1,39 @@
+\begin{table}[t]
+\centering
+\caption{Mitigation spectrum on ETTh2 forecasting.
+Methods ordered by representation preservation (CKA, $h{=}96$).
+LoRA preserves representations (CKA$\approx$0.98) while \emph{improving}
+over zero-shot.
+Mean $\pm$ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times$ 100.}
+\label{tab:mitigation_spectrum}
+\small
+\begin{tabular}{l cccc cccc c}
+\toprule
+& \multicolumn{4}{c}{$h=96$ (ZS MSE: 0.126)} & \multicolumn{4}{c}{$h=192$ (ZS MSE: 0.158)} & \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+Method & MSE & Forg.\% & CKA & Drift & MSE & Forg.\% & CKA & Drift & $n$ \\
+\midrule
+G: EWC ($\lambda{=}100$)  & .160{\tiny$\pm$.009} & +27.0  & .889{\tiny$\pm$.091} & 5.96{\tiny$\pm$.94}
+                          & .191{\tiny$\pm$.003} & +20.9  & .938{\tiny$\pm$.021} & 6.98{\tiny$\pm$.26} & 5 \\
+B: Full fine-tune  & .140{\tiny$\pm$.014} & +11.1  & .937{\tiny$\pm$.028} & 3.96{\tiny$\pm$.56}
+                    & .183{\tiny$\pm$.020} & +15.7  & .970{\tiny$\pm$.009} & 4.12{\tiny$\pm$.32} & 10 \\
+F: L2-SP ($\lambda{=}0.01$) & .150{\tiny$\pm$.006} & +19.0 & .939{\tiny$\pm$.023} & 4.98{\tiny$\pm$.34}
+                          & .179{\tiny$\pm$.009} & +13.3 & .945{\tiny$\pm$.007} & 4.84{\tiny$\pm$.22} & 5 \\
+C: NLL+SupCon      & .138{\tiny$\pm$.010} & +10.1  & .949{\tiny$\pm$.014} & 3.72{\tiny$\pm$.43}
+                    & .178{\tiny$\pm$.011} & +12.9  & .964{\tiny$\pm$.015} & 3.97{\tiny$\pm$.34} & 10 \\
+\midrule
+F: L2-SP ($\lambda{=}0.1$) & .147{\tiny$\pm$.003} & +16.7 & .965{\tiny$\pm$.006} & 2.94{\tiny$\pm$.08}
+                          & .181{\tiny$\pm$.003} & +14.6 & .980{\tiny$\pm$.002} & 2.84{\tiny$\pm$.02} & 5 \\
+G: EWC ($\lambda{=}1000$) & .149{\tiny$\pm$.015} & +18.3 & .972{\tiny$\pm$.004} & 3.29{\tiny$\pm$.79}
+                          & .188{\tiny$\pm$.004} & +19.0 & .978{\tiny$\pm$.006} & 4.46{\tiny$\pm$.38} & 5 \\
+E: LoRA ($r{=}8$)\textsuperscript{$\dagger$}  & \textbf{.116}{\tiny$\pm$.001} & \textbf{$-$7.9} & .979{\tiny$\pm$.006} & \textbf{0.00}{\tiny$\pm$.00}
+                          & \textbf{.157}{\tiny$\pm$.002} & \textbf{$-$0.6} & .986{\tiny$\pm$.005} & \textbf{0.00}{\tiny$\pm$.00} & 5 \\
+\midrule
+D: Frozen encoder  & .126{\tiny$\pm$.006} & +0.5  & \textbf{1.000}{\tiny$\pm$.000} & 1.11{\tiny$\pm$.15}
+                    & .155{\tiny$\pm$.002} & $-$1.7 & \textbf{1.000}{\tiny$\pm$.000} & 1.30{\tiny$\pm$.18} & 10 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+{\footnotesize $\dagger$ LoRA ($\alpha{=}16$) adds low-rank updates that do not modify base encoder parameters; $\ell_2$ drift is exactly zero by construction.}
+\end{table}

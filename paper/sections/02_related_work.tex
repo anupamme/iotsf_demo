@@ -27,7 +27,7 @@ achieves state-of-the-art quality for time-series generation.
 We use Diffusion-TS as a backbone for generating \emph{learned}
 negatives: we train a Diffusion-TS model on benign IoT traffic, then
 apply the same analytical perturbation pipeline to generate
-protocol-constrained hard negatives.
+protocol-constrained stealth-controlled negatives.
 This provides a controlled comparison between analytical (closed-form)
 and learned (generative-model) negatives, revealing that negative
 quality mediates catastrophic forgetting at scale.
@@ -73,5 +73,5 @@ Supervised contrastive learning~\cite{khosla2020supcon} has been applied
 to tabular~\cite{sohn2020fixmatch} and time-series~\cite{eldele2021ts2vec}
 anomaly detection.  Our CombinedLoss adapts~\cite{reiss2021panda}'s
 reconstruction$+$contrastive principle to IoT time series.
-Our hard negatives are analytically specified near the benign boundary,
+Our stealth-controlled negatives are analytically specified near the benign boundary,
 preventing the SupCon collapse observed with high-magnitude attacks.

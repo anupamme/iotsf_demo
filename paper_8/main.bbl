@@ -1,4 +1,4 @@
-\begin{thebibliography}{32}
+\begin{thebibliography}{30}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -17,11 +17,6 @@ Julien Audibert et~al.
 \newblock In \emph{ACM SIGKDD International Conference on Knowledge Discovery
   and Data Mining (KDD)}, 2020.
 \newblock URL \url{https://dl.acm.org/doi/10.1145/3394486.3403392}.
-
-\bibitem[Bengio et~al.(2009)]{bengio2009curriculum}
-Yoshua Bengio et~al.
-\newblock Curriculum learning.
-\newblock In \emph{International Conference on Machine Learning (ICML)}, 2009.
 
 \bibitem[Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton]{chen2020simclr}
 Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton.
@@ -69,13 +64,12 @@ Jean-Bastien Grill et~al.
   (NeurIPS)}, 2020.
 \newblock URL \url{https://arxiv.org/abs/2006.07733}.
 
-\bibitem[Houlsby et~al.(2019)Houlsby, Giurgiu, Jastrzebski, Morber, Larsson,
-  Gesmundo, Attariyan, and Gelly]{houlsby2019adapters}
-Neil Houlsby, Andrei Giurgiu, Stanislaw Jastrzebski, Bruna Morber, Hugo
-  Larsson, Andrea Gesmundo, Mona Attariyan, and Sylvain Gelly.
-\newblock Parameter-efficient transfer learning for {NLP}.
-\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
-  2790--2799, 2019.
+\bibitem[Hewitt and Manning(2019)]{hewitt2019structural}
+John Hewitt and Christopher~D. Manning.
+\newblock A structural probe for finding syntax in word representations.
+\newblock In \emph{Proceedings of the 2019 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies (NAACL-HLT)}, pages 4129--4138, 2019.
 
 \bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
   Chen]{hu2022lora}
@@ -92,15 +86,19 @@ Prannay Khosla et~al.
   (NeurIPS)}, 2020.
 \newblock URL \url{https://arxiv.org/abs/2004.11362}.
 
-\bibitem[Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz, Veness,
-  Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska,
+\bibitem[Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz,
   et~al.]{kirkpatrick2017ewc}
-James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume
-  Desjardins, Andrei~A. Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka
-  Grabska-Barwinska, et~al.
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, et~al.
 \newblock Overcoming catastrophic forgetting in neural networks.
-\newblock In \emph{Proceedings of the National Academy of Sciences (PNAS)},
-  volume 114, pages 3521--3526, 2017.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 114\penalty0
+  (13):\penalty0 3521--3526, 2017.
+
+\bibitem[Kornblith et~al.(2019)Kornblith, Norouzi, Lee, and
+  Hinton]{kornblith2019cka}
+Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey Hinton.
+\newblock Similarity of neural network representations revisited.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+  3519--3529, 2019.
 
 \bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
 Xuhong Li, Yves Grandvalet, and Franck Davoine.
@@ -111,21 +109,21 @@ Xuhong Li, Yves Grandvalet, and Franck Davoine.
 \bibitem[Li and Hoiem(2018)]{li2017lwf}
 Zhizhong Li and Derek Hoiem.
 \newblock Learning without forgetting.
-\newblock In \emph{IEEE Transactions on Pattern Analysis and Machine
-  Intelligence}, volume~40, pages 2935--2947, 2018.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 40\penalty0 (12):\penalty0 2935--2947, 2018.
 
-\bibitem[Lin et~al.(2022)]{lin2018idsgan}
-Zilong Lin et~al.
+\bibitem[Lin et~al.(2022)Lin, Shi, and Xue]{lin2022idsgan}
+Zilong Lin, Yong Shi, and Zhi Xue.
 \newblock {IDSGAN}: Generative adversarial networks for attack generation
   against intrusion detection.
 \newblock In \emph{Pacific-Asia Conference on Knowledge Discovery and Data
-  Mining}, 2022.
+  Mining (PAKDD)}, pages 79--91, 2022.
 
 \bibitem[Liu et~al.(2012)Liu, Ting, and Zhou]{liu2012isolation}
 Fei~Tony Liu, Kai~Ming Ting, and Zhi-Hua Zhou.
 \newblock Isolation-based anomaly detection.
-\newblock In \emph{ACM Transactions on Knowledge Discovery from Data (TKDD)},
-  volume~6, 2012.
+\newblock \emph{ACM Transactions on Knowledge Discovery from Data}, 6\penalty0
+  (1), 2012.
 
 \bibitem[Luo et~al.(2024)]{luo2024forgetting}
 Yun Luo et~al.
@@ -172,25 +170,19 @@ Yuqi Nie et~al.
   (ICLR)}, 2023.
 \newblock URL \url{https://arxiv.org/abs/2211.14730}.
 
-\bibitem[Reiss et~al.(2021)]{reiss2021panda}
-Tal Reiss et~al.
-\newblock {PANDA}: Adapting pretrained features for anomaly detection and
-  segmentation.
-\newblock In \emph{IEEE Conference on Computer Vision and Pattern Recognition
-  (CVPR)}, 2021.
-
-\bibitem[Sohn et~al.(2020)]{sohn2020fixmatch}
-Kihyuk Sohn et~al.
-\newblock {FixMatch}: Simplifying semi-supervised learning with consistency and
-  confidence.
-\newblock In \emph{Advances in Neural Information Processing Systems
-  (NeurIPS)}, 2020.
+\bibitem[Pimentel et~al.(2020)Pimentel, Valvoda, Maudslay, Zmigrod, Williams,
+  and Cotterell]{pimentel2020information}
+Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
+  Williams, and Ryan Cotterell.
+\newblock Information-theoretic probing for linguistic structure.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, pages 4609--4622, 2020.
 
 \bibitem[Tuli et~al.(2022)]{tuli2022tranad}
 Shreshth Tuli et~al.
 \newblock {TranAD}: Deep transformer networks for anomaly detection in
   multivariate time series data.
-\newblock In \emph{Proceedings of the VLDB Endowment}, volume~15, 2022.
+\newblock \emph{Proceedings of the VLDB Endowment}, 15\penalty0 (6), 2022.
 \newblock URL \url{https://arxiv.org/abs/2201.07284}.
 
 \bibitem[Woo et~al.(2024)]{woo2024moirai}
@@ -206,12 +198,6 @@ Jiehui Xu et~al.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2022.
 \newblock URL \url{https://arxiv.org/abs/2110.02642}.
-
-\bibitem[Yoon et~al.(2019)Yoon, Jarrett, and van~der Schaar]{yoon2019timegan}
-Jinsung Yoon, Daniel Jarrett, and Mihaela van~der Schaar.
-\newblock Time-series generative adversarial networks.
-\newblock In \emph{Advances in Neural Information Processing Systems
-  (NeurIPS)}, 2019.
 
 \bibitem[Zhang et~al.(2024)]{zhang2024diffusionts}
 Xinyu Zhang et~al.

@@ -3,47 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: plainnat.bst
 Database file #1: bibliography.bib
-Warning--can't use both volume and number fields in liu2012isolation
-Warning--can't use both volume and number fields in tuli2022tranad
-You've used 27 entries,
+You've used 30 entries,
             2773 wiz_defined-function locations,
-            721 strings with 9403 characters,
-and the built_in function-call counts, 12119 in all, are:
-= -- 1010
-> -- 764
+            743 strings with 10356 characters,
+and the built_in function-call counts, 14462 in all, are:
+= -- 1237
+> -- 911
 < -- 23
-+ -- 261
-- -- 234
-* -- 852
-:= -- 1876
-add.period$ -- 95
-call.type$ -- 27
-change.case$ -- 143
-chr.to.int$ -- 27
-cite$ -- 56
-duplicate$ -- 626
-empty$ -- 1074
-format.name$ -- 280
-if$ -- 2596
++ -- 309
+- -- 279
+* -- 1064
+:= -- 2205
+add.period$ -- 104
+call.type$ -- 30
+change.case$ -- 167
+chr.to.int$ -- 30
+cite$ -- 60
+duplicate$ -- 718
+empty$ -- 1233
+format.name$ -- 330
+if$ -- 3104
 int.to.chr$ -- 1
 int.to.str$ -- 1
-missing$ -- 26
-newline$ -- 156
-num.names$ -- 108
-pop$ -- 366
+missing$ -- 30
+newline$ -- 171
+num.names$ -- 120
+pop$ -- 405
 preamble$ -- 1
-purify$ -- 115
+purify$ -- 137
 quote$ -- 0
-skip$ -- 445
+skip$ -- 542
 stack$ -- 0
-substring$ -- 129
-swap$ -- 69
-text.length$ -- 4
+substring$ -- 301
+swap$ -- 97
+text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 297
-warning$ -- 2
-while$ -- 89
+type$ -- 330
+warning$ -- 0
+while$ -- 111
 width$ -- 0
-write$ -- 366
-(There were 2 warnings)
+write$ -- 406

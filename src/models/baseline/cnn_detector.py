@@ -166,7 +166,12 @@ class CNNAnomalyDetector:
         self.embed_dim = embed_dim
         self.distributional = distributional
         self._model: Optional[_CNNAutoencoder] = None
-        self._device = torch.device("cpu")
+        if torch.cuda.is_available():
+            self._device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            self._device = torch.device('mps')
+        else:
+            self._device = torch.device('cpu')
         self._initialized = False
         self._threshold: float = 0.0
 

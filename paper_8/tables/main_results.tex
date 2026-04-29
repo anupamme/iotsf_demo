@@ -1,7 +1,7 @@
 % Table 1: Main Results — all methods per stealth level
 % Updated: 200 samples per class, benign-calibrated threshold (95th percentile on held-out benign)
 % Baselines: results/all_baselines_evaluation.json (10 seeds) — UNSUPERVISED (benign-only training)
-% HNIDS: results/ablation_5seed/ablation/{a,c,d}/metrics.json (5 seeds: 42, 123, 456, 789, 1234) — SUPERVISED (labeled attack data)
+% HNIDS: results/ablation_10seed/ablation/{a,c,d}/metrics.json (10 seeds) — SUPERVISED (labeled attack data)
 % Bold: best calibrated method per column (excl. degenerate Threshold/Statistical).
 % Degenerate: FPR > 0.50 (Threshold IDS, Statistical IDS) — their high F1 is due to
 %             near-complete false-positive assignment, not genuine detection.
@@ -13,7 +13,7 @@
   benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq$ 0.05).
   \textbf{All nine baselines are unsupervised} (benign-only training, 10 seeds);
   \textbf{\ours{} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives
-  provided during training, 5 seeds matching Table~\ref{tab:ablation}).
+  provided during training, 10 seeds matching Table~\ref{tab:ablation}).
   See Appendix~\ref{app:supervision} for the supervision discussion.
   \textbf{Bold}: best calibrated (non-degenerate) value per column.
   \underline{Underline}: second-best calibrated value per column.
@@ -45,11 +45,11 @@ Anomaly Transformer & 0.100 & 0.040 & 0.162 & 0.064 & 0.180 & 0.091 & 0.153 & 0.
 PatchTST-Anomaly    & 0.123 & 0.055 & 0.175 & 0.070 & 0.162 & 0.083 & 0.132 & 0.072 \\
 \midrule
 \multicolumn{9}{l}{\textit{Ours (Moirai-based, see Table~\ref{tab:ablation} for full ablation)}} \\
-\ours{} zero-shot (A)        & 0.106 & 0.000$^\|$ & 0.123 & 0.100 & 0.074 & 0.080 & 0.183 & 0.100 \\
-\ours{}$^\dagger$ hard-neg (D) & \underline{0.264} & 0.080 & \underline{0.287} & 0.080 & \underline{0.246} & \textbf{0.020} & \underline{0.137} & \textbf{0.040} \\
-\ours{}$^\dagger$ SupCon-noise (C) & \textbf{0.329} & 0.060 & \textbf{0.354} & 0.060 & \textbf{0.316} & 0.040 & \textbf{0.250} & 0.080 \\
+\ours{} zero-shot (A)        & 0.112 & 0.067 & 0.098 & 0.048 & 0.085 & 0.050 & 0.137 & 0.063 \\
+\ours{}$^\dagger$ hard-neg (D) & \underline{0.217} & 0.062 & \underline{0.280} & 0.068 & 0.176 & 0.043 & 0.176 & 0.060 \\
+\ours{}$^\dagger$ SupCon-noise (C) & \textbf{0.295} & 0.053 & \textbf{0.360} & 0.070 & \textbf{0.267} & \textbf{0.035} & \textbf{0.262} & 0.068 \\
 \bottomrule
-\multicolumn{9}{@{}l}{\scriptsize $\|$ A's combined FPR$=$0.000 reflects near-total non-detection (F1$=$0.106), not low-false-positive detection.} \\
+\multicolumn{9}{@{}l}{\scriptsize $\dagger$ marks our proposed system; Table~\ref{tab:ablation} gives the full ablation (10 seeds).} \\
 \end{tabular}
 }
 \end{table}

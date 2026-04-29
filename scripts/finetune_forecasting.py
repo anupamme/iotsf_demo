@@ -41,8 +41,92 @@ from loguru import logger
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.data.forecasting_loader import ETTh1Loader
+from src.data.forecasting_loader import ETTh1Loader, get_forecasting_loader
 from src.models.losses import SupervisedContrastiveLoss
+
+
+def _patch_packed_scaler_for_mps():
+    """Patch uni2ts PackedScaler to skip .double() on MPS (unsupported dtype).
+
+    The original forward does target.double() for numerical precision in
+    mean/variance computation, then casts back to float32.  On MPS, float64
+    is unsupported.  Float32 precision is sufficient for our use case.
+    """
+    try:
+        from uni2ts.module.packed_scaler import PackedScaler
+
+        _original_forward = PackedScaler.forward
+
+        def _forward_no_double(self, target, observed_mask=None, sample_id=None,
+                               variate_id=None):
+            if observed_mask is None:
+                observed_mask = torch.ones_like(target, dtype=torch.bool)
+            if sample_id is None:
+                sample_id = torch.zeros(
+                    target.shape[:-1], dtype=torch.long, device=target.device)
+            if variate_id is None:
+                variate_id = torch.zeros(
+                    target.shape[:-1], dtype=torch.long, device=target.device)
+
+            # Skip .double() — compute in float32 (sufficient precision)
+            loc, scale = self._get_loc_scale(
+                target.float(), observed_mask, sample_id, variate_id)
+            return loc.float(), scale.float()
+
+        PackedScaler.forward = _forward_no_double
+        logger.info("Patched PackedScaler to skip .double() for MPS compatibility")
+    except ImportError:
+        pass
+
+    # Patch attention: MPS requires contiguous tensors for scaled_dot_product_attention
+    try:
+        from uni2ts.module.attention import GroupedQueryAttention
+        _original_gqa_forward = GroupedQueryAttention.forward
+
+        def _gqa_forward_contiguous(self, query, key, value, attn_mask=None,
+                                     query_var_id=None, kv_var_id=None,
+                                     query_time_id=None, kv_time_id=None):
+            from einops import rearrange, repeat
+
+            query = self.q_proj(query)
+            key = self.k_proj(key)
+            value = self.v_proj(value)
+
+            query = self.q_norm(rearrange(
+                query, "... q_len (group hpg dim) -> ... group hpg q_len dim",
+                group=self.num_groups, hpg=self.heads_per_group))
+            key = self.k_norm(repeat(
+                key, "... kv_len (group dim) -> ... group hpg kv_len dim",
+                group=self.num_groups, hpg=self.heads_per_group))
+            value = repeat(
+                value, "... kv_len (group dim) -> ... group hpg kv_len dim",
+                group=self.num_groups, hpg=self.heads_per_group)
+
+            query_var_id, kv_var_id = self._get_var_id(query, key, query_var_id, kv_var_id)
+            query_time_id, kv_time_id = self._get_time_id(
+                query, key, query_time_id, kv_time_id)
+            attn_mask = self._update_attn_mask(
+                attn_mask, query, key,
+                query_var_id=query_var_id, kv_var_id=kv_var_id,
+                query_time_id=query_time_id, kv_time_id=kv_time_id)
+            query, key = self._qk_proj(
+                query, key,
+                query_var_id=query_var_id, kv_var_id=kv_var_id,
+                query_time_id=query_time_id, kv_time_id=kv_time_id)
+
+            # MPS fix: ensure contiguous tensors for scaled_dot_product_attention
+            out = F.scaled_dot_product_attention(
+                query.contiguous(), key.contiguous(), value.contiguous(),
+                attn_mask=attn_mask,
+                dropout_p=self.attn_dropout_p,
+                scale=self.softmax_scale)
+            out = rearrange(out, "... group hpg q_len dim -> ... q_len (group hpg dim)")
+            return self.out_proj(out)
+
+        GroupedQueryAttention.forward = _gqa_forward_contiguous
+        logger.info("Patched GroupedQueryAttention for MPS contiguous tensors")
+    except ImportError:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +194,74 @@ def linear_CKA(X: np.ndarray, Y: np.ndarray) -> float:
     return float(hsic_xy / denom)
 
 
+def linear_probe_r2(
+    reps_train: np.ndarray,
+    reps_val: np.ndarray,
+    y_train: np.ndarray,
+    y_val: np.ndarray,
+    alpha: float = 1.0,
+    probe_type: str = 'ridge',
+):
+    """Fit a probe on frozen representations and return val R-squared.
+
+    probe_type='ridge' (default): Ridge regression on mean-pooled reps.
+    probe_type='mlp'             : sklearn MLPRegressor, hidden=(64,).
+    probe_type='linear_forecaster': Ridge with stronger regularisation on
+                                    (possibly flattened sequence) reps;
+                                    matches reviewer Q2's "frozen-encoder
+                                    linear forecaster head" ask.
+    probe_type='all'             : dict with all three.
+    """
+    from sklearn.linear_model import Ridge
+    # If reps are 3D (N, T, D) flatten sequence axis for the linear-forecaster
+    def _flat(x):
+        return x.reshape(len(x), -1)
+    reps_tr_flat = _flat(reps_train)
+    reps_va_flat = _flat(reps_val)
+    y_tr = y_train.reshape(len(y_train), -1)
+    y_va = y_val.reshape(len(y_val), -1)
+
+    def _fit_ridge():
+        reg = Ridge(alpha=alpha).fit(reps_tr_flat, y_tr)
+        return float(reg.score(reps_va_flat, y_va))
+
+    def _fit_mlp():
+        from sklearn.neural_network import MLPRegressor
+        reg = MLPRegressor(
+            hidden_layer_sizes=(64,),
+            max_iter=500,
+            alpha=1e-3,
+            random_state=0,
+            early_stopping=True,
+        ).fit(reps_tr_flat, y_tr)
+        return float(reg.score(reps_va_flat, y_va))
+
+    def _fit_linear_forecaster():
+        # Stronger linear probe: Ridge with sweep over alpha, pick best-val.
+        # Mirrors the "train a linear forecaster head frozen" recipe.
+        best_r2 = -np.inf
+        for a in (0.01, 0.1, 1.0, 10.0, 100.0):
+            reg = Ridge(alpha=a).fit(reps_tr_flat, y_tr)
+            r2 = float(reg.score(reps_va_flat, y_va))
+            if r2 > best_r2:
+                best_r2 = r2
+        return best_r2
+
+    if probe_type == 'ridge':
+        return _fit_ridge()
+    if probe_type == 'mlp':
+        return _fit_mlp()
+    if probe_type == 'linear_forecaster':
+        return _fit_linear_forecaster()
+    if probe_type == 'all':
+        return {
+            'ridge': _fit_ridge(),
+            'mlp': _fit_mlp(),
+            'linear_forecaster': _fit_linear_forecaster(),
+        }
+    return {'ridge': _fit_ridge(), 'mlp': _fit_mlp()}
+
+
 def compute_weight_drift(model, pretrained_params: dict) -> float:
     """Compute L2 distance between current and pre-trained weights."""
     total_drift = 0.0
@@ -120,6 +272,67 @@ def compute_weight_drift(model, pretrained_params: dict) -> float:
             total_drift += diff.norm().item() ** 2
             n_params += param.numel()
     return float(np.sqrt(total_drift))
+
+
+# ---------------------------------------------------------------------------
+# EWC: Fisher Information Matrix
+# ---------------------------------------------------------------------------
+
+def compute_fisher_diagonal(model, data_loader, horizon, device, n_samples=200):
+    """
+    Compute diagonal Fisher Information Matrix for EWC regularization.
+
+    Runs the pre-trained model on training data, computes NLL gradients,
+    and squares them to estimate parameter importance.
+    """
+    from src.models.moirai_detector import _apply_uni2ts_gradient_patch, UNI2TS_AVAILABLE
+    if UNI2TS_AVAILABLE:
+        _apply_uni2ts_gradient_patch()
+
+    fisher = {
+        name: torch.zeros_like(param)
+        for name, param in model.named_parameters()
+        if param.requires_grad
+    }
+    model.eval()
+    count = 0
+
+    for batch_idx, (context_batch, target_batch, labels_batch) in enumerate(data_loader):
+        if count >= n_samples:
+            break
+        context_batch = context_batch.to(device)
+        target_batch = target_batch.to(device)
+        b = context_batch.shape[0]
+
+        full_target = torch.cat([context_batch, target_batch], dim=1)
+        seq_len = full_target.shape[1]
+        n_feat = full_target.shape[2]
+        observed = torch.ones(b, seq_len, n_feat, dtype=torch.bool, device=device)
+        is_pad = torch.zeros(b, seq_len, dtype=torch.bool, device=device)
+
+        model.zero_grad()
+        try:
+            per_sample_nll = model._val_loss(
+                patch_size=32, target=full_target,
+                observed_target=observed, is_pad=is_pad,
+            )
+            loss = per_sample_nll.mean()
+            loss.backward()
+
+            for name, param in model.named_parameters():
+                if param.requires_grad and param.grad is not None:
+                    fisher[name] += param.grad.data.pow(2) * b
+            count += b
+        except Exception as e:
+            logger.warning(f"Fisher batch {batch_idx} failed: {e}")
+            continue
+
+    if count > 0:
+        for name in fisher:
+            fisher[name] /= count
+
+    logger.info(f"Fisher diagonal computed from {count} samples")
+    return fisher
 
 
 # ---------------------------------------------------------------------------
@@ -164,9 +377,20 @@ def evaluate_forecasting(
 
     predictions = np.concatenate(all_preds, axis=0)
 
-    # Normalize both using training statistics
-    pred_norm = (predictions - train_mean) / train_std
-    tgt_norm = (target - train_mean) / train_std
+    # Squeeze trailing singleton dim in univariate mode (pred: (B,H); target: (B,H,1)).
+    if predictions.ndim == 2 and target.ndim == 3 and target.shape[-1] == 1:
+        target = target.squeeze(-1)
+    elif predictions.ndim == 3 and predictions.shape[-1] == 1 and target.ndim == 2:
+        predictions = predictions.squeeze(-1)
+
+    # Normalize both using training statistics (mean/std shapes (D,) or scalar).
+    mean_arr = np.asarray(train_mean).reshape(-1)
+    std_arr = np.asarray(train_std).reshape(-1)
+    if mean_arr.size == 1:
+        mean_arr = mean_arr.item()
+        std_arr = std_arr.item()
+    pred_norm = (predictions - mean_arr) / std_arr
+    tgt_norm = (target - mean_arr) / std_arr
 
     mse = float(np.mean((pred_norm - tgt_norm) ** 2))
     mae = float(np.mean(np.abs(pred_norm - tgt_norm)))
@@ -179,16 +403,20 @@ def extract_representations(
     encoder_hook_fn,
     batch_size: int = 32,
     device: str = 'cpu',
-    max_samples: int = 500
+    max_samples: int = 500,
+    keep_sequence: bool = False,
 ) -> np.ndarray:
-    """Extract encoder representations for CKA computation."""
+    """Extract encoder representations for CKA / probing.
+
+    keep_sequence=False (default): mean-pool over sequence → (N, D).
+    keep_sequence=True           : return (N, T, D) for linear-forecaster probing.
+    """
     model.eval()
     captured = {}
 
     def hook(module, input, output):
         captured['out'] = output
 
-    # Find encoder
     module = model.module
     if hasattr(module, 'base_model'):
         encoder = module.base_model.model.encoder
@@ -209,7 +437,6 @@ def extract_representations(
             past_obs = torch.ones_like(batch, dtype=torch.bool)
             past_pad = torch.zeros(b, seq_len, dtype=torch.bool, device=device)
 
-            # Run forward to trigger hook
             try:
                 model.forward(
                     past_target=batch,
@@ -224,9 +451,11 @@ def extract_representations(
                 rep = captured['out']
                 if isinstance(rep, tuple):
                     rep = rep[0]
-                # Pool over sequence dimension
-                rep_pooled = rep.mean(dim=1).cpu().numpy()
-                all_reps.append(rep_pooled)
+                if keep_sequence:
+                    all_reps.append(rep.cpu().numpy())
+                else:
+                    rep_pooled = rep.mean(dim=1).cpu().numpy()
+                    all_reps.append(rep_pooled)
 
     handle.remove()
 
@@ -250,8 +479,12 @@ def train_one_epoch(
     contrastive_loss_fn: nn.Module = None,
     captured_embeddings: dict = None,
     freeze_encoder: bool = False,
+    pretrained_params: dict = None,
+    l2sp_weight: float = 0.0,
+    ewc_lambda: float = 0.0,
+    fisher: dict = None,
 ) -> dict:
-    """Train one epoch of NLL (+ optional contrastive) fine-tuning."""
+    """Train one epoch of NLL (+ optional contrastive/L2-SP/EWC) fine-tuning."""
     model.train()
     if projection_head is not None:
         projection_head.train()
@@ -300,6 +533,24 @@ def train_one_epoch(
                     cont_loss = contrastive_loss_fn(projected, labels_batch)
                     total_loss = nll_loss + contrastive_weight * cont_loss
 
+            # L2-SP regularization: penalize drift from pre-trained weights
+            if l2sp_weight > 0 and pretrained_params is not None:
+                l2sp_loss = sum(
+                    (p - pretrained_params[name]).pow(2).sum()
+                    for name, p in model.named_parameters()
+                    if p.requires_grad and name in pretrained_params
+                )
+                total_loss = total_loss + l2sp_weight * l2sp_loss
+
+            # EWC regularization: Fisher-weighted drift penalty
+            if ewc_lambda > 0 and fisher is not None and pretrained_params is not None:
+                ewc_loss = sum(
+                    (fisher[name] * (p - pretrained_params[name]).pow(2)).sum()
+                    for name, p in model.named_parameters()
+                    if p.requires_grad and name in fisher and name in pretrained_params
+                )
+                total_loss = total_loss + ewc_lambda * ewc_loss
+
         except Exception as e:
             logger.warning(f"Batch {batch_idx} failed: {e}")
             continue
@@ -335,14 +586,22 @@ def main():
     parser = argparse.ArgumentParser(description="Contrastive fine-tuning + forgetting diagnosis")
     parser.add_argument('--data-path', default='data/forecasting/ETTh2.csv')
     parser.add_argument('--horizon', type=int, default=96)
-    parser.add_argument('--condition', required=True, choices=['A', 'B', 'C', 'D'],
-                        help="A=zero-shot, B=NLL-only, C=NLL+SupCon, D=frozen encoder")
+    parser.add_argument('--condition', required=True, choices=['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                        help="A=zero-shot, B=NLL-only, C=NLL+SupCon, D=frozen encoder, E=LoRA, F=L2-SP, G=EWC")
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--contrastive-weight', type=float, default=0.5)
     parser.add_argument('--n-temporal-clusters', type=int, default=8)
     parser.add_argument('--max-train-samples', type=int, default=1000)
+    parser.add_argument('--model-size', default='small', choices=['small', 'base', 'large'],
+                        help="Moirai model size")
+    parser.add_argument('--l2sp-weight', type=float, default=0.0,
+                        help="L2-SP regularization weight (condition F)")
+    parser.add_argument('--ewc-lambda', type=float, default=0.0,
+                        help="EWC regularization weight (condition G)")
+    parser.add_argument('--lora-rank', type=int, default=8, help="LoRA rank (condition E)")
+    parser.add_argument('--lora-alpha', type=int, default=16, help="LoRA alpha (condition E)")
     parser.add_argument('--results-dir', default='results/forecasting_finetune')
     parser.add_argument('--device', default='cpu')
     parser.add_argument('--seed', type=int, default=42)
@@ -350,7 +609,16 @@ def main():
                         help="Evaluate forgetting every N epochs")
     parser.add_argument('--max-eval-sequences', type=int, default=300,
                         help="Max sequences for periodic evaluation")
+    parser.add_argument('--features', default='M', choices=['M', 'S', 'MS'],
+                        help="M=multivariate, S=univariate (OT target only), MS=multivariate->univariate")
+    parser.add_argument('--probe-type', default='ridge',
+                        choices=['ridge', 'mlp', 'both', 'linear_forecaster', 'all'],
+                        help="Linear-probe regressor type: ridge, mlp, both (ridge+mlp), linear_forecaster (Ridge over sequence), or all (reviewer Q2 comparison)")
     args = parser.parse_args()
+
+    # Patch uni2ts for MPS compatibility before any model loading
+    if args.device == 'mps' or (args.device == 'auto' and torch.backends.mps.is_available()):
+        _patch_packed_scaler_for_mps()
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -360,18 +628,25 @@ def main():
 
     lookback = 96
     horizon = args.horizon
-    n_features = 7
+    # n_features determined by features mode; set after loader inspection
 
-    logger.info(f"Condition {args.condition}: "
-               f"{'Zero-shot' if args.condition == 'A' else 'NLL-only' if args.condition == 'B' else 'NLL+SupCon' if args.condition == 'C' else 'Frozen encoder'}")
+    condition_names = {
+        'A': 'Zero-shot', 'B': 'NLL-only', 'C': 'NLL+SupCon',
+        'D': 'Frozen encoder', 'E': 'LoRA', 'F': 'L2-SP', 'G': 'EWC'
+    }
+    logger.info(f"Condition {args.condition}: {condition_names[args.condition]}")
 
     # Load data
-    loader = ETTh1Loader(args.data_path, lookback_window=lookback, forecast_horizon=horizon, features='M')
+    loader = get_forecasting_loader(args.data_path, lookback_window=lookback, forecast_horizon=horizon, features=args.features)
     train_df, val_df, test_df = loader.get_splits()
 
-    train_vals = train_df[loader.FEATURE_COLUMNS].values
-    val_vals = val_df[loader.FEATURE_COLUMNS].values
-    test_vals = test_df[loader.FEATURE_COLUMNS].values
+    # Univariate mode uses OT target only; multivariate uses all feature columns.
+    feature_cols = ['OT'] if args.features == 'S' else loader.FEATURE_COLUMNS
+    n_features = len(feature_cols)
+    logger.info(f"Features mode={args.features}, n_features={n_features}")
+    train_vals = train_df[feature_cols].values
+    val_vals = val_df[feature_cols].values
+    test_vals = test_df[feature_cols].values
 
     train_mean = train_vals.mean(axis=0)
     train_std = train_vals.std(axis=0) + 1e-8
@@ -415,7 +690,7 @@ def main():
     # Load model
     from src.models.moirai_detector import MoiraiAnomalyDetector
     detector = MoiraiAnomalyDetector(
-        model_size='small',
+        model_size=args.model_size,
         context_length=lookback,
         prediction_length=horizon,
         target_dim=n_features,
@@ -427,6 +702,11 @@ def main():
 
     # Store pre-trained weights for CKA and drift computation
     pretrained_params = {name: param.data.clone() for name, param in model.named_parameters()}
+
+    # Apply LoRA if condition E
+    if args.condition == 'E':
+        from src.models.lora_adapter import apply_lora
+        model = apply_lora(model, rank=args.lora_rank, alpha=args.lora_alpha)
 
     # Subsample eval data for speed
     eval_limit = args.max_eval_sequences
@@ -474,6 +754,16 @@ def main():
     # Setup optimizer
     freeze_encoder = (args.condition == 'D')
     use_contrastive = (args.condition == 'C')
+    use_l2sp = (args.condition == 'F' and args.l2sp_weight > 0)
+    use_ewc = (args.condition == 'G' and args.ewc_lambda > 0)
+    fisher_diag = None
+
+    # Compute Fisher diagonal for EWC before any fine-tuning
+    if use_ewc:
+        logger.info("Computing Fisher Information Matrix for EWC...")
+        fisher_diag = compute_fisher_diagonal(
+            model, train_loader, horizon, args.device, n_samples=200
+        )
 
     if freeze_encoder:
         # Freeze encoder weights
@@ -548,6 +838,10 @@ def main():
             contrastive_loss_fn=contrastive_loss_fn,
             captured_embeddings=captured_embeddings,
             freeze_encoder=freeze_encoder,
+            pretrained_params=pretrained_params if (use_l2sp or use_ewc) else None,
+            l2sp_weight=args.l2sp_weight if use_l2sp else 0.0,
+            ewc_lambda=args.ewc_lambda if use_ewc else 0.0,
+            fisher=fisher_diag,
         )
         scheduler.step()
 
@@ -597,12 +891,112 @@ def main():
     # Compute forgetting metric
     forgetting = (history['val_mse'][-1] - zeroshot_metrics['mse']) / zeroshot_metrics['mse'] * 100
 
+    # Linear probing: functional measure of feature preservation
+    # Use eval sequences (extended lookback) for both train and val probing
+    probe_results = {}
+    try:
+        # Use first 300 eval sequences as "probe train", next 200 as "probe val"
+        # Both use extended_lookback format that the model expects
+        X_all_eval = torch.from_numpy(
+            np.concatenate([X_val_eval[:300], X_test_eval[:200]], axis=0)
+        ).float()
+        y_all_eval = np.concatenate([y_val_eval_raw[:300], y_test_eval_raw[:200]], axis=0)
+
+        n_probe_train = min(300, len(X_val_eval))
+        n_probe_val = min(200, len(X_test_eval))
+        X_probe_train_t = torch.from_numpy(X_val_eval[:n_probe_train]).float()
+        X_probe_val_t = torch.from_numpy(X_test_eval[:n_probe_val]).float()
+        y_probe_train = y_val_eval_raw[:n_probe_train]
+        y_probe_val = y_test_eval_raw[:n_probe_val]
+
+        logger.info(f"Linear probing: train={n_probe_train}, val={n_probe_val}")
+
+        # Fine-tuned reps (current model state)
+        ft_reps_train = extract_representations(model, X_probe_train_t, None, device=args.device, max_samples=n_probe_train)
+        ft_reps_val = extract_representations(model, X_probe_val_t, None, device=args.device, max_samples=n_probe_val)
+        logger.info(f"FT reps: train={ft_reps_train.shape}, val={ft_reps_val.shape}")
+
+        # Pre-trained reps: reload pre-trained weights temporarily
+        current_state = {k: v.clone() for k, v in model.state_dict().items()}
+        restore_dict = {}
+        for name in pretrained_params:
+            if name in dict(model.named_parameters()):
+                restore_dict[name] = pretrained_params[name]
+        if restore_dict:
+            model.load_state_dict({**model.state_dict(), **restore_dict}, strict=False)
+
+        pt_reps_train = extract_representations(model, X_probe_train_t, None, device=args.device, max_samples=n_probe_train)
+        pt_reps_val = extract_representations(model, X_probe_val_t, None, device=args.device, max_samples=n_probe_val)
+        logger.info(f"PT reps: train={pt_reps_train.shape}, val={pt_reps_val.shape}")
+
+        # Restore fine-tuned weights
+        model.load_state_dict(current_state)
+
+        if len(ft_reps_train) > 0 and len(pt_reps_train) > 0:
+            probe_results['pretrained_r2'] = linear_probe_r2(pt_reps_train, pt_reps_val, y_probe_train, y_probe_val)
+            probe_results['finetuned_r2'] = linear_probe_r2(ft_reps_train, ft_reps_val, y_probe_train, y_probe_val)
+            probe_results['r2_delta'] = probe_results['finetuned_r2'] - probe_results['pretrained_r2']
+            logger.info(f"Linear probe (ridge): pretrained R²={probe_results['pretrained_r2']:.4f}, "
+                       f"finetuned R²={probe_results['finetuned_r2']:.4f}, "
+                       f"Δ={probe_results['r2_delta']:+.4f}")
+            if args.probe_type in ('mlp', 'both', 'all'):
+                probe_results['pretrained_r2_mlp'] = linear_probe_r2(
+                    pt_reps_train, pt_reps_val, y_probe_train, y_probe_val, probe_type='mlp')
+                probe_results['finetuned_r2_mlp'] = linear_probe_r2(
+                    ft_reps_train, ft_reps_val, y_probe_train, y_probe_val, probe_type='mlp')
+                probe_results['r2_delta_mlp'] = (
+                    probe_results['finetuned_r2_mlp'] - probe_results['pretrained_r2_mlp'])
+                logger.info(f"Linear probe (mlp): pretrained R²={probe_results['pretrained_r2_mlp']:.4f}, "
+                           f"finetuned R²={probe_results['finetuned_r2_mlp']:.4f}, "
+                           f"Δ={probe_results['r2_delta_mlp']:+.4f}")
+            if args.probe_type in ('linear_forecaster', 'all'):
+                # Re-extract sequence-level reps for linear-forecaster probe (reviewer Q2).
+                ft_reps_train_seq = extract_representations(
+                    model, X_probe_train_t, None, device=args.device,
+                    max_samples=n_probe_train, keep_sequence=True)
+                ft_reps_val_seq = extract_representations(
+                    model, X_probe_val_t, None, device=args.device,
+                    max_samples=n_probe_val, keep_sequence=True)
+                current_state2 = {k: v.clone() for k, v in model.state_dict().items()}
+                restore_dict2 = {name: pretrained_params[name]
+                                 for name in pretrained_params
+                                 if name in dict(model.named_parameters())}
+                if restore_dict2:
+                    model.load_state_dict({**model.state_dict(), **restore_dict2}, strict=False)
+                pt_reps_train_seq = extract_representations(
+                    model, X_probe_train_t, None, device=args.device,
+                    max_samples=n_probe_train, keep_sequence=True)
+                pt_reps_val_seq = extract_representations(
+                    model, X_probe_val_t, None, device=args.device,
+                    max_samples=n_probe_val, keep_sequence=True)
+                model.load_state_dict(current_state2)
+                probe_results['pretrained_r2_lf'] = linear_probe_r2(
+                    pt_reps_train_seq, pt_reps_val_seq, y_probe_train, y_probe_val,
+                    probe_type='linear_forecaster')
+                probe_results['finetuned_r2_lf'] = linear_probe_r2(
+                    ft_reps_train_seq, ft_reps_val_seq, y_probe_train, y_probe_val,
+                    probe_type='linear_forecaster')
+                probe_results['r2_delta_lf'] = (
+                    probe_results['finetuned_r2_lf'] - probe_results['pretrained_r2_lf'])
+                logger.info(f"Linear probe (linear_forecaster): pretrained R²={probe_results['pretrained_r2_lf']:.4f}, "
+                           f"finetuned R²={probe_results['finetuned_r2_lf']:.4f}, "
+                           f"Δ={probe_results['r2_delta_lf']:+.4f}")
+    except Exception as e:
+        logger.warning(f"Linear probing failed: {e}")
+        import traceback
+        traceback.print_exc()
+
     results = {
         'condition': args.condition,
+        'condition_name': condition_names[args.condition],
+        'model_size': args.model_size,
         'horizon': horizon,
         'seed': args.seed,
         'epochs': args.epochs,
         'max_train_samples': args.max_train_samples,
+        'l2sp_weight': args.l2sp_weight if use_l2sp else 0.0,
+        'ewc_lambda': args.ewc_lambda if use_ewc else 0.0,
+        'lora_rank': args.lora_rank if args.condition == 'E' else 0,
         'zeroshot_mse': zeroshot_metrics['mse'],
         'zeroshot_mae': zeroshot_metrics['mae'],
         'final_val_mse': history['val_mse'][-1],
@@ -612,6 +1006,7 @@ def main():
         'final_cka': history['cka'][-1],
         'final_weight_drift': history['weight_drift'][-1],
         'forgetting_pct': forgetting,
+        'linear_probe': probe_results,
         'history': history,
     }
 
@@ -628,6 +1023,9 @@ def main():
     logger.info(f"Forgetting:     {forgetting:+.1f}%")
     logger.info(f"Final CKA:      {history['cka'][-1]:.3f}")
     logger.info(f"Weight drift:   {history['weight_drift'][-1]:.2f}")
+    if probe_results:
+        logger.info(f"Probe R² (PT):  {probe_results.get('pretrained_r2', 'N/A')}")
+        logger.info(f"Probe R² (FT):  {probe_results.get('finetuned_r2', 'N/A')}")
     logger.info(f"Saved to {output_path}")
 
 

@@ -1,122 +1,165 @@
 % ============================================================
-\section{Forgetting Diagnosis: ETTh2 Forecasting}
+\section{Representation Drift Diagnosis: ETT Forecasting}
 \label{sec:forecasting}
 % ============================================================
 
 We begin with a domain where pre-trained features are demonstrably
 valuable, enabling a clean test of whether fine-tuning destroys them.
-ETTh2 time-series forecasting~\cite{zhou2021informer} provides this
-setting: zero-shot Moirai outperforms a Linear baseline by 28\% at
-$h{=}96$ and 45\% at $h{=}192$ (Section~\ref{sec:forecasting:gate}).
-If fine-tuning degrades this measurable advantage, catastrophic
-forgetting is the mechanism---not low task signal or overfitting
-to synthetic data.
+ETT time-series forecasting benchmarks~\cite{zhou2021informer} provide
+this setting: zero-shot Moirai outperforms Linear baselines by 28--45\%
+(Section~\ref{sec:forecasting:gate}).
+If fine-tuning degrades this measurable advantage, representation drift
+is the mechanism---not overfitting to the fine-tuning distribution.
+The frozen-encoder control (same data, same epochs, CKA$=$1.000)
+confirms this: overfitting would not be eliminated by freezing.
 
 % ============================================================
 \subsection{Domain Selection and Pre-Training Value Gate}
 \label{sec:forecasting:gate}
 % ============================================================
 
-We require a forecasting benchmark where Moirai zero-shot performance
-substantially exceeds simple baselines, establishing that pre-trained
-features provide genuine value.
-Following \citet{woo2024moirai} Table~6, we evaluate on ETTh2
-(Electricity Transformer Temperature---Hourly, 7 features, 17{,}420
-timesteps, standard 12/4/4 month train/val/test split).
-
-\textbf{Gate criterion:} Moirai zero-shot MSE must improve over
-Linear regression by $>$20\%.
-
-\textbf{Results.}
-Using the published Moirai-Small (13.8M parameters) with median point
-forecasts (robust to heavy-tailed mixture distribution components;
-see Appendix~\ref{app:moirai_median}):
-
-\begin{center}
-\small
-\begin{tabular}{lccc}
-\toprule
-& Linear MSE & Moirai MSE & Gap \\
-\midrule
-$h=96$  & 0.373 & \textbf{0.269} & $+$28.0\% \\
-$h=192$ & 0.544 & \textbf{0.299} & $+$45.0\% \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-Both horizons pass the 20\% gate.
-Pre-trained features are demonstrably useful on this task---unlike
-IoT anomaly detection, where the frozen encoder barely exceeds
-zero-shot (AUC: 0.549 vs.\ 0.481).
+We evaluate on ETTh2~\cite{woo2024moirai}
+(7 features, 17{,}420 timesteps, 12/4/4 month split).
+Moirai-Small (13.8M parameters) zero-shot outperforms Linear by
+28\% ($h{=}96$: 0.269 vs.\ 0.373) and 45\% ($h{=}192$: 0.299 vs.\ 0.544),
+passing the pre-training value gate ($>$20\% improvement).
 
 % ============================================================
 \subsection{Experimental Setup}
 \label{sec:forecasting:setup}
 % ============================================================
 
-We test three fine-tuning conditions, later replicated on IoT anomaly
-detection (Section~\ref{sec:iot}):
-
-\begin{itemize}
-\item \textbf{B (NLL-only):} Fine-tune all 13.8M parameters using
-  negative log-likelihood on context$+$target sequences (patch size 32).
-\item \textbf{C (NLL$+$SupCon):} Add temporal supervised contrastive
-  loss ($\lambda{=}0.5$) with 8 temporal clusters as pseudo-labels.
-  Sequences within the same temporal regime are positives; different
-  regimes are negatives.
-\item \textbf{D (Frozen encoder):} Freeze the Moirai encoder;
-  train only the output head.
-\end{itemize}
-
-\textbf{Training:} 500 samples, 20 epochs, AdamW (lr$=$1e-4),
-cosine annealing, gradient clipping (1.0).
-\textbf{Evaluation:} Median of 20 forecast samples on held-out
-validation set (300 sequences), normalised using training statistics.
-\textbf{Diagnosis:} CKA between pre-trained and fine-tuned encoder
-representations, weight drift ($\ell_2$ from initialisation).
-All results report mean$\pm$std over 10 seeds.
+We test: \textbf{B}~(NLL-only fine-tuning),
+\textbf{C}~(NLL$+$SupCon with temporal clusters),
+\textbf{D}~(frozen encoder), plus mitigations:
+\textbf{E}~(LoRA, $r{=}8$)~\cite{hu2022lora},
+\textbf{F}~(L2-SP)~\cite{li2018l2sp},
+\textbf{G}~(EWC)~\cite{kirkpatrick2017ewc}.
+Training: 500 samples, 20 epochs, AdamW (lr$=$1e-4);
+B, C, D use 10 seeds, E/F/G use 5 seeds (Table~\ref{tab:mitigation_spectrum}, $n$ column).
+Diagnosis: CKA and weight drift ($\ell_2$) between pre-trained
+and fine-tuned encoders.
 
 % ============================================================
-\subsection{Forgetting Replicates on High-Signal Task}
+\subsection{Representation Drift Degrades High-Value Features}
 \label{sec:forecasting:results}
 % ============================================================
 
 \input{tables/forecasting_forgetting}
 
 Table~\ref{tab:forecasting_forgetting} shows the central result:
-\textbf{catastrophic forgetting replicates on ETTh2}, where pre-trained
-features are demonstrably valuable.
+fine-tuning degrades ETTh2 performance where pre-trained features
+are valuable.
+B and C degrade by 10--16\% MSE ($p{<}0.001$, $d{=}1.23$;
+paired bootstrap, 10{,}000 resamples) while training loss
+\emph{decreases}---this is not overfitting (which would cause
+validation loss to rise), but representation drift.
+The frozen-encoder control (D, CKA$=$1.000, same data and epochs)
+eliminates drift, ruling out the training regime.
+Degradation is worse at $h{=}192$ (13--16\%) than $h{=}96$ (10--11\%),
+scaling with pre-training advantage.
+Contrastive loss (C) does not prevent drift: C and B show comparable
+degradation.
 
-\textbf{Unfrozen conditions degrade.}
-Both B (NLL-only) and C (NLL$+$SupCon) show significant forgetting:
-$+$11.1\% and $+$10.1\% at $h{=}96$, increasing to $+$15.7\% and
-$+$12.9\% at $h{=}192$ (10 seeds).
-The NLL training loss decreases monotonically throughout, confirming
-that the model is learning---but what it learns destroys the pre-trained
-representations that enable accurate zero-shot forecasting.
+% ============================================================
+\subsection{Mitigation Spectrum}
+\label{sec:forecasting:mitigation}
+% ============================================================
 
-\textbf{Frozen encoder preserves performance.}
-Condition D maintains near-zero forgetting ($+$0.5\% at $h{=}96$,
-$-$1.7\% at $h{=}192$) with perfect CKA ($=$1.000) and $3.5\times$
-lower weight drift.
-This confirms the mechanism: fine-tuning overwrites pre-trained features;
-freezing prevents this.
+Table~\ref{tab:mitigation_spectrum} presents the mitigation spectrum on ETTh2.
+Methods range from unconstrained fine-tuning (most drift) to full encoder
+freezing (no drift), with LoRA, EWC, and L2-SP as intermediate points.
 
-\textbf{Forgetting scales with horizon.}
-At $h{=}192$ (where Moirai's pre-training advantage is 45\%), forgetting
-is more severe (13--16\%) than at $h{=}96$ (28\% advantage, 10--11\%
-forgetting).
-Longer horizons require the model to leverage more of its pre-trained
-temporal knowledge, making it more vulnerable to catastrophic forgetting.
+\input{tables/mitigation_spectrum}
 
-\textbf{Contrastive loss does not prevent forgetting.}
-Unlike the common hypothesis that contrastive learning regularises
-representations, condition C shows comparable forgetting to B
-($+$10.1\% vs.\ $+$11.1\% at $h{=}96$; $+$12.9\% vs.\ $+$15.7\%
-at $h{=}192$).
-The temporal contrastive objective pushes representations toward
-task-specific clustering, which does not preserve the distributional
-structure that makes zero-shot forecasting effective.
+\textbf{LoRA achieves the best trade-off.}
+LoRA ($r{=}8$, $\alpha{=}16$) \emph{improves} over zero-shot
+at $h{=}96$ while maintaining high CKA and zero weight drift
+(low-rank updates do not modify base parameters).
+This confirms that parameter-efficient fine-tuning can adapt the model
+without destroying pre-trained features.
+A rank sweep ($r \in \{4, 8, 16, 32\}$) shows consistent results across
+ranks (CKA$\geq$0.979, MSE within $\pm$0.003; Appendix~\ref{app:lora_rank}).
 
-The cross-domain comparison with IoT anomaly detection is presented in
-Section~\ref{sec:analysis}.
+\textbf{EWC and L2-SP reduce but do not eliminate drift.}
+At stronger penalties, both EWC ($\lambda{=}1000$, CKA$=$0.972$\pm$0.004)
+and L2-SP ($\lambda{=}0.1$, CKA$=$0.965$\pm$0.006) improve CKA over
+unconstrained fine-tuning (B, CKA$=$0.937), but MSE remains
+18--19\% above zero-shot.
+Notably, EWC at $\lambda{=}100$ \emph{increases} drift
+(CKA$=$0.889$\pm$0.091) relative to B---a ``worst of both worlds''
+regime where the penalty is too weak to preserve representations
+yet strong enough to impede convergence.
+With only 500 training samples, the diagonal Fisher Information Matrix
+is noisy, causing non-uniform regularisation that destabilises
+optimisation at moderate $\lambda$.
+Neither method matches LoRA's ability to adapt without drift.
+
+\textbf{Encoder freezing eliminates drift at the cost of adaptation.}
+Condition D (frozen encoder) achieves near-zero-shot MSE with perfect
+CKA, confirming that drift is eliminated.
+However, it cannot adapt to the fine-tuning distribution---a limitation
+that matters when pre-trained features are insufficient
+(Section~\ref{sec:iot}).
+
+% ============================================================
+\subsection{Replication Across Datasets and Model Sizes}
+\label{sec:forecasting:replication}
+% ============================================================
+
+Representation drift replicates across datasets and model sizes
+(Table~\ref{tab:cross_domain}).  On ETTh1, fine-tuning causes drift
+(CKA$=$0.807$\pm$0.048) and modest degradation ($+$7.0$\pm$3.2\%);
+on ETTm2, drift (CKA$=$0.851$\pm$0.083) is accompanied by
+\emph{improvement} ($-$13.3$\pm$6.1\%), confirming consequences depend
+on pre-training value.
+Moirai-Base on ETTh2 shows aggressive drift (CKA$=$0.460$\pm$0.200)
+with large improvement ($-$44.1$\pm$5.7\%), mirroring the IoT pattern.
+Moirai-Large (311M) on ETTh2 at 500 samples exhibits substantial
+drift (CKA$=$0.626$\pm$0.165) and forgetting ($+$10.5$\pm$9.5\%),
+comparable to Moirai-Small; frozen-Large reduces forgetting to
+$+$3.2$\pm$0.6\% (CKA$=$0.994), confirming the pattern holds
+across model sizes (Section~\ref{sec:analysis}).
+An extended sample-size sweep (Table~\ref{tab:sample_sweep},
+$n{\in}\{500,1\mathrm{k},2\mathrm{k},5\mathrm{k},10\mathrm{k}\}$)
+reveals that \emph{drift and forgetting are dissociable}.
+Drift grows monotonically with $n$ (CKA from 0.949 at 500
+to 0.185 at 10{,}000; weight drift from 3.7 to 18.8),
+but forgetting is non-monotonic: severe at low $n$
+($+$14\% at 500, $+$13\% at 1{,}000), resolved by 2{,}000
+($-$2.9\%), bimodal at 5{,}000 ($+$6.6$\pm$10.0\%, 7 seeds;
+per-seed breakdown in Appendix~\ref{app:probing}), and near-zero
+at 10{,}000 ($+$0.3$\pm$3.4\%).
+Linear probing (Ridge regression of frozen encoder representations
+onto the forecasting target on held-out ETTh2;
+Appendix~\ref{app:probing}) shows $\Delta R^2$ (fine-tuned minus
+pre-trained) \emph{increasing} with $n$ (from $+$0.12 at 500
+to $+$0.87 at 10{,}000), indicating fine-tuned representations
+become \emph{more} task-functional as they drift---geometric
+dissimilarity (CKA) and functional utility are decoupled.
+An MLP probe (one hidden layer of 64 units, $\alpha{=}10^{-3}$)
+matches the positive Ridge trend: $\Delta R^2 = +0.73{\pm}0.75$ at
+$n{=}2{,}000$ (3 seeds) and $+1.54{\pm}0.24$ at $n{=}10{,}000$ (2 seeds);
+it is negative ($-$0.26) only at $n{=}500$ where the Ridge signal is
+also smallest ($+$0.13), consistent with probe noise at the smallest
+sample size (Appendix~\ref{app:probing}).
+This reframes our headline: representation drift is harmful
+specifically in the \emph{low-data fine-tuning regime}, which
+is precisely where practitioners most need pre-trained features.
+At sufficient scale, the model learns replacement features that
+are functionally superior to what was overwritten.
+
+\input{tables/sample_sweep}
+
+\textbf{Non-ETT and second-backbone gate checks.}
+Autoformer Weather (14 features, target T(degC)) gate-\emph{fails}
+(ZS 0.410 vs.\ Linear 0.218), so dissociation is unmeasurable there.
+Autoformer Electricity is \emph{marginal} (ZS 0.102 vs.\ 0.097, 5\%);
+with little to forget, fine-tuning replaces features: forg.\ $-$8.5\%
+(CKA 0.957, MLP $\Delta R^2$ $+$3.22) at $n{=}500$ and $-$24.4\%
+(CKA 0.953, $+$3.28) at $n{=}2$k --- a regime delimiter, not a
+dissociation replication. Matched-protocol ZS on ETTh2 OT
+(seed 42, $h{=}96$, 300 windows): Chronos-T5-Small 0.304 and
+TimesFM-2.5-200M 0.242 both gate-fail vs.\ Linear 0.213, so
+dissociation is established on Moirai only; Traffic and a gate-passing
+second backbone are left for camera-ready (\S\ref{sec:conclusion}).

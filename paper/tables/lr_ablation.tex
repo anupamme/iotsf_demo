@@ -5,8 +5,9 @@
 \centering
 \caption{
   Learning-rate and LoRA ablation at 1000/20 (stealth-95, 5 seeds,
-  benign-calibrated threshold).  Frozen encoder results from
-  Table~\ref{tab:scaling} included for reference.
+  benign-calibrated threshold).  Unfrozen baseline and LR/LoRA rows
+  use 5 seeds; frozen row uses 10 seeds (B$=$C$=$D, identical;
+  see Table~\ref{tab:scaling}).
   \textbf{Key findings}:
   (1)~$10^{-5}$ partially mitigates degradation for C but not B or D.
   (2)~$10^{-6}$ underfits across all conditions.
@@ -39,10 +40,8 @@ D & lr$=$1e-6 & .465 & .125 & .138 & .074 & .020 & .040 \\
 C & LoRA (r$=$8) & .484 & .108 & .234 & .097 & .100 & .063 \\
 D & LoRA (r$=$8) & .484 & .133 & .214 & .089 & .100 & .063 \\
 \midrule
-\multicolumn{8}{@{}l}{\emph{Frozen encoder (reference, Table~\ref{tab:scaling})}} \\
-B & Frozen & .606 & .114 & .130 & .094 & .060 & .049 \\
-C & Frozen & .582 & .099 & .148 & .097 & .040 & .049 \\
-D & Frozen & .573 & .097 & .144 & .081 & .060 & .049 \\
+\multicolumn{8}{@{}l}{\emph{Frozen encoder (10 seeds, Table~\ref{tab:scaling}; B$=$C$=$D identical)}} \\
+B$=$C$=$D & Frozen & .549 & .109 & .152 & .077 & .070 & .090 \\
 \bottomrule
 \end{tabular}%
 }

@@ -1,0 +1,14 @@
+{
+  "model_id": "google/timesfm-2.5-200m-pytorch",
+  "horizon": 96,
+  "lookback": 192,
+  "seed": 42,
+  "n_test_windows": 300,
+  "timesfm_zs_mse": 0.24240149557590485,
+  "linear_mse": 0.21301934123039246,
+  "repeat_last_mse": 0.4481053352355957,
+  "moirai_zs_mse_paper": 0.126,
+  "chronos_zs_mse_paper": 0.304,
+  "timesfm_advantage_over_linear_pct": -13.793186184785883,
+  "gate_status": "FAIL"
+}

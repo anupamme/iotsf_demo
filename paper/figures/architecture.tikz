@@ -10,12 +10,12 @@
   label/.style={font=\scriptsize\itshape},
 ]
 
-%% ---- Stage 1: Hard-Negative Generation ----
+%% ---- Stage 1: Stealth-Controlled Negative Generation ----
 \node[box, fill=green!15] (ciciot)    {CICIoT2023};
 \node[box, fill=green!15, right=of ciciot] (benign)   {Benign $\mathbf{X}_b$};
 \node[box, fill=orange!20, right=0.9cm of benign] (diffts) {Archetype\\Perturbation\\$P_k(\mathbf{X}_b,s)$};
 \node[box, fill=orange!20, below=0.4cm of diffts] (constraint) {Protocol\\Constraint\\$\mathcal{C}_\pi$};
-\node[box, fill=orange!20, right=0.8cm of diffts] (hardneg) {Hard-Negative\\$\mathbf{X}_a$};
+\node[box, fill=orange!20, right=0.8cm of diffts] (hardneg) {Stealth-Ctrl\\Neg. $\mathbf{X}_a$};
 
 \draw[arrow] (ciciot) -- (benign);
 \draw[arrow] (benign) -- (diffts);

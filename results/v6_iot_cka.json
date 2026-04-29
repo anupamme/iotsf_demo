@@ -1,0 +1,283 @@
+{
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "n_pretrained_params": 73,
+  "probe_size": 50,
+  "drift_measurements": [
+    {
+      "label": "c",
+      "condition": "c",
+      "scale": 200,
+      "epochs": 5,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0001428543704829804,
+        "std_cosine_distance": 5.533381992534753e-07,
+        "mean_frobenius_ratio": 0.013074134545256392,
+        "std_frobenius_ratio": 1.6526677163936653e-05
+      }
+    },
+    {
+      "label": "d",
+      "condition": "d",
+      "scale": 200,
+      "epochs": 5,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0001381611170834058,
+        "std_cosine_distance": 3.1495427776402275e-06,
+        "mean_frobenius_ratio": 0.012822274438674687,
+        "std_frobenius_ratio": 0.00012973135336293308
+      }
+    },
+    {
+      "label": "d-diffts",
+      "condition": "d",
+      "scale": 200,
+      "epochs": 5,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.00015787038628913496,
+        "std_cosine_distance": 3.0128269923144494e-06,
+        "mean_frobenius_ratio": 0.013624171375136331,
+        "std_frobenius_ratio": 0.00013092455930558823
+      }
+    },
+    {
+      "label": "c",
+      "condition": "c",
+      "scale": 500,
+      "epochs": 10,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0004152241907163298,
+        "std_cosine_distance": 2.1653693528216844e-05,
+        "mean_frobenius_ratio": 0.021441879459694668,
+        "std_frobenius_ratio": 0.0004455000799667146
+      }
+    },
+    {
+      "label": "d",
+      "condition": "d",
+      "scale": 500,
+      "epochs": 10,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0003412044755944378,
+        "std_cosine_distance": 4.772347265347257e-05,
+        "mean_frobenius_ratio": 0.01945897161170519,
+        "std_frobenius_ratio": 0.0012194593423925939
+      }
+    },
+    {
+      "label": "d-diffts",
+      "condition": "d",
+      "scale": 500,
+      "epochs": 10,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.00044624282889170187,
+        "std_cosine_distance": 1.3065933243336296e-05,
+        "mean_frobenius_ratio": 0.02169224387549598,
+        "std_frobenius_ratio": 0.0002619448275803787
+      }
+    },
+    {
+      "label": "c",
+      "condition": "c",
+      "scale": 1000,
+      "epochs": 20,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0005447584200123129,
+        "std_cosine_distance": 0.00012580363776556685,
+        "mean_frobenius_ratio": 0.024150517729175678,
+        "std_frobenius_ratio": 0.0023056423015821743
+      }
+    },
+    {
+      "label": "d",
+      "condition": "d",
+      "scale": 1000,
+      "epochs": 20,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.0005168999166793475,
+        "std_cosine_distance": 7.154748757758571e-05,
+        "mean_frobenius_ratio": 0.023384343779605143,
+        "std_frobenius_ratio": 0.0013585807720486898
+      }
+    },
+    {
+      "label": "d-diffts",
+      "condition": "d",
+      "scale": 1000,
+      "epochs": 20,
+      "n_seeds": 3,
+      "seeds": [
+        42,
+        123,
+        456
+      ],
+      "summary": {
+        "mean_cosine_distance": 0.002180283200250913,
+        "std_cosine_distance": 0.00018195245446924726,
+        "mean_frobenius_ratio": 0.04400550199105077,
+        "std_frobenius_ratio": 0.0021322308293603032
+      }
+    }
+  ],
+  "cka_measurements": [
+    {
+      "label": "c",
+      "scale": 200,
+      "n_seeds": 3,
+      "cka_mean": 0.42260291198173366,
+      "cka_std": 0.034953081646996384,
+      "cka_values": [
+        0.3814381793980974,
+        0.4668849716981655,
+        0.41948558484893816
+      ]
+    },
+    {
+      "label": "d",
+      "scale": 200,
+      "n_seeds": 3,
+      "cka_mean": 0.4517336217096269,
+      "cka_std": 0.004866748315677436,
+      "cka_values": [
+        0.4453641293948015,
+        0.45266004227254286,
+        0.45717669346153633
+      ]
+    },
+    {
+      "label": "d-diffts",
+      "scale": 200,
+      "n_seeds": 3,
+      "cka_mean": 0.45168483783914165,
+      "cka_std": 0.010212837394478234,
+      "cka_values": [
+        0.43773978280724496,
+        0.4554008869524119,
+        0.4619138437577681
+      ]
+    },
+    {
+      "label": "c",
+      "scale": 500,
+      "n_seeds": 3,
+      "cka_mean": 0.3516742189635152,
+      "cka_std": 0.020776845834701376,
+      "cka_values": [
+        0.3808306729695325,
+        0.333942917809036,
+        0.3402490661119772
+      ]
+    },
+    {
+      "label": "d",
+      "scale": 500,
+      "n_seeds": 3,
+      "cka_mean": 0.35589815778175143,
+      "cka_std": 0.04058404591561655,
+      "cka_values": [
+        0.3734966157051362,
+        0.2997880644931367,
+        0.3944097931469813
+      ]
+    },
+    {
+      "label": "d-diffts",
+      "scale": 500,
+      "n_seeds": 3,
+      "cka_mean": 0.3372665554625504,
+      "cka_std": 0.055331043266512524,
+      "cka_values": [
+        0.4152272863550511,
+        0.30410683022776697,
+        0.2924655498048333
+      ]
+    },
+    {
+      "label": "c",
+      "scale": 1000,
+      "n_seeds": 3,
+      "cka_mean": 0.3475583128324173,
+      "cka_std": 0.020382820452664055,
+      "cka_values": [
+        0.35259214852433585,
+        0.3696215582910088,
+        0.3204612316819072
+      ]
+    },
+    {
+      "label": "d",
+      "scale": 1000,
+      "n_seeds": 3,
+      "cka_mean": 0.3061299179566813,
+      "cka_std": 0.041301063598288404,
+      "cka_values": [
+        0.3623595446501403,
+        0.2917022735268782,
+        0.2643279356930254
+      ]
+    },
+    {
+      "label": "d-diffts",
+      "scale": 1000,
+      "n_seeds": 3,
+      "cka_mean": 0.1772592899413581,
+      "cka_std": 0.005882072804118123,
+      "cka_values": [
+        0.1814115086713613,
+        0.1689407867708459,
+        0.18142557438186707
+      ]
+    }
+  ]
+}

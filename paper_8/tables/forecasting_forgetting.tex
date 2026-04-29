@@ -1,8 +1,8 @@
 \begin{table}[t]
 \centering
-\caption{Catastrophic forgetting diagnosis on ETTh2 forecasting (mean $\pm$ std across 10 seeds).
+\caption{Representation drift diagnosis on ETTh2 forecasting (mean $\pm$ std across 10 seeds).
 Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable.
-Fine-tuning (B, C) degrades performance 10--16\% while freezing the encoder (D) preserves it.}
+Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift.}
 \label{tab:forecasting_forgetting}
 \small
 \begin{tabular}{l cccc cccc}

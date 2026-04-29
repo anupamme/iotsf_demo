@@ -197,7 +197,12 @@ class MoiraiAnomalyDetector:
 
         # Device selection
         if device == 'auto':
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            if torch.cuda.is_available():
+                self.device = torch.device('cuda')
+            elif torch.backends.mps.is_available():
+                self.device = torch.device('mps')
+            else:
+                self.device = torch.device('cpu')
         else:
             self.device = torch.device(device)
 
@@ -211,6 +216,23 @@ class MoiraiAnomalyDetector:
         self._initialized = False
         self._mock_mode = False
         self.projection_head = None  # set after fine_tune_supervised()
+
+    def _safe_val_loss(self, **kwargs):
+        """Wrapper around model._val_loss that handles MPS float64 limitation.
+
+        MPS doesn't support float64 which uni2ts uses internally.
+        Temporarily moves model to CPU for this call, then back to MPS.
+        """
+        if self.device.type == 'mps':
+            self.model.to('cpu')
+            # Move tensor args to CPU
+            for k, v in kwargs.items():
+                if isinstance(v, torch.Tensor):
+                    kwargs[k] = v.to('cpu')
+            result = self.model._val_loss(**kwargs)
+            self.model.to(self.device)
+            return result.to(self.device)
+        return self.model._val_loss(**kwargs)
 
     def _get_encoder(self):
         """Get the encoder module, handling both normal and LoRA-wrapped models."""
@@ -576,7 +598,7 @@ class MoiraiAnomalyDetector:
 
                 try:
                     # Compute NLL using model's internal method
-                    nll = self.model._val_loss(
+                    nll = self._safe_val_loss(
                         patch_size=patch_size,
                         target=target,
                         observed_target=observed_target,
@@ -990,7 +1012,7 @@ class MoiraiAnomalyDetector:
                     # Use patch_size from model (default 32 for small model)
                     patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
 
-                    per_sample_loss = self.model._val_loss(
+                    per_sample_loss = self._safe_val_loss(
                         patch_size=patch_size,
                         target=full_target,
                         observed_target=observed_target,
@@ -1046,7 +1068,7 @@ class MoiraiAnomalyDetector:
                     try:
                         patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
 
-                        per_sample_loss = self.model._val_loss(
+                        per_sample_loss = self._safe_val_loss(
                             patch_size=patch_size,
                             target=full_target,
                             observed_target=observed_target,
@@ -1198,6 +1220,7 @@ class MoiraiAnomalyDetector:
         temperature: float,
         n_epochs: int,
         freeze_encoder: str = "none",
+        l2sp_weight: float = 0.0,
     ) -> Dict[str, Any]:
         """
         Set up components for supervised contrastive training.
@@ -1258,6 +1281,15 @@ class MoiraiAnomalyDetector:
         # Initialize contrastive loss
         contrastive_loss_fn = SupervisedContrastiveLoss(temperature=temperature)
 
+        # Snapshot pretrained weights for L2-SP regularization
+        pretrained_params = None
+        if l2sp_weight > 0.0:
+            pretrained_params = {
+                name: param.detach().clone()
+                for name, param in self.model.named_parameters()
+            }
+            logger.info(f"L2-SP regularization enabled (weight={l2sp_weight})")
+
         # Optimizer: freeze encoder if requested (tests catastrophic forgetting hypothesis)
         if freeze_encoder == "full":
             for param in self.model.parameters():
@@ -1294,7 +1326,9 @@ class MoiraiAnomalyDetector:
             'projection_head': projection_head,
             'contrastive_loss_fn': contrastive_loss_fn,
             'optimizer': optimizer,
-            'scheduler': scheduler
+            'scheduler': scheduler,
+            'pretrained_params': pretrained_params,
+            'l2sp_weight': l2sp_weight,
         }
 
     def _train_epoch_supervised(
@@ -1306,7 +1340,9 @@ class MoiraiAnomalyDetector:
         captured_embeddings: Dict,
         contrastive_weight: float,
         epoch: int,
-        log_gradients: bool = False
+        log_gradients: bool = False,
+        pretrained_params: Optional[Dict] = None,
+        l2sp_weight: float = 0.0,
     ) -> Tuple[float, float, float, int, Dict]:
         """
         Run a single training epoch for supervised contrastive learning.
@@ -1333,17 +1369,24 @@ class MoiraiAnomalyDetector:
         batch_count = 0
         patch_size = self.patch_size if self.patch_size != 'auto' else 32
 
+        # MPS doesn't support float64 which uni2ts uses internally in _val_loss.
+        # Run training on CPU when on MPS to keep autograd graph intact.
+        train_device = 'cpu' if self.device.type == 'mps' else self.device
+        if train_device == 'cpu' and self.device.type == 'mps':
+            self.model.to('cpu')
+            projection_head.to('cpu')
+
         for batch_idx, batch in enumerate(train_loader):
-            context = batch['context'].to(self.device)
-            target = batch['target'].to(self.device)
-            labels = batch['label'].to(self.device)
+            context = batch['context'].to(train_device)
+            target = batch['target'].to(train_device)
+            labels = batch['label'].to(train_device)
 
             # Concatenate context and target for NLL computation
             full_target = torch.cat([context, target], dim=1)
             B, seq_len, n_features = full_target.shape
 
-            observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
-            is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+            observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=train_device)
+            is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=train_device)
 
             try:
                 # Compute NLL loss (also triggers encoder hook)
@@ -1365,6 +1408,15 @@ class MoiraiAnomalyDetector:
 
                 # Combined loss
                 total_loss = nll_loss + contrastive_weight * cont_loss
+
+                # L2-SP regularization: penalize drift from pretrained weights
+                if pretrained_params is not None and l2sp_weight > 0.0:
+                    l2sp_loss = sum(
+                        (p - pretrained_params[name]).pow(2).sum()
+                        for name, p in self.model.named_parameters()
+                        if p.requires_grad and name in pretrained_params
+                    )
+                    total_loss = total_loss + l2sp_weight * l2sp_loss
 
             except Exception as e:
                 logger.warning(f"Batch {batch_idx} failed: {e}")
@@ -1400,6 +1452,11 @@ class MoiraiAnomalyDetector:
                     f"Epoch {epoch+1} Batch {batch_idx+1}/{len(train_loader)} - "
                     f"NLL: {nll_loss.item():.4f}, Cont: {cont_loss.item():.4f}"
                 )
+
+        # Move model and projection head back to MPS after CPU training
+        if train_device == 'cpu' and self.device.type == 'mps':
+            self.model.to(self.device)
+            projection_head.to(self.device)
 
         if batch_count == 0:
             return 0.0, 0.0, 0.0, 0, {}
@@ -1452,17 +1509,23 @@ class MoiraiAnomalyDetector:
         val_batch_count = 0
         patch_size = self.patch_size if self.patch_size != 'auto' else 32
 
+        # MPS doesn't support float64; run validation on CPU
+        val_device = 'cpu' if self.device.type == 'mps' else self.device
+        if val_device == 'cpu' and self.device.type == 'mps':
+            self.model.to('cpu')
+            projection_head.to('cpu')
+
         with torch.no_grad():
             for batch in val_loader:
-                context = batch['context'].to(self.device)
-                target = batch['target'].to(self.device)
-                labels = batch['label'].to(self.device)
+                context = batch['context'].to(val_device)
+                target = batch['target'].to(val_device)
+                labels = batch['label'].to(val_device)
 
                 full_target = torch.cat([context, target], dim=1)
                 B, seq_len, n_features = full_target.shape
 
-                observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
-                is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+                observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=val_device)
+                is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=val_device)
 
                 try:
                     per_sample_nll = self.model._val_loss(
@@ -1488,6 +1551,11 @@ class MoiraiAnomalyDetector:
                 epoch_val_nll += nll_loss.item()
                 val_batch_count += 1
 
+        # Move back to MPS after validation
+        if val_device == 'cpu' and self.device.type == 'mps':
+            self.model.to(self.device)
+            projection_head.to(self.device)
+
         avg_val = epoch_val_loss / val_batch_count if val_batch_count > 0 else float('inf')
         avg_val_nll = epoch_val_nll / val_batch_count if val_batch_count > 0 else float('inf')
         return avg_val, avg_val_nll, {}
@@ -1508,6 +1576,7 @@ class MoiraiAnomalyDetector:
         log_gradients: bool = False,
         early_stopping_criterion: str = "nll",
         freeze_encoder: str = "none",
+        l2sp_weight: float = 0.0,
     ) -> Dict[str, List[float]]:
         """
         Fine-tune Moirai with supervised contrastive loss.
@@ -1528,6 +1597,7 @@ class MoiraiAnomalyDetector:
             temperature: Temperature for contrastive loss
             checkpoint_dir: Directory to save checkpoints
             early_stopping_patience: Epochs to wait before early stopping
+            l2sp_weight: L2-SP regularization weight (0.0 = disabled)
 
         Returns:
             Dictionary with training history:
@@ -1565,6 +1635,7 @@ class MoiraiAnomalyDetector:
             train_data, train_labels, val_data, val_labels,
             batch_size, learning_rate, temperature, n_epochs,
             freeze_encoder=freeze_encoder,
+            l2sp_weight=l2sp_weight,
         )
 
         train_loader = components['train_loader']
@@ -1603,7 +1674,9 @@ class MoiraiAnomalyDetector:
                 avg_total, avg_nll, avg_cont, batch_count, grad_info = self._train_epoch_supervised(
                     train_loader, projection_head, contrastive_loss_fn,
                     optimizer, captured_embeddings, contrastive_weight, epoch,
-                    log_gradients=log_gradients
+                    log_gradients=log_gradients,
+                    pretrained_params=components.get('pretrained_params'),
+                    l2sp_weight=components.get('l2sp_weight', 0.0),
                 )
 
                 if batch_count == 0:
@@ -1748,7 +1821,7 @@ class MoiraiAnomalyDetector:
 
                     try:
                         # Use _val_loss (same as validation code) — triggers the hook
-                        _ = self.model._val_loss(
+                        _ = self._safe_val_loss(
                             patch_size=patch_size,
                             target=full_target,
                             observed_target=observed_target,
