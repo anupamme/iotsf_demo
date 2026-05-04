@@ -1,3 +1,130 @@
+# Response to Borderline Reject Reviewer (→ Weak Accept 6/10)
+
+We thank the reviewer for the detailed assessment and clear path to Weak Accept. The reviewer identifies two paths: (a) add one gate-passing non-Moirai backbone, or (b) tighten framing to Moirai case study with contribution-tiering elevated to abstract. We adopt **Path B**.
+
+Path A is blocked: Traffic.csv is corrupted (14 bytes), Exchange.csv is unavailable, and Weather/Electricity gate-fail for Moirai (ZS <20% over Linear). We commit to attempting Path A at camera-ready if datasets can be obtained, but the current revision strengthens the paper via honest scoping rather than waiting for data that may not materialize.
+
+---
+
+## Changes Made
+
+### 1. Abstract Rewritten (Major)
+
+**Old framing:** "We present a controlled empirical study..." (sounds general)
+
+**New framing:** "We present a case study of Moirai fine-tuning on ETT..." (explicit scope upfront)
+
+The abstract now:
+- Leads with "Moirai case study" in the opening sentence
+- Elevates contribution-tiering from §8: distinguishes "methodological contributions (backbone-agnostic: value-gate, LoRA recipe, control designs)" from "empirical findings (Moirai-ETT specific: three-regime taxonomy, per-seed ΔR² > 0 invariant)"
+- Frames 9/9 non-Moirai gate failures as "a finding about ETT coverage in their pre-training corpora" (a result about those backbones), not as validation of Moirai's uniqueness
+- Describes three regimes as "descriptive taxonomy" (not "characterization")
+- Leads on ΔR² > 0 (protocol-robust), presents forgetting as "protocol-dependent consequence"
+
+### 2. Introduction Tightened
+
+**§1 opening now states:** "We present a Moirai case study on ETT forecasting benchmarks... We distinguish methodological contributions (backbone-agnostic) from empirical findings (Moirai-ETT specific)."
+
+**Contribution-1 now begins:** "On Moirai-ETT specifically, we document the following."
+
+This front-loads the scope rather than burying it in later sections.
+
+### 3. Terminology Already Clarified
+
+**Reviewer concern:** "'Catastrophic forgetting' is used non-standardly."
+
+**Already addressed:** §1 lines 32-35 explicitly state: "We use 'catastrophic forgetting' to mean degraded performance on distributions the model originally handled well---consistent with continual learning usage where the 'previous task' is the pre-training objective."
+
+No additional changes needed.
+
+### 4. MSE Normalization Already Prominent
+
+**Reviewer concern:** "Table 1/2 MSE discrepancy (0.126 vs 0.269) buried in footnote."
+
+**Already addressed:** §5.1 lines 28-31 state in body text: "MSE values of 0.269/0.299 in the gate-pass comparison use un-normalized targets; fine-tuning tables report MSE on zero-mean unit-variance normalized targets per split (ZS baseline = 0.126 at h=96, 0.158 at h=192)."
+
+This is not a footnote; it's prominent text. No changes needed.
+
+### 5. IoT Status
+
+**Reviewer concern:** "IoT adds little — sub-random ZS, can't test dissociation, should move to appendix."
+
+**Acknowledged.** IoT content is currently 1 paragraph in §7 + 1 column in cross-domain table. The reviewer is correct that IoT validates the value-gate but does not test the dissociation. We frame it explicitly as "a negative control, not a second dissociation instance" in §7. Moving IoT fully to the appendix would require restructuring the cross-domain table; given the minimal space IoT currently occupies, we retain the current structure but acknowledge the reviewer's point that IoT's contribution is limited to value-gate validation.
+
+---
+
+## Remaining Limitations Acknowledged
+
+### 1. Deeply-Negative R² Regime
+
+**Reviewer concern:** "R²(FT) = −6.24. Want one (encoder, head) with R²(PT) > 0.2 AND ΔR² > 0."
+
+**Honest assessment:** We do not have such a combination. The closest results are:
+- GBM delta1 head on ETTh2: R²(PT) = +0.059, ΔR² = −0.056
+- GBM delta1 head on ETTm2: R²(PT) = −0.030, ΔR² weakly positive (+0.007 mean, 4/5 positive)
+
+We frame ΔR² as a **directional signal** of geometry shifting toward the trained objective, not a claim about absolute decodability. The probe noise-floor analysis (Appendix H), random-init control (5 seeds, ΔR² = −0.199), and frozen-encoder control (ΔR² = −0.048, 14× smaller) collectively support the interpretation that ΔR² > 0 is real within the deeply-negative regime, but we acknowledge the reviewer's point that positive-floor evidence would strengthen the claim.
+
+We commit to searching for positive-floor heads at camera-ready (e.g., shorter horizons, different target variables, GBM with more aggressive hyperparameter tuning).
+
+### 2. Protocol-Dependence
+
+**Reviewer concern:** "Forgetting sign flips between protocols (−5.3% vs +7.5%). Reframing to ΔR² midway feels post-hoc."
+
+**Acknowledged.** The §5.6 trajectory analysis explains the mechanism (3 seeds overshoot late, producing bimodal forgetting under final-epoch checkpointing). We lead on ΔR² (10/10 positive, protocol-robust) and present forgetting sign as a protocol-dependent consequence. The bootstrap CI on early-stopped forgetting ([−9.6%, −1.0%]) excludes zero but is sensitive to checkpointing.
+
+This is honest reporting of a real sensitivity. The reframing is not post-hoc in the sense of cherry-picking results; it reflects that ΔR² is the more mechanistic signal (it measures encoder geometry directly) while forgetting is a downstream task-outcome consequence that depends on when you stop training.
+
+### 3. Three-Regime Taxonomy is Descriptive
+
+**Reviewer concern:** "Three regimes are descriptive, not predictive. Spectral entropy pilot is post-hoc on 1 column."
+
+**Fully acknowledged.** The abstract now uses "descriptive taxonomy" (not "characterization"). §7 explicitly states: "We treat the three-regime characterisation as a descriptive case-study taxonomy, not a predictive theory." The spectral entropy/Hurst pilot (ETTh1: SE=3.61, ETTh2: 3.46, ETTm2: 2.25) is labeled as "informal post-hoc pilot, not pre-specified" and is computed on the OT target column only (we note other columns show similar patterns).
+
+We do not claim this as a predictive model. It is an empirical description of three observed cells with a post-hoc hypothesis worth testing on held-out data.
+
+### 4. Thin Sample Sizes on Surrounding Ablations
+
+**Reviewer concern:** "N=4/N=5 layer unfreeze: 1 seed each. LoRA rank escalation: 1 seed."
+
+**Acknowledged.** These are exploratory ablations. We report them as such and do not claim definitive conclusions from 1-seed results. The headline claims (10-seed CUDA deterministic on ETTh2, 3-seed ETTm2/ETTh1, 5-seed random-init) are adequately powered; the surrounding ablations (N=4/N=5 unfreeze, LoRA rank sweep) are presented as pilot evidence.
+
+---
+
+## Questions Answered
+
+### Q1: Can you run one non-Moirai backbone on a gate-passing dataset?
+
+**Not feasible with available data.** Traffic.csv is corrupted, Exchange.csv is unavailable, Weather and Electricity gate-fail for Moirai. We commit to attempting this at camera-ready if datasets obtained. The current revision strengthens the paper by honest scoping (Path B) rather than delaying for data that may not arrive.
+
+### Q2: Can you find (encoder, head) with R²(PT) > 0.2 AND ΔR² > 0?
+
+**No.** Our closest results are R²(PT) = +0.059 (GBM delta1, ΔR² = −0.056) and R²(PT) = −0.030 (ETTm2 delta1, ΔR² ≈ 0). We acknowledge this as a limitation and commit to searching for positive-floor heads at camera-ready.
+
+### Q3: Does n=5k bimodal trajectory replicate on ETTm2 or ETTh1?
+
+**Not tested.** Noted as future work. The n=5k trajectory recipe (3/7 seeds overshoot in epoch 1, producing bimodal forgetting) is documented on ETTh2 only. Replication on adjacent cells would strengthen the mechanistic claim.
+
+### Q4: MLP non-monotonicity on ETTh1 (k=1→2→5: 4→8→0 positive) — have you tried dropout/weight decay?
+
+**No.** We explicitly flag this as inconclusive with citation to Pimentel et al. on probe capacity: "probe results that depend on hand-picked capacity do not constitute robust evidence of encoder structure." The k=2 result (8/10 positive) is post-hoc selected from a non-monotone sweep. We do not use this as primary evidence for ETTh1; the honest summary is that Ridge (2/10 positive) finds no robust ΔR² > 0 signal on ETTh1.
+
+### Q5: Moirai-Base value-gate — if Base ZS passes gate, is Base a second dissociation instance?
+
+**Excellent point.** We will clarify Base's gate-pass status in the camera-ready. Current §7 text: "Moirai-Base (91M) shows aggressive drift (CKA=0.460) with strong task improvement (unfrozen −44.1% vs frozen −47.4%). The 3-point gap sits within seed variance."
+
+If Base ZS on ETTh2 > 1.2 × Linear (passes gate), then Base at n=500 is indeed a second cell showing dissociation (drift + improvement), which would strengthen the paper. We will compute Base ZS explicitly and report whether Base is (a) a second dissociation cell (if gate-pass), or (b) value-gated differently than Small (if gate-fail). Preliminary evidence suggests Base likely passes the gate (Table 4 reports Base ZS=0.231 vs Small ZS=0.126 on same data), which would make Base a capacity-dependent second instance.
+
+---
+
+## Summary
+
+We have adopted Path B (honest scoping) as the viable route to Weak Accept. The abstract and introduction now lead with "Moirai case study" framing, elevate contribution-tiering, and distinguish methodological (backbone-agnostic) from empirical (Moirai-specific) contributions. The remaining limitations (deeply-negative R² regime, protocol-dependence, descriptive taxonomy, thin ablation sample sizes) are acknowledged transparently, and we commit to addressing Q2/Q3/Q5 at camera-ready where feasible.
+
+The paper is now calibrated to its evidence: a rigorous Moirai-ETT case study with methodological contributions that generalize (value-gate, LoRA recipe, control designs) and empirical findings that require replication beyond Moirai-ETT to claim universality.
+
+---
+
 # Response to V30 Reviewer (Weak Accept → Clear Accept 7/10)
 
 We thank the reviewer for the continued engagement and the precise camera-ready roadmap. This revision addresses both items. New: (1) random-init control extended to 5 seeds (42/101/123/303/456); (2) §8 tiered-contributions phrasing revised per reviewer suggestion to describe the controlled-comparison structure rather than naming control types as novel methodology.

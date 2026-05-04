@@ -8,8 +8,11 @@ on billions of time points that achieves strong zero-shot performance
 on forecasting benchmarks.  A natural next step is to fine-tune it on
 domain-specific tasks: anomaly detection, classification, or
 short-horizon forecasting with limited labelled data.  We present
-a Moirai case study that characterises what happens to pre-trained
-representations during this fine-tuning.
+a Moirai case study on ETT forecasting benchmarks that characterises
+what happens to pre-trained representations during fine-tuning.
+We distinguish methodological contributions (backbone-agnostic: control
+designs, value-gate framework, LoRA recipe) from empirical findings
+(Moirai-ETT specific: sample-size regime taxonomy, per-seed $\Delta R^2{>}0$ invariant).
 
 \textbf{Representation drift during fine-tuning.}
 We provide systematic empirical characterization of \emph{representation
@@ -90,6 +93,7 @@ $n$) cells, not a predictive theory.
 \begin{enumerate}
   \item \textbf{A controlled case study of encoder representation dynamics
     during Moirai fine-tuning on ETT, using the \emph{CKA-probe gap}.}
+    On Moirai-ETT specifically, we document the following.
     Fine-tuning imposes a \emph{geometric cost} (CKA$\downarrow$: from
     0.949 at $n{=}500$ to $\approx$0.52 at $n{=}10$k) whose task-level
     consequences are sample-size and dataset dependent.  We document

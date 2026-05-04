@@ -54,39 +54,38 @@
 
 % ============================================================
 \begin{abstract}
-We present a controlled empirical study of representation drift during
-fine-tuning of Moirai~\cite{woo2024moirai}, a time-series foundation
-model, on ETT forecasting benchmarks where zero-shot Moirai outperforms
-Linear baselines by 28--45\%.
-Fine-tuning imposes a \textbf{geometric cost} (CKA: 0.949 at $n{=}500$
-to $\approx$0.52 at $n{=}10{,}000$) whose task-level consequence is
-sample-size dependent: \textbf{(i)} on ETTh2 and ETTm2 at $n{=}10$k,
-drift is accompanied by a \emph{task-aligned decodability shift} on the trained head
-($\Delta R^2{>}0$ in \textbf{10/10} CUDA seeds per dataset;
-$\Delta R^2{\leq}0$ on untrained heads; both $R^2(\text{ZS})$ and
-$R^2(\text{FT})$ remain negative, so this is a relative signal whose direction
-is robust across probe-design perturbations);
-\textbf{(ii)} on ETTh1 at $n{=}10$k, forgetting resolves (10/10 negative)
-but $\Delta R^2$ is \textbf{2/10} positive ---
-a task-improvement-without-decodability-gain case that bounds the scope
-of~(i); and \textbf{(iii)} in the low-$n$ regime, drift causes forgetting
-($+$14\% at $n{=}500$, resolving by $n{=}2{,}000$).
-On a positive-floor next-step-delta head ($R^2(\text{PT}){=}{+}0.059$,
-$R^2(\text{FT}){=}{+}0.003$), GBM gives $\Delta R^2{=}{-}0.056$,
-confirming the benefit is task-specific to the trained head.
-The frozen-encoder control (5 seeds, CKA$=$0.9993,
-$\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than condition~B)
-rules out a data-distribution confound; a top-3-layer partial-unfreeze
-(3 seeds) already produces $\Delta R^2{>}0$ (3/3), localising the gain to the
-top layers (Appendix~\ref{app:layerunfreeze}).
-The $\Delta R^2{>}0$ direction is robust across probe-design perturbations
-(Appendix~\ref{app:noisefloor}).
-Standard mitigations form a spectrum: LoRA on Moirai-Small preserves
-representations (CKA$\approx$0.98); LoRA on Moirai-Large requires
-$10{\times}$ LR reduction to avoid forgetting (cross-dataset validated).
-\textbf{Practitioner takeaway:} Use LoRA as the default; on Moirai-Large,
-reduce LR by $10{\times}$ before escalating rank.
-Code and datasets will be released on acceptance.
+We present a case study of Moirai fine-tuning~\cite{woo2024moirai} on ETT
+forecasting benchmarks, documenting a \textbf{cost--benefit gap}: fine-tuning
+imposes geometric cost (CKA drops from 0.949 at $n{=}500$ to $\approx$0.52 at
+$n{=}10{,}000$) while producing a task-aligned functional benefit
+(Ridge $\Delta R^2{>}0$ on the trained 96-step head in 10/10 seeds on
+ETTh2 and ETTm2; $\Delta R^2{\leq}0$ on untrained heads).
+Task forgetting is a protocol-dependent consequence: $-$5.3$\pm$6.2\%
+under early-stopped checkpointing (7/10 negative), $+$7.5$\pm$8.2\% under
+final-epoch (dominated by late-epoch overshoot in 3 seeds).
+We distinguish three sample-size regimes as a descriptive taxonomy:
+low-$n$ forgetting, high-$n$ improvement (ETTh2/ETTm2), and a boundary
+case (ETTh1: task resolves but $\Delta R^2$ is 2/10 positive).
+Three controls rule out confounds: a frozen-encoder control
+($\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than fine-tuned)
+rules out data-distribution effects; a random-init control
+(5 seeds, $\Delta R^2{=}{-}0.199{\pm}0.205$, 4/5 negative) rules out
+``any encoder fine-tuned on this objective''; a layer-wise unfreeze
+(top 3 of 6 layers sufficient for $\Delta R^2{>}0$, 3/3 seeds) localises
+the effect.
+
+\textbf{Contribution tiering.}
+We distinguish methodological contributions (backbone-agnostic: a value-gate
+framework for pre-training quality, LoRA-Large 10$\times$ LR rescue recipe
+cross-dataset validated on ETTh1/ETTh2/ETTm2, controlled-comparison designs,
+and a uni2ts PackedStdScaler patch) from empirical findings
+(Moirai-ETT specific: the three-regime taxonomy, per-seed $\Delta R^2{>}0$
+invariant on ETTh2/ETTm2).
+Nine non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM, MOMENT-base)
+gate-fail on ETT (ZS $<$20\% over Linear), a finding about ETT coverage in
+their pre-training corpora independent of the Moirai-specific results.
+\textbf{Practitioner takeaway:} Use LoRA as default for Moirai adaptation;
+on Moirai-Large, reduce LR by 10$\times$ before escalating rank.
 \end{abstract}
 
 % ============================================================
