@@ -626,6 +626,8 @@ def main():
     parser.add_argument('--lora-alpha', type=int, default=16, help="LoRA alpha (condition E)")
     parser.add_argument('--unfreeze-top-n-layers', type=int, default=0,
                         help="For condition D: unfreeze top N transformer layers (0=full freeze, default).")
+    parser.add_argument('--random-init', action='store_true',
+                        help="Skip loading pretrained weights; use randomly-initialized encoder (negative control for Q3).")
     parser.add_argument('--lora-target-modules', nargs='+', default=None,
                         help="LoRA target module names (condition E, default q_proj v_proj out_proj). Used for reviewer Q4 ablation.")
     parser.add_argument('--results-dir', default='results/forecasting_finetune')
@@ -744,7 +746,7 @@ def main():
         num_samples=20,
         device=args.device
     )
-    detector.initialize()
+    detector.initialize(random_init=args.random_init)
     model = detector.model
 
     # Store pre-trained weights for CKA and drift computation

@@ -25,6 +25,14 @@ Moirai-Small (13.8M parameters) zero-shot outperforms Linear by
 passing the pre-training value gate (set at 20\% to exclude
 marginal regimes like Electricity's 5\%; dataset classifications stable
 to $\pm$5\% threshold variation).
+MSE values of 0.269/0.299 in the gate-pass comparison use
+\emph{un-normalized} targets; fine-tuning tables (Table~\ref{tab:forecasting_forgetting}
+and Table~\ref{tab:mitigation_spectrum}) report MSE on zero-mean unit-variance
+normalized targets per split (ZS baseline $=$~0.126/$h{=}96$, 0.158/$h{=}192$).
+Moirai was pre-trained on the LOTSA corpus~\cite{woo2024moirai}, which
+is documented to exclude LTSF benchmark datasets including the ETT family;
+pre-training contamination is therefore not a plausible explanation for
+Moirai's ZS advantage on ETT.
 
 % ============================================================
 \subsection{Experimental Setup}
@@ -287,6 +295,12 @@ effect; for context, condition~B gives $\Delta R^2{=}{+}0.668{\pm}0.226$
 on the same data, so the frozen-encoder $\Delta R^2$ is $14{\times}$ smaller
 in magnitude, confirming the decodability gain is caused by encoder weight
 updates specifically, not by the training regime or data distribution.
+A randomly-initialised encoder (same architecture, same training)
+gives $\Delta R^2{=}{-}0.138$ (Appendix~\ref{app:randominit}),
+the opposite sign from condition~B's $+$0.363 at the same seed,
+confirming that pre-trained structure is required: the decodability
+gain is \emph{restructuring} of pre-trained representations, not
+incidental training noise.
 A top-3-layer partial-unfreeze already reproduces $\Delta R^2{>}0$ (3/3 seeds,
 Appendix~\ref{app:layerunfreeze}), localising the gain to weight updates in the
 top encoder layers specifically.

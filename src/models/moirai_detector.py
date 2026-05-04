@@ -241,13 +241,15 @@ class MoiraiAnomalyDetector:
             return module.base_model.model.encoder
         return module.encoder
 
-    def initialize(self, checkpoint_path: Optional[str] = None):
+    def initialize(self, checkpoint_path: Optional[str] = None, random_init: bool = False):
         """
         Initialize the model and load weights.
 
         Args:
             checkpoint_path: Path to fine-tuned checkpoint (optional)
                            If None, loads pre-trained Moirai from Hugging Face
+            random_init: If True, use randomly-initialized weights (skip pretrained loading).
+                        Used as a negative control experiment.
         """
         if not UNI2TS_AVAILABLE:
             logger.info("uni2ts not available. Using mock mode.")
@@ -259,8 +261,8 @@ class MoiraiAnomalyDetector:
             model_id = MODEL_SIZE_MAP[self.model_size]
             logger.info(f"Loading Moirai model: {model_id}")
 
-            # Always load base model from HuggingFace first
-            self.model = self._load_from_huggingface(model_id)
+            # Load base model (with or without pretrained weights)
+            self.model = self._load_from_huggingface(model_id, random_init=random_init)
 
             # If checkpoint provided, load fine-tuned weights
             if checkpoint_path:
@@ -293,23 +295,22 @@ class MoiraiAnomalyDetector:
             logger.info("Falling back to mock mode")
             self._initialize_mock()
 
-    def _load_from_huggingface(self, model_id: str) -> MoiraiForecast:
+    def _load_from_huggingface(self, model_id: str, random_init: bool = False) -> MoiraiForecast:
         """
         Load Moirai model from HuggingFace using safetensors format.
 
         Args:
             model_id: HuggingFace model ID (e.g., 'Salesforce/moirai-1.1-R-small')
+            random_init: If True, skip loading pretrained weights (random initialization).
 
         Returns:
             MoiraiForecast model instance
         """
         import json
         from huggingface_hub import hf_hub_download
-        from safetensors.torch import load_file
 
-        # Download config and weights
+        # Always download config; only download weights when not using random init
         config_path = hf_hub_download(repo_id=model_id, filename="config.json")
-        weights_path = hf_hub_download(repo_id=model_id, filename="model.safetensors")
 
         # Load config
         with open(config_path) as f:
@@ -335,9 +336,14 @@ class MoiraiAnomalyDetector:
             scaling=config.get('scaling', True)
         )
 
-        # Load weights
-        state_dict = load_file(weights_path)
-        module.load_state_dict(state_dict)
+        # Load pretrained weights unless random_init is requested
+        if random_init:
+            logger.info("Random-init mode: skipping pretrained weight loading (negative control)")
+        else:
+            from safetensors.torch import load_file
+            weights_path = hf_hub_download(repo_id=model_id, filename="model.safetensors")
+            state_dict = load_file(weights_path)
+            module.load_state_dict(state_dict)
 
         logger.info(f"Loaded MoiraiModule with {sum(p.numel() for p in module.parameters()):,} parameters")
 

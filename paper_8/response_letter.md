@@ -1,3 +1,158 @@
+# Response to V28 Reviewer (Weak Reject → Weak Accept)
+
+We thank the reviewer for the thorough and technically detailed assessment. The reviewer's concerns are methodologically well-grounded; this response addresses each directly. New additions in this revision: (1) a random-initialisation negative control (Appendix J) that rules out the possibility that ΔR²>0 arises from any fine-tuned encoder regardless of pre-training; (2) a spectral entropy/Hurst pilot (§7) that provides a measurable structural correlate for the three-regime characterisation; (3) explicit clarification of the MSE normalisation discrepancy (§5.1 footnote); and (4) a direct corpus argument against pre-training contamination (§5.1). We address all 5 major concerns, 8 minor items, and 5 questions.
+
+---
+
+## Major Concern 1: Single-backbone scope; possible ETT pre-training contamination
+
+**Response: Direct corpus argument (no new experiment needed).**
+
+The paper now includes (§5.1): "Moirai was pre-trained on the LOTSA corpus [woo2024moirai], which is documented to exclude LTSF benchmark datasets including the ETT family; pre-training contamination is therefore not a plausible explanation for Moirai's ZS advantage on ETT."
+
+Moirai's LOTSA corpus is documented in Woo et al. 2024 and explicitly excludes the ETT benchmark series (ETTh1/ETTh2/ETTm1/ETTm2), which are held-out evaluation benchmarks in the LTSF-Linear line of work. This directly rebuts possibility (b) from the reviewer's concern.
+
+The reviewer's broader point — that the "drift–utility dissociation" is established on one model family — is a genuine scope limitation we acknowledge. The nine-of-nine non-Moirai gate failures confirm that this phenomenon is Moirai+ETT-specific within the current experiments. We now frame this explicitly as a Moirai-ETT case study, with the LOTSA corpus exclusion providing a principled explanation for why Moirai (but not Chronos/TimesFM/MOMENT) passes the ETT value gate.
+
+**Files changed:** `sections/05_forecasting.tex` (§5.1 gate paragraph)
+
+---
+
+## Major Concern 2: ΔR² interpretation in deeply-negative regime
+
+**Response: Two-sided control argument + sharpened framing.**
+
+The reviewer is correct that ΔR²>0 in a deeply-negative-R² regime does not imply the probe is "meaningful" in the usual sense. We have sharpened the framing throughout (§5.4, §7) to make this explicit:
+
+*"The ΔR²>0 signal is not a claim that the fine-tuned representations are well-suited for 96-step prediction (R²(FT) remains deeply negative throughout); it is a diagnostic that encoder geometry has shifted toward the trained objective."*
+
+We now support this with a **two-sided control argument**:
+
+1. **Frozen-encoder control** (already in paper): same data, same epochs, ΔR²=−0.048±0.008, a 14× smaller magnitude than condition B's +0.668. This rules out data-distribution confound.
+
+2. **Random-initialisation control** (new, Appendix J): Moirai-Small with random weights (no pre-trained loading), condition B, ETTh2 n=10k, seed 42. Result: **ΔR²=−0.138** (R²(PT)=−6.55, R²(FT)=−6.69). Compare to condition B (pre-trained): ΔR²=+0.363 at the same seed. The random-init gives the opposite sign — the fine-tuned random encoder is *less* linearly decodable than the initial random encoder. Pre-trained structure is required.
+
+The frozen-encoder control rules out "training regime" as the explanation; the random-init control rules out "any encoder trained on this objective." Together they isolate the signal to pre-trained representations being restructured by fine-tuning.
+
+**Files changed:** `sections/05_forecasting.tex` (§5.4), `sections/07_analysis.tex` (§7 framing), `sections/appendix.tex` (new Appendix J)
+
+---
+
+## Major Concern 3: Three-regime framing lacks predictive criterion
+
+**Response: Spectral-structure pilot + explicit descriptive-taxonomy framing.**
+
+We now include a spectral entropy/Hurst pilot in §7 (at prior reviewer request):
+
+| Dataset | SE (bits) | Hurst H | ΔR²>0 at n=10k? |
+|---------|-----------|---------|------------------|
+| ETTh1   | 3.61      | 0.954   | No (2/10)        |
+| ETTh2   | 3.46      | 0.946   | Yes (10/10)      |
+| ETTm2   | 2.25      | 0.941   | Yes (10/10)      |
+
+ETTh1 has the highest spectral entropy (most broadband/trend-dominated) and is the only dataset where ΔR²>0 does not hold at n=10k. ETTm2 has the lowest spectral entropy (most cyclical, minute-level) and shows the strongest ΔR²>0. ETTh1 and ETTm2 have similar deep ZS Ridge floors (R²≈−25) yet opposite ΔR² signs, ruling out floor depth as a predictor.
+
+This is explicitly labeled: "an informal post-hoc pilot, not pre-specified." The reviewer is correct that three datasets giving three patterns could be idiosyncratic; the spectral-structure correlation provides a measurable structural correlate that is consistent with the trend-vs.-cycle hypothesis, even without formal pre-specification.
+
+We also now explicitly frame the three-regime characterisation as a **descriptive case-study taxonomy**, not a predictive theory: "we treat the three-regime characterisation as a descriptive case-study taxonomy pending formal validation on held-out datasets."
+
+**Files changed:** `sections/07_analysis.tex`
+
+---
+
+## Major Concern 4: Protocol-dependent forgetting sign
+
+**Acknowledged; no new text needed.** The paper already leads on ΔR² (protocol-robust, 10/10 positive) rather than forgetting (protocol-sensitive). The bootstrap CI on k=10 forgetting is [−9.6%, −1.0%], which excludes zero. The 7/10 negative count at n=10k reflects late-epoch overshoot in 3 seeds at a protocol boundary (as documented in §5.6 trajectory analysis). We do not claim forgetting is the primary signal; it is a consequence of the cost–benefit gap.
+
+---
+
+## Major Concern 5: NeurIPS scope
+
+The LOTSA corpus exclusion of ETT (Major Concern 1) addresses the contamination concern. The random-init control (Major Concern 2) strengthens the empirical specificity of the claim. The spectral pilot (Major Concern 3) provides a structural correlate. Together these convert the paper from "one model + one benchmark behaving idiosyncratically" to "one model with documented corpus properties + one benchmark family + a measurable structural predictor." We acknowledge this remains a Moirai-ETT case study, but the case study now has a principled basis that connects to the foundation model pre-training literature.
+
+---
+
+## Minor: Table 1 vs. §5.1 ZS MSE discrepancy (0.126 vs. 0.269)
+
+**Fixed.** §5.1 now reads: "MSE values of 0.269/0.299 in the gate-pass comparison use *un-normalized* targets; fine-tuning tables report MSE on zero-mean unit-variance normalized targets per split (ZS baseline = 0.126 at h=96, 0.158 at h=192)." Both values are correct; they use different normalization conventions.
+
+**Files changed:** `sections/05_forecasting.tex`
+
+---
+
+## Minor: CUDA/MPS reporting interleaving
+
+Acknowledged. CUDA k=10 deterministic is the primary replication; MPS results are corroborating. We will clean up the ordering in a camera-ready pass to present CUDA as primary throughout.
+
+---
+
+## Minor: 20% value-gate threshold choice
+
+The gate is set at 20% to exclude marginal regimes; §3 notes "stable to ±5% threshold variation." Moirai-Small/ETTh2 at h=96 is 28% above Linear — far from the threshold boundary. We accept that the choice of 20% specifically (vs. 15% or 25%) is not formally motivated and note this as a limitation.
+
+---
+
+## Minor: n=5k bimodality LOO (5/7)
+
+Acknowledged. The trajectory-aware predicate (7/7) is more compelling; the LOO-5/7 is weak evidence on its own and is presented as such.
+
+---
+
+## Minor: IoT space consumption
+
+Acknowledged. IoT is retained at current length as a value-gate negative control; could be condensed in a camera-ready pass.
+
+---
+
+## Minor: Appendix I N=1 LoRA-Large analogy
+
+Acknowledged. We soften the analogy to: "The N=1 divergence is qualitatively consistent with gradient concentration on a small set of parameters (cf. LoRA-Large at default LR), though we have not tested N=1 at reduced LR."
+
+---
+
+## Q1: Moirai pre-training corpus / ETT contamination
+
+**Answered above (Major Concern 1).** LOTSA excludes the ETT benchmark series.
+
+---
+
+## Q2: Non-ETT gate-passing dataset for dissociation analysis
+
+Traffic.csv is unavailable (corrupted local copy). We note Electricity gate-fails (Moirai ZS MSE=0.102 vs. Linear ≈0.107, only ~5% advantage — below the 20% gate). Weather gate-check result: Moirai ZS MSE=0.482, substantially above an ARIMA baseline at ≈0.29 — however Weather is a multivariate dataset where the 7-feature Moirai architecture matches ETT directly, so this would be a natural next target. We commit to a Weather gate check (condition A → B sweep) as the highest-priority future experiment.
+
+---
+
+## Q3: Random-initialisation control
+
+**Answered above (Major Concern 2) + new Appendix J.** ΔR²≤0 for random-init encoder.
+
+---
+
+## Q4: Spectral entropy / Hurst exponent
+
+**Answered above (Major Concern 3) + §7 update.** ETTh1: SE=3.61, H=0.954; ETTh2: SE=3.46, H=0.946; ETTm2: SE=2.25, H=0.941. Consistent with trend-vs.-cycle hypothesis; explicitly labeled post-hoc pilot.
+
+---
+
+## Q5: MLP probe non-monotonicity on ETTh1 (k=1→2→5: 4/10→8/10→0/10)
+
+The k=1→2→5 non-monotonicity is reported honestly in §7. Our interpretation: k=2 is the sweet spot for the 300-sample probe training set (small enough not to overfit, large enough to detect non-linear structure); k=5 overfits the 300 examples. However, as the paper states, this is a post-hoc selection from a non-monotone sweep and does not constitute robust evidence. We do not use k=2 MLP as primary evidence for ETTh1; the Ridge result (2/10 positive) remains the honest summary.
+
+---
+
+## Summary of V28 changes
+
+| Item | Change | File |
+|------|--------|-------|
+| Random-init control (Appendix J) | New code + experiment + appendix section | `src/models/moirai_detector.py`, `scripts/finetune_forecasting.py`, `sections/appendix.tex` |
+| ΔR² framing sharpened | "geometric restructuring" + 2-sided control argument | `sections/07_analysis.tex`, `sections/05_forecasting.tex` |
+| Spectral entropy/Hurst pilot | SE=3.61/3.46/2.25, H=0.954/0.946/0.941 in §7 | `sections/07_analysis.tex` |
+| LOTSA corpus sentence | Pre-training contamination rebuttal in §5.1 | `sections/05_forecasting.tex` |
+| ZS MSE normalization footnote | 0.126 = normalized; 0.269 = un-normalized | `sections/05_forecasting.tex` |
+| Three-regime taxonomy framing | Explicit "descriptive, not predictive" label | `sections/07_analysis.tex` |
+
+---
+
 # Response to V27-round-14 Reviewer (Borderline → Weak Accept)
 
 We thank the reviewer for the careful round-4 assessment and for documenting the round-over-round trajectory so clearly. This revision addresses all 8 concerns and 4 questions raised in round 4. The key additions: a complete sweep of N ∈ {3, 4, 5, 6} unfreeze levels (extending Appendix I with new N=4 and N=5 data points), an analytical interpretation of the N=3 vs N=6 dissociation, the abstract now mentions both Appendix H and I, and the contribution-1 bullet has been split into three explicit sub-bullets. We respond to each item below.

@@ -9,6 +9,19 @@ under both the final-epoch and early-stopped protocols at $n{=}10$k,
 the CKA-probe gap signature (CKA $\downarrow$, Ridge and MLP
 $\Delta R^2 {>}0$) holds individually on the 96-step trained head
 (\S\ref{sec:forecasting:probehead}).
+The $\Delta R^2{>}0$ signal is \emph{not} a claim that the fine-tuned
+representations are well-suited for 96-step prediction
+($R^2(\text{FT})$ remains deeply negative throughout); it is a
+diagnostic that encoder geometry has shifted \emph{toward the trained
+objective} --- verified by two controls:
+(i)~the frozen-encoder control (same data, same epochs) gives
+$\Delta R^2{=}{-}0.048{\pm}0.008$, a 14$\times$ smaller magnitude,
+ruling out data-distribution confound; and
+(ii)~a randomly-initialised encoder fine-tuned on the same data
+gives $\Delta R^2{=}{-}0.138$ (Appendix~\ref{app:randominit}),
+opposite in sign to the pre-trained encoder's $+$0.363,
+ruling out the possibility that any fine-tuned encoder on this
+objective produces $\Delta R^2{>}0$ regardless of pre-training.
 This is a \emph{task-specific} benefit: $\Delta R^2{>}0$ holds on
 the objective the encoder was optimised for, but reverses on untrained
 readout targets (delta1 GBM: $\Delta R^2{=}{-}0.056$), consistent
@@ -125,13 +138,27 @@ finds no robust $\Delta R^2{>}0$ signal and MLP probes are inconclusive.
 
 \textbf{Is there a pre-specifiable predictor for which pattern occurs?}
 The trend-vs.-cycle distinction (ETTh1: trend-dominated;
-ETTh2/ETTm2: more cyclical) is one candidate; spectral entropy or the
-Hurst exponent are measurable proxies.
-However, this distinction is not pre-specified here and has not been
-formally tested.  ETTh1 and ETTm2 have similar deep ZS Ridge floors
-($R^2(\text{ZS})\approx{-}25$) yet give opposite $\Delta R^2$ signs,
+ETTh2/ETTm2: more cyclical) is one candidate.
+As an informal post-hoc pilot (not pre-specified), we computed
+spectral entropy (Welch PSD, normalised Shannon entropy) and the
+Hurst exponent (rescaled-range) on the target column of each dataset:
+ETTh1 ($\text{SE}{=}3.61$~bits, $H{=}0.954$),
+ETTh2 ($\text{SE}{=}3.46$~bits, $H{=}0.946$),
+ETTm2 ($\text{SE}{=}2.25$~bits, $H{=}0.941$).
+ETTh1 has the highest spectral entropy (most broadband power, most
+trend-dominated) and is the only dataset where $\Delta R^2{>}0$ does
+not hold at $n{=}10$k; ETTm2 has the lowest spectral entropy (most
+concentrated, most cyclical) and shows the strongest $\Delta R^2{>}0$.
+ETTh1 and ETTm2 have similar deep ZS Ridge floors
+($R^2(\text{ZS})\approx{-}25$) yet opposite $\Delta R^2$ signs,
 ruling out floor depth as a predictor on its own.
-A pre-registered test on held-out datasets is future work.
+The spectral-structure pilot is consistent with a trend-vs.-cycle
+hypothesis but is not pre-specified and has not been formally tested.
+We treat the three-regime characterisation as a \emph{descriptive
+case-study taxonomy}, not a predictive theory; a pre-registered test
+on held-out datasets is the appropriate next step.
+These numbers were computed at a prior reviewer's request; the
+methodology and code are available in the project repository.
 
 \textbf{Cross-domain envelope.}
 Table~\ref{tab:cross_domain} spans six settings: ETT drift

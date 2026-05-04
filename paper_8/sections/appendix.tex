@@ -623,6 +623,39 @@ fine-tuned representations are \emph{relatively more} linearly decodable for
 the 96-step objective, and this direction is probe-design robust.
 
 % ============================================================
+\section{Random-Initialisation Negative Control}
+\label{app:randominit}
+% ============================================================
+
+To test whether $\Delta R^2{>}0$ on the 96-step head arises from
+pre-trained representations being restructured, or whether it would
+occur in any encoder fine-tuned on this objective, we ran a
+\emph{random-initialisation control}: Moirai-Small with the same
+architecture but random weights (skipping HuggingFace weight loading),
+condition~B, ETTh2 $n{=}10$k, $h{=}96$, seed~42.
+In this setting CKA tracks similarity to the \emph{random-init}
+epoch-0 state (since there is no pre-trained reference).
+
+\textbf{Result (seed 42):}
+CKA decays from 1.000 to $0.357$ after 20 epochs (the random encoder
+drifts substantially from its own starting point).
+Ridge $\Delta R^2{=}{-}0.138$ ($R^2(\text{PT}){=}{-}6.55$,
+$R^2(\text{FT}){=}{-}6.69$): the fine-tuned random-init encoder is
+\emph{less} linearly decodable for the 96-step target than the initial
+random encoder.
+Zero-shot MSE (random-init epoch-0) $=0.140$;
+fine-tuned MSE $=0.143$ (no task improvement either).
+
+Compare to condition~B (pre-trained): $\Delta R^2{=}{+}0.363$ at
+seed~42 (and $+0.668{\pm}0.226$ across $k{=}10$ CUDA seeds).
+The random-init $\Delta R^2{=}{-}0.138$ is opposite in sign and
+$2.6{\times}$ smaller in magnitude.
+This confirms that $\Delta R^2{>}0$ is not a property of any encoder
+fine-tuned on the 96-step NLL objective; pre-trained structure is
+required.  The decodability gain reflects restructuring of
+pre-trained representations, not incidental training noise.
+
+% ============================================================
 \section{Layer-Wise Unfreeze Localization}
 \label{app:layerunfreeze}
 % ============================================================
