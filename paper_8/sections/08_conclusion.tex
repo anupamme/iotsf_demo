@@ -88,8 +88,9 @@ We distinguish three tiers:
 \emph{Backbone-agnostic methodological contributions} --- the uni2ts
 \texttt{PackedStdScaler} patch (reproducibility), the value-gate framework
 for screening pre-training quality, the LoRA-Large $10\times$ LR rescue
-recipe (cross-dataset validated), the frozen-encoder control design, and
-the random-init negative control design --- are robust regardless of whether
+recipe (cross-dataset validated), and the controlled-comparison design
+(frozen-encoder, random-init, and layer-wise unfreeze controls, each ruling
+out a distinct confound) --- are robust regardless of whether
 the CKA-probe gap generalises beyond Moirai.
 \emph{Empirical contributions contingent on Moirai specificity} --- the
 three-regime characterisation, the LoRA-Small preservation result

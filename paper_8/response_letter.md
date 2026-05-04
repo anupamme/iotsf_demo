@@ -1,3 +1,46 @@
+# Response to V30 Reviewer (Weak Accept → Clear Accept 7/10)
+
+We thank the reviewer for the continued engagement and the precise camera-ready roadmap. This revision addresses both items. New: (1) random-init control extended to 5 seeds (42/101/123/303/456); (2) §8 tiered-contributions phrasing revised per reviewer suggestion to describe the controlled-comparison structure rather than naming control types as novel methodology.
+
+---
+
+## Primary Ask: Extend Random-Init Control to 5 Seeds
+
+**Reviewer:** "A 5-seed replication would let the paper claim sign-test significance. This is a camera-ready improvement, not a blocker."
+
+**Done. Results (5 seeds, 42/101/123/303/456):**
+
+| Seed | CKA   | R²(PT)  | R²(FT)  | ΔR²    |
+|------|-------|---------|---------|--------|
+| 42   | 0.357 | −6.554  | −6.692  | −0.138 |
+| 101  | 0.505 | −6.780  | −6.631  | +0.149 |
+| 123  | 0.540 | −6.749  | −6.944  | −0.195 |
+| 303  | 0.318 | −6.834 | −7.239 | −0.405 |
+| 456  | 0.273 | −6.665 | −7.070 | −0.405 |
+| **Mean±std** | **0.399±0.105** | | | **−0.199±0.205** |
+
+**Result: 4/5 negative (mean ΔR²=−0.199±0.205).** We report seed 101 (+0.149) honestly rather than suppressing it. The key comparison is distributional: the random-init 5-seed mean is substantially negative (−0.199), while the pre-trained condition B distribution is consistently positive (+0.668±0.226, 10/10 positive). No random-init seed reaches the lower end of the pre-trained per-seed range (+0.38 at the smallest). The new seeds 303 and 456 both gave strongly negative results (−0.405 each), pulling the 5-seed mean well below zero and tightening the distributional separation.
+
+Appendix J updated with full 5-seed table.
+
+**Files changed:** `sections/appendix.tex` (Appendix J), `sections/07_analysis.tex`, `sections/05_forecasting.tex`, `results/v30_random_init/`
+
+---
+
+## Minor: §8 Tiered-Contributions Phrasing
+
+**Reviewer:** "'The random-init negative control design' slightly oversells — it's a standard ablation. Suggested: 'the controlled-comparison design pattern used in Appendices E, H, and I' or similar."
+
+**Done.** We adopted the reviewer's suggestion. The revised sentence reads:
+
+> "…the LoRA-Large $10\times$ LR rescue recipe (cross-dataset validated), **and the controlled-comparison design (frozen-encoder, random-init, and layer-wise unfreeze controls, each ruling out a distinct confound)** — are robust regardless of whether the CKA-probe gap generalises beyond Moirai."
+
+This describes the structure (three controls each isolating a distinct confound) rather than claiming the individual control types as novel.
+
+**File changed:** `sections/08_conclusion.tex`
+
+---
+
 # Response to V29 Reviewer (Borderline leaning weak accept → Clear Accept 7/10)
 
 We thank the reviewer for the positive re-assessment and the precise roadmap to clear accept. This revision addresses each identified gap directly. New additions: (1) random-init control replicated across 3 seeds (mean ΔR²=−0.061±0.151, 2/3 negative, vs. pre-trained +0.668±0.226, 10/10 positive — random-init shows near-zero scattered signal, not the robust positive pattern); (2) language throughout revised from "decodability gain" to "decodability shift toward the objective" or "task-aligned decodability shift"; (3) specific section/table reference for the LOTSA corpus documentation of ETT exclusion; (4) explicit statement that spectral entropy was computed on the OT target column; (5) new paragraph in §8 enumerating which contributions are backbone-agnostic vs. Moirai-contingent.
