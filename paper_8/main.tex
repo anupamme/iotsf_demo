@@ -40,9 +40,8 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
 
-\title{Representation Drift in Foundation Model Fine-Tuning:\\
-       Cross-Domain Evidence from Time-Series Forecasting\\
-       and IoT Anomaly Detection}
+\title{Sample-Size Dependent Representation Drift in Moirai Fine-Tuning:\\
+       A Case Study on ETT Forecasting}
 
 \author{
   Anonymous Author(s) \\
@@ -55,47 +54,37 @@
 
 % ============================================================
 \begin{abstract}
-Fine-tuning foundation time-series models causes \emph{representation drift}
-that progressively overwrites pre-trained features.  When those features are
-valuable and training data is limited, this drift manifests as catastrophic
-forgetting---degraded performance on tasks the model originally handled well.
-We provide a systematic empirical characterization across two domains with
-controlled experiments on Moirai~\cite{woo2024moirai} (Small, Base, Large)
-and three ETT forecasting benchmarks.
-
-On \textbf{ETT forecasting}---where Moirai zero-shot outperforms Linear
-baselines by 28--45\%---fine-tuning with NLL loss degrades MSE by
-10--16\% after 20 epochs (10 seeds, 500 samples), while CKA drops to
-0.937--0.964.
-Crucially, drift and forgetting are \emph{dissociable}: at $n{=}2{,}000$
-and $n{=}10{,}000$, forgetting resolves ($-$2.9\% and $+$0.3\%), though
-the crossover regime at $n{=}5{,}000$ shows bimodal, elevated cross-seed
-variance ($+$6.6$\pm$10.0\% across 7 seeds);
-CKA continues declining monotonically (0.19 at $n{=}10{,}000$),
-indicating the model replaces pre-trained features rather than merely
-destroying them.
-Standard mitigations form a spectrum: LoRA on \emph{Moirai-Small}
-preserves representations (CKA$\approx$0.98) while improving over
-zero-shot, but the same recipe fails on Moirai-Large ($r{=}8$:
-$+$25.7$\pm$3.2\% forgetting) and rank escalation does not rescue it;
-EWC and L2-SP provide intermediate regularisation; full encoder freezing
-eliminates drift entirely.
-
-On \textbf{IoT anomaly detection}, fine-tuning \emph{improves} over
-zero-shot (the domain gap requires adaptation), but CKA drops to 0.31--0.45,
-confirming aggressive representation drift even when downstream performance
-improves.
-The cross-domain contrast shows that drift is consistent across the
-Moirai-family settings we tested; its consequences depend on whether
-the lost features were useful and whether sufficient data is available
-to learn replacements. We attempted two further backbones as
-second-model controls: Chronos-T5-Small (ZS MSE 0.304) and
-TimesFM-2.5-200M (ZS MSE 0.242) both fail the ETTh2 value gate against
-the Linear baseline (0.213), so the drift--utility dissociation below
-is established on Moirai only; we report the gate failures as a
-finding about backbone-specific pre-training coverage on ETTh2.
-
-We release code, datasets, and calibration scripts.
+We present a controlled empirical study of representation drift during
+fine-tuning of Moirai~\cite{woo2024moirai}, a time-series foundation
+model, on ETT forecasting benchmarks where zero-shot Moirai outperforms
+Linear baselines by 28--45\%.
+Fine-tuning imposes a \textbf{geometric cost} (CKA: 0.949 at $n{=}500$
+to $\approx$0.52 at $n{=}10{,}000$) whose task-level consequence is
+sample-size dependent: \textbf{(i)} on ETTh2 and ETTm2 at $n{=}10$k,
+drift is accompanied by a \emph{relative decodability gain} on the trained head
+($\Delta R^2{>}0$ in \textbf{10/10} CUDA seeds per dataset;
+$\Delta R^2{\leq}0$ on untrained heads; both $R^2(\text{ZS})$ and
+$R^2(\text{FT})$ remain negative, so this is a relative signal whose direction
+is robust across probe-design perturbations);
+\textbf{(ii)} on ETTh1 at $n{=}10$k, forgetting resolves (10/10 negative)
+but $\Delta R^2$ is \textbf{2/10} positive ---
+a task-improvement-without-decodability-gain case that bounds the scope
+of~(i); and \textbf{(iii)} in the low-$n$ regime, drift causes forgetting
+($+$14\% at $n{=}500$, resolving by $n{=}2{,}000$).
+On a positive-floor next-step-delta head ($R^2(\text{PT}){=}{+}0.059$,
+$R^2(\text{FT}){=}{+}0.003$), GBM gives $\Delta R^2{=}{-}0.056$,
+confirming the benefit is task-specific to the trained head.
+The frozen-encoder control (5 seeds, CKA$=$0.9993,
+$\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than condition~B)
+rules out a data-distribution confound; a top-3-layer partial-unfreeze
+(3 seeds) already produces $\Delta R^2{>}0$ (3/3), localising the gain to the
+top layers (Appendix~\ref{app:layerunfreeze}).
+Standard mitigations form a spectrum: LoRA on Moirai-Small preserves
+representations (CKA$\approx$0.98); LoRA on Moirai-Large requires
+$10{\times}$ LR reduction to avoid forgetting (cross-dataset validated).
+\textbf{Practitioner takeaway:} Use LoRA as the default; on Moirai-Large,
+reduce LR by $10{\times}$ before escalating rank.
+Code and datasets will be released on acceptance.
 \end{abstract}
 
 % ============================================================
@@ -104,7 +93,6 @@ We release code, datasets, and calibration scripts.
 \input{sections/03_problem_formulation}
 \input{sections/04_methodology}
 \input{sections/05_forecasting}
-\input{sections/06_iot_experiments}
 \input{sections/07_analysis}
 \input{sections/08_conclusion}
 \input{sections/appendix}

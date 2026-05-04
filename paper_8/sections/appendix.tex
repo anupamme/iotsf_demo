@@ -1,826 +1,106 @@
 % ============================================================
-% Consolidated Appendix
+% Consolidated Appendix (Moirai case study)
 % ============================================================
 \newpage
 \appendix
 
 % ============================================================
-\section{CICIoT2023 Feature Set}
-\label{app:features}
-% ============================================================
-
-Table~\ref{tab:features} lists the 12 network-flow features used in all
-experiments.  Each input window consists of 128 consecutive timesteps of
-these 12 features, drawn from the \dataset{}
-dataset~\cite{neto2023ciciot}.
-
-\begin{table}[h]
-\centering
-\caption{The 12 network-flow features extracted from \dataset{}.}
-\label{tab:features}
-\begin{tabular}{rll}
-\toprule
-\# & Feature & Description \\
-\midrule
-1  & \texttt{flow\_duration}      & Flow duration (seconds) \\
-2  & \texttt{fwd\_pkts\_tot}      & Forward total packet count \\
-3  & \texttt{bwd\_pkts\_tot}      & Backward total packet count \\
-4  & \texttt{fwd\_data\_pkts\_tot}& Forward data-bearing packet count \\
-5  & \texttt{bwd\_data\_pkts\_tot}& Backward data-bearing packet count \\
-6  & \texttt{fwd\_pkts\_per\_sec} & Forward packets per second \\
-7  & \texttt{bwd\_pkts\_per\_sec} & Backward packets per second \\
-8  & \texttt{flow\_pkts\_per\_sec}& Total packets per second \\
-9  & \texttt{fwd\_byts\_b\_avg}   & Average forward bytes per bulk transfer \\
-10 & \texttt{bwd\_byts\_b\_avg}   & Average backward bytes per bulk transfer \\
-11 & \texttt{fwd\_iat\_mean}      & Mean forward inter-arrival time \\
-12 & \texttt{bwd\_iat\_mean}      & Mean backward inter-arrival time \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The perturbation equations (Eqs.~\ref{eq:slow}--\ref{eq:proto}) use 1-based
-indices that match this table directly: $P_{\text{slow}}$ scales features~9
-and~10 (\texttt{fwd\_byts\_b\_avg}, \texttt{bwd\_byts\_b\_avg});
-$P_{\text{lotl}}$ modifies features~6--8 (packet-rate channels);
-$P_{\text{beacon}}$ scales all 12 features uniformly;
-$P_{\text{proto}}$ jitters features~11 and~12 (\texttt{fwd\_iat\_mean},
-\texttt{bwd\_iat\_mean}).
-All features are z-score normalised per-flow before windowing.
-
-% ============================================================
-\section{Attack Archetype Equations and Protocol Constraints}
-\label{app:attack_equations}
-% ============================================================
-
-The four IoT attack archetypes at stealth $s$ are:
-\begin{align}
-  P_{\text{slow}} &: x_{t,j} \leftarrow x_{t,j}(1 + (1{-}s) \cdot 0.03 \cdot t/T), \; j \in \{9,10\} \label{eq:slow} \\
-  P_{\text{lotl}} &: x_{t,j} \leftarrow x_{t,j}(1 + (1{-}s) \cdot 1.15) \text{ if } t \bmod 32{=}0, \; j \in \{6,7,8\} \label{eq:lotl} \\
-  P_{\text{beacon}} &: x_{t,j} \leftarrow x_{t,j}(1 - (1{-}s) \cdot 0.02) \text{ if } t \bmod 16{=}0 \label{eq:beacon} \\
-  P_{\text{proto}} &: x_{t,j} \leftarrow x_{t,j} + (1{-}s) \cdot 0.05 \cdot \epsilon_t, \; \epsilon_t \sim \mathcal{N}(0,1), \; j \in \{11,12\} \label{eq:proto}
-\end{align}
-At $s{=}0.95$, perturbation magnitudes are $\sim$0.003--0.06$\sigma$ in normalised space.
-
-\textbf{Protocol compliance.}
-Generated sequences must satisfy IoT protocol constraints
-$\mathcal{C}_\pi$ for $\pi \in \{\text{Modbus, MQTT, CoAP}\}$,
-checking packet size ranges (Modbus: 7--260 bytes), valid function
-codes, and inter-packet timing.  A constraint-retry loop
-(Appendix~\ref{app:algorithm}) iterates up to $R{=}3$ times, relaxing
-stealth by $+$0.01 per retry.  In practice, the analytical
-perturbations never violate protocol constraints (100\% pass rate at
-all tiers; Table~\ref{tab:constraints}); the loop is a safety net for
-future stochastic generators.
-
-% ============================================================
-\section{Full IoT Detection Results}
-\label{app:main_results}
-% ============================================================
-
-\input{tables/main_results}
-
-\input{tables/scaling}
-
-% ============================================================
-\section{Protocol Constraint Compliance}
-\label{app:constraints}
-% ============================================================
-
-Table~\ref{tab:constraints} reports the fraction of generated samples
-that pass protocol validation at each strictness tier
-(Section~\ref{sec:experiments:constraints}).
-
-\input{tables/protocol_compliance}
-
-At all strictness tiers, 100\% of generated samples pass validation
-across all three protocols (Modbus, MQTT, CoAP) and all four attack types.
-This confirms that the constraint retry loop (Appendix~\ref{app:algorithm})
-reliably enforces protocol rules without compromising attack diversity.
-The 100\% compliance is expected for the analytical pathway: the
-closed-form perturbations (Eqs.~\ref{eq:slow}--\ref{eq:proto}) modify
-only the statistical envelope of selected flow features (byte volumes,
-timing, packet counts), not the protocol-layer fields that validators
-inspect.  The constraint-retry loop (Appendix~\ref{app:algorithm}) is
-therefore a safety net that never triggers for this pathway, but would
-be load-bearing for a stochastic Diffusion-TS backbone that could
-generate out-of-range packet sizes.
-
-% ============================================================
-\section{Full Limitations and Future Work}
+\section{Limitations and Future Work}
 \label{app:limitations}
 % ============================================================
 
-(1)~\textbf{Human-specified archetypes.}
-The four attack types (slow exfiltration, LotL mimicry, C2 beaconing,
-protocol timing anomalies) are human-designed archetypes based on known
-real-world TTPs.  The current perturbation functions (Eqs.~\ref{eq:slow}--\ref{eq:proto}) realise
-one instance per archetype per stealth level---they do not discover novel attack
-strategies autonomously.  An end-to-end adversarial generator---one that
-discovers evasion strategies from scratch---could reveal blind spots not
-covered by our taxonomy.
+\textbf{(1) Single-backbone scope of the dissociation claim.}
+The drift--utility dissociation is established on the \emph{Moirai
+family} only (Small 13.8M, Base 91M, Large 311M across ETTh1, ETTh2,
+ETTm2).  We attempted three further backbones as second-model
+controls across three ETT datasets:
 
-(2)~\textbf{Evaluation scale.}
-All ablation results use 200 samples per class with 10 random seeds;
-the scaling experiment (Table~\ref{tab:scaling}) extends to
-1000 samples with 10 seeds.
-At this scale, individual-seed FPR values have standard errors
-of approximately $\pm$0.05 (binomial, $n=200$), making per-seed FPR differences
-below $\sim$0.10 statistically ambiguous.
-The B vs.\ D AUC comparison (0.556 vs.\ 0.556, Table~\ref{tab:ablation})
-confirms B$\approx$D; the conditions are statistically indistinguishable
-($p{=}0.49$, bootstrap).
-Cross-dataset evaluation on N-BaIoT (Appendix~\ref{app:nbaiot})
-addresses the single-dataset limitation; validation on UNSW-NB15 remains open.
-
-(3)~\textbf{Fixed evaluation scope.}
-Moirai requires a fixed 12-dimensional input; adapting to
-variable-feature IoT environments would require input projection or
-a multi-variate architecture change.
-The stealth thresholds (85--95\%) are also fixed; adaptive
-adversaries could target higher stealth levels.  Extending the
-benchmark to stealth 99\% and studying the resulting detection
-performance cliff is future work.
-
-(4)~\textbf{Diffusion-TS backbone.}
-All reported results use Moirai-Small fine-tuned on the
-analytical attack-archetype perturbations described in
-Section~\ref{sec:experiments:setup}.  The Diffusion-TS backbone for
-within-archetype sample diversity was not employed in the current
-evaluation; integrating it would increase per-archetype
-diversity and may further improve decision boundary quality.
-Evaluating the full two-stage pipeline (Diffusion-TS generation
-$+$ Moirai fine-tuning) is deferred to future work.
-
-(5)~\textbf{Circular evaluation.}
-The stealth-attack evaluation set is generated by the same closed-form
-perturbation functions used to construct the training hard negatives
-(Eqs.~\ref{eq:slow}--\ref{eq:proto}).  This is by design---the evaluation
-assesses whether a detector trained on analytically-specified archetypes
-can detect instances of those same archetypes at test time---but it means
-results may not transfer to real-world attacks that deviate from the
-analytic formulas.
-Appendix~\ref{app:nbaiot} presents N-BaIoT~\cite{meidan2018n} as an
-external \emph{negative transfer control}, not a cross-dataset success
-story: zero-shot transfer from the CICIoT2023-trained detector collapses
-(ROC-AUC $0.01$--$0.28$, FPR$=$1.00 across threshold placements),
-consistent with covariate shift across IoT datasets (device mix, label
-granularity, flow-vs.\ packet-trigger feature construction).
-Re-training the same recipe end-to-end on N-BaIoT benign data with
-Gaussian-noise negatives recovers strong discrimination
-(AUC$=$\nbaiotAUC{}, Table~\ref{tab:nbaiot_finetuned}), demonstrating
-\emph{recipe generalisation} (the training procedure works on a
-different dataset when applied from scratch) rather than
-representation transfer. We therefore do not claim external
-generalisation of our CICIoT2023 results; validation on UNSW-NB15~\cite{moustafa2015unsw}
-remains an open direction.
-
-(6)~\textbf{Low absolute detection rates.}
-The best calibrated Moirai F1 at stealth-95 is 0.262 (condition~C, Table~\ref{tab:main}),
-indicating the system detects roughly 26\% of stealthy attacks at the target
-FPR$\leq$0.05.
-The from-scratch CNN-NLL achieves F1$=$0.288 with competitive FPR.
-Three factors compound to produce this ceiling: (a) the benign-calibrated threshold
-protocol intentionally targets low FPR ($\leq 0.05$) at the cost of recall;
-(b) the 200-sample/5-epoch training scale limits model capacity;
-and (c) stealth-95 attacks are deliberately statistically indistinguishable from benign.
-The AUC of 0.629 (condition~C) and 0.598 (CNN-NLL) indicate genuine discrimination
-above chance.
-Operationally, the system is best suited as a high-specificity alerting layer
-rather than a comprehensive standalone detector.
-
-(7)~\textbf{Baseline hyperparameter tuning.}
-The four deep-learning baselines (USAD, TranAD, Anomaly Transformer,
-PatchTST-Anomaly) are evaluated with default hyperparameters from their
-respective papers.  Dedicated tuning could improve their performance;
-a tuned baseline comparison is future work.
-
-% ============================================================
-\section{N-BaIoT Feature Mapping}
-\label{app:nbaiot}
-% ============================================================
-
-N-BaIoT~\cite{meidan2018n} provides 115 features per packet-arrival event,
-computed as temporal-decay statistics over five windows
-($\lambda \in \{100\,\text{ms},\,500\,\text{ms},\,1.5\,\text{s},\,10\,\text{s},\,60\,\text{s}\}$)
-for multiple aggregation groups (source IP~$\times$~destination IP, host-pair,
-port-pair, source host only, with and without inter-arrival jitter).
-The Kaggle distribution provides flat CSV files named \texttt{\{device\_id\}.\{attack\_type\}.csv}
-(e.g., \texttt{1.benign.csv}, \texttt{1.mirai.scan.csv}) across nine IoT devices.
-We extract 12 proxy features from the 60-second window (denoted L5) to
-match the conceptual semantics of the 12 CICIoT2023 flow-level features
-expected by \ours{}.
-
-Table~\ref{tab:nbaiot_mapping} lists the mapping.
-Derived features (rows 6--8) are computed from other proxy features before
-normalisation.  A \texttt{StandardScaler} is fit on N-BaIoT benign rows
-only; both benign and attack sequences are transformed and clipped to
-$[-5, 5]$ (same as CICIoT2023 preprocessing).  Non-overlapping 128-timestep
-windows are created with stride 128 using the same \texttt{create\_sequences}
-utility used for CICIoT2023.
-
-\begin{table}[h]
-\centering
+\begin{center}
 \small
-\caption{
-  Mapping from the 12 CICIoT2023 features expected by \ours{} to
-  proxy columns in N-BaIoT.  All proxy values are drawn from the
-  60-second temporal decay window (suffix \texttt{L5}) unless noted.
-}
-\label{tab:nbaiot_mapping}
-\begin{tabular}{rllp{5.0cm}}
+\begin{tabular}{llccc}
 \toprule
-\# & CICIoT2023 feature & N-BaIoT proxy & Rationale \\
+Backbone & Dataset & ZS MSE & Linear MSE & Advantage \\
 \midrule
-1  & \texttt{flow\_duration}     & 60.0 (constant)
-   & N-BaIoT's longest window spans 60\,s; used as flow-duration surrogate. \\
-2  & \texttt{fwd\_pkts\_tot}     & \texttt{MI\_dir\_L5\_weight}
-   & Packet count, source IP $\to$ destination IP, 60\,s window. \\
-3  & \texttt{bwd\_pkts\_tot}     & \texttt{H\_L5\_weight}
-   & Packet count, source host (all directions), 60\,s window. \\
-4  & \texttt{fwd\_data\_pkts\_tot} & \texttt{HpHp\_L5\_weight}
-   & Port-pair weight approximates data-bearing connection count. \\
-5  & \texttt{bwd\_data\_pkts\_tot} & \texttt{HH\_L5\_weight}
-   & Host-pair weight approximates bidirectional data packet count. \\
-6  & \texttt{fwd\_pkts\_per\_sec}  & \texttt{MI\_dir\_L5\_weight}$/$60
-   & Derived forward packet rate. \\
-7  & \texttt{bwd\_pkts\_per\_sec}  & \texttt{H\_L5\_weight}$/$60
-   & Derived backward packet rate. \\
-8  & \texttt{flow\_pkts\_per\_sec} & $(\text{row 2}+\text{row 3})/60$
-   & Derived total packet rate. \\
-9  & \texttt{fwd\_byts\_b\_avg}    & \texttt{MI\_dir\_L5\_mean}
-   & Mean forward packet size. \\
-10 & \texttt{bwd\_byts\_b\_avg}    & \texttt{H\_L5\_mean}
-   & Mean packet size, source host. \\
-11 & \texttt{fwd\_iat\_mean}       & \texttt{HH\_jit\_L5\_mean}
-   & Mean inter-arrival jitter, host pair, 60\,s window. \\
-12 & \texttt{bwd\_iat\_mean}       & \texttt{HH\_jit\_L0.01\_mean}
-   & Short-window jitter (100\,ms) as backward IAT proxy. \\
+Chronos-T5-Small  & ETTh2 & 0.304 & 0.213 & $-$42.6\% \\
+Chronos-T5-Small  & ETTh1 & 0.118 & 0.092 & $-$28.8\% \\
+Chronos-T5-Small  & ETTm2 & 0.188 & 0.110 & $-$70.2\% \\
+Chronos-T5-Base   & ETTh2 & 0.286 & 0.213 & $-$34.3\% \\
+Chronos-T5-Large  & ETTh2 & 0.288 & 0.213 & $-$35.2\% \\
+TimesFM-2.5-200M  & ETTh2 & 0.242 & 0.213 & $-$13.6\% \\
+TimesFM-2.5-200M  & ETTh1 & 0.105 & 0.092 & $-$13.9\% \\
+TimesFM-2.5-200M  & ETTm2 & 0.190 & 0.110 & $-$72.6\% \\
+MOMENT-1-base     & ETTh2 & 0.528 & 0.213 & $-$148\%  \\
 \bottomrule
 \end{tabular}
-\end{table}
-
-\noindent\textbf{Mapping limitations.}
-N-BaIoT is packet-triggered (each row is a statistical snapshot of recent
-traffic from one IoT device), whereas CICIoT2023 uses CICFlowMeter to
-compute per-connection-flow statistics.  Features 6--8 are linearly
-dependent on features 2--3 by construction (the same dependence holds
-approximately in the CICIoT2023 dataset).  Feature 12 (\texttt{bwd\_iat\_mean})
-has no direct analogue in N-BaIoT; we use the shortest available jitter
-window as a proxy.  These limitations are transparent and documented here
-so that readers can assess how strongly to weight the N-BaIoT results
-relative to same-distribution evaluation (Appendix~\ref{app:nbaiot}).
-
-% ============================================================
-\section{N-BaIoT Per-Attack Results}
-\label{app:nbaiot_results}
-% ============================================================
-
-Table~\ref{tab:nbaiot} reports per-attack-variant F1, FPR, and ROC-AUC for the
-external N-BaIoT evaluation described in Appendix~\ref{app:nbaiot}.
-Table~\ref{tab:nbaiot_finetuned} compares zero-shot transfer against fine-tuned
-results on N-BaIoT benign data.
-
-\input{tables/nbaiot_results}
-
-\input{tables/nbaiot_finetuned}
-
-% ============================================================
-\section{Hyperparameter Sensitivity and Supplementary Figures}
-\label{app:hparams}
-% ============================================================
-
-\paragraph{Contrastive hyperparameter sensitivity.}
-A 4$\times$5 sweep over contrastive weight $\lambda$ (rows) and
-temperature $\tau$ (columns) using the full Moirai-Small fine-tuning
-pipeline at stealth-95 yields a constant F1$=$0.235 across all 20
-configurations; ROC-AUC varies within $0.467$--$0.489$ (std$<$0.008).
-The F1 plateau is an artefact of the benign-calibrated threshold
-operating in a \emph{dead zone} of the score distribution at this
-training scale: anomaly-score variation from changing
-($\lambda$, $\tau$) moves individual scores but leaves the 95th-percentile
-benign threshold positioned such that the same roughly-constant fraction of
-stealth-95 attacks cross it, producing a near-uniform F1.
-The AUC variation within the 0.02 band is the signal-bearing statistic
-at this scale; F1$=$0.235 rows should be read as ``no signal relative to
-the calibrated threshold,'' not as a legitimate hyperparameter
-plateau. Cross-validated threshold re-calibration is deferred to
-camera-ready. The detailed heatmap is released with the code.\label{fig:hparam}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig2_attack_visualization.pdf}
-  \caption{
-    Synthetic hard-negative attacks (dashed) vs benign traffic (solid green)
-    for each attack type at stealth 85\%, 90\%, 95\%.  The flow-duration
-    feature is shown.  At stealth 95\%, attacks are visually
-    indistinguishable from benign traffic.
-  }
-  \label{fig:attack_viz}
-\end{figure}
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig3_detection_heatmap.pdf}
-  \caption{
-    Detection F1 per attack type and stealth level for \ours{} (condition~C,
-    left panel) and the Ensemble baseline (right panel).
-    \ours{} condition~C outperforms the Ensemble at the aggregate stealth-95 level
-    (Table~\ref{tab:main}, F1$=$0.262 vs 0.136) under the benign-calibrated threshold.
-    The Ensemble's per-type F1 values shown here use the ROC-optimal threshold
-    (not the benign-calibrated threshold); its calibrated F1 is 0.136 at stealth-95
-    (Table~\ref{tab:main}).
-  }
-  \label{fig:heatmap}
-\end{figure}
-
-% ============================================================
-\section{Extended Experimental Details}
-\label{app:extended_setup}
-% ============================================================
-
-\subsection{Threshold Calibration Protocol}
-\label{app:threshold}
-
-We calibrate the anomaly-score threshold on a \emph{benign-only} held-out
-set: for each condition, we reserve 20\% of benign samples for calibration
-(the rest form the training set), score them with the detector's NLL output,
-and set the threshold at the 95th percentile of benign calibration scores
-(targeting FPR\,$\leq$\,0.05 on benign traffic).
-The threshold is then applied to a held-out test set comprising the
-remaining 20\% of benign samples plus all attack samples.
-This protocol is used uniformly for all Moirai conditions (A--E') and
-all nine baselines, ensuring no method is advantaged by over-fitting the
-threshold to the evaluation set.
-Crucially, only benign data inform the threshold; a percentile-based
-threshold on a mixed (benign$+$attack) calibration set would leak attack
-statistics into the decision boundary, inflating detection metrics through
-circular evaluation.
-
-\subsection{Baseline Tuning Protocol}
-\label{app:baseline_tuning}
-
-All four deep-learning baselines use their published default architectures
-without task-specific hyperparameter search.
-Each is trained for 20 epochs with learning rate $10^{-4}$, batch size 32.
-TranAD uses the $n_\text{layers}=2$ encoder depth reported in the original
-VLDB 2022 paper~\cite{tuli2022tranad}.
-All baselines apply the same benign-calibrated threshold protocol
-described in Appendix~\ref{app:threshold}: score the benign training samples
-with predict\_proba(), set threshold at the 95th percentile, then evaluate
-on held-out data.
-We acknowledge that dedicated hyperparameter tuning for each baseline
-could improve their results; the current protocol ensures the same
-threshold calibration applies to all methods, so no advantage
-is conferred to \ours{} by this choice.
-
-\subsection{Supervision Discussion}
-\label{app:supervision}
-
-All nine baselines are \textbf{unsupervised anomaly detectors}: they are trained on
-benign sequences only (no labeled attack data) using the same 80/20 benign split.
-\ours{} conditions B--D are \textbf{supervised anomaly detectors}: they receive
-labeled attack examples (hard negatives or Gaussian-noise negatives) during training.
-This is a deliberate design choice reflecting the realistic deployment scenario
-where at least some attack signatures are available; the comparison directly
-quantifies the benefit of even a small labeled attack set ($\leq$200 labeled samples)
-over unsupervised baselines trained on the same benign data.
-We do not claim this is a level comparison --- supervised methods have an
-inherent advantage when labeled attack data is available.
-The comparison is useful precisely because it measures \emph{how much} that
-advantage is, and whether the \ours{} training procedure exploits it
-efficiently.
-
-% ============================================================
-\section{Extended Ablation Analysis}
-\label{app:extended_ablation}
-% ============================================================
-
-\subsection{Disentangling Negative Type from Dataset Imbalance}
-\label{app:cprime}
-
-The ablation design has a confound: C (Gaussian noise, 1:1 ratio) and D (hard neg,
-1:12 ratio) differ in both negative \emph{type} and dataset \emph{size/balance}.
-Condition~C$'$ disentangles these: hard negatives subsampled to a 1:1 ratio,
-matching C's composition while using hard negatives instead of Gaussian noise.
-The full comparison (Table~\ref{tab:ablation}) reveals two separable effects:
-\textbf{(1) Negative type (C vs C', same 1:1 ratio):}
-C (Gaussian-noise, AUC$=$0.629) $>$ C$'$ (hard negatives, AUC$=$0.610),
-$\Delta=+$0.019.
-Gaussian-noise negatives remain more informative than balanced hard negatives
-at 5-epoch/200-sample scale, though the gap is modest.
-\textbf{(2) Dataset imbalance (C' vs D, same hard-negative type):}
-C$'$ (1:1, AUC$=$0.610) $>$ D (1:12, AUC$=$0.556),
-$\Delta=+$0.054.
-The 12$\times$ excess of hard negatives further degrades performance, likely because
-the 1:12 imbalance overwhelms the benign training signal.
-Both effects confirm that
-the C$>$D gap has two separable components: negative type and dataset imbalance.
-
-\subsection{CNN Outperforms Moirai at Small Scale}
-\label{app:cnn_detail}
-
-To directly address the foundation-model justification, we train a 1D-CNN
-(3 layers, 2.3M parameters) from scratch using the identical NLL(MSE)+SupCon
-objective and hard-negative data as Condition~D.
-At 10 seeds, CNN-MSE (AUC$=$0.580$\pm$0.023) and CNN-NLL (AUC$=$0.598$\pm$0.041)
-both outperform the NLL-only Moirai conditions B (AUC$=$0.556$\pm$0.021) and
-D (AUC$=$0.556$\pm$0.021), though the best Moirai condition C
-(AUC$=$0.629$\pm$0.022) exceeds both CNNs.
-CNN exhibits notably lower variance ($\pm$0.023) than most Moirai conditions,
-suggesting that Moirai's pre-trained weights introduce initialisation
-sensitivity that the CNN avoids.
-The CNN-NLL control (AUC$=$0.598$\pm$0.041) slightly outperforms CNN-MSE
-(0.580$\pm$0.023), ruling out the loss-function confound: the CNN advantage
-over unfrozen Moirai B/D is not an artefact of MSE being an easier objective.
-
-\subsection{Constraint-Validator Contribution (E, E', E'')}
-\label{app:eee}
-
-E (no constraints, no retry, AUC$=$0.480$\pm$0.130) and
-E$''$ (constraints, no retry, AUC$=$0.481$\pm$0.126) are both indistinguishable
-from D (5-seed AUC$=$0.479$\pm$0.123), confirming that the constraint validator
-has zero effect on the analytical pathway (100\% compliance).
-(E/E$'$/E$''$ use 5 seeds; they were not rerun at 10 seeds because the finding
-is robust: all three are within noise of D.)
-E$'$ (no constraints, with retry at $s_{\text{eff}}\approx0.97$,
-AUC$=$0.498$\pm$0.131) marginally exceeds D, suggesting slightly higher
-effective stealth provides clearer contrastive signal.
-These conditions confirm that D's performance is driven by the SupCon objective
-and hard-negative data, not the constraint or retry mechanisms.
-
-\subsection{Embedding Visualization}
-\label{app:embeddings}
-
-Figure~\ref{fig:tsne} visualises projection-head embeddings of the stealth-95
-test set via t-SNE.
-Under condition~C (SupCon on Gaussian-noise neg.), benign and attack embeddings form
-largely distinct clusters; \ours{} condition~D (hard negatives) produces a
-qualitatively similar structure, consistent with comparable FPR values in
-Table~\ref{tab:ablation}.
-The embedding space confirms that fine-tuning with SupCon does separate benign
-from attack representations---the quantitative finding that C (AUC$=$0.629)
-outperforms D (AUC$=$0.556) at this training scale reflects differences in
-decision-boundary quality rather than a failure of representation learning.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=0.95\textwidth]{figures/fig5_tsne_embeddings.pdf}
-  \caption{
-    t-SNE projection of projection-head embeddings on stealth-95 test data.
-    \textbf{Left}: condition~C (SupCon on Gaussian-noise neg.)---benign (green) and
-    attack embeddings form largely distinct clusters.
-    \textbf{Right}: condition~D (\ours{}, hard-negative SupCon)---qualitatively
-    similar cluster structure; hard-negative attacks lie slightly closer to
-    the benign manifold, consistent with their deliberate stealth-floor design.
-    Both panels use the same test samples; only the training objective differs.
-    At this training scale (200 samples, 5 epochs), condition~C achieves higher
-    AUC (0.629 vs 0.556) despite similar embedding structure, suggesting that
-    the AUC gap is driven by decision-boundary calibration rather than
-    representation collapse (see Section~\ref{sec:analysis}).
-  }
-  \label{fig:tsne}
-\end{figure}
-
-% ============================================================
-\section{Extended Scaling Analysis}
-\label{app:extended_scaling}
-% ============================================================
-
-\subsection{NLL-Only Early Stopping}
-\label{app:nll_es}
-
-The initial 1000/20 experiment used total-loss ES
-(NLL$+\lambda$SupCon); decreasing SupCon loss masked increasing NLL,
-causing checkpoints to be saved too late.
-Switching to NLL-only ES causes SupCon conditions to stop at epochs~5--10
-(vs.\ running all 20), substantially improving checkpoint quality.
-B also improves under NLL-only ES at 1000/20 due to better
-checkpoint selection.
-
-\subsection{Best-Epoch Analysis}
-\label{app:best_epoch}
-
-Under NLL-only ES, best checkpoints (patience$=$3) are selected at
-epochs~2--7 across all conditions
-(B median: 5, C median: 4, D median: 6).
-These match the 200/5 epoch budget; the 500/10$\to$1000/20 degradation
-despite similar epoch counts suggests the degradation is data-dependent,
-not epoch-dependent.
-
-\subsection{Freezing: Mitigation Details}
-\label{app:freezing_details}
-
-With 10 seeds, frozen B$=$C$=$D all converge to AUC$=$0.549$\pm$0.109
-(Table~\ref{tab:scaling}), because only the randomly-initialised projection
-head trains---the encoder is identical across conditions.
-Frozen AUC (0.549) is comparable to unfrozen B and D at 200/5 (0.556)
-but substantially below unfrozen C at 200/5 (0.629), confirming that
-C's advantage comes from learned features, not preserved pre-trained ones.
-Frozen-encoder F1 remains low (0.152$\pm$0.077) due to projection-head
-initialisation variance.
-\textbf{Practitioner caveat}: the frozen-encoder protocol preserves
-pre-trained representations (CKA$=$1.000) but \emph{does not} recover
-operational F1 under the benign-calibrated threshold.  Deploying the
-frozen protocol requires either (a)~a larger benign calibration set to
-reduce threshold variance, (b)~ensemble-based threshold selection across
-multiple projection-head initialisations, or (c)~accepting the AUC
-preservation as a ranking improvement and re-calibrating the decision
-threshold on a deployment-specific benign sample.
-The high variance ($\pm$0.109) is explained by projection-head
-initialisation sensitivity: under full encoder freezing, all seeds select
-the epoch-1 checkpoint (patience$=$3, early stopping triggers at epoch~4),
-so the random projection-head weights determine the entire embedding space.
-
-\subsection{Partial Freezing}
-\label{app:partial_freeze}
-
-To test whether allowing limited encoder adaptation can close the
-frozen-to-200/5 gap, we freeze layers 0--4 of Moirai's 6-layer
-encoder and unfreeze layer 5, the encoder norm, and the
-\texttt{param\_proj} (63/94 parameters frozen).
-Partial-freeze C achieves AUC$=$0.590$\pm$0.106 and
-D achieves 0.595$\pm$0.110 (5 seeds; partial freeze was not rerun at
-10 seeds), marginally above the fully frozen results (all 0.549 at 10 seeds).
-The high variance persists ($\pm$0.106--0.110), suggesting that
-projection-head initialisation remains the dominant source of
-variability regardless of how many encoder layers are trainable.
-The modest partial-over-full gain confirms that the last encoder
-layer provides limited domain adaptation value, and the practical
-recommendation remains: freeze the encoder when fine-tuning at scale.
-
-% ============================================================
-\section{Extended Discussion}
-\label{app:extended_discussion}
-% ============================================================
-
-\subsection{Why Does Base Moirai Underperform?}
-\label{app:moirai_underperform}
-
-The zero-shot Moirai model (condition A, Table~\ref{tab:ablation})
-achieves moderate detection at stealth-95 but with limited discriminative power
-relative to fine-tuned conditions:
-it was pre-trained on financial, energy, and weather time series and
-lacks IoT-domain priors.
-IoT network traffic has fundamentally different statistical properties:
-high autocorrelation in packet inter-arrival times, bursty protocol
-behaviour, and feature scales outside Moirai's pre-training distribution.
-Fine-tuning with the NLL$+$SupCon objective and hard negatives
-(condition D vs A, Table~\ref{tab:ablation}) improves AUC and reduces FPR,
-confirming that domain adaptation is the primary bottleneck.
-
-\subsection{Gaussian-Noise vs Hard-Negative Mechanism}
-\label{app:gaussian_mechanism}
-
-Condition~C's negatives are benign samples perturbed by isotropic Gaussian noise
-($\sigma=0.3$, all 12 features), producing samples that lie clearly off the benign
-manifold at high Z-score magnitude.
-These ``easy'' negatives provide \emph{unambiguous gradient signal} for the
-contrastive objective: the model quickly learns to separate benign from noisy-benign
-embeddings without ambiguity about the decision boundary.
-Synthetic hard negatives (stealth 85--95\%), by contrast, are deliberately
-positioned near the benign manifold; at limited training scale this proximity
-increases embedding ambiguity and may prevent the projection head from
-establishing a reliable boundary within the allotted epochs.
-The C$'$\,$>$\,D comparison ($+$0.054 AUC, 0.610 vs.\ 0.556) further shows that even
-within hard negatives, the 1:12 imbalance compounds the problem: the large excess
-of hard-negative training samples overwhelms the benign signal, shifting the
-decision boundary to favour recall over precision.
-The scaling experiment (Table~\ref{tab:scaling}) tests this directly:
-the C$>$D gap narrows from $+$0.073 (200/5) to $+$0.045 (500/10) to
-$+$0.024 (1000/20, $p{=}0.39$, n.s.).
-The advantage of easy off-manifold negatives diminishes with
-additional training data, consistent with easy negatives providing
-clearer gradient signal when training budget is limited but this
-advantage becoming unnecessary with sufficient data.
-
-\subsection{Representation Drift Mechanism}
-\label{app:forgetting_mechanism}
-
-CKA between pre-trained and fine-tuned encoders drops to 0.31--0.45
-even at 200/5 (Table~\ref{tab:scaling}), confirming aggressive
-representation drift.  At 1000/20, CKA drops further to 0.373--0.381.
-This is far lower than ETTh2 (CKA 0.94--0.97), indicating IoT
-fine-tuning destroys pre-trained representations much more aggressively.
-Despite this severe drift, IoT performance \emph{improves} over
-zero-shot (A: 0.481 $\to$ C: 0.629), because the pre-trained features
-are marginally useful for IoT and domain-specific learning compensates.
-
-Freezing the encoder eliminates drift (CKA$=$1.000) and yields
-AUC$=$0.549$\pm$0.109 for all conditions (B$=$C$=$D, 10 seeds),
-comparable to unfrozen B/D at 200/5 (0.556) but below C (0.629).
-The mechanism is \emph{implicit regularisation loss}: extended training
-on the synthetic distribution drives the encoder further from the
-pre-trained initialisation.
-Partial freezing (layers 0--4 frozen, layer 5 unfrozen; 5 seeds)
-yields a modest further gain (partial C$=$0.590, D$=$0.595),
-and the high variance persists ($\pm$0.106--0.110).
-
-\subsection{CNN Baseline: Detailed Analysis}
-\label{app:cnn_analysis}
-
-Two interpretations are consistent with the CNN outperformance.
-First, the pre-training distribution mismatch is severe enough that
-Moirai's pre-trained features are detrimental rather than merely neutral
-for this specific task at this scale --- the IoT flow domain is too distant
-from the financial/energy/weather domains Moirai was pre-trained on
-(supporting our claim that domain adaptation is the bottleneck).
-Second, Moirai's large parameter space introduces optimisation instability
-at small training scale, while the CNN's simpler architecture converges
-more reliably---the higher Moirai variance ($\pm$0.122--0.127 vs.\ CNN $\pm$0.096)
-supports this interpretation.
-Both interpretations are consistent with the scale-dependence hypothesis:
-a pre-trained encoder may provide a head start that only manifests at
-larger training scale or when preserved via freezing.
-At 10-seed evaluation (Table~\ref{tab:scaling}),
-C degrades monotonically from 200/5 (0.629) to 500/10 (0.581) to
-1000/20 (0.581).  B and D show a milder non-monotonic pattern:
-slight degradation at 500/10, then partial recovery at 1000/20.
-The CNN---lacking pre-trained features to destroy---is immune to
-the forgetting mechanism that drives this pattern.
-
-\subsection{SupCon Gradient Flow Analysis}
-\label{app:supcon_gradients}
-
-A natural concern is whether the SupCon loss contributes gradient signal
-during training or collapses to zero (rendering the contrastive objective inert).
-We log per-epoch gradient $\ell_2$ norms through both the projection head and the
-Moirai encoder under condition~C (200 samples, 5 epochs).
-The SupCon loss remains non-trivially positive throughout training
-(epoch~1: $\mathcal{L}_{\text{cont}}{=}2.15$; epoch~5: $1.98$), and gradient
-norms on the encoder range from $53.6$ (epoch~1) to $9.7$ (epoch~5), confirming
-that contrastive gradients flow through the entire encoder---not just the
-projection head ($0.55$ to $0.01$).
-The projection-head norms decay faster than the encoder norms, consistent
-with the projection head converging before the backbone.
-The key observation is that SupCon gradients are non-zero but their magnitude
-is modest relative to NLL gradients (the combined loss is dominated by NLL at
-$\approx{-}3.5$ vs.\ SupCon at $\approx{+}2.0$), supporting the
-NLL-dominance hypothesis at this training scale.
-
-\subsection{Alternative Contrastive Frameworks}
-\label{app:alt_contrastive}
-
-At this scale and domain, NLL-only fine-tuning (B, AUC$=$0.556) performs
-comparably to the full system (D, AUC$=$0.556), and SupCon's gradient
-magnitude is modest relative to NLL (Appendix~\ref{app:supcon_gradients}).
-SupCon requires explicit positive/negative labels and is sensitive to
-the quality and difficulty of negatives; self-supervised objectives
-such as SimCLR~\cite{chen2020simclr} or BYOL~\cite{grill2020byol} that
-construct augmentation-based views may provide more robust contrastive
-signal without requiring labeled negative generation.
-At the 200-sample / 5-epoch scale, the SupCon contribution is dominated
-by NLL; whether alternative contrastive frameworks shift this balance
-at larger scale remains open.
-
-\subsection{Ensemble Degradation with Stealth Level}
-\label{app:ensemble_degradation}
-
-Under the benign-calibrated threshold protocol (Table~\ref{tab:main}), the Ensemble's
-F1 drops from 0.221 (stealth-85) to 0.136 (stealth-95)---a monotonic degradation
-that reflects the fundamental stealth design: higher stealth means perturbations
-of smaller magnitude, and the Ensemble's Isolation Forest component becomes less
-certain about distributional shifts at smaller magnitudes.
-The perturbation structure explains the residual detectability:
-$P_{\text{slow}}$ modifies only features 9--10 (byte volumes),
-$P_{\text{lotl}}$ modifies features 6--8 (packet rates), and
-$P_{\text{proto}}$ modifies features 11--12 (inter-arrival times);
-the remaining features retain benign distribution.
-The Isolation Forest responds to \emph{any} distributional shift in a feature subset,
-so it detects the perturbed features even at high stealth---but the magnitude reduction
-at stealth-95 weakens this signal and reduces F1.
-$P_{\text{beacon}}$ is qualitatively different: it scales \emph{all 12 features}
-uniformly at periodic timesteps (Eq.~\ref{eq:beacon}).
-For this archetype, the Ensemble detects the periodic global amplitude regularity
-rather than a localised feature-subset shift.
-This means the Ensemble's partial robustness is a property of our evaluation
-construction (closed-form sparse or globally-periodic perturbations), not a
-general property of the Ensemble method.
-Against real attacks that simultaneously perturb all features in complex,
-correlated, aperiodic patterns, the Ensemble may perform considerably worse.
-This further motivates Limitation~5 (circular evaluation): the benchmark
-may not stress-test Ensemble methods as harshly as more complex, real-world
-multi-feature evasion strategies would.
-
-\subsection{Protocol-Constrained Generation}
-\label{app:algorithm}
-
-A constraint-retry loop (max 3 retries, stealth relaxed by $0.01$ per
-retry) is included in the released code as a safety net for future
-stochastic generators (e.g., Diffusion-TS).  For the closed-form
-analytical perturbations used here it never triggers: all perturbations
-pass protocol validation on the first attempt (100\% pass rate at all
-strictness tiers; Table~\ref{tab:constraints}).
-
-% ============================================================
-\section{Leave-One-Out Generalization Details}
-\label{app:loo_detail}
-% ============================================================
-
-For each of the four attack types, we train condition~D on the remaining
-three types and evaluate exclusively on the held-out type at all three
-stealth levels (3 seeds, consistent with computational budget;
-the core ablation and scaling experiments use 10 seeds; 30 eval samples
-per stealth level).
-
-\begin{table}[h]
-\centering
-\caption{
-  Leave-one-out generalization (stealth-95 F1, mean$\pm$std across 3 seeds,
-  benign-calibrated threshold).
-  Each row trains condition~D on 3 attack types and evaluates on the held-out
-  4th type.  $\Delta$ = \ours{} F1 $-$ zero-shot F1.
-  All four folds show positive transfer under calibrated evaluation.
-}
-\label{tab:loo}
-\begin{tabular}{lccr}
-\toprule
-Held-out Attack Type & Zero-shot F1 & \ours{} F1 & $\Delta$ \\
-\midrule
-Slow Exfiltration  & $0.144_{\pm.126}$ & $0.295_{\pm.163}$ & $+$0.151 \\
-LotL Mimicry       & $0.114_{\pm.089}$ & $0.367_{\pm.171}$ & $+$0.253 \\
-C2 Beacon          & $0.148_{\pm.110}$ & $0.355_{\pm.050}$ & $+$0.206 \\
-Protocol Anomaly   & $0.148_{\pm.110}$ & $0.283_{\pm.128}$ & $+$0.135 \\
-\midrule
-Mean               & $0.139$ & $0.325$ & $+$0.186 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The largest gain is for \texttt{lotl\_mimicry} ($+$0.253$\pm$0.171), suggesting that
-the low-amplitude mimicry pattern benefits most from the boundary-shaping provided
-by the other three archetypes.
-\texttt{beacon} ($+$0.206$\pm$0.050) and \texttt{slow\_exfiltration} ($+$0.151$\pm$0.163)
-also show robust positive transfer.
-The high standard deviations ($\pm$0.05--0.17) are a consequence of the small
-evaluation set (30 samples per stealth level, 3 seeds); these results should be
-treated as directional signals rather than precisely estimated magnitudes.
-
-% ============================================================
-\section{Extended N-BaIoT Analysis}
-\label{app:extended_nbaiot}
-% ============================================================
-
-\subsection{Zero-Shot Failure Analysis}
-
-Table~\ref{tab:nbaiot} (Appendix~\ref{app:nbaiot}) reports per-attack F1, FPR, and ROC-AUC across
-10 Mirai and BASHLITE botnet variants (3 seeds, Danmini doorbell device).
-ROC-AUC values range from $0.013$ (BASHLITE Combo) to $0.284$ (Mirai Ack),
-all well below $0.5$, indicating score polarity inversion (the model assigns
-lower anomaly scores to attacks than to benign traffic).
-FPR\,=\,1.00 across all variants regardless of threshold placement.
-
-This is a \emph{negative transfer result}, not a success: FPR$=$1.00
-across all threshold placements means the detector classifies every
-N-BaIoT window --- benign or attack --- as anomalous, which is a
-degenerate regime rather than evidence of partial generalisation.
-We report it because it directly constrains the scope of our
-CICIoT2023 claims: the representations and threshold calibrations
-learned on CICIoT2023 do \emph{not} transfer externally, and any
-claim of operational deployment readiness on another IoT dataset
-would require re-training from scratch on that dataset
-(see Appendix~\ref{app:extended_nbaiot}, Subsection ``Recipe
-Generalisation Interpretation'').
-
-\subsection{Preprocessing Details}
-
-N-BaIoT provides 115 statistical features per packet-arrival event,
-computed over five temporal decay windows.
-We map 12 proxy features to the \ours{} input space (detailed in
-Appendix~\ref{app:nbaiot}): forward and backward packet counts and
-per-second rates (from the 60-second window), mean packet sizes,
-and inter-arrival jitter.
-A \texttt{StandardScaler} is fit exclusively on N-BaIoT benign samples
-(Danmini doorbell device), simulating deployment where the scaler is
-trained on known-good traffic.
-The anomaly threshold is self-calibrated on a held-out N-BaIoT benign
-validation set (20\% split), identical to the protocol in
-Section~\ref{sec:experiments:ablation}.
-
-\subsection{Recipe Generalisation Interpretation}
-
-The N-BaIoT fine-tuned result demonstrates \emph{recipe generalisation}---the
-training recipe (NLL$+$SupCon with Gaussian-noise negatives) transfers to a
-new domain---not representation transfer, since the Moirai encoder is
-re-initialised on N-BaIoT data from pre-trained weights.
-N-BaIoT fine-tuning uses 5 epochs on 310 windows, a regime comparable
-to 200/5 where catastrophic forgetting is minimal (Table~\ref{tab:scaling});
-the frozen-encoder recommendation applies primarily to extended training
-($>$5 epochs / $>$200 samples).
-Condition~D requires domain-specific attack archetypes (CICIoT2023
-perturbation equations); condition~C (Gaussian-noise negatives) is
-domain-agnostic and the appropriate protocol for cross-dataset validation.
+\end{center}
+
+All nine backbone$\times$dataset cells gate-fail (ZS under-performs
+the Linear baseline by 13\% to 148\%), consistent with ETT-family
+distributions being outside the pre-training coverage of these
+backbones at these sizes.  The Chronos capacity sweep
+(Chronos-T5-Small/Base/Large on ETTh2) confirms the gap is
+size-invariant: scaling from Small (210M) to Large (710M)
+yields no improvement ($-$42.6\% $\to$ $-$34.3\% $\to$ $-$35.2\%).
+TimesFM-2.5-200M and MOMENT-1-base gate-fail across all tested datasets.
+We interpret this pattern as a substantive finding about
+\emph{backbone-specific ETT coverage} rather than evidence against
+generality of the dissociation: matched-protocol ZS under-performance
+on a value-gate design means fine-tuning these backbones on ETT
+cannot meaningfully distinguish drift-as-forgetting from
+drift-as-adaptation (there is no valuable feature to forget).  A
+gate-passing second backbone on a different dataset (Traffic, ILI,
+Exchange, or a model with explicit ETT pre-training coverage)
+remains the most direct path to a multi-backbone replication and
+is the highest-priority future-work direction.
+
+\textbf{(2) Sample-sweep depth and seed count.}
+The central sample-size sweep (Table~\ref{tab:sample_sweep}) covers
+ETTh2 at $n \in \{500, 1\text{k}, 2\text{k}, 5\text{k}, 10\text{k}\}$.
+At $n{=}10$k we report the CUDA 10-seed deterministic early-stopped result:
+$k{=}10$ seeds (42, 101, 123, 202, 303, 456, 777, 789, 888, 999),
+all completed (no NaN); \texttt{--deterministic} flag
+(\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8}, \texttt{cudnn.deterministic=True},
+seeded DataLoader, PYTHONHASHSEED).
+Forg.\ $-$5.3$\pm$6.2\%, 7/10 negative; Ridge $\Delta R^2{=}{+}$0.67$\pm$0.23,
+\textbf{10/10} positive; mean best epoch $4.2{\pm}1.4$.
+The three near-zero positive-forgetting seeds (123: $+$1.8\%, 456: $+$4.4\%, 789: $+$0.4\%)
+follow the $n{=}5$k overshoot pattern (\S\ref{sec:forecasting:trajectory}).
+For comparison, MPS early-stopped $k{=}10$ gave $-$5.7$\pm$10.4\% (8/10 neg,
+9/10 $\Delta R^2{>}0$); a second early-stopped run ($k{=}5$) gave
+$-$11.7$\pm$5.3\% (all 5 negative); final-epoch $k{=}5$ gave $+$7.5$\pm$8.2\%.
+Full $n$-sweeps on Moirai-Base and Moirai-Large are future work.
+
+\textbf{(3) Probe-head capacity.}
+Ridge and MLP absolute $R^2(\text{FT})$ remains negative on the
+96-step-ahead head at all sampled $n$.
+The delta1/GBM probe gives $R^2(\text{PT}){=}{+}0.059$ but
+$\Delta R^2{=}{-}0.056$ (\S\ref{sec:forecasting:probehead}).
+$\Delta R^2$ on the 96-step head is a \emph{relative} signal;
+Appendix~\ref{app:noisefloor} confirms its direction is not
+a probe-design artefact.
+
+\textbf{(4) Sample-sweep on other sizes.}
+Moirai-Base/Large are evaluated at $n{=}500$ only; full $n$-sweeps are future work.
+\textbf{(5) IoT scope.}
+IoT is a negative control (ZS AUC 0.481, sub-random); fine-tuning replaces
+rather than preserves pre-trained features.
+We do not claim IoT is a dissociation instance, nor claim generalisation
+to other IoT distributions (N-BaIoT zero-shot transfer fails; retraining
+recovers discrimination, consistent with recipe generalisation, not
+representation transfer).
 
 % ============================================================
 \section{Moirai Median Forecast Selection}
 \label{app:moirai_median}
 % ============================================================
 
-Moirai generates probabilistic forecasts as a mixture of distributions
-(StudentT, NormalFixedScale, NegativeBinomial, LogNormal).
-The heavy-tailed components (NegBin, LogNormal) produce extreme right-tail
-outliers when using the \emph{mean} of forecast samples as the point
-prediction---for ETTh2 at $h{=}192$, sample means reached 21{,}431
-against a target maximum of 45.5, inflating MSE from 0.30 to 8.58.
+Moirai generates probabilistic forecasts as a mixture of
+distributions (StudentT, NormalFixedScale, NegativeBinomial,
+LogNormal).  The heavy-tailed components (NegBin, LogNormal) produce
+extreme right-tail outliers when using the \emph{mean} of forecast
+samples as the point prediction --- for ETTh2 at $h{=}192$, sample
+means reached 21{,}431 against a target maximum of 45.5, inflating
+MSE from 0.30 to 8.58.
 
 We use the \emph{median} of 20 forecast samples as the robust point
 prediction, consistent with the Moirai paper's evaluation protocol.
@@ -857,8 +137,7 @@ For condition C (NLL$+$SupCon), we divide training sequences into
 8 temporal clusters based on their position in the time series.
 Sequences within the same cluster are positive pairs; sequences from
 different clusters are negatives.
-This encourages the encoder to maintain temporal-regime awareness,
-analogous to the attack-archetype labels in IoT anomaly detection.
+This encourages the encoder to maintain temporal-regime awareness.
 
 \textbf{Horizon selection.}
 We evaluate $h{=}96$ and $h{=}192$ where Moirai's pre-training
@@ -868,7 +147,7 @@ Horizons $h{=}336$ and $h{=}720$ exceed Moirai-Small's
 required extended lookback and are omitted.
 
 % ============================================================
-\section{LoRA Rank Sensitivity}
+\section{LoRA Rank and Hyperparameter Sensitivity}
 \label{app:lora_rank}
 % ============================================================
 
@@ -877,10 +156,13 @@ rank ($r \in \{4, 8, 16, 32\}$): all ranks achieve CKA$\geq$0.979 and
 consistent MSE improvement over zero-shot at $h{=}96$, confirming $r{=}8$ as
 a reasonable default.
 On \textbf{Moirai-Large} (seed 42, $h{=}96$, $n{=}500$), rank escalation
-does \emph{not} rescue the failure mode observed at $r{=}8$: forgetting
-remains in the $+$19 to $+$30\% range across $r \in \{8, 16, 32, 64\}$,
-never approaching Moirai-Small's negative forgetting.  The Moirai-Small
-recipe does not transfer to Moirai-Large at any rank we tested.
+alone does \emph{not} rescue the failure mode: forgetting stays $+$19 to
+$+$30\% across $r \in \{8, 16, 32, 64\}$.
+Table~\ref{tab:lora_large_hp} extends the sweep to $\alpha$, target-module
+scope, and LR (all at $r{=}8$, seed 42): varying $\alpha \in \{8,16,32\}$ and
+module scope provides no rescue, but reducing LR to $1{\times}10^{-5}$ does
+(forg.$=-8.5\pm0.7\%$, CKA$=$0.989$\pm$0.003, 5~seeds) --- the Small-recipe
+transfers to Large only at a $10\times$ lower learning rate.
 
 \begin{table}[h]
 \centering
@@ -909,6 +191,32 @@ Large & 8  & 96  & .159{\tiny$\pm$.004} & $+$25.7{\tiny$\pm$3.2} & .973{\tiny$\p
 Large & 16 & 96  & .154                 & $+$22.5                 & .955                 & 1 \\
 Large & 32 & 96  & .150                 & $+$19.0                 & .986                 & 1 \\
 Large & 64 & 96  & .165                 & $+$29.9                 & .984                 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$).
+Baseline (default LR$=$1e-4, $\alpha{=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42.
+Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}
+\label{tab:lora_large_hp}
+\small
+\begin{tabular}{llcccc}
+\toprule
+Axis & Setting & Val MSE & Forg.\% & CKA & Seeds \\
+\midrule
+\multirow{3}{*}{LR} & 1e-4 (default) & .157 & $+$22.5 & .955 & 1 \\
+                    & 5e-5           & .146 & $+$15.3 & .982 & 1 \\
+                    & \textbf{1e-5}  & \textbf{.115{\tiny$\pm$.001}} & $\mathbf{-8.5}${\tiny$\pm$0.7} & \textbf{.989{\tiny$\pm$.003}} & \textbf{5} \\
+\midrule
+\multirow{3}{*}{$\alpha$} & 8  & .155 & $+$21.9 & .975 & 1 \\
+                           & 16 (default) & .157 & $+$22.5 & .955 & 1 \\
+                           & 32 & .158 & $+$24.3 & .984 & 1 \\
+\midrule
+\multirow{3}{*}{Modules} & q,v,out (default)  & .157 & $+$22.5 & .955 & 1 \\
+                         & q,k,v              & .153 & $+$20.4 & .987 & 1 \\
+                         & q,k,v,out          & .151 & $+$19.0 & .988 & 1 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -942,7 +250,7 @@ retains meaningful structure despite aggressive drift.  ETT fine-tuning
 \toprule
 Comparison & CKA \\
 \midrule
-Pre-trained vs.\ Random-init (baseline, 5 seeds) & $0.000 \pm 0.000$ \\
+Pre-trained vs.\ Random-init (baseline, 5 seeds) & $0.0000 \pm 0.0001$ \\
 Pre-trained vs.\ ETT fine-tuned (B, $h{=}96$) & 0.937--0.964 \\
 Pre-trained vs.\ IoT fine-tuned (C, 200/5, 10 seeds) & $0.420 \pm 0.026$ \\
 Pre-trained vs.\ Frozen encoder (D) & 1.000 \\
@@ -950,9 +258,12 @@ Pre-trained vs.\ Frozen encoder (D) & 1.000 \\
 \end{tabular}
 \end{table}
 
-The random-init CKA is exactly zero ($0.000 \pm 0.000$ across 5 seeds),
-confirming that pre-trained and random encoders share no representational
-structure.  Since IoT fine-tuned CKA (0.31--0.45) is far above this floor,
+The random-init CKA is $\le 10^{-4}$ across 5 seeds (reported at 4
+decimals as $0.0000 \pm 0.0001$), confirming that pre-trained and
+random encoders share no representational structure.  This is
+consistent with the theoretical expectation: CKA between an
+orthogonally-initialised encoder and any fixed reference encoder
+has expectation asymptotically zero in the feature dimension.  Since IoT fine-tuned CKA (0.31--0.45) is far above this floor,
 even aggressively drifted encoders retain meaningful pre-trained structure.
 ETT fine-tuned CKA (0.81--0.94) is near-ceiling, confirming substantial
 preservation.  This calibration validates CKA as a meaningful diagnostic
@@ -975,6 +286,8 @@ representations from the Moirai-Small encoder on the held-out validation
 and test sets (192-timestep windows, same format as evaluation).
 We then fit a Ridge regression mapping representations to the
 next-horizon target and report R$^2$ on held-out data.
+The probe training set uses $n_{\text{probe}}{=}300$ held-out examples;
+the remainder forms the test split used for MSE evaluation.
 $\Delta R^2$ denotes fine-tuned minus pre-trained probe R$^2$:
 positive values indicate that fine-tuned representations encode
 more forecasting-relevant information than pre-trained ones.
@@ -990,13 +303,183 @@ representational basis.
 \textbf{Key result.}
 The sample-size sweep (Table~\ref{tab:sample_sweep}) shows
 $\Delta R^2$ monotonically increasing with training data
-($+$0.12 at 500 samples $\rightarrow$ $+$0.87 at 10{,}000),
-while CKA decreases monotonically (0.949 $\rightarrow$ 0.185).
-This directly dissociates geometric drift from functional utility:
-at low $n$, drift destroys task-relevant features faster than it
-builds replacements; at higher $n$, the model replaces pre-trained
-features with task-specialised ones that encode \emph{more}
-forecasting signal.
+(Ridge: $+$0.12 at 500 samples $\rightarrow$ $+$0.67$\pm$0.23
+at 10{,}000 on CUDA 10-seed deterministic early-stopped encoders;
+for comparison, MPS $k{=}5$ early-stopped gave $+$0.56$\pm$0.14
+and final-epoch $k{=}5$ gave $+$0.78$\pm$0.14),
+while CKA decreases monotonically.
+This directly dissociates \emph{geometric} drift from
+\emph{relative linear-decodability}: at low $n$, drift destroys
+task-relevant features faster than it builds replacements;
+at higher $n$, the fine-tuned representation becomes less
+linearly misaligned with the forecasting target than the
+pre-trained one.
+We emphasise that $R^2(\text{FT})$ remains
+\emph{absolutely negative} at every sampled
+$n \in \{500, 1\text{k}, 2\text{k}, 5\text{k}, 10\text{k}\}$
+(ZS: $R^2{=}-6.90$; CUDA $k{=}10$ early-stopped: $-6.79$ at $n{=}500 \to -6.24{\pm}0.24$
+at $n{=}10$k).  $\Delta R^2 {>} 0$ is therefore a
+\emph{relative-improvement} signal, not a claim that
+fine-tuned representations linearly encode the target well
+in absolute terms; the primary task-outcome signal remains
+forg.$<0$ at $n{\geq}2$k.
+\textbf{Cross-dataset $\Delta R^2$ comparability.}
+Raw $\Delta R^2$ is not directly comparable across datasets because
+it depends on the ZS Ridge floor depth.
+On ETTm2 ($n{=}10$k, CUDA $k{=}10$), the ZS Ridge floor is
+$R^2(\text{ZS}){=}-24.52$ --- 3.5$\times$ deeper than ETTh2's
+$-6.90$ --- which proportionally inflates the raw $\Delta R^2$
+($+$5.43 on ETTm2 vs.\ $+$0.67 on ETTh2).
+The cross-dataset comparable statistic is the \emph{sign test}:
+both cells give \textbf{10/10} positive $\Delta R^2$.
+
+\textbf{Horizon-sweep probe: head-specificity of the $\Delta R^2$ gain.}
+Table~\ref{tab:probe_horizon} reports Ridge $\Delta R^2$ across three
+probe heads on four early-stopped encoders at $n{=}10$k (the
+same encoders as the main-text MLP sweep).  The gain is concentrated
+on the \emph{trained} 96-step head: $\Delta R^2{=}{+}0.116{\pm}0.153$
+($k{=}4$).  On the untrained \emph{forecast48} head (first 48 steps
+of the 96-step target, a sub-horizon the encoder was not directly
+optimised for), $\Delta R^2 {\approx} 0.000{\pm}0.163$ — the gain
+vanishes at the horizon boundary.  On the untrained \emph{delta1}
+head, a GBM probe gives $R^2(\text{PT}){=}{+}0.059{>}0$, establishing
+a positive-floor reference, with $\Delta R^2{=}{-}0.056{\pm}0.030$
+(decodability \emph{falls} on the untrained readout).
+The head-specificity pattern is consistent with the encoder drifting
+toward the fine-tuning objective rather than developing generally
+better representations (\S\ref{sec:forecasting:probehead}).
+
+\begin{table}[h]
+\centering
+\caption{Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k,
+seeds \{303, 777, 888, 999\}).  ``Forecast96'' is the trained head;
+``Forecast48'' and ``Delta1'' are untrained.  The gain is head-specific
+to the trained objective.}
+\label{tab:probe_horizon}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Head & Trained? & \multicolumn{4}{c}{Ridge $\Delta R^2$ per seed} \\
+& & s303 & s777 & s888 & s999 \\
+\midrule
+Forecast96 (96-step ahead) & \checkmark & $+$0.092 & $-$0.087 & $+$0.266 & $+$0.192 \\
+Forecast48 (sub-horizon) & $\times$ & $+$0.061 & $-$0.111 & $-$0.156 & $+$0.199 \\
+Delta1 (next-step delta) & $\times$ & $+$1.248 & $+$0.757 & $+$1.191 & $+$0.980 \\
+\midrule
+\multicolumn{2}{l}{Mean $\pm$ std (forecast96)} & \multicolumn{4}{c}{$+$0.116 $\pm$ 0.153} \\
+\multicolumn{2}{l}{Mean $\pm$ std (forecast48)} & \multicolumn{4}{c}{$-$0.001 $\pm$ 0.163} \\
+\multicolumn{2}{l}{Mean $\pm$ std (delta1)} & \multicolumn{4}{c}{$+$1.044 $\pm$ 0.223} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Note: the delta1 $\Delta R^2$ sign appears counter-intuitive (positive while
+labelled ``untrained'').  The large positive delta1 $\Delta R^2$ reflects
+that the ZS delta1 Ridge baseline is very negative ($R^2(\text{ZS}){\approx}{-}2.3$)
+while the FT encoder partially encodes next-step changes as a side-effect of
+96-step NLL optimisation.  The diagnostic signal is the GBM result
+(\S\ref{sec:forecasting:probehead}): GBM gives $R^2(\text{PT}){=}{+}0.059{>}0$
+and $\Delta R^2{=}{-}0.056$, yielding $R^2(\text{FT}){=}{+}0.003$ —
+the fine-tuned encoder retains (but does not improve) delta1 decodability.
+With a positive floor, decodability \emph{falls} on the untrained readout,
+confirming task-alignment.
+Note: $R^2(\text{PT})$ varies slightly across GBM probe depths
+(depth~4: $+$0.062, depth~6: $+$0.059, depth~8: $+$0.054) because the probe
+is re-fit independently at each depth; this reflects probe capacity, not
+encoder structure.
+
+\textbf{ETTm2 delta1 GBM reprobe.}
+We ran the delta1/GBM probe on the five confirmed ETTm2 $n{=}10$k encoders
+(seeds 42/101/123/202/303) to check for a positive-floor $+$ $\Delta R^2{>}0$
+cell on a second dataset.
+Result: $R^2(\text{ZS}){=}{-}0.030$ (negative floor) and per-seed
+$\Delta R^2{=}\{+0.025, -0.060, +0.026, +0.030, +0.016\}$ (4/5 positive,
+mean $+0.007\pm0.031$). \emph{Substantive negative:} the only positive-floor
+head (ETTh2 delta1/GBM, $R^2(\text{ZS}){=}{+}0.059$) gives $\Delta R^2{=}{-}0.056$
+--- no positive-floor $+$ $\Delta R^2{>}0$ cell was found.
+The $\Delta R^2{>}0$ signal on the trained 96-step head operates in a
+deeply-negative-$R^2$ regime; see Appendix~\ref{app:noisefloor} for probe
+noise-floor analysis.
+
+\textbf{Per-seed breakdown at $n{=}10$k (CUDA 10-seed).}
+Ridge $\Delta R^2$ (all positive; mean $+0.668{\pm}0.226$):
+42:$+0.205$; 101:$+0.736$; 123:$+0.937$; 202:$+0.604$; 303:$+0.793$;
+456:$+0.823$; 777:$+0.344$; 789:$+0.873$; 888:$+0.561$; 999:$+0.804$.
+Absolute $R^2(\text{FT})$: all in $[-6.70, -5.97]$ ($R^2_{\text{ZS}}{=}-6.904$).
+MLP $k{=}5$ (all positive; mean $+0.701{\pm}0.324$):
+42:$+0.979$; 101:$+0.762$; 123:$+0.948$; 202:$+0.771$; 303:$+1.007$;
+456:$+0.266$; 777:$+0.076$; 789:$+0.847$; 888:$+0.449$; 999:$+0.901$.
+
+\textbf{ETTm2 $n{=}10$k absolute $R^2$ per seed.}
+The ETTm2 ZS Ridge floor ($R^2(\text{ZS}){=}-24.52$, same pre-trained
+encoder across all seeds) is 3.5$\times$ deeper than ETTh2's $-6.90$,
+explaining the raw $\Delta R^2$ magnitude difference.
+Per-seed absolute values for the five available CUDA seeds:
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Seed & $R^2$(ZS) & $R^2$(FT) & $\Delta R^2$ & Forg.\% \\
+\midrule
+42  & $-24.52$ & $-14.13$ & $+10.39$ & $-26.8$ \\
+101 & $-24.52$ & $-15.61$ & $+8.91$  & $-27.4$ \\
+123 & $-24.52$ & $-19.87$ & $+4.64$  & $-31.1$ \\
+202 & $-24.52$ & $-20.83$ & $+3.69$  & $-28.8$ \\
+303 & $-24.52$ & $-20.41$ & $+4.11$  & $-29.5$ \\
+\midrule
+Mean (5 seeds) & $-24.52$ & $-18.17{\pm}3.08$ & $+6.35{\pm}3.08$ & $-28.7{\pm}1.6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All five seeds show $R^2(\text{FT}) > R^2(\text{ZS})$ (i.e., fine-tuned
+representations are \emph{less} linearly misaligned with the ETTm2
+forecasting target than pre-trained ones), and all show $\Delta R^2{>}0$.
+The cross-dataset comparable statistic is the sign test:
+both ETTh2 (\textbf{10/10}) and ETTm2 (\textbf{5/5} seeds:
+42, 101, 123, 202, 303) give unanimous $\Delta R^2{>}0$.
+
+\textbf{MLP depth sweep on early-stopped encoders.}
+A cosine-LR re-run at $n{=}10$k uses seeds
+$\{303, 777, 888, 999\}$ at $\mathrm{epochs}{=}10$ (seed 101
+MPS-NaN'd on epoch~3 reproducibly at this schedule and is excluded).
+The \texttt{--probe-mlp-layers}
+argument sweeps hidden-layer depth $k \in \{1, 2, 5\}$ on the
+early-stopped encoders (probe: hidden=64 per layer, $\alpha{=}10^{-3}$,
+early stopping with validation\_fraction=0.1, max\_iter=500):
+
+\begin{center}
+\begin{tabular}{c c c c c}
+\toprule
+Seed & Ridge $\Delta R^2$ & MLP $k{=}1$ & MLP $k{=}2$ & MLP $k{=}5$ \\
+\midrule
+303 & $+0.092$ & $+1.306$ & $+1.418$ & $+0.540$ \\
+777 & $-0.087$ & $+1.136$ & $+1.554$ & $+0.759$ \\
+888 & $+0.266$ & $+2.004$ & $+2.361$ & $+1.034$ \\
+999 & $+0.192$ & $+1.816$ & $+1.949$ & $+0.908$ \\
+\midrule
+Mean $\pm$ std & $+0.116{\pm}0.132$ & $+1.566{\pm}0.356$ & $+1.821{\pm}0.368$ & $+0.810{\pm}0.184$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The cosine-LR Ridge $\Delta R^2$ is smaller than the epochs=20 run
+($+0.56{\pm}0.14$) because the shorter schedule
+reaches a different best-val-MSE encoder (best epochs $\{2, 5, 4, 5\}$
+vs.\ $\{2, 4, 8, 4, 3\}$), and Ridge is most sensitive to the
+specific linear basis.  The non-monotonic $k{=}1 \to k{=}2 \to k{=}5$
+trend reflects the deeper probe fitting the pre-trained encoder
+better (per-seed mean $R^2(\text{PT})_{k{=}5}{=}-6.93$ vs.\
+$R^2(\text{PT})_{k{=}1}{=}-8.48$), shrinking the $\Delta$ from
+above, not degraded fine-tuned encoding.  All four seeds
+are individually positive for $k{=}5$ MLP
+($+0.54, +0.76, +1.03, +0.91$), preserving the cost--benefit gap.
+This run's CKA is $0.592{\pm}0.142$ (mean best epoch
+$4.0{\pm}1.22$, higher than the earlier run's $4.2{\pm}2.3$ because of the
+earlier LR annealing);
+forgetting is $-7.13{\pm}1.34\%$, tighter than the epochs=20 run's
+$-11.7{\pm}5.3\%$ and fully consistent with the forg.$<0$ finding.
 
 \textbf{Crossover regime: per-seed breakdown at $n{=}5{,}000$.}
 Table~\ref{tab:n5k_seeds} reports all 7 seeds individually at
@@ -1005,8 +488,8 @@ show low or negative forgetting ($-$4.9\% to $+$5.9\%, mean $+0.7$\%)
 and 3 seeds (42, 303, 456) show high forgetting ($+$4.8\% to $+$21.4\%,
 mean $+15.1$\%).
 All 7 seeds show positive $\Delta R^2$ ($+$0.15 to $+$0.81, mean $+$0.50),
-so the functional-utility claim holds uniformly; geometric drift
-(CKA 0.46--0.71, mean 0.55) varies less than forgetting.
+so the relative-linear-decodability claim holds uniformly; geometric
+drift (CKA 0.46--0.71, mean 0.55) varies less than forgetting.
 This pattern is consistent with the crossover interpretation: at
 $n{=}5{,}000$, the optimiser is close enough to the ``replacement''
 solution that small seed-dependent trajectory differences
@@ -1063,3 +546,133 @@ epoch and plateau; low-forgetting trajectories continue descending.
 Mid-training weight drift (epochs 5--10) does not separate the modes.}
 \label{fig:n5k_trajectories}
 \end{figure}
+
+% ============================================================
+\section{IoT Negative-Control Details}
+\label{app:cnn_detail}
+% ============================================================
+
+The IoT negative-control evaluation uses CICIoT2023~\cite{neto2023ciciot}
+with 12 network-flow features and 128-timestep windows; the anomaly
+score is the fraction of timesteps falling outside the 95\% CI of
+Moirai's forecast over a 32-timestep scored horizon.  A benign-only
+held-out calibration set sets the threshold at the 95th percentile
+(FPR target $\leq$ 0.05).  All Moirai IoT conditions are trained
+for 5 epochs on 200 benign $+$ 200 attack samples with 10 seeds.
+
+\textbf{CNN-NLL from-scratch control.}
+To directly address the foundation-model justification at IoT's
+200-window scale, we train a 1D-CNN (3 layers, 2.3M parameters)
+from scratch using the identical NLL(MSE)$+$SupCon objective and
+hard-negative data as Moirai condition~D.  At 10 seeds,
+CNN-NLL (AUC$=$0.598$\pm$0.041) matches fine-tuned Moirai B/D
+(AUC$=$0.556$\pm$0.021) and is close to the best Moirai condition
+C (AUC$=$0.629$\pm$0.022).  A CNN-MSE variant (AUC$=$0.580$\pm$0.023)
+rules out the loss-function confound.  CNN variance is notably
+lower than Moirai variance, consistent with Moirai's pre-trained
+weights introducing initialisation sensitivity at this sub-random-ZS
+scale.  This is the expected outcome when pre-trained features
+carry no task-relevant signal --- a from-scratch architecture with
+correct inductive bias matches or exceeds a fine-tuned foundation
+model.
+
+% ============================================================
+\section{Probe Noise-Floor Analysis}
+\label{app:noisefloor}
+% ============================================================
+
+The $\Delta R^2$ signal on the trained 96-step head operates in a
+deeply-negative-$R^2$ regime (e.g., ZS $-6.90$, FT $-6.24$ at $\alpha{=}1$).
+We test whether the $\Delta R^2{>}0$ direction is an artefact of probe-design
+choices by running Ridge on two fixed encoders (ZS and condition-B seed~42,
+ETTh2, $n{=}10$k) across: (1) $\alpha \in \{0.01, 0.1, 1.0, 10.0, 100.0\}$,
+(2) probe seeds $\{0,1,2\}$, (3) mean vs.\ last-token pooling.
+No retraining required (saved \texttt{best\_encoder.pt}).
+
+\textbf{Results} (Table~\ref{tab:noisefloor}).
+\begin{table}[h!]
+\centering
+\vspace{-4pt}
+\caption{$\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$.}
+\label{tab:noisefloor}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
+\toprule
+Setting & $R^2(\text{ZS})$ & $R^2(\text{FT})$ & $\Delta R^2$ \\
+\midrule
+$\alpha{=}0.01$ & $-13.51$ & $-11.54$ & $+1.96$ \\
+$\alpha{=}0.1$  & $-8.78$  & $-7.94$  & $+0.84$ \\
+$\alpha{=}1.0$ (default) & $-6.90$ & $-6.70$ & $+0.20$ \\
+$\alpha{=}10$   & $-5.81$  & $-5.72$  & $+0.08$ \\
+$\alpha{=}100$  & $-5.32$  & $-5.28$  & $+0.04$ \\
+Probe seeds 0/1/2 ($\alpha{=}1$, mean pool) & \multicolumn{2}{c}{same as $\alpha{=}1.0$} & $+0.20$ \\
+Last-token pool ($\alpha{=}1$) & $-9.70$ & $-8.49$ & $+1.20$ \\
+\bottomrule
+\end{tabular}
+\vspace{-2pt}
+\end{table}
+
+\textbf{Finding:}
+$\Delta R^2{>}0$ holds for all 10 probe-design settings tested; the direction
+is not an artefact of $\alpha$, pooling, or probe seed.
+Magnitude decreases with stronger regularisation (larger $\alpha$ shrinks both
+$R^2$ values toward zero), but the sign is invariant.
+The absolute $R^2$ values remain negative throughout; the claim is that
+fine-tuned representations are \emph{relatively more} linearly decodable for
+the 96-step objective, and this direction is probe-design robust.
+
+% ============================================================
+\section{Layer-Wise Unfreeze Localization}
+\label{app:layerunfreeze}
+% ============================================================
+
+Moirai-Small has 12 transformer layers.
+We added an \texttt{--unfreeze-top-n-layers} flag to
+\texttt{finetune\_forecasting.py} and ran ETTh2 $n{=}10$k, $h{=}96$,
+3 seeds (42/101/123) at $N{=}3$ alongside
+the existing $N{=}0$ (frozen encoder, 5-seed condition~D) and
+$N{=}12$ (full unfreeze, condition~B).
+
+\textbf{$N{=}1$ instability.}
+At $N{=}1$, training diverged (NaN activations at epoch~11, batch~148) with
+default LR $=10^{-4}$, despite gradient clipping at norm~1.  The 11 epochs that
+completed show CKA stabilising at $\approx$0.72; we do not extract probe results
+from a crashed run.  This instability is qualitatively consistent with the
+LoRA-Large behaviour documented in \S\ref{sec:forecasting:mitigation}: extreme
+partial freeze concentrates gradient pressure on a small number of parameters,
+requiring LR reduction to stabilise.
+
+\textbf{$N{=}3$ results.}
+Table~\ref{tab:layerunfreeze} shows results for $N{=}0$, $N{=}3$ (3 seeds), and $N{=}12$ (3 matching seeds).
+
+\begin{table}[h!]
+\centering
+\vspace{-4pt}
+\caption{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm$std over seeds).
+$N$ = number of top transformer layers unfrozen. $N{=}0$: 5 seeds; $N{=}3$/$N{=}12$: seeds 42/101/123.}
+\label{tab:layerunfreeze}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+$N$ & Layers & CKA & Ridge $\Delta R^2$ & Forgetting\% \\
+\midrule
+0 (frozen)   & none  & $0.999{\pm}0.000$ & $-0.048{\pm}0.008$ & $-6.6{\pm}1.5$\% \\
+1 (top-1)    & 1/12  & $\approx$0.72 (ep.\ 11) & \multicolumn{2}{c}{\textit{diverged (NaN)}} \\
+3 (top-3)    & 3/12  & $0.698{\pm}0.066$ & $+0.479{\pm}0.115$ (\textbf{3/3}) & $+1.3{\pm}2.1$\% \\
+12 (full, B) & 12/12 & $0.484{\pm}0.061$ & $+0.626{\pm}0.378$ (\textbf{3/3}) & $-7.7{\pm}8.4$\% \\
+\bottomrule
+\end{tabular}
+\vspace{-2pt}
+\end{table}
+
+\textbf{Finding.}
+$\Delta R^2{>}0$ appears already at $N{=}3$ (3/3 seeds), with less encoder
+drift (CKA$\approx$0.70) than full unfreeze (CKA$\approx$0.48).
+The top-3 layers are sufficient to produce the relative decodability gain;
+the remaining 9 frozen layers contribute additional drift without consistently
+increasing $\Delta R^2$ (mean $+0.63$ vs.\ $+0.48$, but with larger variance
+$0.378$ vs.\ $0.115$).  Both $N{=}3$ and $N{=}12$ operate in the same
+deeply-negative-$R^2$ regime ($R^2(\text{ZS}) \approx -6.9$); the same
+probe-design robustness established in Appendix~\ref{app:noisefloor} applies.

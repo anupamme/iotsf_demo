@@ -1,9 +1,17 @@
-\begin{thebibliography}{30}
+\begin{thebibliography}{29}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Andreassen et~al.(2023)Andreassen, Bahri, Neyshabur, and
+  Roelofs]{andreassen2023evolution}
+Anders Andreassen, Yasaman Bahri, Behnam Neyshabur, and Rebecca Roelofs.
+\newblock The evolution of out-of-distribution robustness throughout
+  fine-tuning.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2023.
+\newblock URL \url{https://arxiv.org/abs/2106.15831}.
 
 \bibitem[Ansari et~al.(2024)]{ansari2024chronos}
 Abdul~Fatir Ansari et~al.
@@ -17,13 +25,6 @@ Julien Audibert et~al.
 \newblock In \emph{ACM SIGKDD International Conference on Knowledge Discovery
   and Data Mining (KDD)}, 2020.
 \newblock URL \url{https://dl.acm.org/doi/10.1145/3394486.3403392}.
-
-\bibitem[Chen et~al.(2020)Chen, Kornblith, Norouzi, and Hinton]{chen2020simclr}
-Ting Chen, Simon Kornblith, Mohammad Norouzi, and Geoffrey Hinton.
-\newblock A simple framework for contrastive learning of visual
-  representations.
-\newblock In \emph{International Conference on Machine Learning (ICML)}, 2020.
-\newblock URL \url{https://arxiv.org/abs/2002.05709}.
 
 \bibitem[Das et~al.(2024)]{das2024timeseries}
 Abhimanyu Das et~al.
@@ -55,14 +56,6 @@ Ian~J. Goodfellow, Jonathon Shlens, and Christian Szegedy.
 Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
-
-\bibitem[Grill et~al.(2020)]{grill2020byol}
-Jean-Bastien Grill et~al.
-\newblock Bootstrap your own latent: A new approach to self-supervised
-  learning.
-\newblock In \emph{Advances in Neural Information Processing Systems
-  (NeurIPS)}, 2020.
-\newblock URL \url{https://arxiv.org/abs/2006.07733}.
 
 \bibitem[Hewitt and Manning(2019)]{hewitt2019structural}
 John Hewitt and Christopher~D. Manning.
@@ -100,6 +93,15 @@ Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey Hinton.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, pages
   3519--3529, 2019.
 
+\bibitem[Kumar et~al.(2022)Kumar, Raghunathan, Jones, Ma, and
+  Liang]{kumar2022finetuning}
+Ananya Kumar, Aditi Raghunathan, Robbie Jones, Tengyu Ma, and Percy Liang.
+\newblock Fine-tuning can distort pretrained features and underperform
+  out-of-distribution.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+\newblock URL \url{https://arxiv.org/abs/2202.10054}.
+
 \bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
 Xuhong Li, Yves Grandvalet, and Franck Davoine.
 \newblock Explicit inductive bias for transfer learning with convolutional
@@ -125,11 +127,13 @@ Fei~Tony Liu, Kai~Ming Ting, and Zhi-Hua Zhou.
 \newblock \emph{ACM Transactions on Knowledge Discovery from Data}, 6\penalty0
   (1), 2012.
 
-\bibitem[Luo et~al.(2024)]{luo2024forgetting}
-Yun Luo et~al.
+\bibitem[Luo et~al.(2024)Luo, Yang, Meng, Li, Zhou, and
+  Zhang]{luo2024forgetting}
+Yun Luo, Zhengxuan Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
 \newblock An empirical study of catastrophic forgetting in large language
   models during continual fine-tuning.
 \newblock \emph{arXiv preprint arXiv:2308.08747}, 2024.
+\newblock arXiv preprint; v3, 2024.
 
 \bibitem[Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and
   Vladu]{madry2018pgd}
@@ -140,27 +144,19 @@ Aleksander Madry, Aleksandar Makelov, Ludwig Schmidt, Dimitris Tsipras, and
   (ICLR)}, 2018.
 \newblock URL \url{https://arxiv.org/abs/1706.06083}.
 
-\bibitem[Meidan et~al.(2018)Meidan, Bohadana, Mathov, Mirsky, Shabtai,
-  Breitenbacher, and Elovici]{meidan2018n}
-Yair Meidan, Michael Bohadana, Yael Mathov, Yisroel Mirsky, Asaf Shabtai,
-  Dominik Breitenbacher, and Yuval Elovici.
-\newblock {N-BaIoT}: Network-based detection of {IoT} botnet attacks using deep
-  autoencoders.
-\newblock \emph{IEEE Pervasive Computing}, 17\penalty0 (3):\penalty0 12--22,
-  2018.
-
-\bibitem[Moustafa and Slay(2015)]{moustafa2015unsw}
-Nour Moustafa and Jill Slay.
-\newblock {UNSW-NB15}: A comprehensive data set for network intrusion detection
-  systems.
-\newblock In \emph{Military Communications and Information Systems Conference
-  (MilCIS)}, pages 1--6. IEEE, 2015.
-
 \bibitem[Neto et~al.(2023)]{neto2023ciciot}
 Euclides Carlos~Pinto Neto et~al.
 \newblock {CICIoT2023}: A real-time dataset and benchmark for large-scale
   attacks in iot environment.
 \newblock \emph{Sensors}, 23\penalty0 (13), 2023.
+
+\bibitem[Neyshabur et~al.(2020)Neyshabur, Sedghi, and
+  Zhang]{neyshabur2020transferred}
+Behnam Neyshabur, Hanie Sedghi, and Chiyuan Zhang.
+\newblock What is being transferred in transfer learning?
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+\newblock URL \url{https://arxiv.org/abs/2008.11687}.
 
 \bibitem[Nie et~al.(2023)]{nie2023patchtst}
 Yuqi Nie et~al.

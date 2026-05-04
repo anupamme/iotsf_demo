@@ -3,72 +3,195 @@
 \label{sec:analysis}
 % ============================================================
 
-\textbf{Drift is consistent; consequences depend on pre-training value.}
-Table~\ref{tab:cross_domain} spans seven settings: on ETT
-(28--45\% ZS advantage) drift causes forgetting (10--16\% MSE,
-CKA 0.81--0.94); on IoT (marginal ZS) CKA drops further (0.31--0.45)
-yet performance \emph{improves}; on Weather the ZS gate fails
-(0.41 vs 0.22), delimiting the claim.
+\textbf{The per-seed cost--benefit invariant is protocol-robust.}
+The central claim is a \emph{per-seed} invariant: across all seeds
+under both the final-epoch and early-stopped protocols at $n{=}10$k,
+the CKA-probe gap signature (CKA $\downarrow$, Ridge and MLP
+$\Delta R^2 {>}0$) holds individually on the 96-step trained head
+(\S\ref{sec:forecasting:probehead}).
+This is a \emph{task-specific} benefit: $\Delta R^2{>}0$ holds on
+the objective the encoder was optimised for, but reverses on untrained
+readout targets (delta1 GBM: $\Delta R^2{=}{-}0.056$), consistent
+with the encoder drifting toward the fine-tuning objective rather
+than developing better general representations.  Per-seed Ridge
+$\Delta R^2$ on early-stopped encoders (seeds 101/303/777/888/999)
+is $\{+.75, +.54, +.66, +.38, +.49\}$ and on the final-epoch set
+it is uniformly positive as well (Appendix~\ref{app:probing}).
+The population statistics merely aggregate this invariant: Ridge
+$\Delta R^2$ climbs from $+$0.12 at $n{=}500$ to $+$0.67$\pm$0.23
+at $n{=}10$k (10-seed CUDA deterministic, \textbf{10/10 positive}),
+MLP $k{=}5$ on 10-seed CUDA early-stopped encoders gives $+$0.70$\pm$0.32 (10/10 positive),
+MLP $k{=}1$/$k{=}2$ give $+$1.57$\pm$0.36/$+$1.82$\pm$0.37
+(Table~\ref{tab:sample_sweep}), and CKA falls from 0.949 at
+$n{=}500$ to $\approx$0.57 at $n{=}10$k.  The $k{=}10$ CKA variance
+($\pm$0.182) reflects per-seed best-epoch spread
+(epochs $\{1,2,3,4,4,4,5,5,6,6\}$)
+(\S\ref{sec:forecasting:results}).
+
+\textbf{Task forgetting is a protocol-dependent consequence.}
+Population forgetting is non-monotonic in $n$
+($+$14\% at $500$, $-$2.9\% at $2$k, $-$5.3$\pm$6.2\% at $10$k,
+10-seed CUDA deterministic early-stopped, 7/10 negative), and its
+\emph{sign} in the crossover regime is protocol-dependent: the
+final-epoch $k{=}5$ mean at $n{=}10$k was $+$7.5$\pm$8.2\%, while
+the 10-seed CUDA ES mean is $-$5.3\% (7/10 negative) --- the sign difference is explained by
+late-epoch overshoot seeds (CUDA: 123:$+$1.8\%, 456:$+$4.4\%, 789:$+$0.4\%,
+all near-zero; best-stopping at epochs~3--5 vs.\ low-forgetting cluster epochs~2--4)
+exactly as the $n{=}5$k trajectory recipe predicts
+(\S\ref{sec:forecasting:trajectory}).  Because of this protocol
+sensitivity we do \emph{not} lead on forgetting sign; it is a
+task-outcome consequence of the cost--benefit gap, not the primary signal.
+Absolute $R^2(\text{FT})$ on the 96-step head remains negative
+throughout ($R^2_{\text{ZS}}{=}-6.90$, $k{=}10$ $R^2(\text{FT})$
+$-6.37{\pm}0.36$ at $n{=}10$k);
+$\Delta R^2$ is a \emph{relative linear-decodability} signal.  A
+next-step-delta head with a gradient-boosted probe gives
+$R^2(\text{PT}){=}{+}0.059{>}0$ (positive-floor head) but
+$\Delta R^2 {<} 0$ there, revealing the decodability gain is
+objective-specific: it holds on the 96-step target fine-tuning
+optimises, not on every linear readout
+(\S\ref{sec:forecasting:probehead}, Appendix~\ref{app:probing}).
+A CUDA replication at $k{\geq}10$ on matched seeds with
+deterministic training has been completed (see Appendix~\ref{app:probing}).
+
+\textbf{Second cell: ETTm2 $n{=}10$k shows the same deep-floor $\Delta R^2{>}0$ pattern.}
+On ETTm2 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$), the CKA-probe gap
+holds with the \emph{opposite} task outcome from ETTh2: forgetting is
+uniformly negative ($-28.2{\pm}2.2\%$, 10/10) while CKA falls to
+$0.491{\pm}0.143$ and Ridge $\Delta R^2{=}{+}5.43{\pm}2.57$ (10/10 positive).
+The raw $\Delta R^2$ magnitude is larger than ETTh2 ($+$0.67) because
+the ZS Ridge floor on ETTm2 is deeper ($R^2(\text{ZS}){=}-24.52$
+vs.\ $-6.90$ on ETTh2, a 3.5$\times$ difference that proportionally
+inflates raw $\Delta R^2$); the cross-dataset comparable statistic is
+the sign test, which gives \textbf{10/10} positive in both cells
+(Appendix~\ref{app:probing}).
+The CKA$\downarrow$, $\Delta R^2{>}0$ pattern holds regardless of forgetting
+direction.
+Both ETTh2 and ETTm2 operate in a deeply-negative-$R^2$ regime; the
+delta1/GBM reprobe on ETTm2 finds no positive-floor reference
+(Appendix~\ref{app:probing}).
+Probe noise-floor analysis (Appendix~\ref{app:noisefloor}) confirms the
+$\Delta R^2{>}0$ direction is robust across $\alpha$, pooling, and probe seeds.
+
+\textbf{ETTh1 $n{=}10$k: task resolves but per-seed $\Delta R^2{>}0$ does not hold.}
+On ETTh1 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$), forgetting resolves
+($-6.1{\pm}3.6$\%, \textbf{10/10} negative; ZS MSE 0.680$\to$FT 0.637)
+and CKA falls to $0.727{\pm}0.059$.
+Ridge $\Delta R^2{=}{-}4.23{\pm}4.47$ (2/10 positive; $R^2(\text{ZS}){=}-24.81$,
+same deep floor as ETTm2).
+This is a substantively different pattern from both ETTh2 and ETTm2:
+the encoder drifts, the task improves, but linear decodability
+\emph{decreases} in 8/10 seeds.
+We interpret this as a \emph{task-improvement-without-decodability-gain}
+regime: the encoder is restructured in a way that benefits the
+forecasting loss but does not increase linear separability of the
+96-step target.  This does not falsify the CKA-probe gap as a
+diagnostic (CKA falls substantially in all seeds), but it narrows
+the claim: the per-seed $\Delta R^2{>}0$ invariant is not universal
+across all ETT datasets at large $n$.
+ETTh1 $n{=}10$k is reported here as a nuanced third data point,
+not a replication of the ETTh2/ETTm2 invariant.
+The ETTh1 result reveals a \emph{boundary condition}: on
+ETTh2/ETTm2, the 96-step NLL objective both (i)~restructures the
+encoder toward the forecasting target and (ii)~produces representations
+more linearly decodable by a Ridge probe.  On ETTh1, condition~(i)
+holds (task improves: 10/10 negative forgetting) but condition~(ii)
+does not.  A plausible explanation is that ETTh1 is more
+trend-dominated than the more cyclical ETTh2/ETTm2; the fine-tuned
+representations may encode non-linear temporal features that improve
+MSE without increasing linear separability.  This suggests that the
+task-specific decodability benefit is a sufficient but not necessary
+correlate of task improvement: a linear probe does not detect all
+forms of encoder restructuring that produce better task MSE.
+\textbf{MLP probe on ETTh1 $n{=}10$k.}
+To test the non-linear restructuring hypothesis, we run
+MLP probes ($k{=}1,2,5$ hidden layers, 64 units each,
+\texttt{reprobe\_saved\_encoders.py}) on all 10 ETTh1
+encoders and compare to a zero-shot MLP baseline.
+Results are depth-dependent:
+$k{=}1$ gives $\Delta R^2{=}{-}1.84{\pm}2.62$ (4/10 positive),
+$k{=}2$ gives $\Delta R^2{=}{+}1.08{\pm}1.80$ (8/10 positive),
+and $k{=}5$ gives $\Delta R^2{=}{-}1.03{\pm}0.31$ (0/10 positive).
+The $k{=}1{\to}k{=}2{\to}k{=}5$ non-monotonicity (4$\to$8$\to$0)
+is the key finding: the signal is sensitive to probe capacity in a way
+we do not fully understand, and $k{=}2$ is a post-hoc selection from
+a non-monotone sweep.
+As Pimentel et al.~\cite{pimentel2020information} warn, probe results
+that depend on hand-picked capacity do not constitute robust evidence
+of encoder structure.
+We report these results for completeness, but do not use them as primary
+evidence; the honest summary for ETTh1 is that Ridge (2/10 positive)
+finds no robust $\Delta R^2{>}0$ signal and MLP probes are inconclusive.
+
+\textbf{Is there a pre-specifiable predictor for which pattern occurs?}
+The trend-vs.-cycle distinction (ETTh1: trend-dominated;
+ETTh2/ETTm2: more cyclical) is one candidate but is not pre-specified
+and has not been formally tested here.
+Spectral entropy of the target series, the Hurst exponent, or the
+depth of the ZS Ridge floor are measurable proxies.
+An informal post-hoc pilot on the OT column gives:
+ETTh1 spectral entropy $=2.39$, Hurst $H=0.84$;
+ETTh2 and ETTm2 both give spectral entropy $\approx1.76$, $H\approx0.79$ ---
+consistent with ETTh1 being more trend-dominated, though this is post-hoc
+and not pre-specified; a formal pre-registered test is future work.
+ETTh1 ($R^2(\text{ZS})\approx{-}25$) and ETTm2 ($R^2(\text{ZS})\approx{-}25$)
+have similar deep floors but give opposite $\Delta R^2$ signs at $n{=}10$k,
+ruling out floor depth as a predictor;
+ETTh2's shallower floor ($\approx{-}7$) does not separate the patterns either,
+so the floor alone is not predictive.
+
+\textbf{Cross-domain envelope.}
+Table~\ref{tab:cross_domain} spans six settings: ETT drift
+(CKA 0.81--0.94) causes forgetting (10--16\%) at $n{=}500$; ETTh2
+Base/Moirai-Large at larger capacity \emph{improve} despite drift
+(CKA 0.46--0.63); IoT is a negative control
+(sub-random ZS, CKA 0.31--0.45).
+Drift occurs in all six cells --- consequences depend on
+pre-training value at the specific $(n, \text{horizon})$ point.
 
 \begin{table}[t]
 \centering
-\caption{Cross-domain drift ($h{=}96$, condition B). Weather fails
-the ZS gate (0.41 vs.\ 0.22), delimiting claim scope. Mean$\pm$std
-across seeds.}
+\caption{Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm$std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a dissociation replication.}
 \label{tab:cross_domain}
 \small
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccccc|c}
+\begin{tabular}{lcccccc|c}
 \toprule
-& ETTh2-S & ETTh1 & ETTm2 & ETTh2-B & ETTh2-L & Weather & IoT \\
-& (10 sd) & (3 sd) & (3 sd) & (3 sd) & (3 sd) & (1 sd) & (10 sd) \\
+& ETTh2-S & ETTh1 & ETTm2 & ETTh2-B & ETTh2-L & IoT \\
+& (10 sd) & (3 sd) & (3 sd) & (3 sd) & (3 sd) & (10 sd) \\
 \midrule
-Metric             & MSE & MSE & MSE & MSE & MSE & MSE & AUC \\
-ZS baseline        & 0.126 & 0.679 & 0.175 & 0.231 & 0.128 & 0.410 & 0.481 \\
-FT result          & .140{\tiny$\pm$.014} & .726{\tiny$\pm$.022} & .152{\tiny$\pm$.011} & .129{\tiny$\pm$.013} & .140{\tiny$\pm$.012} & 0.906 & .629{\tiny$\pm$.022} \\
-Forg.\%            & +11.1  & +7.0{\tiny$\pm$3.2} & $-$13.3{\tiny$\pm$6.1} & $-$44.1{\tiny$\pm$5.7} & +10.5{\tiny$\pm$9.5} & \textit{N/A} & +30.8 \\
-CKA                & .937{\tiny$\pm$.028} & .807{\tiny$\pm$.048} & .851{\tiny$\pm$.083} & .460{\tiny$\pm$.200} & .626{\tiny$\pm$.165} & 0.974 & .420{\tiny$\pm$.026} \\
-Effect             & Degrades & Degrades & Improves & Improves & Degrades & Gate fails & Improves \\
+Metric             & MSE & MSE & MSE & MSE & MSE & AUC \\
+ZS baseline        & 0.126 & 0.679 & 0.175 & 0.231 & 0.128 & 0.481 \\
+FT result          & .140{\tiny$\pm$.014} & .726{\tiny$\pm$.022} & .152{\tiny$\pm$.011} & .129{\tiny$\pm$.013} & .140{\tiny$\pm$.012} & .629{\tiny$\pm$.022} \\
+Forg.\%            & +11.1  & +7.0{\tiny$\pm$3.2} & $-$13.3{\tiny$\pm$6.1} & $-$44.1{\tiny$\pm$5.7} & +10.5{\tiny$\pm$9.5} & +30.8 \\
+CKA                & .937{\tiny$\pm$.028} & .807{\tiny$\pm$.048} & .851{\tiny$\pm$.083} & .460{\tiny$\pm$.200} & .626{\tiny$\pm$.165} & .420{\tiny$\pm$.026} \\
+Effect             & Degrades & Degrades & Improves & Improves & Degrades & Improves \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \textbf{Model-size replication.}
-Moirai-Base (91M) is a boundary case: unfrozen-Base drifts
-(CKA$=$0.460) and improves $-$44.1\%, while frozen-Base improves
-further to $-$47.4\% at CKA$=$0.997 --- drift and forgetting are
-\emph{dissociable}, not drift is always beneficial; Base's gain is
-capacity and freezing retains it without paying the drift cost.
-Moirai-Large (311M) at $n{=}500$: CKA$=$0.626$\pm$0.165,
-$+$10.5$\pm$9.5\% forg.\ (3 seeds); frozen-Large $+$3.2$\pm$0.6\%;
-LoRA $r{=}8$ fails ($+$25.7$\pm$3.2\%, CKA 0.973, 3 seeds) and
-rank escalation does not rescue it ($r{\in}\{16,32,64\}$: $+$22.5,
-$+$19.0, $+$29.9\%, seed 42; Appendix~\ref{app:lora_rank}) --- the
-Small-recipe does not transfer to Large at any rank we tested.
-A from-scratch CNN-NLL control (AUC$=$0.598$\pm$0.041) outperforms
-unfrozen Moirai at IoT's 200-window scale (Appendix~\ref{app:cnn_detail}).
+Moirai-Base (91M) shows aggressive drift
+(CKA$=$0.460$\pm$0.200) with strong task improvement
+(unfrozen $-$44.1$\pm$5.7\%; frozen control $-$47.4\%).  The
+3-point unfrozen-vs-frozen gap sits on a larger
+capacity-driven gain and is within seed variance, so we decline to
+treat Base as a second dissociation instance at $n{=}500$:
+it is consistent with Base being \emph{value-gated differently
+than Small} (the larger pre-trained capacity plausibly compensates
+for drift, and $n{=}500$ fine-tuning contributes little over
+freezing), not with the dissociation failing at Base.  A full
+$n$-sweep on Moirai-Base is future work.
+Moirai-Large (311M) at $n{=}500$ mirrors Small
+($+$10.5$\pm$9.5\% forg., 3 seeds); LoRA-Large fails at default LR
+and is rescued only by $10\times$ LR reduction
+(\S\ref{sec:forecasting:mitigation}, Appendix~\ref{app:lora_rank}).
 
-\textbf{CKA and linear probing are dissociable.}
-Ridge probing on frozen encoder reps (Table~\ref{tab:sample_sweep})
-shows $\Delta R^2$ rising with $n$ ($+$0.12 at 500 $\to +$0.68 at
-10{,}000) while CKA drops (0.949 $\to$ 0.429); MLP probe replicates
-($+$0.73$\pm$.75 at $n{=}2$k, 3 seeds; $+$1.54$\pm$.24 at $n{=}10$k,
-2 seeds).  At $n{=}10{,}000$ representations have drifted substantially
-yet are \emph{functionally superior} with near-zero forgetting ---
-directly dissociating geometric drift from information loss
-(random-init CKA$<$0.001; Appendix~\ref{app:cka_calibration}).
-
-\textbf{$n{=}5{,}000$ bimodality.}
-The 7-seed $+$6.6$\pm$10.0\% variance splits into low-forgetting
-(42, 101, 123, 202: $-$0.1$\pm$3.7\%) and high-forgetting
-(303, 456, 789: $+$15.5$\pm$7.3\%) modes. Per-epoch trajectories
-(App.~\ref{app:n5k_trajectories}, Fig.~\ref{fig:n5k_trajectories})
-separate them by val-MSE epoch-of-minimum ($6.5\pm2.1$ vs.\
-$0.7\pm0.5$): high-forg.\ seeds overshoot in epoch 1, motivating
-early-stopping. LR/2 ablation: bimodality persists ($+$5.8$\pm$15.7\%,
-7 seeds) --- not a pure LR artefact.
-
-An IoT logistic-regression probe also replicates the dissociation
-direction ($\Delta$AUC$=+$0.013$\pm$0.006, CKA$=$0.370, 3 seeds);
-limitations and practitioner guidance: \S\ref{sec:conclusion},
-Appendix~\ref{app:limitations}.
+\textbf{IoT negative control.}
+On CICIoT2023~\cite{neto2023ciciot} anomaly detection, Moirai's
+zero-shot AUC ($=0.481$) is sub-random; fine-tuning drives aggressive
+drift (CKA 0.31--0.45) but a from-scratch CNN-NLL
+(AUC $0.598{\pm}0.041$, 10 seeds) matches fine-tuned Moirai at IoT's
+200-window scale.  IoT validates the value-gate framework as a
+negative control, \emph{not} a second dissociation instance
+(Appendix~\ref{app:cnn_detail}).

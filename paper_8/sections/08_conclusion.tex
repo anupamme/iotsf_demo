@@ -3,12 +3,82 @@
 \label{sec:conclusion}
 % ============================================================
 
-Fine-tuning overwrites pre-trained features (10--16\% MSE on ETT at
-$n{=}500$, resolving by $n{=}2$k; CKA 0.31--0.45 on IoT yet performance
-improves); consequences depend on pre-training value and data. LoRA
-on Moirai-Small is the best trade-off (CKA$\approx$0.98) but fails on
-Large ($+$25.7$\pm$3.2\% forg., rank escalation stays $+$19 to $+$30\%)
-and on IoT. Guidance: Small$+$scarce$\to$LoRA; Large or marginal$\to$
-freezing or NLL$+$early stopping; 200-window$\to$from-scratch CNN-NLL.
-Limitations (App.~\ref{app:limitations}): dissociation on Moirai
-only (Chronos 0.304, TimesFM 0.242 gate-fail); Traffic/ILI/2nd-backbone open.
+\textbf{Practitioner summary.}
+Use LoRA (not full fine-tuning) as the default for Moirai adaptation.
+On Moirai-Small with scarce data, LoRA preserves representations
+(CKA$\approx$0.98); on Moirai-Large, LoRA at default LR fails and
+requires a $10{\times}$ reduction to $\mathrm{LR}{=}10^{-5}$
+(forg.$={-8.5}{\pm}0.7$\% on ETTh2, $-16.7{\pm}0.2$\% on ETTh1,
+$-28.3{\pm}0.4$\% on ETTm2; 3~seeds each, cross-dataset validated).
+If adaptation is unnecessary, freeze the encoder.
+The value-gate heuristic (ZS advantage $>$20\% vs.\ Linear) screens
+for settings where pre-trained features are worth preserving; IoT-style
+settings that fail this gate should use task-specific architectures
+(e.g., CNN-NLL) rather than Moirai.
+
+\textbf{A cost--benefit characterisation of fine-tuning.}
+The primary finding is a \emph{cost--benefit characterisation} of
+Moirai fine-tuning via the \emph{CKA-probe gap}: fine-tuning imposes
+a geometric cost (CKA$\downarrow$: 0.949 at $n{=}500$ to
+0.518$\pm$0.188 at $n{=}10$k) whose task-level consequence takes
+three forms: \textbf{(i)}~on ETTh2 and ETTm2 at $n{=}10$k, a
+task-specific decodability benefit (\textbf{$\Delta R^2{>}0$ in 10/10 CUDA seeds per dataset};
+Ridge $\Delta R^2$ rises from $+$0.12 to
+$+$0.67$\pm$0.23; 5-hidden-layer MLP gives $+$0.70$\pm$0.32,
+10/10 positive); \textbf{(ii)}~on ETTh1 at $n{=}10$k, forgetting
+resolves (10/10 negative, $-6.1{\pm}3.6$\%) but $\Delta R^2$ is 2/10
+positive---a task-improvement-without-decodability-gain regime; and
+\textbf{(iii)}~in the low-$n$ regime, forgetting dominates.
+The ETTm2 result confirms the cost--benefit gap is independent of
+forgetting direction; the ETTh1 result narrows the $\Delta R^2{>}0$
+invariant to ETTh2 and ETTm2.
+The benefit is \emph{task-specific, not general}: $\Delta R^2{\leq}0$
+on untrained heads (delta1 GBM: $-$0.056; forecast48: $\approx$0);
+the frozen-encoder control (condition D, 5 seeds, CKA$=$0.9993,
+$\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than condition~B)
+confirms the benefit requires encoder weight updates.
+Task forgetting is \emph{protocol-conditional}: non-monotonic in $n$;
+at $n{=}10$k, $-$5.3$\pm$6.2\% under CUDA 10-seed deterministic
+early-stopping (7/10 negative) vs.\ $+$7.5$\pm$8.2\% under final-epoch checkpointing.
+The $\Delta R^2{>}0$ majority is more robust than forgetting sign;
+forgetting is the downstream task-outcome consequence.
+
+\textbf{When does the cost--benefit gap hold?}
+(a)~Large ZS advantage and sufficient data: the CKA-probe gap
+is characterised in detail on (Moirai-Small, ETTh2) across
+$n{\in}\{500,\ldots,10\text{k}\}$; consistent low-$n$ patterns hold
+on adjacent cells (ETTh1, ETTm2, Moirai-Base, Moirai-Large at
+$n{=}500$).
+Task forgetting resolves on (Moirai-Small, ETTh2) at $n{=}2$k
+($-$2.9\%), and at $n{=}10$k the CUDA 10-seed deterministic early-stopped
+protocol gives $-$5.3$\pm$6.2\% (7/10 negative); final-epoch $k{=}5$
+was $+$7.5$\pm$8.2\%, dominated by seed~101's late-epoch overshoot
+($+$21.9\% collapsing to $-$20.7\% at best-val-MSE epoch~4).
+Resolution does \emph{not} transfer uniformly across ETT datasets:
+at $n{=}2{,}000$, ETTh1 still forgets ($+$9.2$\pm$5.0\%) while
+ETTm2 improves ($-$20.1$\pm$5.1\%).  ETTh1 at $n{=}10$k (CUDA $k{=}10$) gives a third pattern:
+task resolves (10/10 negative, $-6.1{\pm}3.6$\%) but
+$\Delta R^2$ is mostly negative (2/10 positive), narrowing the
+per-seed $\Delta R^2{>}0$ invariant to ETTh2 and ETTm2.
+Full $n$-sweeps on Moirai-Base and Moirai-Large are future work.
+(b)~Small or sub-random ZS (IoT, Weather): drift is benign or the
+gate is unmeasurable --- IoT is a negative control, not a second
+dissociation instance.
+(c)~Transition regime ($n{\approx}5$k on ETTh2-Small): 3/7 seeds
+overshoot in epoch~1 (\S\ref{sec:forecasting:trajectory}), producing
+bimodal forgetting.
+
+\textbf{Limitations} (App.~\ref{app:limitations}):
+dissociation on Moirai only --- nine-of-nine non-Moirai
+backbone$\times$ETT-dataset cells gate-fail
+(Chronos-T5-Small/Base/Large; TimesFM-2.5-200M; MOMENT-1-base);
+the Chronos size sweep confirms the ETT-coverage gap is
+size-invariant; Traffic/ILI and a gate-passing second backbone open.
+On the 96-step-ahead head, absolute $R^2(\text{FT})$ remains
+negative across all probes at every sampled $n$, so $\Delta R^2$
+there is a relative-improvement signal; the next-step-delta head
+with a GBM probe gives $R^2(\text{PT}){>}0$ but reveals the
+$\Delta R^2$ gain is objective-specific (\S\ref{sec:forecasting:probehead}).
+A gate-passing non-Moirai backbone on Traffic or Exchange rate datasets
+(where non-ETT backbones are more likely to pass the value gate)
+is the highest-priority future-work direction for broadening the single-backbone scope.

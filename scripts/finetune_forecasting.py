@@ -201,16 +201,19 @@ def linear_probe_r2(
     y_val: np.ndarray,
     alpha: float = 1.0,
     probe_type: str = 'ridge',
+    mlp_layers: int = 1,
+    gbm_depth: int = 6,
 ):
     """Fit a probe on frozen representations and return val R-squared.
 
     probe_type='ridge' (default): Ridge regression on mean-pooled reps.
-    probe_type='mlp'             : sklearn MLPRegressor, hidden=(64,).
+    probe_type='mlp'             : sklearn MLPRegressor, hidden=(64,)*mlp_layers.
     probe_type='linear_forecaster': Ridge with stronger regularisation on
                                     (possibly flattened sequence) reps;
                                     matches reviewer Q2's "frozen-encoder
                                     linear forecaster head" ask.
-    probe_type='all'             : dict with all three.
+    probe_type='all'             : dict with all three (MLP at mlp_layers depth).
+    mlp_layers: number of hidden layers for MLP probe (each of width 64).
     """
     from sklearn.linear_model import Ridge
     # If reps are 3D (N, T, D) flatten sequence axis for the linear-forecaster
@@ -228,11 +231,12 @@ def linear_probe_r2(
     def _fit_mlp():
         from sklearn.neural_network import MLPRegressor
         reg = MLPRegressor(
-            hidden_layer_sizes=(64,),
+            hidden_layer_sizes=tuple([64] * int(mlp_layers)),
             max_iter=500,
             alpha=1e-3,
             random_state=0,
             early_stopping=True,
+            validation_fraction=0.1,
         ).fit(reps_tr_flat, y_tr)
         return float(reg.score(reps_va_flat, y_va))
 
@@ -247,12 +251,30 @@ def linear_probe_r2(
                 best_r2 = r2
         return best_r2
 
+    def _fit_gbm():
+        # Non-linear expressive probe: HistGradientBoostingRegressor per output dim.
+        from sklearn.ensemble import HistGradientBoostingRegressor
+        preds_val = np.zeros_like(y_va)
+        for j in range(y_tr.shape[1]):
+            gbm = HistGradientBoostingRegressor(
+                max_iter=150, max_depth=gbm_depth, learning_rate=0.05,
+                early_stopping=True, validation_fraction=0.1, random_state=0)
+            gbm.fit(reps_tr_flat, y_tr[:, j])
+            preds_val[:, j] = gbm.predict(reps_va_flat)
+        ss_res = ((preds_val - y_va) ** 2).sum()
+        ss_tot = ((y_va - y_va.mean(axis=0)) ** 2).sum()
+        if ss_tot < 1e-12:
+            return 0.0
+        return float(1.0 - ss_res / ss_tot)
+
     if probe_type == 'ridge':
         return _fit_ridge()
     if probe_type == 'mlp':
         return _fit_mlp()
     if probe_type == 'linear_forecaster':
         return _fit_linear_forecaster()
+    if probe_type == 'gbm':
+        return _fit_gbm()
     if probe_type == 'all':
         return {
             'ridge': _fit_ridge(),
@@ -602,6 +624,8 @@ def main():
                         help="EWC regularization weight (condition G)")
     parser.add_argument('--lora-rank', type=int, default=8, help="LoRA rank (condition E)")
     parser.add_argument('--lora-alpha', type=int, default=16, help="LoRA alpha (condition E)")
+    parser.add_argument('--unfreeze-top-n-layers', type=int, default=0,
+                        help="For condition D: unfreeze top N transformer layers (0=full freeze, default).")
     parser.add_argument('--lora-target-modules', nargs='+', default=None,
                         help="LoRA target module names (condition E, default q_proj v_proj out_proj). Used for reviewer Q4 ablation.")
     parser.add_argument('--results-dir', default='results/forecasting_finetune')
@@ -613,14 +637,35 @@ def main():
                         help="Max sequences for periodic evaluation")
     parser.add_argument('--features', default='M', choices=['M', 'S', 'MS'],
                         help="M=multivariate, S=univariate (OT target only), MS=multivariate->univariate")
+    parser.add_argument('--early-stopping', action='store_true',
+                        help="Restore encoder weights to best-val-MSE checkpoint before final eval/probe (V17).")
     parser.add_argument('--probe-type', default='ridge',
                         choices=['ridge', 'mlp', 'both', 'linear_forecaster', 'all'],
                         help="Linear-probe regressor type: ridge, mlp, both (ridge+mlp), linear_forecaster (Ridge over sequence), or all (reviewer Q2 comparison)")
+    parser.add_argument('--probe-mlp-layers', default='1',
+                        help="Comma-separated MLP hidden-layer depths to sweep (e.g. '1,2,5'). Each depth k uses hidden_layer_sizes=(64,)*k. Emits r2_delta_mlp_k{k} fields.")
+    parser.add_argument('--save-best-encoder', action='store_true',
+                        help="When --early-stopping is set, also persist best_state to {results_dir}/best_encoder.pt for future re-probing.")
+    parser.add_argument('--deterministic', action='store_true',
+                        help="Enable deterministic training: fixed seeds for DataLoader workers, PYTHONHASHSEED, and torch.use_deterministic_algorithms(True, warn_only=True).")
     args = parser.parse_args()
 
     # Patch uni2ts for MPS compatibility before any model loading
     if args.device == 'mps' or (args.device == 'auto' and torch.backends.mps.is_available()):
         _patch_packed_scaler_for_mps()
+
+    if args.deterministic:
+        import os, random as _random
+        os.environ['PYTHONHASHSEED'] = str(args.seed)
+        os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
+        _random.seed(args.seed)
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        if torch.backends.mps.is_available():
+            torch.mps.manual_seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.seed)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
 
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
@@ -752,7 +797,12 @@ def main():
         torch.from_numpy(y_train).float(),
         torch.from_numpy(train_labels).long()
     )
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
+    _dl_generator = torch.Generator()
+    _dl_generator.manual_seed(args.seed)
+    train_loader = DataLoader(
+        train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True,
+        generator=_dl_generator if args.deterministic else None,
+    )
 
     # Setup optimizer
     freeze_encoder = (args.condition == 'D')
@@ -769,11 +819,24 @@ def main():
         )
 
     if freeze_encoder:
-        # Freeze encoder weights
         encoder = model.module.encoder if not hasattr(model.module, 'base_model') else model.module.base_model.model.encoder
-        for param in encoder.parameters():
-            param.requires_grad = False
-        logger.info("Encoder frozen — only head parameters will be updated")
+        n_top = getattr(args, 'unfreeze_top_n_layers', 0)
+        if n_top > 0:
+            n_layers = len(encoder.layers)
+            unfreeze_from = n_layers - n_top
+            for name, param in encoder.named_parameters():
+                if 'layers.' in name:
+                    layer_idx = int(name.split('layers.')[1].split('.')[0])
+                    param.requires_grad = (layer_idx >= unfreeze_from)
+                else:
+                    param.requires_grad = False
+            n_frozen = sum(1 for p in encoder.parameters() if not p.requires_grad)
+            n_total = sum(1 for p in encoder.parameters())
+            logger.info(f"Partial freeze: {n_frozen}/{n_total} encoder params frozen, top {n_top} layers trainable")
+        else:
+            for param in encoder.parameters():
+                param.requires_grad = False
+            logger.info("Encoder frozen — only head parameters will be updated")
 
     trainable_params = [p for p in model.parameters() if p.requires_grad]
     logger.info(f"Trainable parameters: {sum(p.numel() for p in trainable_params):,}")
@@ -825,6 +888,12 @@ def main():
     logger.info(f"\nStarting training for {args.epochs} epochs...")
     logger.info(f"{'Epoch':>6} {'NLL':>8} {'Cont':>8} {'MSE':>8} {'CKA':>6} {'Drift':>8}")
     logger.info("-" * 52)
+
+    best_val_mse = float('inf')
+    best_epoch = 0
+    best_state = None
+    if args.early_stopping:
+        logger.info("Early stopping enabled: will restore best-val-MSE checkpoint before final eval.")
 
     for epoch in range(1, args.epochs + 1):
         t0 = time.time()
@@ -878,20 +947,70 @@ def main():
             elapsed = time.time() - t0
             logger.info(f"{epoch:>6d} {train_metrics['nll']:>8.4f} {train_metrics['contrastive']:>8.4f} "
                        f"{val_metrics['mse']:>8.4f} {cka:>6.3f} {drift:>8.2f}  ({elapsed:.1f}s)")
+
+            if args.early_stopping and val_metrics['mse'] < best_val_mse:
+                best_val_mse = val_metrics['mse']
+                best_epoch = epoch
+                best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
         else:
             history['val_mse'].append(None)
             history['val_mae'].append(None)
             history['cka'].append(None)
             history['weight_drift'].append(None)
 
-    # Final test evaluation
+    # Capture final-epoch metrics before any early-stopping restore (for honest reporting).
+    final_epoch_val_mse = history['val_mse'][-1]
+    final_epoch_cka = history['cka'][-1]
+    final_epoch_drift = history['weight_drift'][-1]
+    final_epoch_forgetting = (final_epoch_val_mse - zeroshot_metrics['mse']) / zeroshot_metrics['mse'] * 100
+
+    # If early stopping is enabled, restore encoder weights to best-val-MSE checkpoint.
+    early_stopping_info = {'enabled': bool(args.early_stopping)}
+    if args.early_stopping and best_state is not None:
+        logger.info(f"Restoring best-val-MSE checkpoint: epoch {best_epoch}, val_mse={best_val_mse:.6f}")
+        device_state = {k: v.to(args.device) for k, v in best_state.items()}
+        model.load_state_dict(device_state)
+        # Recompute CKA and drift against the restored state for the "final" history slot.
+        restored_reps = extract_representations(model, X_val_eval_t, None, device=args.device)
+        if len(pretrained_reps) > 0 and len(restored_reps) > 0:
+            n = min(len(pretrained_reps), len(restored_reps))
+            restored_cka = linear_CKA(pretrained_reps[:n], restored_reps[:n])
+        else:
+            restored_cka = 0.0
+        restored_drift = compute_weight_drift(model, pretrained_params)
+        restored_val_metrics = evaluate_forecasting(
+            model, X_val_eval_t, y_val_eval_sub, train_mean, train_std,
+            horizon, device=args.device
+        )
+        history['val_mse'][-1] = restored_val_metrics['mse']
+        history['val_mae'][-1] = restored_val_metrics['mae']
+        history['cka'][-1] = restored_cka
+        history['weight_drift'][-1] = restored_drift
+        early_stopping_info.update({
+            'best_epoch': int(best_epoch),
+            'best_val_mse': float(best_val_mse),
+            'restored_val_mse': float(restored_val_metrics['mse']),
+            'restored_cka': float(restored_cka),
+            'restored_weight_drift': float(restored_drift),
+            'final_epoch_val_mse': float(final_epoch_val_mse),
+            'final_epoch_cka': float(final_epoch_cka),
+            'final_epoch_weight_drift': float(final_epoch_drift),
+            'final_epoch_forgetting_pct': float(final_epoch_forgetting),
+        })
+        if args.save_best_encoder:
+            enc_path = Path(args.results_dir) / 'best_encoder.pt'
+            torch.save(best_state, enc_path)
+            early_stopping_info['best_encoder_path'] = str(enc_path)
+            logger.info(f"Saved best-val-MSE encoder to {enc_path}")
+
+    # Final test evaluation (on possibly-restored weights).
     X_test_eval_t = torch.from_numpy(X_test_eval[:eval_limit]).float()
     test_metrics = evaluate_forecasting(
         model, X_test_eval_t, y_test_eval_raw[:eval_limit], train_mean, train_std,
         horizon, device=args.device
     )
 
-    # Compute forgetting metric
+    # Compute forgetting metric (using current history slot — restored if ES, else final-epoch).
     forgetting = (history['val_mse'][-1] - zeroshot_metrics['mse']) / zeroshot_metrics['mse'] * 100
 
     # Linear probing: functional measure of feature preservation
@@ -943,15 +1062,31 @@ def main():
                        f"finetuned R²={probe_results['finetuned_r2']:.4f}, "
                        f"Δ={probe_results['r2_delta']:+.4f}")
             if args.probe_type in ('mlp', 'both', 'all'):
-                probe_results['pretrained_r2_mlp'] = linear_probe_r2(
-                    pt_reps_train, pt_reps_val, y_probe_train, y_probe_val, probe_type='mlp')
-                probe_results['finetuned_r2_mlp'] = linear_probe_r2(
-                    ft_reps_train, ft_reps_val, y_probe_train, y_probe_val, probe_type='mlp')
-                probe_results['r2_delta_mlp'] = (
-                    probe_results['finetuned_r2_mlp'] - probe_results['pretrained_r2_mlp'])
-                logger.info(f"Linear probe (mlp): pretrained R²={probe_results['pretrained_r2_mlp']:.4f}, "
-                           f"finetuned R²={probe_results['finetuned_r2_mlp']:.4f}, "
-                           f"Δ={probe_results['r2_delta_mlp']:+.4f}")
+                try:
+                    probe_depths = [int(k) for k in str(args.probe_mlp_layers).split(',') if k.strip()]
+                except Exception:
+                    probe_depths = [1]
+                if not probe_depths:
+                    probe_depths = [1]
+                # First depth becomes the "default" MLP result for backward compat.
+                for idx, k_depth in enumerate(probe_depths):
+                    pt_r2 = linear_probe_r2(
+                        pt_reps_train, pt_reps_val, y_probe_train, y_probe_val,
+                        probe_type='mlp', mlp_layers=k_depth)
+                    ft_r2 = linear_probe_r2(
+                        ft_reps_train, ft_reps_val, y_probe_train, y_probe_val,
+                        probe_type='mlp', mlp_layers=k_depth)
+                    d_r2 = ft_r2 - pt_r2
+                    probe_results[f'pretrained_r2_mlp_k{k_depth}'] = pt_r2
+                    probe_results[f'finetuned_r2_mlp_k{k_depth}'] = ft_r2
+                    probe_results[f'r2_delta_mlp_k{k_depth}'] = d_r2
+                    if idx == 0:
+                        probe_results['pretrained_r2_mlp'] = pt_r2
+                        probe_results['finetuned_r2_mlp'] = ft_r2
+                        probe_results['r2_delta_mlp'] = d_r2
+                    logger.info(
+                        f"Linear probe (mlp k={k_depth}): pretrained R²={pt_r2:.4f}, "
+                        f"finetuned R²={ft_r2:.4f}, Δ={d_r2:+.4f}")
             if args.probe_type in ('linear_forecaster', 'all'):
                 # Re-extract sequence-level reps for linear-forecaster probe (reviewer Q2).
                 ft_reps_train_seq = extract_representations(
@@ -1009,6 +1144,7 @@ def main():
         'final_cka': history['cka'][-1],
         'final_weight_drift': history['weight_drift'][-1],
         'forgetting_pct': forgetting,
+        'early_stopping': early_stopping_info,
         'linear_probe': probe_results,
         'history': history,
     }
@@ -1026,6 +1162,8 @@ def main():
     logger.info(f"Forgetting:     {forgetting:+.1f}%")
     logger.info(f"Final CKA:      {history['cka'][-1]:.3f}")
     logger.info(f"Weight drift:   {history['weight_drift'][-1]:.2f}")
+    if args.early_stopping:
+        logger.info(f"[ES] Best epoch: {best_epoch}  (final-epoch forg.={final_epoch_forgetting:+.1f}%)")
     if probe_results:
         logger.info(f"Probe R² (PT):  {probe_results.get('pretrained_r2', 'N/A')}")
         logger.info(f"Probe R² (FT):  {probe_results.get('finetuned_r2', 'N/A')}")
