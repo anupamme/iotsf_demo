@@ -1,0 +1,28 @@
+{
+  "encoder_dir": "/Users/mediratta/code/iotsf_demo/results/v21_etth1_n10k/seed777",
+  "zero_shot": false,
+  "data_path": "/Users/mediratta/code/iotsf_demo/data/forecasting/ETTh1.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "mlp"
+  ],
+  "head_types": [
+    "forecast96"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "gbm_depth": 6,
+  "results": {
+    "forecast96": {
+      "mlp_k1": -25.015082781679958,
+      "mlp_k2": -18.79626576930266,
+      "mlp_k5": -11.852061294353515
+    }
+  }
+}

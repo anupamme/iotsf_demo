@@ -252,6 +252,52 @@ class ElectricityLoader(ETTh1Loader):
         return super().get_splits(train_ratio, val_ratio, test_ratio)
 
 
+class TrafficLoader(ETTh1Loader):
+    """
+    Loader for the LTSF-Linear Traffic benchmark (PEMS-BAY, 862 sensors).
+
+    862 hourly series over 17,544 timesteps; last column is the target (OT).
+    Uses univariate (S) mode by default for the ZS gate check.
+    Column layout: date + 862 numeric sensor columns, last named OT.
+    """
+
+    # Traffic has 862 sensor columns; only OT (last) is needed for the gate check.
+    # Column names are auto-detected from the CSV header at load time.
+    FEATURE_COLUMNS = None  # overridden in __init__
+
+    def __init__(self, data_path: str, **kwargs):
+        self.data_path = Path(data_path)
+        self.lookback_window = kwargs.get('lookback_window', 96)
+        self.forecast_horizon = kwargs.get('forecast_horizon', 96)
+        self.features = kwargs.get('features', 'S')
+
+        if not self.data_path.exists():
+            raise FileNotFoundError(
+                f"Traffic data file not found at {self.data_path}. "
+                "Download from the LTSF-Linear benchmark: "
+                "https://github.com/thuml/LTSF-Linear"
+            )
+
+        self.data = pd.read_csv(data_path)
+        if 'date' in self.data.columns:
+            self.data['date'] = pd.to_datetime(self.data['date'])
+            self.data = self.data.set_index('date')
+
+        # Accept any column layout; use last column as OT target
+        if 'OT' not in self.data.columns:
+            self.data = self.data.rename(columns={self.data.columns[-1]: 'OT'})
+        self.FEATURE_COLUMNS = list(self.data.columns)
+        logger.info(f"Traffic loaded: {len(self.data)} timesteps, {len(self.FEATURE_COLUMNS)} features")
+
+    def get_splits(
+        self,
+        train_ratio: float = 0.7,
+        val_ratio: float = 0.1,
+        test_ratio: float = 0.2,
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        return super().get_splits(train_ratio, val_ratio, test_ratio)
+
+
 def get_forecasting_loader(data_path: str, **kwargs):
     """Factory: pick loader by filename stem."""
     stem = Path(data_path).stem.lower()
@@ -259,6 +305,8 @@ def get_forecasting_loader(data_path: str, **kwargs):
         return WeatherLoader(data_path, **kwargs)
     if stem.startswith('electricity'):
         return ElectricityLoader(data_path, **kwargs)
+    if stem.startswith('traffic'):
+        return TrafficLoader(data_path, **kwargs)
     return ETTh1Loader(data_path, **kwargs)
 
 

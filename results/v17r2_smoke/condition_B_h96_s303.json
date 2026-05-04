@@ -1,0 +1,96 @@
+{
+  "condition": "B",
+  "condition_name": "NLL-only",
+  "model_size": "small",
+  "horizon": 96,
+  "seed": 303,
+  "epochs": 2,
+  "max_train_samples": 2000,
+  "l2sp_weight": 0.0,
+  "ewc_lambda": 0.0,
+  "lora_rank": 0,
+  "zeroshot_mse": 0.12702907709787575,
+  "zeroshot_mae": 0.2319893522032714,
+  "final_val_mse": 0.11290038864963813,
+  "final_val_mae": 0.21863123302396142,
+  "test_mse": 0.38465180544541294,
+  "test_mae": 0.37996226736746963,
+  "final_cka": 0.9170263409614563,
+  "final_weight_drift": 2.560092875340463,
+  "forgetting_pct": -11.122405020191945,
+  "early_stopping": {
+    "enabled": true,
+    "best_epoch": 1,
+    "best_val_mse": 0.1127491627596139,
+    "restored_val_mse": 0.11290038864963813,
+    "restored_cka": 0.9170263409614563,
+    "restored_weight_drift": 2.560092875340463,
+    "final_epoch_val_mse": 0.11615570530823205,
+    "final_epoch_cka": 0.9461634159088135,
+    "final_epoch_weight_drift": 2.7711934845789528,
+    "final_epoch_forgetting_pct": -8.559750285571061,
+    "best_encoder_path": "results/v17r2_smoke/best_encoder.pt"
+  },
+  "linear_probe": {
+    "pretrained_r2": -6.904336535289182,
+    "finetuned_r2": -7.0022316655118235,
+    "r2_delta": -0.09789513022264185,
+    "pretrained_r2_mlp_k1": -8.481996612966858,
+    "finetuned_r2_mlp_k1": -7.942814401121875,
+    "r2_delta_mlp_k1": 0.5391822118449836,
+    "pretrained_r2_mlp": -8.481996612966858,
+    "finetuned_r2_mlp": -7.942814401121875,
+    "r2_delta_mlp": 0.5391822118449836,
+    "pretrained_r2_mlp_k2": -8.243753969846177,
+    "finetuned_r2_mlp_k2": -7.483490244726393,
+    "r2_delta_mlp_k2": 0.7602637251197839,
+    "pretrained_r2_mlp_k5": -6.932081717795178,
+    "finetuned_r2_mlp_k5": -6.9482681439692415,
+    "r2_delta_mlp_k5": -0.016186426174063406,
+    "pretrained_r2_lf": -5.938559511248687,
+    "finetuned_r2_lf": -5.936764920261691,
+    "r2_delta_lf": 0.0017945909869956367
+  },
+  "history": {
+    "train_nll": [
+      0.0,
+      12.684029457092285,
+      11.56284529876709
+    ],
+    "train_contrastive": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "train_total": [
+      0.0,
+      12.684029457092285,
+      11.56284529876709
+    ],
+    "val_mse": [
+      0.12702907709787575,
+      0.1127491627596139,
+      0.11290038864963813
+    ],
+    "val_mae": [
+      0.2319893522032714,
+      0.21836885876246384,
+      0.21863123302396142
+    ],
+    "cka": [
+      1.0,
+      0.9170263409614563,
+      0.9170263409614563
+    ],
+    "weight_drift": [
+      0.0,
+      2.560092875340463,
+      2.560092875340463
+    ],
+    "epoch": [
+      0,
+      1,
+      2
+    ]
+  }
+}

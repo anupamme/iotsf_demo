@@ -3,79 +3,63 @@
 \label{sec:method}
 % ============================================================
 
-This section describes the Moirai fine-tuning protocol shared by both
-the forecasting (Section~\ref{sec:forecasting}) and IoT
-(Section~\ref{sec:iot}) experiments.
-The IoT-specific hard-negative generation pipeline is described
-in Section~\ref{sec:experiments:setup}.
+This section describes the Moirai fine-tuning protocol used in the
+forecasting diagnosis (Section~\ref{sec:forecasting}) and the IoT
+negative-control evaluation (\S\ref{sec:analysis}).
 
-% --- Figure 1: Architecture ---
-\begin{figure}[t]
-  \centering
-  \input{figures/architecture.tikz}
-  \caption{
-    \ours{} architecture.
-    \textbf{Stage 1}: Closed-form perturbation generates hard-negative sequences
-    with a constraint-retry loop ensuring protocol validity
-    (Appendix~\ref{app:algorithm}).
-    \textbf{Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss.
-  }
-  \label{fig:architecture}
-\end{figure}
+\textbf{Moirai for forecasting and anomaly scoring.}
+Moirai~\cite{woo2024moirai} predicts a probabilistic distribution
+over a target horizon given a context window.  For ETT forecasting
+we report MSE on the median of 20 forecast samples at $h{=}96$ and
+$h{=}192$ (Appendix~\ref{app:moirai_median}).  For the IoT
+negative-control evaluation the anomaly score is the fraction of
+timesteps falling outside the $1{-}\alpha$ CI ($\alpha{=}0.05$) over
+a 32-timestep scored horizon.
 
-\textbf{Moirai for anomaly scoring.}
-Moirai~\cite{woo2024moirai} predicts a distribution over
-$\mathbf{X}_{97:128}$ given context $\mathbf{X}_{1:96}$.
-The anomaly score is the fraction of timesteps falling outside the
-$1{-}\alpha$ CI ($\alpha{=}0.05$):
-\begin{equation}
-  \hat{s}(\mathbf{X}) = \frac{1}{T'}\sum_{t=97}^{128}
-    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right],
-\end{equation}
-where $T' = 128 - 96 = 32$ is the scored-horizon length.
-A sample is classified as an attack if $\hat{s}(\mathbf{X}) > \delta$,
-where $\delta$ is calibrated on a benign validation set
-(Section~\ref{sec:experiments:setup}).
-
-\textbf{Combined training objective.}
-We fine-tune with:
-\begin{equation}
-  \label{eq:combined_loss}
-  \mathcal{L}(\theta) =
-    \mathcal{L}_{\text{NLL}}(\theta) +
-    \lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau),
-\end{equation}
-where $\lambda = 0.5$ and $\tau = 0.07$ (sensitivity in
-Appendix~\ref{app:hparams}; stable within $\pm$0.02 AUC).
-$\mathcal{L}_{\text{SupCon}}$~\cite{khosla2020supcon} is applied to
-L2-normalised embeddings from a projection head
-$h_\phi: \R^{384} \to \R^{256} \to \text{ReLU} \to \R^{128}$.
+\textbf{Fine-tuning objective.}
+Condition~B uses NLL only.  Condition~C adds a supervised contrastive
+term~\cite{khosla2020supcon}:
+$\mathcal{L}(\theta) = \mathcal{L}_{\text{NLL}}(\theta) +
+\lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau)$,
+with $\lambda = 0.5$ and $\tau = 0.07$.
+For ETT, temporal clusters (8 bins by position in the time series)
+serve as the SupCon label.
 
 \textbf{Training details.}
-AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$),
-batch size 32, up to 10 epochs (5 in the main ablation,
-10--20 in scaling experiments), early stopping (patience 3),
-gradient clipping at 1.0.
-All model sizes (Small 13.8M, Base 91M, Large 311M) use the same
+AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$), batch size 32,
+early stopping with patience 3, gradient clipping at 1.0.  ETT
+fine-tuning runs 20 epochs at $n{=}500$ (10 seeds) and is swept
+across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
+All Moirai sizes (Small 13.8M, Base 91M, Large 311M) use the same
 protocol.
 
-\textbf{uni2ts PackedStdScaler patch.}
-We identified and patched an in-place tensor mutation in \texttt{uni2ts}'s
-\texttt{PackedStdScaler} that silently detaches autograd on losses
-depending on scaled statistics; a differentiable \texttt{torch.where}
-replaces the in-place write.  All fine-tuning results here use the
-patched scaler (released with our code); unpatched \texttt{uni2ts}
-runs may converge differently.
+\textbf{uni2ts PackedStdScaler patch (reproducibility-critical).}
+We identified and patched an in-place tensor mutation in
+\texttt{uni2ts}'s \texttt{PackedStdScaler} that silently detaches
+autograd on losses depending on scaled statistics; a differentiable
+\texttt{torch.where} replaces the in-place write.  \emph{All}
+Moirai-fine-tuning results here use the patched scaler (released
+with our code); unpatched \texttt{uni2ts} runs may converge
+differently and we have observed silent non-convergence on
+\texttt{uni2ts@main}.  \textbf{Any Moirai-fine-tuning
+reproduction of this paper requires the patch}; we recommend
+upstreaming it to \texttt{uni2ts}.
 
 \textbf{Representation diagnostics.}
-We track representation drift with three complementary metrics:
+We track representation change with three complementary metrics:
 (1)~CKA (Centered Kernel Alignment)~\cite{kornblith2019cka} between
-pre-trained and fine-tuned encoder representations---a geometric
+pre-trained and fine-tuned encoder representations --- a geometric
 similarity measure;
-(2)~linear probing R$^2$ (Ridge regression on frozen representations
-predicting the forecasting target)---a \emph{functional} measure of
-feature preservation; and
+(2)~linear probing R$^2$ (Ridge, MLP, and Linear-Forecaster heads on
+frozen representations predicting the forecasting target) --- a
+\emph{relative linear-decodability} measure (we report
+$\Delta R^2{=}R^2(\text{FT}){-}R^2(\text{ZS})$; absolute
+$R^2(\text{FT})$ remains negative in our setting, so $\Delta R^2$
+quantifies relative improvement over the pre-trained linear
+decoding, not absolute linear encoding quality) of task-aligned
+information in the
+encoder; and
 (3)~weight drift ($\ell_2$ distance from pre-trained parameters).
 A random-initialisation CKA baseline ($<$0.001;
-Appendix~\ref{app:cka_calibration}) confirms our measurements are
-meaningful.
+Appendix~\ref{app:cka_calibration}) confirms our CKA measurements
+are meaningful.

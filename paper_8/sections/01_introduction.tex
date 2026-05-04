@@ -10,9 +10,6 @@ domain-specific tasks: anomaly detection, classification, or
 short-horizon forecasting with limited labelled data.  We present
 a Moirai case study on ETT forecasting benchmarks that characterises
 what happens to pre-trained representations during fine-tuning.
-We distinguish methodological contributions (backbone-agnostic: control
-designs, value-gate framework, LoRA recipe) from empirical findings
-(Moirai-ETT specific: sample-size regime taxonomy, per-seed $\Delta R^2{>}0$ invariant).
 
 \textbf{Representation drift during fine-tuning.}
 We provide systematic empirical characterization of \emph{representation
@@ -89,63 +86,28 @@ on Moirai--ETT rather than a universal law: the three observed regimes are
 empirical descriptions of what happens in specific (backbone, dataset,
 $n$) cells, not a predictive theory.
 
-\textbf{Contributions.}  We make three contributions:
+\textbf{Contributions.}  We distinguish three tiers:
+
 \begin{enumerate}
-  \item \textbf{A controlled case study of encoder representation dynamics
-    during Moirai fine-tuning on ETT, using the \emph{CKA-probe gap}.}
-    On Moirai-ETT specifically, we document the following.
-    Fine-tuning imposes a \emph{geometric cost} (CKA$\downarrow$: from
-    0.949 at $n{=}500$ to $\approx$0.52 at $n{=}10$k) whose task-level
-    consequences are sample-size and dataset dependent.  We document
-    three findings:
-
+  \item \textbf{Methodological contributions (backbone-agnostic).}
+    These contributions generalize beyond Moirai-ETT:
     \begin{itemize}
-      \item[(a)] \textbf{Three sample-size regimes on Moirai-Small$+$ETTh2,
-        with ETTh1/ETTm2 boundary cells.}
-        On ETTh2/ETTm2 at $n{=}10$k, CKA decay accompanies
-        $\Delta R^2{>}0$ on the trained head (10/10 CUDA seeds per
-        dataset; $\Delta R^2{\leq}0$ on untrained heads).
-        On ETTh1 at $n{=}10$k, forgetting resolves (10/10 negative)
-        but $\Delta R^2$ is 2/10 positive---a
-        \emph{task-improvement-without-decodability-gain} boundary case.
-        In the low-$n$ regime, drift causes forgetting
-        ($+$14\% at $n{=}500$, resolving by $n{=}2$k).
-
-      \item[(b)] \textbf{Probe-design robustness and head-specificity.}
-        Both $R^2(\text{ZS})$ and $R^2(\text{FT})$ remain negative;
-        the $\Delta R^2{>}0$ direction is robust across Ridge $\alpha$,
-        pooling, and probe seeds
-        (Appendix~\ref{app:noisefloor}).
-        On an untrained positive-floor head ($R^2(\text{PT}){=}{+}0.059$),
-        GBM gives $\Delta R^2{=}{-}0.056$: the gain is head-specific.
-
-      \item[(c)] \textbf{Layer-wise localization and unfreeze depth dissociation.}
-        Top-3 unfreeze (3/6 layers, 3 seeds) already gives
-        $\Delta R^2{>}0$ (3/3) with less drift (CKA$\approx$0.70) than
-        full unfreeze (CKA$\approx$0.48), localising the gain to the top
-        encoder layers.  $\Delta R^2$ and forgetting dissociate across
-        unfreeze depth: lower layers drive task recovery, not
-        the decodability shift toward the objective (Appendix~\ref{app:layerunfreeze}).
+      \item[(a)] \textbf{Value-gate framework.} A criterion (ZS advantage $>$20\% vs.\ Linear) for screening whether pre-trained features are worth preserving. IoT (sub-random ZS) validates the gate as a negative control.
+      \item[(b)] \textbf{LoRA-Large 10$\times$ LR rescue recipe.} Cross-dataset validated on ETTh1/ETTh2/ETTm2 (3-5 seeds each). Rank escalation does not rescue; LR reduction does.
+      \item[(c)] \textbf{Controlled-comparison design.} Frozen-encoder control (14$\times$ smaller $\Delta R^2$ than fine-tuned), random-init control (5 seeds, $\Delta R^2{=}{-}0.199{\pm}0.205$ vs.\ pre-trained $+0.668{\pm}0.226$), and layer-wise unfreeze (top 3 of 6 layers sufficient for $\Delta R^2{>}0$) isolate distinct confounds.
+      \item[(d)] \textbf{uni2ts PackedStdScaler patch.} Fixes silent autograd detachment in uni2ts library (reproducibility contribution).
     \end{itemize}
 
-  \item \textbf{Mitigation spectrum and LoRA-Large LR rescue.}
-    We evaluate standard mitigations---LoRA, EWC, L2-SP, and encoder
-    freezing---alongside unconstrained fine-tuning.  LoRA on
-    Moirai-Small achieves the best trade-off (CKA$\approx$0.98); the
-    same recipe fails on Moirai-Large at default LR, and rank
-    escalation does not rescue.  A $10{\times}$ LR reduction to
-    $10^{-5}$ \emph{does} rescue LoRA-Large (forg.$=-8.5{\pm}0.7$\%,
-    5~seeds) --- a concrete practitioner recipe not previously reported.
+  \item \textbf{Empirical findings (Moirai-ETT specific).}
+    These findings stand for Moirai-ETT but require replication to claim universality:
+    \begin{itemize}
+      \item[(a)] \textbf{Cost--benefit gap.} Fine-tuning imposes geometric cost (CKA drops from 0.949 at $n{=}500$ to $\approx$0.52 at $n{=}10$k) while producing task-aligned functional benefit ($\Delta R^2{>}0$ on trained head in 10/10 seeds on ETTh2/ETTm2; $\Delta R^2{\leq}0$ on untrained heads).
+      \item[(b)] \textbf{Three-regime descriptive taxonomy.} Low-$n$ forgetting ($+$14\% at $n{=}500$), high-$n$ improvement (ETTh2/ETTm2 at $n{=}10$k), and boundary case (ETTh1: task resolves but $\Delta R^2$ is 2/10 positive).
+      \item[(c)] \textbf{Per-seed $\Delta R^2{>}0$ invariant.} On ETTh2/ETTm2 at $n{=}10$k, 10/10 CUDA seeds per dataset show $\Delta R^2{>}0$ on the trained head (protocol-robust). Forgetting sign is protocol-dependent.
+    \end{itemize}
 
-  \item \textbf{Nine-of-nine backbone$\times$dataset gate-failure
-    pattern.}  Chronos-T5-Small/Base/Large, TimesFM-2.5-200M, and
-    MOMENT-1-base gate-fail on every ETT$\times$backbone cell we ran
-    (9 total, $-$14\% to $-$148\% vs.\ Linear); the Chronos
-    capacity sweep (Small/Base/Large) confirms the gap is
-    size-invariant.  A substantive finding about ETT-family
-    distributions lying outside the pre-training coverage of these
-    backbones, and a methodological caution for cross-backbone
-    replication studies in this regime
+  \item \textbf{Negative result (ETT-specific, backbone-independent).}
+    Five non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM-2.5, MOMENT-base) gate-fail on all nine ETT$\times$backbone cells tested ($-$14\% to $-$148\% vs.\ Linear). The Chronos capacity sweep confirms the gap is size-invariant. This is a substantive finding about ETT-family distributions lying outside the pre-training coverage of these backbones, independent of whether the Moirai-ETT dissociation generalizes
     (Appendix~\ref{app:limitations}).
 \end{enumerate}
 Code and datasets will be released upon acceptance.  We also

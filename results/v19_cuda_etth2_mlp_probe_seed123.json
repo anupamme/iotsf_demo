@@ -1,0 +1,27 @@
+{
+  "encoder_dir": "results/v19_cuda_etth2_n10k/seed123",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "mlp"
+  ],
+  "head_types": [
+    "forecast96",
+    "delta1"
+  ],
+  "mlp_layers": [
+    5
+  ],
+  "results": {
+    "forecast96": {
+      "mlp_k5": -5.9838717847004395
+    },
+    "delta1": {
+      "mlp_k5": 0.0032282991348947204
+    }
+  }
+}

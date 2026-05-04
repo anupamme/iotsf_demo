@@ -81,8 +81,9 @@ cross-dataset validated on ETTh1/ETTh2/ETTm2, controlled-comparison designs,
 and a uni2ts PackedStdScaler patch) from empirical findings
 (Moirai-ETT specific: the three-regime taxonomy, per-seed $\Delta R^2{>}0$
 invariant on ETTh2/ETTm2).
-Nine non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM, MOMENT-base)
-gate-fail on ETT (ZS $<$20\% over Linear), a finding about ETT coverage in
+Five non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM-2.5, MOMENT-base)
+tested across nine ETT$\times$backbone cells all gate-fail
+(ZS $<$20\% over Linear), a finding about ETT coverage in
 their pre-training corpora independent of the Moirai-specific results.
 \textbf{Practitioner takeaway:} Use LoRA as default for Moirai adaptation;
 on Moirai-Large, reduce LR by 10$\times$ before escalating rank.
