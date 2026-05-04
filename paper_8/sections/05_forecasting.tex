@@ -288,7 +288,14 @@ on the same data, so the frozen-encoder $\Delta R^2$ is $14{\times}$ smaller
 in magnitude, confirming the decodability gain is caused by encoder weight
 updates specifically, not by the training regime or data distribution.
 A top-3-layer partial-unfreeze already reproduces $\Delta R^2{>}0$ (3/3 seeds,
-Appendix~\ref{app:layerunfreeze}), localising the gain to the top encoder layers.
+Appendix~\ref{app:layerunfreeze}), localising the gain to weight updates in the
+top encoder layers specifically.
+The \emph{parameterisation} of the update also matters: LoRA achieves
+CKA$\approx$0.98 with task improvement, while top-3 full-layer unfreeze
+achieves CKA$\approx$0.70 with slight forgetting ($+$1.3\%), suggesting
+that low-rank weight changes preserve geometric similarity far more
+effectively than full-rank updates to a subset of layers
+(Appendix~\ref{app:layerunfreeze}).
 Whether the trade-off is favourable depends on the practitioner's
 use case: at $n{\geq}2$k on ETTh2 the fine-tuned encoder achieves
 better task MSE (forgetting resolves); in the low-data regime,

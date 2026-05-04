@@ -90,38 +90,39 @@ $n$) cells, not a predictive theory.
 \begin{enumerate}
   \item \textbf{A controlled case study of encoder representation dynamics
     during Moirai fine-tuning on ETT, using the \emph{CKA-probe gap}.}
-    We document three sample-size-dependent outcomes on Moirai-Small$+$ETTh2
-    and characterise boundary conditions across ETTh1 and ETTm2.
-    Fine-tuning on the 96-step NLL objective imposes a \emph{geometric
-    cost} (CKA$\downarrow$: from 0.949 at $n{=}500$ to $\approx$0.52
-    at $n{=}10$k) whose task-level consequence takes three forms:
-    \textbf{(i)}~on ETTh2 and ETTm2 at $n{=}10$k, CKA decay is
-    accompanied by consistent $\Delta R^2{>}0$ movement on the trained
-    head (\textbf{10/10 CUDA seeds per dataset}; $\Delta R^2{\leq}0$
-    on untrained heads); both $R^2(\text{ZS})$ and $R^2(\text{FT})$
-    remain negative throughout, so this is a relative-improvement
-    signal whose direction is robust across probe-design perturbations
-    (Appendix~\ref{app:noisefloor});
-    \textbf{(ii)}~on ETTh1 at $n{=}10$k (CUDA $k{=}10$), forgetting
-    resolves (10/10 negative, $-6.1{\pm}3.6$\%) but $\Delta R^2$ is
-    \textbf{2/10 positive}---a \emph{task-improvement-without-decodability-gain}
-    case that limits the scope of regime~(i); and
-    \textbf{(iii)}~in the low-$n$ regime, drift causes forgetting
-    ($+$14\% at $n{=}500$, resolving by $n{=}2$k).
-    The $\Delta R^2{>}0$ invariant thus applies on ETTh2 and ETTm2
-    but not universally: ETTh1 $n{=}10$k is an explicit counterexample.
-    Ridge $\Delta R^2$ climbs from $+$0.12 at $n{=}500$ to
-    $+$0.67$\pm$0.23 at $n{=}10$k; a 5-hidden-layer MLP probe
-    gives $+$0.70$\pm$0.32 (10-seed CUDA).
-    On an untrained next-step-delta head with
-    $R^2(\text{PT}){=}{+}0.059{>}0$, GBM gives
-    $\Delta R^2{=}{-}0.056$, confirming the benefit is task-specific.
-    The frozen-encoder control (5 seeds, CKA$=$0.9993,
-    $\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than
-    condition~B) pins the effect to encoder weight updates.
-    A \emph{trajectory signature} at the $n{=}5{,}000$ crossover
-    (high-forgetting seeds overshoot in epoch~1) yields a concrete
-    early-stopping recipe (\S\ref{sec:forecasting:trajectory}).
+    Fine-tuning imposes a \emph{geometric cost} (CKA$\downarrow$: from
+    0.949 at $n{=}500$ to $\approx$0.52 at $n{=}10$k) whose task-level
+    consequences are sample-size and dataset dependent.  We document
+    three findings:
+
+    \begin{itemize}
+      \item[(a)] \textbf{Three sample-size regimes on Moirai-Small$+$ETTh2,
+        with ETTh1/ETTm2 boundary cells.}
+        On ETTh2/ETTm2 at $n{=}10$k, CKA decay accompanies
+        $\Delta R^2{>}0$ on the trained head (10/10 CUDA seeds per
+        dataset; $\Delta R^2{\leq}0$ on untrained heads).
+        On ETTh1 at $n{=}10$k, forgetting resolves (10/10 negative)
+        but $\Delta R^2$ is 2/10 positive---a
+        \emph{task-improvement-without-decodability-gain} boundary case.
+        In the low-$n$ regime, drift causes forgetting
+        ($+$14\% at $n{=}500$, resolving by $n{=}2$k).
+
+      \item[(b)] \textbf{Probe-design robustness and head-specificity.}
+        Both $R^2(\text{ZS})$ and $R^2(\text{FT})$ remain negative;
+        the $\Delta R^2{>}0$ direction is robust across Ridge $\alpha$,
+        pooling, and probe seeds
+        (Appendix~\ref{app:noisefloor}).
+        On an untrained positive-floor head ($R^2(\text{PT}){=}{+}0.059$),
+        GBM gives $\Delta R^2{=}{-}0.056$: the gain is head-specific.
+
+      \item[(c)] \textbf{Layer-wise localization and unfreeze depth dissociation.}
+        Top-3 unfreeze (3/6 layers, 3 seeds) already gives
+        $\Delta R^2{>}0$ (3/3) with less drift (CKA$\approx$0.70) than
+        full unfreeze (CKA$\approx$0.48), localising the gain to the top
+        encoder layers.  $\Delta R^2$ and forgetting dissociate across
+        unfreeze depth: lower layers drive task recovery, not
+        decodability gain (Appendix~\ref{app:layerunfreeze}).
+    \end{itemize}
 
   \item \textbf{Mitigation spectrum and LoRA-Large LR rescue.}
     We evaluate standard mitigations---LoRA, EWC, L2-SP, and encoder

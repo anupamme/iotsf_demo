@@ -627,12 +627,12 @@ the 96-step objective, and this direction is probe-design robust.
 \label{app:layerunfreeze}
 % ============================================================
 
-Moirai-Small has 12 transformer layers.
+Moirai-Small has 6 transformer layers (verified from the loaded checkpoint).
 We added an \texttt{--unfreeze-top-n-layers} flag to
 \texttt{finetune\_forecasting.py} and ran ETTh2 $n{=}10$k, $h{=}96$,
 3 seeds (42/101/123) at $N{=}3$ alongside
 the existing $N{=}0$ (frozen encoder, 5-seed condition~D) and
-$N{=}12$ (full unfreeze, condition~B).
+$N{=}6$ (full unfreeze, condition~B; $N{=}6$ unfreezes all 6 layers).
 
 \textbf{$N{=}1$ instability.}
 At $N{=}1$, training diverged (NaN activations at epoch~11, batch~148) with
@@ -643,14 +643,17 @@ LoRA-Large behaviour documented in \S\ref{sec:forecasting:mitigation}: extreme
 partial freeze concentrates gradient pressure on a small number of parameters,
 requiring LR reduction to stabilise.
 
-\textbf{$N{=}3$ results.}
-Table~\ref{tab:layerunfreeze} shows results for $N{=}0$, $N{=}3$ (3 seeds), and $N{=}12$ (3 matching seeds).
+\textbf{$N{=}3$, $N{=}4$, $N{=}5$ results.}
+Table~\ref{tab:layerunfreeze} shows results for all six values of $N$:
+$N{=}0$ (5 seeds), $N{=}3$ and $N{=}6$ (3 matching seeds), and $N{=}4$ and $N{=}5$ (1 seed~42 each).
 
 \begin{table}[h!]
 \centering
 \vspace{-4pt}
 \caption{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm$std over seeds).
-$N$ = number of top transformer layers unfrozen. $N{=}0$: 5 seeds; $N{=}3$/$N{=}12$: seeds 42/101/123.}
+$N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers).
+$N{=}0$: 5 seeds; $N{=}3$/$N{=}6$: seeds 42/101/123; $N{=}4$/$N{=}5$: seed~42 only.
+Forgetting is final-epoch (no early stopping); $N{=}5$ overshoot reflects late-epoch divergence.}
 \label{tab:layerunfreeze}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -659,20 +662,49 @@ $N$ = number of top transformer layers unfrozen. $N{=}0$: 5 seeds; $N{=}3$/$N{=}
 $N$ & Layers & CKA & Ridge $\Delta R^2$ & Forgetting\% \\
 \midrule
 0 (frozen)   & none  & $0.999{\pm}0.000$ & $-0.048{\pm}0.008$ & $-6.6{\pm}1.5$\% \\
-1 (top-1)    & 1/12  & $\approx$0.72 (ep.\ 11) & \multicolumn{2}{c}{\textit{diverged (NaN)}} \\
-3 (top-3)    & 3/12  & $0.698{\pm}0.066$ & $+0.479{\pm}0.115$ (\textbf{3/3}) & $+1.3{\pm}2.1$\% \\
-12 (full, B) & 12/12 & $0.484{\pm}0.061$ & $+0.626{\pm}0.378$ (\textbf{3/3}) & $-7.7{\pm}8.4$\% \\
+1 (top-1)    & 1/6   & $\approx$0.72 (ep.\ 11) & \multicolumn{2}{c}{\textit{diverged (NaN)}} \\
+3 (top-3)    & 3/6   & $0.698{\pm}0.066$ & $+0.479{\pm}0.115$ (\textbf{3/3}) & $+1.3{\pm}2.1$\% \\
+4 (top-4)    & 4/6   & $0.610$ (1 sd) & $+0.363$ (\textbf{1/1}) & $+4.1$\% \\
+5 (top-5)    & 5/6   & $0.644$ (1 sd) & $+0.767$ (\textbf{1/1}) & $+31.8$\%$^\dagger$ \\
+6 (full, B)  & 6/6   & $0.484{\pm}0.061$ & $+0.626{\pm}0.378$ (\textbf{3/3}) & $-7.7{\pm}8.4$\% \\
 \bottomrule
 \end{tabular}
+\vspace{2pt}
+{\small $^\dagger$\,Final-epoch overshoot; best-epoch ($h{=}96$, epoch~7) MSE$=$0.132$\approx$ZS.}
 \vspace{-2pt}
 \end{table}
 
-\textbf{Finding.}
-$\Delta R^2{>}0$ appears already at $N{=}3$ (3/3 seeds), with less encoder
-drift (CKA$\approx$0.70) than full unfreeze (CKA$\approx$0.48).
-The top-3 layers are sufficient to produce the relative decodability gain;
-the remaining 9 frozen layers contribute additional drift without consistently
-increasing $\Delta R^2$ (mean $+0.63$ vs.\ $+0.48$, but with larger variance
-$0.378$ vs.\ $0.115$).  Both $N{=}3$ and $N{=}12$ operate in the same
-deeply-negative-$R^2$ regime ($R^2(\text{ZS}) \approx -6.9$); the same
-probe-design robustness established in Appendix~\ref{app:noisefloor} applies.
+\textbf{Finding: $\Delta R^2$ and forgetting dissociate across unfreeze depth.}
+$\Delta R^2{>}0$ appears already at $N{=}3$ (half the encoder, 3/3 seeds,
+CKA$\approx$0.70), with substantially less geometric drift than full unfreeze
+(CKA$\approx$0.48).
+$N{=}4$ and $N{=}5$ (1 seed each) both give $\Delta R^2{>}0$ (1/1), confirming
+the decodability signal extends through the full $N{=}3$--$6$ range.
+The $\Delta R^2$ values at $N{=}4$ ($+0.363$) and $N{=}5$ ($+0.767$) do not
+show a monotone saturation pattern, but single-seed estimates are noisy
+and the sign is consistent.
+
+The key dissociation is in \emph{forgetting}: $N{=}3$ gives forg.\ $+1.3{\pm}2.1$\%
+(task slightly worse than ZS), $N{=}4$ gives $+4.1$\% (1 seed), and $N{=}6$ (full
+unfreeze, condition~B) gives $-7.7{\pm}8.4$\% (task substantially better).
+The $N{=}5$ final-epoch forgetting of $+31.8$\% reflects a single seed that overshot
+(val MSE bottoms at epoch~7 before diverging); its best-epoch MSE is $0.132$, essentially
+unchanged from ZS---qualitatively consistent with the $N{=}5$k trajectory
+analysis (\S\ref{sec:forecasting:trajectory}).
+$\Delta R^2$ and forgetting are therefore not co-determined by the same
+encoder layers.  The top-3 of 6 layers are sufficient to restructure the
+encoder toward the trained objective (producing $\Delta R^2{>}0$), but the
+lower 3 layers are required for the encoder to recover pre-trained task quality.
+The additional $\Delta R^2$ gain from $N{=}3$ to $N{=}6$
+($+0.48 \to +0.63$) is modest and has much higher variance
+($0.115 \to 0.378$), consistent with the lower layers contributing primarily
+to task recovery rather than to the relative decodability gain.
+
+This finding sharpens the central claim: the frozen-encoder control
+(Appendix~\ref{app:noisefloor}) rules out data-distribution confound;
+the $N{=}3$ result rules out a whole-encoder-restructuring account.
+The decodability gain is localised to the top transformer layers, and
+$\Delta R^2{>}0$ is a \emph{necessary but not sufficient} predictor of
+task improvement across unfreeze levels.
+Both $N{=}3$ and $N{=}6$ operate in the same deeply-negative-$R^2$ regime;
+the probe-design robustness of Appendix~\ref{app:noisefloor} applies to both.

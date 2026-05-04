@@ -125,20 +125,13 @@ finds no robust $\Delta R^2{>}0$ signal and MLP probes are inconclusive.
 
 \textbf{Is there a pre-specifiable predictor for which pattern occurs?}
 The trend-vs.-cycle distinction (ETTh1: trend-dominated;
-ETTh2/ETTm2: more cyclical) is one candidate but is not pre-specified
-and has not been formally tested here.
-Spectral entropy of the target series, the Hurst exponent, or the
-depth of the ZS Ridge floor are measurable proxies.
-An informal post-hoc pilot on the OT column gives:
-ETTh1 spectral entropy $=2.39$, Hurst $H=0.84$;
-ETTh2 and ETTm2 both give spectral entropy $\approx1.76$, $H\approx0.79$ ---
-consistent with ETTh1 being more trend-dominated, though this is post-hoc
-and not pre-specified; a formal pre-registered test is future work.
-ETTh1 ($R^2(\text{ZS})\approx{-}25$) and ETTm2 ($R^2(\text{ZS})\approx{-}25$)
-have similar deep floors but give opposite $\Delta R^2$ signs at $n{=}10$k,
-ruling out floor depth as a predictor;
-ETTh2's shallower floor ($\approx{-}7$) does not separate the patterns either,
-so the floor alone is not predictive.
+ETTh2/ETTm2: more cyclical) is one candidate; spectral entropy or the
+Hurst exponent are measurable proxies.
+However, this distinction is not pre-specified here and has not been
+formally tested.  ETTh1 and ETTm2 have similar deep ZS Ridge floors
+($R^2(\text{ZS})\approx{-}25$) yet give opposite $\Delta R^2$ signs,
+ruling out floor depth as a predictor on its own.
+A pre-registered test on held-out datasets is future work.
 
 \textbf{Cross-domain envelope.}
 Table~\ref{tab:cross_domain} spans six settings: ETT drift
