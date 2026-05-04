@@ -1,0 +1,40 @@
+% ============================================================
+\section{Background and Problem Setup}
+\label{sec:background}
+% ============================================================
+
+\textbf{Catastrophic forgetting in fine-tuning.}
+Catastrophic forgetting during fine-tuning is extensively studied in continual
+learning~\cite{kirkpatrick2017ewc, li2017lwf} and
+NLP~\cite{luo2024forgetting}. Kumar et al.~\cite{kumar2022finetuning} show
+full fine-tuning can distort pre-trained features relative to linear probing;
+Andreassen et al.~\cite{andreassen2023evolution} characterize OOD robustness
+decay throughout fine-tuning. Our contribution is a systematic
+\emph{characterization} for time-series foundation models: CKA, linear
+probing, weight drift, and frozen-encoder controls across domains with
+contrasting pre-training value.
+
+\textbf{Setting.}
+Given a pre-trained time-series foundation model with encoder
+$f_\theta: \R^{T \times F} \to \R^d$ and downstream dataset
+$\mathcal{D}$ of size $n$, fine-tuning produces updated parameters
+$\theta'$ by minimising a task loss (NLL for forecasting).  We measure
+encoder changes using three diagnostics (\S\ref{sec:method}):
+(1)~CKA between $f_\theta$ and $f_{\theta'}$ (geometric similarity),
+(2)~linear probe $R^2$ onto the downstream target
+($\Delta R^2 {=} R^2(\text{FT}){-}R^2(\text{ZS})$), and
+(3)~weight drift $\|\theta' - \theta\|_2$.
+
+\textbf{Pre-training value gate.}
+Studying whether fine-tuning destroys valuable features requires a domain
+where such features are demonstrably present.  We set the gate at zero-shot
+MSE 20\% below a Linear baseline; ETTh1/ETTh2/ETTm2 at $h{=}96$ pass with
+Moirai-Small.  Domains that gate-fail serve as negative controls.
+
+\textbf{Task-level consequence: forgetting.}
+We define forgetting as signed relative change in zero-shot-canonical
+task metric on held-out test:
+$\text{forg.\%} = 100 \cdot (M_{\text{FT}} - M_{\text{ZS}}) /
+|M_{\text{ZS}}|$ (MSE for forecasting, so positive = worse).
+Forg.$>0$ indicates catastrophic forgetting (degraded performance vs.\
+pre-training baseline).

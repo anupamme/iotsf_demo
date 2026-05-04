@@ -90,6 +90,23 @@ recovers discrimination, consistent with recipe generalisation, not
 representation transfer).
 
 % ============================================================
+\section{uni2ts PackedStdScaler Patch Details}
+\label{app:scaler_patch}
+% ============================================================
+
+We identified and patched an in-place tensor mutation in
+\texttt{uni2ts}'s \texttt{PackedStdScaler} that silently detaches
+autograd on losses depending on scaled statistics.  The issue arises
+when \texttt{PackedStdScaler.transform} performs an in-place
+\texttt{.copy\_()} that breaks the gradient tape.  Our patch replaces
+the in-place write with a differentiable \texttt{torch.where}
+operation.  \emph{All} Moirai fine-tuning results in this paper use
+the patched scaler (released with our code); unpatched
+\texttt{uni2ts} runs may converge differently and we have observed
+silent non-convergence on \texttt{uni2ts@main}.  We recommend
+upstreaming this patch to \texttt{uni2ts}.
+
+% ============================================================
 \section{Moirai Median Forecast Selection}
 \label{app:moirai_median}
 % ============================================================
@@ -145,6 +162,19 @@ advantage is 28\% and 45\% respectively.
 Horizons $h{=}336$ and $h{=}720$ exceed Moirai-Small's
 \texttt{max\_seq\_len}$=$512 constraint when combined with the
 required extended lookback and are omitted.
+
+% ============================================================
+\section{ETTh2 Drift Diagnosis and Mitigation (Full Tables)}
+\label{app:full_tables}
+% ============================================================
+
+This section contains the full tables referenced in \S\ref{sec:forecasting}.
+Table~\ref{tab:forecasting_forgetting} shows the representation drift
+diagnosis; Table~\ref{tab:mitigation_spectrum} shows the mitigation spectrum.
+
+\input{tables/forecasting_forgetting}
+
+\input{tables/mitigation_spectrum}
 
 % ============================================================
 \section{LoRA Rank and Hyperparameter Sensitivity}
@@ -546,6 +576,31 @@ epoch and plateau; low-forgetting trajectories continue descending.
 Mid-training weight drift (epochs 5--10) does not separate the modes.}
 \label{fig:n5k_trajectories}
 \end{figure}
+
+% ============================================================
+\section{ETTh1 Extended Analysis}
+\label{app:etth1_extended}
+% ============================================================
+
+\textbf{Spectral entropy pilot (post-hoc, not pre-specified).}
+We computed spectral entropy (Welch PSD, normalised Shannon entropy)
+and the Hurst exponent (rescaled-range) on the OT (oil temperature)
+target column of each ETT dataset:
+ETTh1 ($\text{SE}{=}3.61$~bits, $H{=}0.954$),
+ETTh2 ($\text{SE}{=}3.46$~bits, $H{=}0.946$),
+ETTm2 ($\text{SE}{=}2.25$~bits, $H{=}0.941$).
+ETTh1 has the highest spectral entropy (most broadband power, most
+trend-dominated) and is the only dataset where $\Delta R^2{>}0$ does
+not hold at $n{=}10$k; ETTm2 has the lowest (most concentrated, most
+cyclical) and shows the strongest $\Delta R^2{>}0$.
+ETTh1 and ETTm2 have similar deep ZS Ridge floors
+($R^2(\text{ZS})\approx{-}25$) yet opposite $\Delta R^2$ signs,
+ruling out floor depth as a predictor on its own.
+The spectral-structure pilot is consistent with a trend-vs.-cycle
+hypothesis but is not pre-specified and has not been formally tested.
+A pre-registered test on held-out datasets is the appropriate next step.
+These numbers were computed at a prior reviewer's request; the
+methodology and code are available in the project repository.
 
 % ============================================================
 \section{IoT Negative-Control Details}

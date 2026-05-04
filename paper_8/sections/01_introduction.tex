@@ -50,14 +50,10 @@ but task performance improves from a near-null baseline: the drift is
 irrelevant because there were no valuable features to forget.
 
 \textbf{Why this matters.}
-Unlike language models, where drift manifests as degraded generation
-quality, time-series drift directly harms the distributional predictions
-that underpin anomaly scoring and probabilistic forecasting.
-Our study isolates drift's task-level consequences on Moirai and their
-dependence on the value of pre-trained features: harmful on ETT in
-the low-data regime, benign once $n$ is large enough for Moirai to
-learn replacements, and irrelevant on IoT where ZS features have no
-value to begin with.
+Time-series drift directly harms distributional predictions for anomaly
+scoring and probabilistic forecasting.
+Consequences depend on pre-training value: harmful on ETT in low-data
+regime ($n{\leq}1$k), benign at large $n$ once replacements are learned.
 
 \textbf{Experimental approach.}
 We design a controlled diagnosis with fine-tuning conditions
@@ -107,18 +103,14 @@ $n$) cells, not a predictive theory.
     \end{itemize}
 
   \item \textbf{Negative result (ETT-specific, backbone-independent).}
-    Five non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM-2.5, MOMENT-base) gate-fail on all nine ETT$\times$backbone cells tested ($-$14\% to $-$148\% vs.\ Linear). The Chronos capacity sweep confirms the gap is size-invariant. This is a substantive finding about ETT-family distributions lying outside the pre-training coverage of these backbones, independent of whether the Moirai-ETT dissociation generalizes
-    (Appendix~\ref{app:limitations}).
+    Five non-Moirai backbones gate-fail on all nine ETT$\times$backbone
+    cells tested (ZS underperforms Linear by 14--148\%); see
+    Appendix~\ref{app:limitations} for full table.
 \end{enumerate}
-Code and datasets will be released upon acceptance.  We also
-release a reproducibility-critical \texttt{uni2ts} patch
-(\S\ref{sec:method}): without it, Moirai fine-tuning silently
-detaches autograd through \texttt{PackedStdScaler}, so any
-reproduction of this paper's numbers requires the patched scaler.
+Code and datasets will be released upon acceptance.
 
 \textbf{Paper organisation.}
-Section~\ref{sec:related} reviews related work.
-Section~\ref{sec:problem} formalises the problem.
+Section~\ref{sec:background} reviews related work and formalises the problem.
 Section~\ref{sec:method} describes the Moirai fine-tuning protocol.
 Section~\ref{sec:forecasting} presents the ETT drift--utility
 diagnosis with a sample sweep, mitigation spectrum, and trajectory

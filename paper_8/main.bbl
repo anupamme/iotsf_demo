@@ -1,4 +1,4 @@
-\begin{thebibliography}{29}
+\begin{thebibliography}{16}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -19,50 +19,16 @@ Abdul~Fatir Ansari et~al.
 \newblock In \emph{Transactions on Machine Learning Research}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2403.07815}.
 
-\bibitem[Audibert et~al.(2020)]{audibert2020usad}
-Julien Audibert et~al.
-\newblock {USAD}: Unsupervised anomaly detection on multivariate time series.
-\newblock In \emph{ACM SIGKDD International Conference on Knowledge Discovery
-  and Data Mining (KDD)}, 2020.
-\newblock URL \url{https://dl.acm.org/doi/10.1145/3394486.3403392}.
-
 \bibitem[Das et~al.(2024)]{das2024timeseries}
 Abhimanyu Das et~al.
 \newblock A decoder-only foundation model for time-series forecasting.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2310.10688}.
 
-\bibitem[Eldele et~al.(2021)]{eldele2021ts2vec}
-Emadeldeen Eldele et~al.
-\newblock Time-series representation learning via temporal and contextual
-  contrasting.
-\newblock In \emph{International Joint Conference on Artificial Intelligence
-  (IJCAI)}, 2021.
-
-\bibitem[Garcia et~al.(2014)]{garcia2014empirical}
-Sebastian Garcia et~al.
-\newblock An empirical comparison of botnet detection methods.
-\newblock \emph{Computers \& Security}, 45, 2014.
-
-\bibitem[Goodfellow et~al.(2015)Goodfellow, Shlens, and
-  Szegedy]{goodfellow2015adversarial}
-Ian~J. Goodfellow, Jonathon Shlens, and Christian Szegedy.
-\newblock Explaining and harnessing adversarial examples.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2015.
-\newblock URL \url{https://arxiv.org/abs/1412.6572}.
-
 \bibitem[Goswami et~al.(2024)]{goswami2024moment}
 Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
-
-\bibitem[Hewitt and Manning(2019)]{hewitt2019structural}
-John Hewitt and Christopher~D. Manning.
-\newblock A structural probe for finding syntax in word representations.
-\newblock In \emph{Proceedings of the 2019 Conference of the North American
-  Chapter of the Association for Computational Linguistics: Human Language
-  Technologies (NAACL-HLT)}, pages 4129--4138, 2019.
 
 \bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
   Chen]{hu2022lora}
@@ -114,57 +80,18 @@ Zhizhong Li and Derek Hoiem.
 \newblock \emph{IEEE Transactions on Pattern Analysis and Machine
   Intelligence}, 40\penalty0 (12):\penalty0 2935--2947, 2018.
 
-\bibitem[Lin et~al.(2022)Lin, Shi, and Xue]{lin2022idsgan}
-Zilong Lin, Yong Shi, and Zhi Xue.
-\newblock {IDSGAN}: Generative adversarial networks for attack generation
-  against intrusion detection.
-\newblock In \emph{Pacific-Asia Conference on Knowledge Discovery and Data
-  Mining (PAKDD)}, pages 79--91, 2022.
-
-\bibitem[Liu et~al.(2012)Liu, Ting, and Zhou]{liu2012isolation}
-Fei~Tony Liu, Kai~Ming Ting, and Zhi-Hua Zhou.
-\newblock Isolation-based anomaly detection.
-\newblock \emph{ACM Transactions on Knowledge Discovery from Data}, 6\penalty0
-  (1), 2012.
-
 \bibitem[Luo et~al.(2024)Luo, Yang, Meng, Li, Zhou, and
   Zhang]{luo2024forgetting}
 Yun Luo, Zhengxuan Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
 \newblock An empirical study of catastrophic forgetting in large language
   models during continual fine-tuning.
 \newblock \emph{arXiv preprint arXiv:2308.08747}, 2024.
-\newblock arXiv preprint; v3, 2024.
-
-\bibitem[Madry et~al.(2018)Madry, Makelov, Schmidt, Tsipras, and
-  Vladu]{madry2018pgd}
-Aleksander Madry, Aleksandar Makelov, Ludwig Schmidt, Dimitris Tsipras, and
-  Adrian Vladu.
-\newblock Towards deep learning models resistant to adversarial attacks.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2018.
-\newblock URL \url{https://arxiv.org/abs/1706.06083}.
 
 \bibitem[Neto et~al.(2023)]{neto2023ciciot}
 Euclides Carlos~Pinto Neto et~al.
 \newblock {CICIoT2023}: A real-time dataset and benchmark for large-scale
   attacks in iot environment.
 \newblock \emph{Sensors}, 23\penalty0 (13), 2023.
-
-\bibitem[Neyshabur et~al.(2020)Neyshabur, Sedghi, and
-  Zhang]{neyshabur2020transferred}
-Behnam Neyshabur, Hanie Sedghi, and Chiyuan Zhang.
-\newblock What is being transferred in transfer learning?
-\newblock In \emph{Advances in Neural Information Processing Systems
-  (NeurIPS)}, 2020.
-\newblock URL \url{https://arxiv.org/abs/2008.11687}.
-
-\bibitem[Nie et~al.(2023)]{nie2023patchtst}
-Yuqi Nie et~al.
-\newblock A time series is worth 64 words: Long-term forecasting with
-  transformers.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2023.
-\newblock URL \url{https://arxiv.org/abs/2211.14730}.
 
 \bibitem[Pimentel et~al.(2020)Pimentel, Valvoda, Maudslay, Zmigrod, Williams,
   and Cotterell]{pimentel2020information}
@@ -174,34 +101,11 @@ Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
 \newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
   for Computational Linguistics (ACL)}, pages 4609--4622, 2020.
 
-\bibitem[Tuli et~al.(2022)]{tuli2022tranad}
-Shreshth Tuli et~al.
-\newblock {TranAD}: Deep transformer networks for anomaly detection in
-  multivariate time series data.
-\newblock \emph{Proceedings of the VLDB Endowment}, 15\penalty0 (6), 2022.
-\newblock URL \url{https://arxiv.org/abs/2201.07284}.
-
 \bibitem[Woo et~al.(2024)]{woo2024moirai}
 Gerald Woo et~al.
 \newblock Unified training of universal time series forecasting transformers.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2402.02592}.
-
-\bibitem[Xu et~al.(2022)]{xu2022anomaly}
-Jiehui Xu et~al.
-\newblock Anomaly transformer: Time series anomaly detection with association
-  discrepancy.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2022.
-\newblock URL \url{https://arxiv.org/abs/2110.02642}.
-
-\bibitem[Zhang et~al.(2024)]{zhang2024diffusionts}
-Xinyu Zhang et~al.
-\newblock Diffusion-ts: Interpretable diffusion for general time series
-  generation.
-\newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2024.
-\newblock URL \url{https://arxiv.org/abs/2403.01742}.
 
 \bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
   Zhang]{zhou2021informer}

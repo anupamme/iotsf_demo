@@ -3,58 +3,30 @@
 \label{sec:analysis}
 % ============================================================
 
-\textbf{The per-seed cost--benefit invariant is protocol-robust.}
-The central claim is a \emph{per-seed} invariant: across all seeds
-under both the final-epoch and early-stopped protocols at $n{=}10$k,
-the CKA-probe gap signature (CKA $\downarrow$, Ridge and MLP
-$\Delta R^2 {>}0$) holds individually on the 96-step trained head
-(\S\ref{sec:forecasting:probehead}).
-The $\Delta R^2{>}0$ signal is \emph{not} a claim that the fine-tuned
-representations are well-suited for 96-step prediction
-($R^2(\text{FT})$ remains deeply negative throughout); it is a
-diagnostic that encoder geometry has shifted \emph{toward the trained
-objective} --- verified by two controls:
-(i)~the frozen-encoder control (same data, same epochs) gives
-$\Delta R^2{=}{-}0.048{\pm}0.008$, a 14$\times$ smaller magnitude,
-ruling out data-distribution confound; and
-(ii)~a randomly-initialised encoder fine-tuned on the same data
-gives $\Delta R^2{=}{-}0.199{\pm}0.205$ across 5 seeds (4/5 negative;
-Appendix~\ref{app:randominit}),
-substantially negative versus the pre-trained encoder's $+0.668{\pm}0.226$
-(10/10 positive), ruling out the possibility that any fine-tuned encoder on this
-objective produces a robust $\Delta R^2{>}0$ signal regardless of pre-training.
-This is a \emph{task-specific} benefit: $\Delta R^2{>}0$ holds on
-the objective the encoder was optimised for, but reverses on untrained
-readout targets (delta1 GBM: $\Delta R^2{=}{-}0.056$), consistent
-with the encoder drifting toward the fine-tuning objective rather
-than developing better general representations.  Per-seed Ridge
-$\Delta R^2$ on early-stopped encoders (seeds 101/303/777/888/999)
-is $\{+.75, +.54, +.66, +.38, +.49\}$ and on the final-epoch set
-it is uniformly positive as well (Appendix~\ref{app:probing}).
-The population statistics merely aggregate this invariant: Ridge
-$\Delta R^2$ climbs from $+$0.12 at $n{=}500$ to $+$0.67$\pm$0.23
-at $n{=}10$k (10-seed CUDA deterministic, \textbf{10/10 positive}),
-MLP $k{=}5$ on 10-seed CUDA early-stopped encoders gives $+$0.70$\pm$0.32 (10/10 positive),
-MLP $k{=}1$/$k{=}2$ give $+$1.57$\pm$0.36/$+$1.82$\pm$0.37
-(Table~\ref{tab:sample_sweep}), and CKA falls from 0.949 at
-$n{=}500$ to $\approx$0.57 at $n{=}10$k.  The $k{=}10$ CKA variance
-($\pm$0.182) reflects per-seed best-epoch spread
-(epochs $\{1,2,3,4,4,4,5,5,6,6\}$)
-(\S\ref{sec:forecasting:results}).
+\textbf{Per-seed cost--benefit invariant (protocol-robust).}
+At $n{=}10$k, the CKA-probe gap (CKA$\downarrow$, Ridge and MLP
+$\Delta R^2{>}0$) holds in all seeds individually on the 96-step
+trained head under both early-stopped and final-epoch protocols.
+$\Delta R^2{>}0$ is a diagnostic of encoder shift \emph{toward the
+trained objective} (not absolute quality: $R^2(\text{FT})$ remains
+negative), verified by two controls: (i)~frozen-encoder gives
+$\Delta R^2{=}{-}0.048$ (14$\times$ smaller), ruling out
+data-distribution effects; (ii)~random-init gives
+$\Delta R^2{=}{-}0.199$ (4/5 negative) vs.\ pre-trained $+0.668$
+(10/10 positive), ruling out ``any encoder fine-tuned on this objective''.
+Task-specificity confirmed: $\Delta R^2{>}0$ on trained head,
+${\leq}0$ on untrained heads (delta1 GBM: $-$0.056).
+Population statistics: Ridge $\Delta R^2$ rises from $+$0.12 ($n{=}500$)
+to $+$0.67$\pm$0.23 ($n{=}10$k, \textbf{10/10} positive);
+MLP $k{=}5$ gives $+$0.70$\pm$0.32 (10/10 positive).
 
-\textbf{Task forgetting is a protocol-dependent consequence.}
-Population forgetting is non-monotonic in $n$
-($+$14\% at $500$, $-$2.9\% at $2$k, $-$5.3$\pm$6.2\% at $10$k,
-10-seed CUDA deterministic early-stopped, 7/10 negative), and its
-\emph{sign} in the crossover regime is protocol-dependent: the
-final-epoch $k{=}5$ mean at $n{=}10$k was $+$7.5$\pm$8.2\%, while
-the 10-seed CUDA ES mean is $-$5.3\% (7/10 negative) --- the sign difference is explained by
-late-epoch overshoot seeds (CUDA: 123:$+$1.8\%, 456:$+$4.4\%, 789:$+$0.4\%,
-all near-zero; best-stopping at epochs~3--5 vs.\ low-forgetting cluster epochs~2--4)
-exactly as the $n{=}5$k trajectory recipe predicts
-(\S\ref{sec:forecasting:trajectory}).  Because of this protocol
-sensitivity we do \emph{not} lead on forgetting sign; it is a
-task-outcome consequence of the cost--benefit gap, not the primary signal.
+\textbf{Task forgetting is protocol-dependent.}
+Forgetting is non-monotonic in $n$ ($+$14\% at 500, $-$2.9\% at 2k,
+$-$5.3$\pm$6.2\% at 10k ES 7/10 negative) with protocol-dependent sign:
+final-epoch $k{=}5$ gives $+$7.5$\pm$8.2\%, ES $-$5.3\% (difference
+from late-epoch overshoot in 3 seeds, all near-zero).
+We do not lead on forgetting sign; it is a task-outcome consequence,
+not the primary signal.
 Absolute $R^2(\text{FT})$ on the 96-step head remains negative
 throughout ($R^2_{\text{ZS}}{=}-6.90$, $k{=}10$ $R^2(\text{FT})$
 $-6.37{\pm}0.36$ at $n{=}10$k);
@@ -89,80 +61,24 @@ $\Delta R^2{>}0$ direction is robust across $\alpha$, pooling, and probe seeds.
 
 \textbf{ETTh1 $n{=}10$k: task resolves but per-seed $\Delta R^2{>}0$ does not hold.}
 On ETTh1 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$), forgetting resolves
-($-6.1{\pm}3.6$\%, \textbf{10/10} negative; ZS MSE 0.680$\to$FT 0.637)
-and CKA falls to $0.727{\pm}0.059$.
-Ridge $\Delta R^2{=}{-}4.23{\pm}4.47$ (2/10 positive; $R^2(\text{ZS}){=}-24.81$,
-same deep floor as ETTm2).
-This is a substantively different pattern from both ETTh2 and ETTm2:
-the encoder drifts, the task improves, but linear decodability
-\emph{decreases} in 8/10 seeds.
-We interpret this as a \emph{task-improvement-without-decodability-gain}
-regime: the encoder is restructured in a way that benefits the
-forecasting loss but does not increase linear separability of the
-96-step target.  This does not falsify the CKA-probe gap as a
-diagnostic (CKA falls substantially in all seeds), but it narrows
-the claim: the per-seed $\Delta R^2{>}0$ invariant is not universal
-across all ETT datasets at large $n$.
-ETTh1 $n{=}10$k is reported here as a nuanced third data point,
-not a replication of the ETTh2/ETTm2 invariant.
-The ETTh1 result reveals a \emph{boundary condition}: on
-ETTh2/ETTm2, the 96-step NLL objective both (i)~restructures the
-encoder toward the forecasting target and (ii)~produces representations
-more linearly decodable by a Ridge probe.  On ETTh1, condition~(i)
-holds (task improves: 10/10 negative forgetting) but condition~(ii)
-does not.  A plausible explanation is that ETTh1 is more
-trend-dominated than the more cyclical ETTh2/ETTm2; the fine-tuned
-representations may encode non-linear temporal features that improve
-MSE without increasing linear separability.  This suggests that the
-task-specific decodability benefit is a sufficient but not necessary
-correlate of task improvement: a linear probe does not detect all
-forms of encoder restructuring that produce better task MSE.
-\textbf{MLP probe on ETTh1 $n{=}10$k.}
-To test the non-linear restructuring hypothesis, we run
-MLP probes ($k{=}1,2,5$ hidden layers, 64 units each,
-\texttt{reprobe\_saved\_encoders.py}) on all 10 ETTh1
-encoders and compare to a zero-shot MLP baseline.
-Results are depth-dependent:
-$k{=}1$ gives $\Delta R^2{=}{-}1.84{\pm}2.62$ (4/10 positive),
-$k{=}2$ gives $\Delta R^2{=}{+}1.08{\pm}1.80$ (8/10 positive),
-and $k{=}5$ gives $\Delta R^2{=}{-}1.03{\pm}0.31$ (0/10 positive).
-The $k{=}1{\to}k{=}2{\to}k{=}5$ non-monotonicity (4$\to$8$\to$0)
-is the key finding: the signal is sensitive to probe capacity in a way
-we do not fully understand, and $k{=}2$ is a post-hoc selection from
-a non-monotone sweep.
-As Pimentel et al.~\cite{pimentel2020information} warn, probe results
-that depend on hand-picked capacity do not constitute robust evidence
-of encoder structure.
-We report these results for completeness, but do not use them as primary
-evidence; the honest summary for ETTh1 is that Ridge (2/10 positive)
-finds no robust $\Delta R^2{>}0$ signal and MLP probes are inconclusive.
-
-\textbf{Is there a pre-specifiable predictor for which pattern occurs?}
-The trend-vs.-cycle distinction (ETTh1: trend-dominated;
-ETTh2/ETTm2: more cyclical) is one candidate.
-As an informal post-hoc pilot (not pre-specified), we computed
-spectral entropy (Welch PSD, normalised Shannon entropy) and the
-Hurst exponent (rescaled-range) on the OT (oil temperature) target
-column of each dataset (ETT has 7 features; OT is the standard
-forecasting target; other feature columns show qualitatively similar
-spectral patterns):
-ETTh1 ($\text{SE}{=}3.61$~bits, $H{=}0.954$),
-ETTh2 ($\text{SE}{=}3.46$~bits, $H{=}0.946$),
-ETTm2 ($\text{SE}{=}2.25$~bits, $H{=}0.941$).
-ETTh1 has the highest spectral entropy (most broadband power, most
-trend-dominated) and is the only dataset where $\Delta R^2{>}0$ does
-not hold at $n{=}10$k; ETTm2 has the lowest spectral entropy (most
-concentrated, most cyclical) and shows the strongest $\Delta R^2{>}0$.
-ETTh1 and ETTm2 have similar deep ZS Ridge floors
-($R^2(\text{ZS})\approx{-}25$) yet opposite $\Delta R^2$ signs,
-ruling out floor depth as a predictor on its own.
-The spectral-structure pilot is consistent with a trend-vs.-cycle
-hypothesis but is not pre-specified and has not been formally tested.
-We treat the three-regime characterisation as a \emph{descriptive
-case-study taxonomy}, not a predictive theory; a pre-registered test
-on held-out datasets is the appropriate next step.
-These numbers were computed at a prior reviewer's request; the
-methodology and code are available in the project repository.
+($-6.1{\pm}3.6$\%, 10/10 negative) and CKA falls to $0.727{\pm}0.059$.
+Ridge $\Delta R^2{=}{-}4.23{\pm}4.47$ (2/10 positive), substantively
+different from ETTh2/ETTm2: the encoder drifts, the task improves, but
+linear decodability \emph{decreases} in 8/10 seeds.
+We interpret this as \emph{task-improvement-without-decodability-gain}:
+encoder restructuring benefits forecasting loss but does not increase
+linear separability of the 96-step target.
+This narrows the per-seed $\Delta R^2{>}0$ invariant to ETTh2/ETTm2.
+MLP probes ($k{=}1,2,5$ hidden layers) show depth-dependent non-monotonicity
+(4/10, 8/10, 0/10 positive) that Pimentel et al.~\cite{pimentel2020information}
+warn does not constitute robust evidence; we report for completeness but
+do not use as primary evidence.
+A post-hoc spectral entropy pilot (Appendix~\ref{app:etth1_extended})
+suggests ETTh1 is more trend-dominated (SE$=$3.61 bits) than cyclical
+ETTh2/ETTm2 (SE$=$2.25--3.46 bits), consistent with non-linear temporal
+features improving MSE without linear separability.
+We treat the three-regime characterisation as a \emph{descriptive taxonomy},
+not a predictive theory.
 
 \textbf{Cross-domain envelope.}
 Table~\ref{tab:cross_domain} spans six settings: ETT drift

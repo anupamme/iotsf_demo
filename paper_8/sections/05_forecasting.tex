@@ -14,197 +14,93 @@ The frozen-encoder control (same data, same epochs, CKA$=$1.000)
 confirms this: overfitting would not be eliminated by freezing.
 
 % ============================================================
-\subsection{Domain Selection and Pre-Training Value Gate}
-\label{sec:forecasting:gate}
-% ============================================================
-
-We evaluate on ETTh2~\cite{woo2024moirai}
-(7 features, 17{,}420 timesteps, 12/4/4 month split).
-Moirai-Small (13.8M parameters) zero-shot outperforms Linear by
-28\% ($h{=}96$: 0.269 vs.\ 0.373) and 45\% ($h{=}192$: 0.299 vs.\ 0.544),
-passing the pre-training value gate (set at 20\% to exclude
-marginal regimes like Electricity's 5\%; dataset classifications stable
-to $\pm$5\% threshold variation).
-MSE values of 0.269/0.299 in the gate-pass comparison use
-\emph{un-normalized} targets; fine-tuning tables (Table~\ref{tab:forecasting_forgetting}
-and Table~\ref{tab:mitigation_spectrum}) report MSE on zero-mean unit-variance
-normalized targets per split (ZS baseline $=$~0.126/$h{=}96$, 0.158/$h{=}192$).
-Moirai was pre-trained on the LOTSA corpus~\cite{woo2024moirai}
-(see \S3.2 and Table~1 of~\cite{woo2024moirai} for the corpus breakdown),
-which is documented to exclude LTSF benchmark datasets including the ETT family;
-pre-training contamination is therefore not a plausible explanation for
-Moirai's ZS advantage on ETT.
-
-% ============================================================
 \subsection{Experimental Setup}
 \label{sec:forecasting:setup}
 % ============================================================
 
-We test: \textbf{B}~(NLL-only fine-tuning),
-\textbf{C}~(NLL$+$SupCon with temporal clusters),
-\textbf{D}~(frozen encoder), plus mitigations:
-\textbf{E}~(LoRA, $r{=}8$)~\cite{hu2022lora},
-\textbf{F}~(L2-SP)~\cite{li2018l2sp},
-\textbf{G}~(EWC)~\cite{kirkpatrick2017ewc}.
-Training: 500 samples, 20 epochs, AdamW (lr$=$1e-4);
-B, C, D use 10 seeds, E/F/G use 5 seeds (Table~\ref{tab:mitigation_spectrum}, $n$ column).
-Diagnosis: CKA and weight drift ($\ell_2$) between pre-trained
-and fine-tuned encoders.
+We evaluate on ETTh2 (7 features, 17k timesteps, 12/4/4 month split).
+Moirai-Small (13.8M) zero-shot outperforms Linear by 28--45\%
+(ZS MSE: 0.126 at $h{=}96$, 0.158 at $h{=}192$), passing the
+value gate (20\% threshold).
+Conditions: \textbf{B}~(NLL-only), \textbf{C}~(NLL$+$SupCon),
+\textbf{D}~(frozen encoder), \textbf{E}~(LoRA $r{=}8$),
+\textbf{F}~(L2-SP), \textbf{G}~(EWC).
+Training: $n{=}500$ samples, 20 epochs, AdamW (lr$=$1e-4), 10 seeds
+(B/C/D) or 5 seeds (E/F/G).
+Diagnosis: CKA and weight drift ($\ell_2$) between pre-trained/fine-tuned encoders.
 
 % ============================================================
 \subsection{Representation Drift Degrades High-Value Features}
 \label{sec:forecasting:results}
 % ============================================================
 
-\input{tables/forecasting_forgetting}
-
-Table~\ref{tab:forecasting_forgetting} shows the central result:
-fine-tuning degrades ETTh2 performance where pre-trained features
-are valuable.
-B and C degrade by 10--16\% MSE ($p{<}0.001$, $d{=}1.23$;
-paired bootstrap, 10{,}000 resamples) while training loss
-\emph{decreases}---this is not overfitting (which would cause
-validation loss to rise), but representation drift.
-The frozen-encoder control (D, CKA$=$1.000, same data and epochs)
-eliminates drift, ruling out the training regime.
-Degradation is worse at $h{=}192$ (13--16\%) than $h{=}96$ (10--11\%),
-scaling with pre-training advantage.
-Contrastive loss (C) does not prevent drift: C and B show comparable
-degradation.
+Fine-tuning degrades ETTh2 performance where pre-trained features are
+valuable (Appendix Table~\ref{tab:forecasting_forgetting}).
+Conditions B (NLL-only) and C (NLL+SupCon) degrade by 10--16\% MSE
+($p{<}0.001$, $d{=}1.23$; paired bootstrap, 10{,}000 resamples) while
+training loss \emph{decreases}---not overfitting (which raises validation
+loss), but representation drift.
+The frozen-encoder control (D, CKA$=$1.000, same data/epochs) eliminates
+drift, ruling out the training regime.
+Degradation scales with horizon: worse at $h{=}192$ (13--16\%) than $h{=}96$
+(10--11\%).
+Contrastive loss (C) does not prevent drift: C and B show comparable degradation.
 
 % ============================================================
 \subsection{Mitigation Spectrum}
 \label{sec:forecasting:mitigation}
 % ============================================================
 
-Table~\ref{tab:mitigation_spectrum} presents the mitigation spectrum on ETTh2.
+We evaluate five mitigation strategies (Appendix Table~\ref{tab:mitigation_spectrum}):
+LoRA (E), frozen encoder (D), EWC (G), L2-SP (F), and contrastive loss (C).
 Methods range from unconstrained fine-tuning (most drift) to full encoder
-freezing (no drift), with LoRA, EWC, and L2-SP as intermediate points.
+freezing (no drift).
 
-\input{tables/mitigation_spectrum}
-
-\textbf{LoRA achieves the best trade-off on Moirai-Small.}
-LoRA ($r{=}8$, $\alpha{=}16$) \emph{improves} over zero-shot
-at $h{=}96$ while maintaining high CKA and zero weight drift
-(low-rank updates do not modify base parameters).
-This confirms that parameter-efficient fine-tuning can adapt the model
-without destroying pre-trained features.
-A rank sweep ($r \in \{4, 8, 16, 32\}$) shows consistent results across
-ranks (CKA$\geq$0.979, MSE within $\pm$0.003; Appendix~\ref{app:lora_rank}).
-
-\textbf{LoRA-Large needs a 10$\times$ smaller LR to rescue.}
-The same LoRA recipe that succeeds on Moirai-Small fails on Moirai-Large
-at the default $\mathrm{LR}{=}10^{-4}$ ($r{=}8$: forg.\ $+$25.7$\pm$3.2\%,
-3 seeds); rank escalation ($r{\in}\{16,32,64\}$, seed 42) does
-\emph{not} rescue ($+$22.5, $+$19.0, $+$29.9\%), nor do $\alpha$ or
-target-module scope (Appendix~\ref{app:lora_rank}).
-Reducing the LR by $10\times$ to $10^{-5}$ does rescue:
-forg.$={-8.5}{\pm}0.7$\% at CKA$=$0.989${\pm}0.003$ (5~seeds on ETTh2).
-The rescue transfers cross-dataset: on ETTh1
-(forg.$={-16.7}{\pm}0.2$\%, 3~seeds) and ETTm2
-(forg.$={-28.3}{\pm}0.4$\%, 3~seeds) at $n{=}500$,
-confirming the LR recipe is not ETTh2-specific.
-Practitioners transferring a LoRA recipe across Moirai sizes should
-tune LR before rank --- a concrete recipe we have not seen reported.
+\textbf{LoRA achieves the best trade-off.}
+LoRA ($r{=}8$, $\alpha{=}16$) \emph{improves} over zero-shot at $h{=}96$
+while maintaining high CKA (0.979) and zero weight drift.
+On Moirai-Large, the same recipe fails at default $\mathrm{LR}{=}10^{-4}$
+($+$25.7$\pm$3.2\%, 3 seeds); rank escalation does \emph{not} rescue.
+Reducing LR by $10\times$ to $10^{-5}$ does rescue: forg.$={-8.5}{\pm}0.7$\%
+(CKA$=$0.989, 5 seeds), transferring cross-dataset to ETTh1/ETTm2 at $n{=}500$.
+\textbf{Practitioner recipe:} tune LR before rank when adapting LoRA across
+model sizes.
 
 \textbf{EWC and L2-SP reduce but do not eliminate drift.}
-At stronger penalties, both EWC ($\lambda{=}1000$, CKA$=$0.972$\pm$0.004)
-and L2-SP ($\lambda{=}0.1$, CKA$=$0.965$\pm$0.006) improve CKA over
-unconstrained fine-tuning (B, CKA$=$0.937), but MSE remains
-18--19\% above zero-shot.
-Neither method matches LoRA's ability to adapt without drift.
-
-\textbf{Encoder freezing eliminates drift at the cost of adaptation.}
-Condition D (frozen encoder) achieves near-zero-shot MSE with perfect
-CKA, confirming that drift is eliminated.
-However, it cannot adapt to the fine-tuning distribution --- a
-limitation that matters when pre-trained features are insufficient
-(\S\ref{sec:analysis}, IoT negative control).
+Both improve CKA over unconstrained fine-tuning but MSE remains 18--19\%
+above zero-shot.
+Frozen encoder (D) eliminates drift (CKA$=$1.000) but cannot adapt---a
+limitation when pre-trained features are insufficient.
 
 % ============================================================
-\subsection{Replication Across Datasets and Model Sizes}
+\subsection{Sample-Size Sweep: Drift-Forgetting Dissociation}
 \label{sec:forecasting:replication}
 % ============================================================
 
-Representation drift replicates across datasets and model sizes
-(Table~\ref{tab:cross_domain}).  On ETTh1 at $n{=}500$, fine-tuning
-causes drift (CKA$=$0.807$\pm$0.048) and modest degradation
-($+$7.0$\pm$3.2\%); at $n{=}2{,}000$ (3 seeds),
-ETTh1 still does \emph{not} resolve --- forg.$=+$9.2$\pm$5.0\%
-(CKA$=$0.752$\pm$0.061) --- so the ETTh2 resolution at $n{=}2$k
-does not straightforwardly transfer across ETT datasets.
-On ETTm2 at $n{=}500$, drift (CKA$=$0.851$\pm$0.083) is accompanied
-by \emph{improvement} ($-$13.3$\pm$6.1\%); at $n{=}2{,}000$ (3 seeds)
-the improvement deepens to forg.$=-$20.1$\pm$5.1\%
-(CKA$=$0.818$\pm$0.019).  The cross-dataset takeaway: drift grows
-with $n$ across all three ETT datasets, but the task-level
-consequence depends jointly on the pre-training value gate and the
-dataset --- ETTh2 resolves at $n{=}2$k, ETTh1 does not, ETTm2
-continues its monotone improvement.
-Moirai-Base on ETTh2 shows aggressive drift (CKA$=$0.460$\pm$0.200)
-with large improvement ($-$44.1$\pm$5.7\%), mirroring the IoT pattern.
-Moirai-Large (311M) on ETTh2 at 500 samples exhibits substantial
-drift (CKA$=$0.626$\pm$0.165) and forgetting ($+$10.5$\pm$9.5\%),
-comparable to Moirai-Small; frozen-Large reduces forgetting to
-$+$3.2$\pm$0.6\% (CKA$=$0.994), confirming the pattern holds
-across model sizes (Section~\ref{sec:analysis}).
-An extended sample-size sweep (Table~\ref{tab:sample_sweep},
-$n{\in}\{500,1\mathrm{k},2\mathrm{k},5\mathrm{k},10\mathrm{k}\}$)
+Table~\ref{tab:sample_sweep} ($n{\in}\{500,1\mathrm{k},2\mathrm{k},5\mathrm{k},10\mathrm{k}\}$, ETTh2)
 reveals that \emph{drift and forgetting are dissociable}.
-Drift grows monotonically with $n$ (CKA from 0.949 at 500
-to 0.407 at 10{,}000; weight drift from 3.7 to 17.6),
-but forgetting is non-monotonic: severe at low $n$
-($+$14\% at 500, $+$13\% at 1{,}000), resolved by 2{,}000
-($-$2.9\%), bimodal at 5{,}000 ($+$6.6$\pm$10.0\%, 7 seeds;
-per-seed breakdown in Appendix~\ref{app:probing}), and at
-10{,}000 \emph{predominantly negative} under the deterministic
-early-stopped protocol: $-5.3{\pm}6.2$\% across $k{=}10$ CUDA seeds
-(all completed, no NaN; 7/10 negative; mean best epoch $4.2{\pm}1.4$;
-Table~\ref{tab:sample_sweep}).
-Bootstrap 95\% CI on the $k{=}10$ forgetting: [$-9.6$\%, $-1.0$\%];
-7/10 seeds negative; the $\Delta R^2{>}0$ majority is more
-robust (\textbf{10/10 seeds positive}).
-The three positive-forgetting seeds (123: $+$1.8\%, 456: $+$4.4\%,
-789: $+$0.4\%) are all near-zero and follow the $n{=}5$k overshoot pattern
-(\S\ref{sec:forecasting:trajectory}).
-A final-epoch $k{=}5$ run gave $+$7.5$\pm$8.2\%,
-dominated by seed~101's late-epoch overshoot ($+$21.9\%;
-val-MSE minimum at epoch~10 rising to epoch~20), which collapsed
-to $-$20.7\% when restored to the best-val-MSE checkpoint at
-epoch~4 --- exactly as the $n{=}5$k trajectory recipe predicts
-(\S\ref{sec:forecasting:trajectory}).
-Linear probing (Ridge on frozen encoder representations, held-out
-ETTh2; Appendix~\ref{app:probing}) shows $\Delta R^2$ (FT$-$PT)
-\emph{increasing} with $n$: $+$0.12 at $n{=}500$ to
-$+$0.67$\pm$0.23 at $n{=}10$k on 10-seed CUDA deterministic encoders
-(\textbf{10/10} seeds positive; independently replicated on AWS g5.xlarge,
-all 10 seeds exit~0, results in Appendix~\ref{app:probing}).
-Geometric dissimilarity (CKA) and \emph{relative
-linear-decodability} ($\Delta R^2$) move in opposite directions.
-Absolute $R^2(\text{FT})$ remains \emph{negative} across every
-sampled $n$ ($R^2_{\text{ZS}}{=}-6.90$), so $\Delta R^2$ is a
-relative-improvement signal; the primary task-outcome signal
-remains forg.$<0$ at $n{\geq}2$k.
-An MLP probe ($\mathrm{hidden}{=}64$ per layer, $\alpha{=}10^{-3}$,
-early stopping) on the CUDA 10-seed early-stopped encoders at $n{=}10$k
-gives $\Delta R^2 {=} +0.70{\pm}0.32$ at $k{=}5$ hidden layers
-(\textbf{10/10} positive) ---
-the MLP result is consistent with and independently confirms the Ridge
-result ($+$0.67$\pm$0.23).  For comparison, an earlier MPS $k{=}5$
-hidden-layer run on 4 seeds gave $+0.81{\pm}0.18$.
-Final-epoch MLP ($k{=}2$, 2 seeds) gave $+1.54{\pm}0.24$;
-at $n{=}500$, $k{=}1$ MLP is $-0.26$,
-consistent with probe noise at the smallest sample size
-(Appendix~\ref{app:probing}).
-This reframes our headline: representation drift is harmful
-specifically in the \emph{low-data fine-tuning regime}, which
-is precisely where practitioners most need pre-trained features.
-At sufficient scale, the replacement features are \emph{less
-linearly misaligned} with the forecasting target than the
-pre-trained ones, despite both remaining absolutely
-linearly-insufficient.
-The $n{=}5{,}000$ variance is bimodal; we unpack the mechanism
-in \S\ref{sec:forecasting:trajectory}.
+Drift grows monotonically with $n$ (CKA from 0.949 at 500 to 0.518
+at 10k), but forgetting is non-monotonic: severe at low $n$ ($+$14\%
+at 500), resolved by 2k ($-$2.9\%), predominantly negative at 10k
+($-5.3{\pm}6.2$\%, 7/10 negative, 10-seed CUDA deterministic).
+Linear probing shows $\Delta R^2$ \emph{increasing} with $n$:
+$+$0.12 at 500 to $+$0.67$\pm$0.23 at 10k (\textbf{10/10} seeds positive).
+Geometric dissimilarity (CKA$\downarrow$) and relative
+linear-decodability ($\Delta R^2\uparrow$) move in opposite directions.
+
+Cross-dataset (Table~\ref{tab:cross_domain}): ETTh1 at $n{=}500$
+shows drift (CKA$=$0.807) and modest forgetting ($+$7.0\%); ETTm2 shows
+drift (CKA$=$0.851) with \emph{improvement} ($-$13.3\%).
+Moirai-Base/Large at $n{=}500$ exhibit drift comparable to Small
+(detailed in \S\ref{sec:analysis}).
+Absolute $R^2(\text{FT})$ remains negative across all $n$
+($R^2_{\text{ZS}}{=}-6.90$), so $\Delta R^2$ is a relative-improvement
+signal (Appendix~\ref{app:probing} for full probe analysis).
+MLP probe ($k{=}5$ hidden layers) on CUDA 10-seed encoders at $n{=}10$k
+gives $\Delta R^2 {=} +0.70{\pm}0.32$ (\textbf{10/10} positive),
+confirming Ridge result ($+$0.67$\pm$0.23).
+\textbf{Headline:} drift is harmful in the low-data regime
+($n{\leq}1$k), where practitioners most need pre-trained features.
 
 \input{tables/sample_sweep}
 
@@ -232,108 +128,39 @@ itself is the finding.}
 The three measures' joint trajectory is plotted in
 Fig.~\ref{fig:dissociation}.
 
-\textbf{Probe head with positive absolute floor.}
+\textbf{Head-specificity.}
 \label{sec:forecasting:probehead}
-On the 96-step-ahead head both $R^2(\text{PT})$ and $R^2(\text{FT})$
-sit below zero at every $n$, so $\Delta R^2$ there is a
-\emph{relative} signal.  We re-probe the four saved early-stopped
-encoders at $n{=}10$k using \texttt{scripts/reprobe\_saved\_encoders.py}
-with a \emph{gradient-boosted probe} (GBM: 150 trees, HistGBM)
-on three heads: the 96-step-ahead head (paper's primary), a
-\emph{next-step-delta head} ($x_{t+1}-x_t$), and a
-\emph{forecast48 head} (first 48 steps of the 96-step target,
-a sub-horizon the encoder was not directly optimised for).
-On the 96-step head, GBM gives $R^2_{\text{PT}}{=}{-}5.94$
-(still negative).  On the delta1 head, GBM gives
-$R^2(\text{PT}){=}{+}0.059{>}0$, establishing a positive-floor
-head.  However, $\Delta R^2$ on delta1 is \emph{negative}
-($-0.056{\pm}0.03$, 4 seeds): fine-tuning loses the pre-trained
-next-step signal.
-\textbf{GBM depth sensitivity.}  To confirm this is not a
-capacity-overfitting artifact, we re-run the GBM probe at
-depths 4 and 8 (same 4 seeds, \texttt{--gbm-depth} flag):
-depth~4: $\Delta R^2{=}{-}0.060{\pm}0.006$ (4/4 negative,
-$R^2(\text{PT}){=}{+}0.062$); depth~8: $\Delta R^2{=}{-}0.052{\pm}0.006$
-(4/4 negative, $R^2(\text{PT}){=}{+}0.054$).
-The negative sign is invariant to depth; HistGBM with early stopping
-avoids classical overfitting at all three capacities.
-The original depth-6 result ($\Delta R^2{=}{-}0.056$) is robust.
-Note: $R^2(\text{PT})$ varies slightly across depths
-($+$0.062 at depth~4, $+$0.059 at depth~6, $+$0.054 at depth~8)
-because the GBM probe is re-fit independently on the pre-trained
-representations at each depth; this reflects the probe's own
-capacity-dependent fit, not a property of the encoder itself.
-All three depths establish a positive PT floor.
+On 96-step-ahead (trained head), $R^2(\text{PT/FT}) < 0$ at all $n$;
+$\Delta R^2$ is a relative signal.
+Gradient-boosted probe (GBM, 150 trees) on delta1 head ($x_{t+1}-x_t$)
+gives $R^2(\text{PT}){=}{+}0.059$ (positive floor) but
+$\Delta R^2{=}{-}0.056$ (4 seeds): fine-tuning loses pre-trained
+next-step signal, confirming benefit is task-specific.
+Ridge horizon-sweep: forecast96 (trained) $\Delta R^2{=}{+}0.116$,
+forecast48 (untrained) ${\approx}0$.
+Gain vanishes at horizon boundary (full details in
+Appendix~\ref{app:probing}).
 
-\textbf{Horizon-sweep confirms head-specificity.}
-Ridge $\Delta R^2$ across the same four early-stopped encoders:
-\emph{forecast96} (trained head): $+$0.116$\pm$0.153;
-\emph{forecast48} (untrained sub-horizon): $-$0.001$\pm$0.163;
-\emph{delta1} (untrained; Ridge baseline $R^2_{\text{PT}}{=}{-}2.3$,
-GBM baseline ${>}0$): $+$1.044$\pm$0.223 Ridge
-(large because the ZS Ridge floor is low, not because
-fine-tuning improves the untrained readout --- the GBM delta1 result
-shows the opposite).
-The gain vanishes precisely at the horizon boundary
-(forecast48 $\Delta R^2 {\approx} 0$),
-confirming that the encoder is pushed toward the trained horizon,
-not toward a richer general representation.
-Full per-seed table in Appendix~\ref{app:probing}.
+\textbf{Task-specific shift, not general improvement.}
+Fine-tuning imposes geometric cost (CKA$\downarrow$) with task-specific
+benefit ($\Delta R^2{>}0$ on trained head, ${\leq}0$ on untrained).
+Three controls confirm this is encoder-specific restructuring:
+(1)~frozen-encoder (D, CKA$=$0.9993) gives $\Delta R^2{=}{-}0.048{\pm}0.008$,
+14$\times$ smaller than condition B ($+0.668{\pm}0.226$);
+(2)~random-init encoder gives $\Delta R^2{=}{-}0.199{\pm}0.205$
+(4/5 negative, Appendix~\ref{app:randominit}), confirming pre-trained
+structure is required; (3)~top-3-layer unfreeze reproduces $\Delta R^2{>}0$
+(3/3 seeds), localising gain to top layers (Appendix~\ref{app:layerunfreeze}).
+LoRA achieves CKA$\approx$0.98 with task improvement; top-3 unfreeze gives
+CKA$\approx$0.70 with slight forgetting, showing low-rank updates preserve
+geometry more effectively.
 
-\textbf{Task-specific decodability shift toward the objective, not general representation improvement.}
-This pattern is best interpreted as the encoder drifting
-\emph{toward the fine-tuning objective} rather than developing
-better general representations.  Fine-tuning on the 96-step NLL
-objective imposes a \emph{geometric cost} (CKA$\downarrow$) while
-yielding a \emph{task-specific benefit} ($\Delta R^2{>}0$ on the
-trained head, $\Delta R^2{\leq}0$ on untrained heads).  The
-untrained heads (delta1 GBM: $\Delta R^2{=}{-}0.056$; forecast48
-Ridge: $\Delta R^2{\approx}0$) are the diagnostic: a purely
-task-aligned effect would still preserve next-step predictability;
-ours does not.  The frozen-encoder control (condition D, 5 seeds, CKA$=$0.9993$\pm$0.0001)
-gives $\Delta R^2{=}{-}0.048{\pm}0.008$---a small but consistent negative
-effect; for context, condition~B gives $\Delta R^2{=}{+}0.668{\pm}0.226$
-on the same data, so the frozen-encoder $\Delta R^2$ is $14{\times}$ smaller
-in magnitude, confirming the decodability shift is caused by encoder weight
-updates specifically, not by the training regime or data distribution.
-A randomly-initialised encoder (same architecture, same training,
-5 seeds) gives $\Delta R^2{=}{-}0.199{\pm}0.205$ substantially negative
-(4/5 negative; Appendix~\ref{app:randominit}), versus condition~B's
-$+0.668{\pm}0.226$ (10/10 positive): the pre-trained structure is
-required for the robust positive signal; the decodability
-shift is \emph{restructuring} of pre-trained representations, not
-incidental training noise.
-A top-3-layer partial-unfreeze already reproduces $\Delta R^2{>}0$ (3/3 seeds,
-Appendix~\ref{app:layerunfreeze}), localising the gain to weight updates in the
-top encoder layers specifically.
-The \emph{parameterisation} of the update also matters: LoRA achieves
-CKA$\approx$0.98 with task improvement, while top-3 full-layer unfreeze
-achieves CKA$\approx$0.70 with slight forgetting ($+$1.3\%), suggesting
-that low-rank weight changes preserve geometric similarity far more
-effectively than full-rank updates to a subset of layers
-(Appendix~\ref{app:layerunfreeze}).
-Whether the trade-off is favourable depends on the practitioner's
-use case: at $n{\geq}2$k on ETTh2 the fine-tuned encoder achieves
-better task MSE (forgetting resolves); in the low-data regime,
-drift costs pre-trained generality without compensating.
-Per-seed probe$\times$head matrix in Appendix~\ref{app:probing}.
-
-\textbf{Robustness to checkpointing protocol.}
-Early-stopped CKA at $n{=}10$k is $0.461{\pm}0.232$ versus
-$0.407{\pm}0.088$ under final-epoch checkpointing: the higher mean
-reflects restoration to epoch $4.2{\pm}2.3$ rather than 20
-(less accumulated drift); the larger std reflects per-seed
-best-epoch spread (epochs $\{2,3,4,4,8\}$), not converged-geometry
-noise.  Both protocols remain firmly drifted (CKA $\ll 0.98$,
-the LoRA-Small ceiling) and give positive Ridge $\Delta R^2$ in
-every seed individually.  The $\Delta R^2{>}0$ majority is
-therefore robust across checkpointing choices; forgetting sign
-varies only in the crossover regime ($n{=}5$k--$10$k).
-
-\textbf{Second cell: ETTm2 at $n{=}10$k confirms per-seed invariant.}
-On ETTm2 ($h{=}96$, $n{=}10$k, condition B), the cost--benefit gap
-holds in a second cell with a different outcome: fine-tuning
-\emph{improves} task MSE (forg.$=-28.2{\pm}2.2$\%, 10/10 negative)
+The $\Delta R^2{>}0$ signal is protocol-robust (holds under
+early-stopped and final-epoch checkpointing); forgetting sign varies
+in the crossover regime ($n{=}5$k--$10$k).
+ETTm2 at $n{=}10$k confirms per-seed invariant: CKA$=$0.491,
+Ridge $\Delta R^2{=}{+}5.43{\pm}2.57$ (10/10 positive),
+forg.$=-28.2{\pm}2.2$\% (10/10 negative)
 while CKA falls to $0.491{\pm}0.143$ --- drift occurs even when
 forgetting is monotonically beneficial.
 Ridge $\Delta R^2{=}{+}5.43{\pm}2.57$ (\textbf{10/10} positive); the large magnitude reflects the deeper ZS
@@ -376,44 +203,6 @@ the CKA-probe gap is established on Moirai only
 A gate-passing non-Moirai backbone on Traffic/ILI and MOMENT-1-large
 are future-work priorities (\S\ref{sec:conclusion}).
 
-% ============================================================
-\subsection{Trajectory Signature of Drift}
-\label{sec:forecasting:trajectory}
-% ============================================================
-
-The $n{=}5{,}000$ crossover variance (Table~\ref{tab:sample_sweep},
-$+$6.6$\pm$10.0\% across 7 seeds) is not uniform noise but a
-\emph{bimodal} split with a clean trajectory signature.
-Seeds $\{42,101,123,202\}$ cluster at forg.\ $-$0.1$\pm$3.7\% with
-val-MSE epoch-of-minimum $6.5\pm2.1$; seeds $\{303,456,789\}$ cluster
-at $+$15.5$\pm$7.3\% with epoch-of-minimum $0.7\pm0.5$ ---
-high-forg.\ seeds overshoot in epoch~1 and never recover (per-seed
-trajectories in Appendix~\ref{app:n5k_trajectories},
-Fig.~\ref{fig:n5k_trajectories}).
-An LR/2 ablation preserves bimodality ($+$5.8$\pm$15.7\%, 7 seeds),
-so the effect is not a pure learning-rate artefact.
-\textbf{Recipe.} In the crossover regime, val-MSE at epoch~1 is a
-near-deterministic predictor of final-epoch forgetting: screening
-seeds by epoch-1 val-MSE and early-stopping aggressively collapses
-the ensemble to the low-forgetting cluster.  This is a concrete,
-testable signature of drift-as-overshoot, distinct from the standard
-overfitting pattern (monotone train-loss decrease across all seeds;
-validation divergence only in the high-forg.\ cluster).
-\textbf{Held-out validation.}
-We LOO-validate the recipe: a threshold-free predicate
-(\texttt{ep1 val-MSE $>$ ZS val-MSE}) gives 5/7 correct cluster assignments;
-a trajectory-aware predicate (argmin epoch-of-val-MSE $<$ 3) gives 7/7
-at $n{=}5$k but is sufficient-not-necessary at $n{=}10$k (where
-best-val-MSE early-stopping alone achieves negative forgetting in all seeds).
-Sample-dependent threshold calibration is future work.
-\textbf{Mechanistic conjecture.}
-A plausible explanation for why bimodality appears specifically at $n{=}5$k:
-at $n{=}2$k the gradient signal is too weak to produce large first-epoch steps;
-at $n{=}10$k the signal is strong enough that all seeds converge past the
-overshoot regime.
-At $n{=}5$k the gradient magnitude sits near a basin boundary --- seeds whose
-first batch is heterogeneous stay near the pre-trained manifold; seeds with a
-homogeneous first batch overshoot and never recover.
-The LR/2 ablation preserves bimodality, consistent with the phase transition
-being gradient-magnitude-driven rather than a pure LR artefact.
-Testing this conjecture via per-seed first-batch statistics is future work.
+The $n{=}5$k variance ($+$6.6$\pm$10.0\%, 7 seeds) is bimodal: 4 seeds
+cluster at $-$0.1\%, 3 at $+$15.5\% with epoch-1 overshoot (full
+trajectory analysis in Appendix~\ref{app:n5k_trajectories}).
