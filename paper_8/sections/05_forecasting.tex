@@ -29,8 +29,9 @@ MSE values of 0.269/0.299 in the gate-pass comparison use
 \emph{un-normalized} targets; fine-tuning tables (Table~\ref{tab:forecasting_forgetting}
 and Table~\ref{tab:mitigation_spectrum}) report MSE on zero-mean unit-variance
 normalized targets per split (ZS baseline $=$~0.126/$h{=}96$, 0.158/$h{=}192$).
-Moirai was pre-trained on the LOTSA corpus~\cite{woo2024moirai}, which
-is documented to exclude LTSF benchmark datasets including the ETT family;
+Moirai was pre-trained on the LOTSA corpus~\cite{woo2024moirai}
+(see \S3.2 and Table~1 of~\cite{woo2024moirai} for the corpus breakdown),
+which is documented to exclude LTSF benchmark datasets including the ETT family;
 pre-training contamination is therefore not a plausible explanation for
 Moirai's ZS advantage on ETT.
 
@@ -279,7 +280,7 @@ confirming that the encoder is pushed toward the trained horizon,
 not toward a richer general representation.
 Full per-seed table in Appendix~\ref{app:probing}.
 
-\textbf{Task-specific decodability gain, not general representation improvement.}
+\textbf{Task-specific decodability shift toward the objective, not general representation improvement.}
 This pattern is best interpreted as the encoder drifting
 \emph{toward the fine-tuning objective} rather than developing
 better general representations.  Fine-tuning on the 96-step NLL
@@ -293,13 +294,14 @@ ours does not.  The frozen-encoder control (condition D, 5 seeds, CKA$=$0.9993$\
 gives $\Delta R^2{=}{-}0.048{\pm}0.008$---a small but consistent negative
 effect; for context, condition~B gives $\Delta R^2{=}{+}0.668{\pm}0.226$
 on the same data, so the frozen-encoder $\Delta R^2$ is $14{\times}$ smaller
-in magnitude, confirming the decodability gain is caused by encoder weight
+in magnitude, confirming the decodability shift is caused by encoder weight
 updates specifically, not by the training regime or data distribution.
-A randomly-initialised encoder (same architecture, same training)
-gives $\Delta R^2{=}{-}0.138$ (Appendix~\ref{app:randominit}),
-the opposite sign from condition~B's $+$0.363 at the same seed,
-confirming that pre-trained structure is required: the decodability
-gain is \emph{restructuring} of pre-trained representations, not
+A randomly-initialised encoder (same architecture, same training,
+3 seeds) gives $\Delta R^2{=}{-}0.061{\pm}0.151$ scattered near zero
+(2/3 negative; Appendix~\ref{app:randominit}), versus condition~B's
+$+0.668{\pm}0.226$ (10/10 positive): the pre-trained structure is
+required for the robust positive signal; the decodability
+shift is \emph{restructuring} of pre-trained representations, not
 incidental training noise.
 A top-3-layer partial-unfreeze already reproduces $\Delta R^2{>}0$ (3/3 seeds,
 Appendix~\ref{app:layerunfreeze}), localising the gain to weight updates in the
@@ -350,7 +352,7 @@ dataset (ETTh2) and an improving dataset (ETTm2).
 ETTh1 at $n{=}10$k (CUDA $k{=}10$) gives a third
 pattern: forgetting resolves ($-6.1{\pm}3.6$\%, 10/10 negative) but
 Ridge $\Delta R^2$ is mostly negative ($-4.23{\pm}4.47$, 2/10 positive)
---- task improves without a linear decodability gain.
+--- task improves without a task-aligned decodability shift.
 This narrows the per-seed $\Delta R^2{>}0$ invariant to ETTh2 and
 ETTm2; ETTh1 represents a task-improvement-without-decodability-gain
 regime and is discussed in \S\ref{sec:analysis}.

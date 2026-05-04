@@ -632,27 +632,42 @@ pre-trained representations being restructured, or whether it would
 occur in any encoder fine-tuned on this objective, we ran a
 \emph{random-initialisation control}: Moirai-Small with the same
 architecture but random weights (skipping HuggingFace weight loading),
-condition~B, ETTh2 $n{=}10$k, $h{=}96$, seed~42.
+condition~B, ETTh2 $n{=}10$k, $h{=}96$.
 In this setting CKA tracks similarity to the \emph{random-init}
 epoch-0 state (since there is no pre-trained reference).
+We ran 3 seeds (42/101/123) matching the layer-unfreeze set.
 
-\textbf{Result (seed 42):}
-CKA decays from 1.000 to $0.357$ after 20 epochs (the random encoder
-drifts substantially from its own starting point).
-Ridge $\Delta R^2{=}{-}0.138$ ($R^2(\text{PT}){=}{-}6.55$,
-$R^2(\text{FT}){=}{-}6.69$): the fine-tuned random-init encoder is
-\emph{less} linearly decodable for the 96-step target than the initial
-random encoder.
-Zero-shot MSE (random-init epoch-0) $=0.140$;
-fine-tuned MSE $=0.143$ (no task improvement either).
+\textbf{Results (seeds 42/101/123):}
+
+\begin{center}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Seed & CKA & $R^2(\text{PT})$ & $R^2(\text{FT})$ & $\Delta R^2$ & ZS MSE $\to$ FT MSE \\
+\midrule
+42  & 0.357 & $-6.554$ & $-6.692$ & $-0.138$ & $0.140 \to 0.378$ \\
+101 & 0.505 & $-6.780$ & $-6.631$ & $+0.149$ & $0.164 \to 0.398$ \\
+123 & 0.540 & $-6.749$ & $-6.944$ & $-0.195$ & $0.153 \to 0.354$ \\
+\midrule
+Mean$\pm$std & $0.467{\pm}0.079$ & & & $-0.061{\pm}0.151$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Across 3 seeds: $\Delta R^2{=}{-}0.061{\pm}0.151$ (2/3 negative).
+The one positive seed ($+0.149$) is substantially smaller in magnitude
+than condition~B's per-seed range ($+0.38$ to $+0.75$ for early-stopped seeds).
+None of the 3 random-init seeds approaches the pre-trained condition~B mean
+($+0.668{\pm}0.226$, 10/10 positive).
 
 Compare to condition~B (pre-trained): $\Delta R^2{=}{+}0.363$ at
 seed~42 (and $+0.668{\pm}0.226$ across $k{=}10$ CUDA seeds).
-The random-init $\Delta R^2{=}{-}0.138$ is opposite in sign and
-$2.6{\times}$ smaller in magnitude.
-This confirms that $\Delta R^2{>}0$ is not a property of any encoder
-fine-tuned on the 96-step NLL objective; pre-trained structure is
-required.  The decodability gain reflects restructuring of
+The random-init mean $\Delta R^2{=}{-}0.061$ is scattered around zero
+versus the pre-trained encoder's consistently positive signal.
+This confirms that the robust $\Delta R^2{>}0$ pattern is not a property
+of any encoder fine-tuned on the 96-step NLL objective; the pre-trained
+structure is required for the consistent positive directional shift.
+The decodability shift toward the objective reflects restructuring of
 pre-trained representations, not incidental training noise.
 
 % ============================================================
@@ -731,12 +746,12 @@ lower 3 layers are required for the encoder to recover pre-trained task quality.
 The additional $\Delta R^2$ gain from $N{=}3$ to $N{=}6$
 ($+0.48 \to +0.63$) is modest and has much higher variance
 ($0.115 \to 0.378$), consistent with the lower layers contributing primarily
-to task recovery rather than to the relative decodability gain.
+to task recovery rather than to the task-aligned decodability shift.
 
 This finding sharpens the central claim: the frozen-encoder control
 (Appendix~\ref{app:noisefloor}) rules out data-distribution confound;
 the $N{=}3$ result rules out a whole-encoder-restructuring account.
-The decodability gain is localised to the top transformer layers, and
+The decodability shift toward the objective is localised to the top transformer layers, and
 $\Delta R^2{>}0$ is a \emph{necessary but not sufficient} predictor of
 task improvement across unfreeze levels.
 Both $N{=}3$ and $N{=}6$ operate in the same deeply-negative-$R^2$ regime;

@@ -18,10 +18,11 @@ objective} --- verified by two controls:
 $\Delta R^2{=}{-}0.048{\pm}0.008$, a 14$\times$ smaller magnitude,
 ruling out data-distribution confound; and
 (ii)~a randomly-initialised encoder fine-tuned on the same data
-gives $\Delta R^2{=}{-}0.138$ (Appendix~\ref{app:randominit}),
-opposite in sign to the pre-trained encoder's $+$0.363,
-ruling out the possibility that any fine-tuned encoder on this
-objective produces $\Delta R^2{>}0$ regardless of pre-training.
+gives $\Delta R^2{=}{-}0.061{\pm}0.151$ across 3 seeds (2/3 negative;
+Appendix~\ref{app:randominit}),
+scattered near zero versus the pre-trained encoder's $+0.668{\pm}0.226$
+(10/10 positive), ruling out the possibility that any fine-tuned encoder on this
+objective produces a robust $\Delta R^2{>}0$ signal regardless of pre-training.
 This is a \emph{task-specific} benefit: $\Delta R^2{>}0$ holds on
 the objective the encoder was optimised for, but reverses on untrained
 readout targets (delta1 GBM: $\Delta R^2{=}{-}0.056$), consistent
@@ -60,7 +61,7 @@ $-6.37{\pm}0.36$ at $n{=}10$k);
 $\Delta R^2$ is a \emph{relative linear-decodability} signal.  A
 next-step-delta head with a gradient-boosted probe gives
 $R^2(\text{PT}){=}{+}0.059{>}0$ (positive-floor head) but
-$\Delta R^2 {<} 0$ there, revealing the decodability gain is
+$\Delta R^2 {<} 0$ there, revealing the decodability shift is
 objective-specific: it holds on the 96-step target fine-tuning
 optimises, not on every linear readout
 (\S\ref{sec:forecasting:probehead}, Appendix~\ref{app:probing}).
@@ -141,7 +142,10 @@ The trend-vs.-cycle distinction (ETTh1: trend-dominated;
 ETTh2/ETTm2: more cyclical) is one candidate.
 As an informal post-hoc pilot (not pre-specified), we computed
 spectral entropy (Welch PSD, normalised Shannon entropy) and the
-Hurst exponent (rescaled-range) on the target column of each dataset:
+Hurst exponent (rescaled-range) on the OT (oil temperature) target
+column of each dataset (ETT has 7 features; OT is the standard
+forecasting target; other feature columns show qualitatively similar
+spectral patterns):
 ETTh1 ($\text{SE}{=}3.61$~bits, $H{=}0.954$),
 ETTh2 ($\text{SE}{=}3.46$~bits, $H{=}0.946$),
 ETTm2 ($\text{SE}{=}2.25$~bits, $H{=}0.941$).

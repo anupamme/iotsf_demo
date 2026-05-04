@@ -78,7 +78,25 @@ On the 96-step-ahead head, absolute $R^2(\text{FT})$ remains
 negative across all probes at every sampled $n$, so $\Delta R^2$
 there is a relative-improvement signal; the next-step-delta head
 with a GBM probe gives $R^2(\text{PT}){>}0$ but reveals the
-$\Delta R^2$ gain is objective-specific (\S\ref{sec:forecasting:probehead}).
+$\Delta R^2$ shift is objective-specific (\S\ref{sec:forecasting:probehead}).
 A gate-passing non-Moirai backbone on Traffic or Exchange rate datasets
 (where non-ETT backbones are more likely to pass the value gate)
 is the highest-priority future-work direction for broadening the single-backbone scope.
+
+\textbf{Which contributions are robust to single-backbone specificity?}
+We distinguish three tiers:
+\emph{Backbone-agnostic methodological contributions} --- the uni2ts
+\texttt{PackedStdScaler} patch (reproducibility), the value-gate framework
+for screening pre-training quality, the LoRA-Large $10\times$ LR rescue
+recipe (cross-dataset validated), the frozen-encoder control design, and
+the random-init negative control design --- are robust regardless of whether
+the CKA-probe gap generalises beyond Moirai.
+\emph{Empirical contributions contingent on Moirai specificity} --- the
+three-regime characterisation, the LoRA-Small preservation result
+(CKA$\approx$0.98), and the per-seed $\Delta R^2{>}0$ invariant on
+ETTh2/ETTm2 --- stand for Moirai-ETT but would require replication to claim
+universality.
+\emph{A third finding that survives if Moirai-specificity is confirmed} ---
+the nine-of-nine gate failure of Chronos/TimesFM/MOMENT on ETT is a
+substantive negative result about ETT coverage in those backbones, independent
+of whether Moirai's dissociation generalises.

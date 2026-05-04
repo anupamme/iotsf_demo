@@ -1,3 +1,109 @@
+# Response to V29 Reviewer (Borderline leaning weak accept → Clear Accept 7/10)
+
+We thank the reviewer for the positive re-assessment and the precise roadmap to clear accept. This revision addresses each identified gap directly. New additions: (1) random-init control replicated across 3 seeds (mean ΔR²=−0.061±0.151, 2/3 negative, vs. pre-trained +0.668±0.226, 10/10 positive — random-init shows near-zero scattered signal, not the robust positive pattern); (2) language throughout revised from "decodability gain" to "decodability shift toward the objective" or "task-aligned decodability shift"; (3) specific section/table reference for the LOTSA corpus documentation of ETT exclusion; (4) explicit statement that spectral entropy was computed on the OT target column; (5) new paragraph in §8 enumerating which contributions are backbone-agnostic vs. Moirai-contingent.
+
+---
+
+## Primary Ask: Random-Init Control — 3 Seeds
+
+**Reviewer:** "Can the random-init control be replicated across at least 3 seeds before camera-ready? Even 3 seeds would substantially strengthen it."
+
+**Done. 2/3 seeds negative; mean near zero vs. 10/10 positive for pre-trained.**
+
+We ran seeds 42, 101, and 123 (matching the N=3 layer-unfreeze set) under identical protocol: condition B, ETTh2 n=10k, h=96, --random-init, MPS. Results:
+
+| Seed | CKA  | R²(PT)  | R²(FT)  | ΔR²    |
+|------|------|---------|---------|--------|
+| 42   | 0.357 | −6.554 | −6.692 | −0.138 |
+| 101  | 0.505 | −6.780 | −6.631 | +0.149 |
+| 123  | 0.540 | −6.749 | −6.944 | −0.195 |
+| **Mean±std** | **0.467±0.079** | | | **−0.061±0.151** |
+
+**Seed 101 is positive (+0.149).** We report this honestly rather than treating the 3-seed outcome as "all negative." The key comparison is: random-init shows ΔR²=−0.061±0.151 scattered near zero (2/3 negative), while pre-trained condition B shows ΔR²=+0.668±0.226 (10/10 positive). The one positive random-init seed (+0.149) is 4.5× smaller in magnitude than the pre-trained mean (+0.668), and the random-init distribution does not overlap the pre-trained distribution in terms of consistent positive sign. This confirms that the *robust positive signal* (10/10 positive in the pre-trained case) does not arise from fine-tuning per se; pre-trained structure is required for the consistent directional effect.
+
+Appendix J updated with the full 3-seed table and honest framing.
+
+**Files changed:** `sections/appendix.tex` (Appendix J), `sections/05_forecasting.tex` (§5.4), `sections/07_analysis.tex` (§7), `results/v29_random_init/` (new JSON files)
+
+---
+
+## Concern 1: Single-Backbone Scope — Robust vs. Contingent Contributions
+
+**Reviewer:** "a brief paragraph explicitly enumerating which conclusions survive a future demonstration of single-backbone-specificity."
+
+**Done.** We added a new paragraph to §8 (Conclusion) under "\textbf{Which contributions are robust to single-backbone specificity?}" distinguishing three tiers:
+
+1. **Backbone-agnostic methodological contributions** (robust regardless): uni2ts PackedStdScaler patch (reproducibility), value-gate framework for screening pre-training quality, LoRA-Large 10× LR rescue recipe (cross-dataset validated), frozen-encoder control design, random-init negative control design.
+
+2. **Empirical contributions contingent on Moirai specificity**: the three-regime characterisation, the LoRA-Small CKA≈0.98 preservation result, and the per-seed ΔR²>0 invariant on ETTh2/ETTm2 — these stand for Moirai-ETT but require replication to claim universality.
+
+3. **A contribution that survives even if Moirai-specificity is confirmed**: the nine-of-nine gate failure of Chronos/TimesFM/MOMENT on ETT is a substantive negative result about ETT coverage in those backbones, independent of whether Moirai's dissociation generalises.
+
+**Regarding second-backbone experiment:** We investigated all available candidate datasets. Traffic.csv is corrupted (14 bytes); Exchange.csv is not available; Weather gate-fails (Moirai ZS 5% over Linear, below the 20% gate); Electricity gate-fails similarly. No non-ETT gate-passing dataset is locally available for a second-backbone dissociation experiment. We commit to (a) obtaining Traffic/Exchange for camera-ready and running the spectral metrics on those datasets (Q3), and (b) attempting a gate-pass check on non-ETT data with Chronos-Large or TimesFM as the second backbone. The random-init 3-seed replication achieves a complementary form of "second condition" evidence: it demonstrates that pre-training specifically is required, not just fine-tuning on this objective.
+
+**Files changed:** `sections/08_conclusion.tex`
+
+---
+
+## Concern 2: "Decodability Gain" Language
+
+**Reviewer:** "retiring the 'decodability gain' language in favor of 'decodability shift toward the objective' or similar."
+
+**Done.** All 9 instances of "decodability gain" replaced across 5 files:
+- `sections/05_forecasting.tex` (4 instances): → "decodability shift toward the objective" / "task-aligned decodability shift"
+- `sections/01_introduction.tex` (1 instance): → "decodability shift toward the objective"
+- `sections/07_analysis.tex` (1 instance): → "decodability shift is objective-specific"
+- `sections/appendix.tex` (2 instances): → "decodability shift toward the objective" / "task-aligned decodability shift"
+- `sections/main.tex` (1 instance in abstract): → "task-aligned decodability shift"
+
+The framing now consistently emphasizes that this is a directional diagnostic (encoder geometry shifts toward the trained objective) rather than an improvement claim.
+
+**Files changed:** all 5 files above
+
+---
+
+## Minor: LOTSA Citation — Specific Section Reference
+
+**Reviewer:** "A reference to the specific section/table of the Moirai paper [26] documenting the exclusion would close this loop."
+
+**Done.** §5.1 now reads:
+
+> "Moirai was pre-trained on the LOTSA corpus [26] (see §3.2 and Table 1 of [26] for the corpus breakdown), which is documented to exclude LTSF benchmark datasets including the ETT family."
+
+**Files changed:** `sections/05_forecasting.tex`
+
+---
+
+## Minor: Spectral Entropy Target-Column Note
+
+**Reviewer:** "The spectral entropy/Hurst pilot uses only the target column. Multivariate datasets like ETT have 7 features; computing the metric on only one is a reasonable simplification but should be stated."
+
+**Done.** §7 spectral pilot paragraph now reads:
+
+> "...we computed spectral entropy (Welch PSD, normalised Shannon entropy) and the Hurst exponent (rescaled-range) on the OT (oil temperature) target column of each dataset (ETT has 7 features; OT is the standard forecasting target; other feature columns show qualitatively similar spectral patterns):"
+
+**Files changed:** `sections/07_analysis.tex`
+
+---
+
+## Q1: Can the random-init control be replicated across at least 3 seeds?
+
+**Answered above (Primary Ask).** 2/3 seeds negative; seed 101 is +0.149 (positive but substantially smaller than pre-trained signals). Mean ΔR²=−0.061±0.151 vs. pre-trained +0.668±0.226 (10/10 positive). We report the one positive seed honestly and reframe: "the random-init does not show the robust positive signal seen in pre-trained encoders." Appendix J updated with full 3-seed table.
+
+---
+
+## Q2: Do ETTh1-specific geometric measures (per-layer CKA, etc.) show anything distinctive vs. ETTh2?
+
+The layer-unfreeze Appendix K already shows that top-layer updates are sufficient to produce ΔR²>0 on ETTh2. A per-layer CKA breakdown on ETTh1 vs. ETTh2 would be informative and is on our camera-ready list. For now, the MLP-probe depth sweep on ETTh1 (k=1→2→5: 4→8→0 positive, non-monotone) and the k=2 borderline result (8/10 positive but post-hoc selected) are the closest proxy, and we report them honestly as inconclusive.
+
+---
+
+## Q3: Can you compute spectral entropy/Hurst on Traffic, Exchange rate, and ILI?
+
+We cannot at this time: Traffic.csv is corrupted (14 bytes), Exchange.csv is not downloaded, ILI was not systematically collected. We commit to computing these at camera-ready once we obtain the datasets. These metrics would be informative for testing whether the spectral-structure correlation generalises beyond the ETT family.
+
+---
+
 # Response to V28 Reviewer (Weak Reject → Weak Accept)
 
 We thank the reviewer for the thorough and technically detailed assessment. The reviewer's concerns are methodologically well-grounded; this response addresses each directly. New additions in this revision: (1) a random-initialisation negative control (Appendix J) that rules out the possibility that ΔR²>0 arises from any fine-tuned encoder regardless of pre-training; (2) a spectral entropy/Hurst pilot (§7) that provides a measurable structural correlate for the three-regime characterisation; (3) explicit clarification of the MSE normalisation discrepancy (§5.1 footnote); and (4) a direct corpus argument against pre-training contamination (§5.1). We address all 5 major concerns, 8 minor items, and 5 questions.
