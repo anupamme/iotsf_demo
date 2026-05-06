@@ -1,0 +1,35 @@
+{
+  "encoder_dir": "results/v32_h24_gbm_reprobe/seed42",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 24,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge",
+    "gbm"
+  ],
+  "head_types": [
+    "forecast96",
+    "delta1"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "gbm_depth": 6,
+  "ridge_alpha": 1.0,
+  "pooling": "mean",
+  "results": {
+    "forecast96": {
+      "ridge": -2.88492015518928,
+      "gbm_d6": -3.431460989254842
+    },
+    "delta1": {
+      "ridge": -1.1806271694395967,
+      "gbm_d6": -0.01670117370387114
+    }
+  }
+}

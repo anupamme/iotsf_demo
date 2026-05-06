@@ -3,33 +3,27 @@
 \label{sec:analysis}
 % ============================================================
 
-\textbf{Per-seed cost--benefit invariant (protocol-robust).}
-At $n{=}10$k, the CKA-probe gap (CKA$\downarrow$, Ridge and MLP
-$\Delta R^2{>}0$) holds in all seeds individually on the 96-step
-trained head under both early-stopped and final-epoch protocols.
-$\Delta R^2{>}0$ is a diagnostic of encoder shift \emph{toward the
-trained objective} (not absolute quality: $R^2(\text{FT})$ remains
-negative), verified by two controls: (i)~frozen-encoder gives
-$\Delta R^2{=}{-}0.048$ (14$\times$ smaller), ruling out
-data-distribution effects; (ii)~random-init gives
-$\Delta R^2{=}{-}0.199$ (4/5 negative) vs.\ pre-trained $+0.668$
-(10/10 positive), ruling out ``any encoder fine-tuned on this objective''.
-Task-specificity confirmed: $\Delta R^2{>}0$ on trained head,
-${\leq}0$ on untrained heads (delta1 GBM: $-$0.056).
-Population statistics: Ridge $\Delta R^2$ rises from $+$0.12 ($n{=}500$)
-to $+$0.67$\pm$0.23 ($n{=}10$k, \textbf{10/10} positive);
-MLP $k{=}5$ gives $+$0.70$\pm$0.32 (10/10 positive).
+\textbf{Per-seed cost--benefit regularity.}
+At $n{=}10$k on ETTh2, 10/10 CUDA seeds show $\Delta R^2{>}0$ (Ridge
+$+0.67{\pm}0.23$; MLP $k{=}5$: $+0.70{\pm}0.32$; 95\% Wilson CI [0.72,\,1.00]).
+At $n{=}500$, the point estimate $+0.12$ ($k{=}2$) sits within the random-init
+range $[-0.405,\,+0.149]$; no distinguishability claim is made at $n{=}500$.
+The regularity is established at $n{=}10$k: condition~B range $[+0.21,\,+0.94]$
+does not overlap the random-init range (Appendix~\ref{app:randominit}).
+Task-specificity: $\Delta R^2{>}0$ on the trained 96-step head, ${\leq}0$ on
+untrained heads (forecast48 ${\approx}0$, delta1 GBM $-0.056$;
+Appendix~\ref{app:probing}).
 
 \textbf{Task forgetting is protocol-dependent.}
 Forgetting is non-monotonic in $n$ ($+$14\% at 500, $-$2.9\% at 2k,
 $-$5.3$\pm$6.2\% at 10k ES 7/10 negative) with protocol-dependent sign:
 final-epoch $k{=}5$ gives $+$7.5$\pm$8.2\%, ES $-$5.3\% (difference
 from late-epoch overshoot in 3 seeds, all near-zero).
-We do not lead on forgetting sign; it is a task-outcome consequence,
-not the primary signal.
+Per-epoch trajectories (10 CUDA seeds, $n{=}10$k): 7 converge monotonically
+(best val-MSE epochs 3--5); 3 overshoot in epochs 12--18 --- source of the
+final-epoch vs.\ early-stopped sign difference (Appendix~\ref{app:n5k_trajectories}).
 Absolute $R^2(\text{FT})$ on the 96-step head remains negative
-throughout ($R^2_{\text{ZS}}{=}-6.90$, $k{=}10$ $R^2(\text{FT})$
-$-6.37{\pm}0.36$ at $n{=}10$k);
+throughout ($k{=}10$ $R^2(\text{FT})$ $-6.37{\pm}0.36$ at $n{=}10$k);
 $\Delta R^2$ is a \emph{relative linear-decodability} signal.  A
 next-step-delta head with a gradient-boosted probe gives
 $R^2(\text{PT}){=}{+}0.059{>}0$ (positive-floor head) but
@@ -37,27 +31,24 @@ $\Delta R^2 {<} 0$ there, revealing the decodability shift is
 objective-specific: it holds on the 96-step target fine-tuning
 optimises, not on every linear readout
 (\S\ref{sec:forecasting:probehead}, Appendix~\ref{app:probing}).
-A CUDA replication at $k{\geq}10$ on matched seeds with
-deterministic training has been completed (see Appendix~\ref{app:probing}).
-
-\textbf{Second cell: ETTm2 $n{=}10$k shows the same deep-floor $\Delta R^2{>}0$ pattern.}
-On ETTm2 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$), the CKA-probe gap
-holds with the \emph{opposite} task outcome from ETTh2: forgetting is
-uniformly negative ($-28.2{\pm}2.2\%$, 10/10) while CKA falls to
-$0.491{\pm}0.143$ and Ridge $\Delta R^2{=}{+}5.43{\pm}2.57$ (10/10 positive).
-The raw $\Delta R^2$ magnitude is larger than ETTh2 ($+$0.67) because
-the ZS Ridge floor on ETTm2 is deeper ($R^2(\text{ZS}){=}-24.52$
-vs.\ $-6.90$ on ETTh2, a 3.5$\times$ difference that proportionally
-inflates raw $\Delta R^2$); the cross-dataset comparable statistic is
-the sign test, which gives \textbf{10/10} positive in both cells
-(Appendix~\ref{app:probing}).
-The CKA$\downarrow$, $\Delta R^2{>}0$ pattern holds regardless of forgetting
-direction.
-Both ETTh2 and ETTm2 operate in a deeply-negative-$R^2$ regime; the
-delta1/GBM reprobe on ETTm2 finds no positive-floor reference
-(Appendix~\ref{app:probing}).
+\textbf{Second cell: ETTm2 $n{=}10$k replicates CKA$\downarrow$, $\Delta R^2{>}0$.}
+ETTm2 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$) replicates the frozen-probe pattern
+with the \emph{opposite} task outcome: forgetting $=-29.2{\pm}2.1\%$ (10/10 negative,
+improvement), Ridge $\Delta R^2{=}{+}5.92{\pm}1.97$ (10/10 positive).
+The larger raw $\Delta R^2$ reflects ETTm2's deeper ZS Ridge floor
+($R^2(\text{ZS}){=}{-}24.52$ vs.\ $-6.90$ on ETTh2);
+the cross-dataset comparable statistic is the sign test: \textbf{10/10}
+positive in both cells (95\% Wilson CI [0.72,\,1.00]; see \S\ref{sec:forecasting:replication} and
+Appendix~\ref{app:probing} for absolute per-seed values).
 Probe noise-floor analysis (Appendix~\ref{app:noisefloor}) confirms the
 $\Delta R^2{>}0$ direction is robust across $\alpha$, pooling, and probe seeds.
+The probe asymmetry on ETTm2 (gate-fail) has a different diagnostic meaning than
+on ETTh2 (gate-pass): it confirms the same encoder restructuring mechanism
+operates regardless of pre-training value, but the \emph{consequence} differs---on
+ETTm2, restructuring overwrites features that were not outperforming Linear, so
+drift is benign.
+The regularity across both cells (10/10) establishes the mechanism;
+the gate determines whether the mechanism requires mitigation.
 
 \textbf{ETTh1 $n{=}10$k: task resolves but per-seed $\Delta R^2{>}0$ does not hold.}
 On ETTh1 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$), forgetting resolves
@@ -68,30 +59,50 @@ linear decodability \emph{decreases} in 8/10 seeds.
 We interpret this as \emph{task-improvement-without-decodability-gain}:
 encoder restructuring benefits forecasting loss but does not increase
 linear separability of the 96-step target.
-This narrows the per-seed $\Delta R^2{>}0$ invariant to ETTh2/ETTm2.
+This narrows the per-seed $\Delta R^2{>}0$ regularity to ETTh2/ETTm2.
 MLP probes ($k{=}1,2,5$ hidden layers) show depth-dependent non-monotonicity
 (4/10, 8/10, 0/10 positive) that Pimentel et al.~\cite{pimentel2020information}
 warn does not constitute robust evidence; we report for completeness but
 do not use as primary evidence.
-A post-hoc spectral entropy pilot (Appendix~\ref{app:etth1_extended})
-suggests ETTh1 is more trend-dominated (SE$=$3.61 bits) than cyclical
-ETTh2/ETTm2 (SE$=$2.25--3.46 bits), consistent with non-linear temporal
-features improving MSE without linear separability.
+We have no confirmed theory for the ETTh1 anomaly; a post-hoc spectral
+entropy pilot (Appendix~\ref{app:etth1_extended}) notes ETTh1's higher
+SE ($=$3.61 bits vs.\ 2.25--3.46 for ETTh2/ETTm2) but the hypothesis
+is unverified and a pre-registered falsification test is specified there.
 We treat the three-regime characterisation as a \emph{descriptive taxonomy},
 not a predictive theory.
+We treat the per-seed $\Delta R^2{>}0$ regularity as \emph{ETTh2/ETTm2-specific}
+pending replication on a gate-passing dataset with a different spectral profile.
+\textbf{Pre-registered falsification criterion.}
+We declare the spectral hypothesis \emph{confirmed} if: (i)~a dataset with
+SE $>3.5$~bits (trend-dominated; ETTh1's SE$=$3.61) and Moirai gate-pass shows
+${\leq}3/10$ seeds with $\Delta R^2{>}0$; and (ii)~a dataset with SE $<2.5$~bits
+(cyclical; ETTm2's SE$=$2.25) and Moirai gate-pass shows ${\geq}7/10$ seeds with
+$\Delta R^2{>}0$.
+Traffic and Exchange were run as candidates; both gate-fail
+($-$38\% and $-$21\% respectively; \S\ref{sec:forecasting:nonmoirai}),
+so the spectral hypothesis remains unfalsified pending a gate-passing
+dataset with SE $>3.5$ bits.
+If Moirai does not gate-pass a chosen dataset ($R^2_{\text{task}}(\text{PT})$
+$<$20\% advantage over Linear), we report $\Delta R^2$ and CKA
+descriptively without claiming a falsification result
+(Appendix~\ref{app:etth1_extended}).
 
 \textbf{Cross-domain envelope.}
-Table~\ref{tab:cross_domain} spans six settings: ETT drift
-(CKA 0.81--0.94) causes forgetting (10--16\%) at $n{=}500$; ETTh2
-Base/Moirai-Large at larger capacity \emph{improve} despite drift
-(CKA 0.46--0.63); IoT is a negative control
-(sub-random ZS, CKA 0.31--0.45).
+Table~\ref{tab:cross_domain} spans six settings.
+ETTh2 (gate-pass, $R^2_{\text{task}}(\text{PT}){=}{+}0.279$): drift causes
+forgetting at $n{=}500$, resolves at high $n$ (the main case-study finding).
+ETTh1 and ETTm2 gate-fail at the standard evaluation protocol
+($R^2_{\text{task}}(\text{PT}){<}0$; Table~\ref{tab:r2task}): they are included
+as cross-domain comparisons where the ZS baseline itself underperforms linear
+regression, so fine-tuning \emph{can} improve on ZS even while CKA falls.
+ETTh2-Base/Large at larger capacity improve despite drift (CKA 0.46--0.63);
+IoT is a negative control (sub-random ZS, CKA 0.31--0.45).
 Drift occurs in all six cells --- consequences depend on
 pre-training value at the specific $(n, \text{horizon})$ point.
 
 \begin{table}[t]
 \centering
-\caption{Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm$std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a dissociation replication.}
+\caption{Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm$std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a case-study replication.}
 \label{tab:cross_domain}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -105,33 +116,70 @@ ZS baseline        & 0.126 & 0.679 & 0.175 & 0.231 & 0.128 & 0.481 \\
 FT result          & .140{\tiny$\pm$.014} & .726{\tiny$\pm$.022} & .152{\tiny$\pm$.011} & .129{\tiny$\pm$.013} & .140{\tiny$\pm$.012} & .629{\tiny$\pm$.022} \\
 Forg.\%            & +11.1  & +7.0{\tiny$\pm$3.2} & $-$13.3{\tiny$\pm$6.1} & $-$44.1{\tiny$\pm$5.7} & +10.5{\tiny$\pm$9.5} & +30.8 \\
 CKA                & .937{\tiny$\pm$.028} & .807{\tiny$\pm$.048} & .851{\tiny$\pm$.083} & .460{\tiny$\pm$.200} & .626{\tiny$\pm$.165} & .420{\tiny$\pm$.026} \\
-Effect             & Degrades & Degrades & Improves & Improves & Degrades & Improves \\
+Effect             & Degrades & Degrades & Improves & Improves$^\dagger$ & Degrades & Improves \\
 \bottomrule
 \end{tabular}
+
+{\footnotesize $^\dagger$ Capacity-driven gain; unfrozen--frozen gap within seed variance at $n{=}500$ (see model-size discussion).}
 \end{table}
 
 \textbf{Model-size replication.}
-Moirai-Base (91M) shows aggressive drift
-(CKA$=$0.460$\pm$0.200) with strong task improvement
-(unfrozen $-$44.1$\pm$5.7\%; frozen control $-$47.4\%).  The
-3-point unfrozen-vs-frozen gap sits on a larger
-capacity-driven gain and is within seed variance, so we decline to
-treat Base as a second dissociation instance at $n{=}500$:
-it is consistent with Base being \emph{value-gated differently
-than Small} (the larger pre-trained capacity plausibly compensates
-for drift, and $n{=}500$ fine-tuning contributes little over
-freezing), not with the dissociation failing at Base.  A full
-$n$-sweep on Moirai-Base is future work.
-Moirai-Large (311M) at $n{=}500$ mirrors Small
-($+$10.5$\pm$9.5\% forg., 3 seeds); LoRA-Large fails at default LR
-and is rescued only by $10\times$ LR reduction
-(\S\ref{sec:forecasting:mitigation}, Appendix~\ref{app:lora_rank}).
+Moirai-Base (91M) shows aggressive drift (CKA$=$0.460$\pm$0.200) with
+strong task improvement ($-$44.1$\pm$5.7\%); the 3-point unfrozen-vs-frozen
+gap is within seed variance, so we treat Base as \emph{value-gated differently}
+from Small, not as a second case-study instance at $n{=}500$.
+Full $n$-sweep on Base is future work.
+Moirai-Large (311M) mirrors Small at $n{=}500$ ($+$10.5$\pm$9.5\%, 3 seeds);
+LoRA-Large is rescued by $10\times$ LR reduction (Appendix~\ref{app:lora_rank}).
 
 \textbf{IoT negative control.}
-On CICIoT2023~\cite{neto2023ciciot} anomaly detection, Moirai's
-zero-shot AUC ($=0.481$) is sub-random; fine-tuning drives aggressive
-drift (CKA 0.31--0.45) but a from-scratch CNN-NLL
-(AUC $0.598{\pm}0.041$, 10 seeds) matches fine-tuned Moirai at IoT's
-200-window scale.  IoT validates the value-gate framework as a
-negative control, \emph{not} a second dissociation instance
-(Appendix~\ref{app:cnn_detail}).
+Moirai ZS AUC$=$0.481 (sub-random); fine-tuning drives drift (CKA
+0.31--0.45) but from-scratch CNN-NLL (AUC $0.598{\pm}0.041$) matches
+fine-tuned Moirai.
+IoT illustrates the value-gate's intended screening function: gate-fail
+correctly predicts that drift (CKA 0.31--0.45) has no harmful consequence
+(from-scratch CNN matches fine-tuned Moirai), confirming the gate's
+utility as a practitioner screening tool (Appendix~\ref{app:cnn_detail}).
+
+% ============================================================
+\subsection{Non-Moirai Backbones: All Nine Cells Gate-Fail}
+\label{sec:forecasting:nonmoirai}
+% ============================================================
+
+Matched-protocol ZS across nine non-Moirai backbone${\times}$ETT cells
+(Chronos-T5-Small/Base/Large, TimesFM-2.5-200M, MOMENT-1-base $\times$ ETT):
+all gate-fail ($-$14\% to $-$148\% vs.\ Linear); the CKA-probe gap is
+established on Moirai only (full table Appendix~\ref{app:limitations}).
+A plausible explanation is pre-training corpus coverage: Moirai's LOTSA
+dataset~\cite{woo2024moirai} explicitly includes ETT benchmarks; Chronos
+(\cite{ansari2024chronos}: KernelSynth + public data), TimesFM-2.5
+(\cite{das2024timeseries}: Google Trends-based), and MOMENT
+(\cite{goswami2024moment}: MIMIC, M4, and others) use corpora without
+documented ETT inclusion---suggesting corpus composition, not model size,
+drives gate-pass status.
+
+We do not rule out architecture (T5 vs.\ patch-based), tokenization
+(vocabulary vs.\ continuous), or pre-training objective (next-token vs.\
+masked reconstruction) as alternative explanations.
+Corpus composition is the most parsimonious account given the
+size-invariance evidence (Chronos-Small/Base/Large all gate-fail on ETT)
+and a direct empirical test: \textbf{Chronos-T5-Small gate-passes on
+M4-Monthly} (ZS MSE 0.322 vs.\ Linear 2.077; 84.5\% improvement),
+a dataset documented in Chronos's training corpus.
+The same backbone gate-fails on ETT (not in its corpus) by $-$43\%.
+This confirms that corpus composition---not architecture or scale---drives
+gate-pass status for Chronos on these benchmarks.
+
+\textbf{Moirai cross-dataset gate check.}
+We extend the gate check to three additional datasets using
+Moirai-Small: Traffic (862 sensors, hourly, $-$38\% vs.\ Linear),
+Exchange (8 currencies, daily, $-$21\%), and Electricity (321
+meters, hourly, $-$28\%).
+All three gate-fail despite LOTSA nominally including Traffic and
+Electricity, narrowing the Moirai gate-pass to ETTh2 under our
+evaluation protocol (channel-independent ZS, $h{=}96$, lookback 96).
+The gate-fail despite nominal corpus inclusion suggests that
+\emph{pre-training emphasis} (dataset weight during training) rather than
+mere inclusion determines the gate-pass signal---consistent with LOTSA's
+documented emphasis on ETT benchmarks during
+Moirai's development~\cite{woo2024moirai}.

@@ -6,13 +6,26 @@
 \textbf{Catastrophic forgetting in fine-tuning.}
 Catastrophic forgetting during fine-tuning is extensively studied in continual
 learning~\cite{kirkpatrick2017ewc, li2017lwf} and
-NLP~\cite{luo2024forgetting}. Kumar et al.~\cite{kumar2022finetuning} show
+NLP~\cite{luo2023forgetting}. Kumar et al.~\cite{kumar2022finetuning} show
 full fine-tuning can distort pre-trained features relative to linear probing;
 Andreassen et al.~\cite{andreassen2023evolution} characterize OOD robustness
 decay throughout fine-tuning. Our contribution is a systematic
 \emph{characterization} for time-series foundation models: CKA, linear
 probing, weight drift, and frozen-encoder controls across domains with
 contrasting pre-training value.
+
+\textbf{Time-series foundation model adaptation.}
+Recent work on adapting pre-trained time-series models includes
+probabilistic fine-tuning (Lag-Llama~\cite{rasul2024lagllama}),
+generative pre-training with task-specific heads
+(Timer~\cite{liu2024timer}), LLM reprogramming
+(Time-LLM~\cite{jin2024timellm}), and cross-task transfer
+(One Fits All~\cite{zhou2023onefitsall}).
+These works develop \emph{adaptation recipes}; our contribution is
+orthogonal: a \emph{diagnostic methodology} for characterising what
+happens to pre-trained representations during any such adaptation,
+applicable when the practitioner needs to decide whether drift is
+harmful or benign.
 
 \textbf{Setting.}
 Given a pre-trained time-series foundation model with encoder
@@ -28,8 +41,20 @@ encoder changes using three diagnostics (\S\ref{sec:method}):
 \textbf{Pre-training value gate.}
 Studying whether fine-tuning destroys valuable features requires a domain
 where such features are demonstrably present.  We set the gate at zero-shot
-MSE 20\% below a Linear baseline; ETTh1/ETTh2/ETTm2 at $h{=}96$ pass with
-Moirai-Small.  Domains that gate-fail serve as negative controls.
+MSE 20\% below a Linear baseline; ETTh2 at $h{=}96$ passes with
+Moirai-Small ($R^2_{\text{task}}(\text{PT}){=}{+}0.279$).
+ETTh1 and ETTm2 gate-fail at the standard evaluation protocol
+($R^2_{\text{task}}(\text{PT}){=}{-}0.41$ and ${-}0.56$ respectively;
+Table~\ref{tab:r2task}); they are included as cross-domain comparisons
+to characterise drift behaviour outside the gate-pass regime.
+Domains that gate-fail serve as negative controls.
+The 20\% threshold is calibrated to ETT short-horizon benchmarks where
+linear baselines are surprisingly competitive~\cite{zeng2023transformers}:
+a model must substantially outperform a lookback-96 linear regression before
+drift can be \emph{harmful} (rather than irrelevant).
+The threshold is a practical screen, not a universal constant;
+we report $R^2_{\text{task}}(\text{PT})$ values for each cell
+(Table~\ref{tab:r2task}) so readers can apply alternative thresholds.
 
 \textbf{Task-level consequence: forgetting.}
 We define forgetting as signed relative change in zero-shot-canonical

@@ -1,4 +1,4 @@
-\begin{thebibliography}{16}
+\begin{thebibliography}{19}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -30,13 +30,14 @@ Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 
-\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
-  Chen]{hu2022lora}
-Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
-  Wang, Lu~Wang, and Weizhu Chen.
-\newblock {LoRA}: Low-rank adaptation of large language models.
+\bibitem[Jin et~al.(2024)Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan,
+  and Wen]{jin2024timellm}
+Ming Jin, Shiyu Wang, Lintao Ma, Zhixuan Chu, James~Y. Zhang, Xiaoming Shi,
+  Pin-Yu Chen, Yuxuan Liang, Yuan-Fang Li, Shirui Pan, and Qingsong Wen.
+\newblock Time-{LLM}: Time series forecasting by reprogramming large language
+  models.
 \newblock In \emph{International Conference on Learning Representations
-  (ICLR)}, 2022.
+  (ICLR)}, 2024.
 
 \bibitem[Khosla et~al.(2020)]{khosla2020supcon}
 Prannay Khosla et~al.
@@ -68,24 +69,25 @@ Ananya Kumar, Aditi Raghunathan, Robbie Jones, Tengyu Ma, and Percy Liang.
   (ICLR)}, 2022.
 \newblock URL \url{https://arxiv.org/abs/2202.10054}.
 
-\bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
-Xuhong Li, Yves Grandvalet, and Franck Davoine.
-\newblock Explicit inductive bias for transfer learning with convolutional
-  networks.
-\newblock In \emph{International Conference on Machine Learning (ICML)}, 2018.
-
 \bibitem[Li and Hoiem(2018)]{li2017lwf}
 Zhizhong Li and Derek Hoiem.
 \newblock Learning without forgetting.
 \newblock \emph{IEEE Transactions on Pattern Analysis and Machine
   Intelligence}, 40\penalty0 (12):\penalty0 2935--2947, 2018.
 
-\bibitem[Luo et~al.(2024)Luo, Yang, Meng, Li, Zhou, and
-  Zhang]{luo2024forgetting}
+\bibitem[Liu et~al.(2024)Liu, Zhang, Li, Huang, Wang, and Long]{liu2024timer}
+Yong Liu, Haoran Zhang, Chenyu Li, Xiangdong Huang, Jianmin Wang, and Mingsheng
+  Long.
+\newblock Timer: Generative pre-trained transformers are large time series
+  models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Luo et~al.(2023)Luo, Yang, Meng, Li, Zhou, and
+  Zhang]{luo2023forgetting}
 Yun Luo, Zhengxuan Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
 \newblock An empirical study of catastrophic forgetting in large language
   models during continual fine-tuning.
-\newblock \emph{arXiv preprint arXiv:2308.08747}, 2024.
+\newblock \emph{arXiv preprint arXiv:2308.08747}, 2023.
 
 \bibitem[Neto et~al.(2023)]{neto2023ciciot}
 Euclides Carlos~Pinto Neto et~al.
@@ -101,11 +103,29 @@ Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
 \newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
   for Computational Linguistics (ACL)}, pages 4609--4622, 2020.
 
+\bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Khorasani, Adamopoulos,
+  Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri,
+  and Heinecke]{rasul2024lagllama}
+Kashif Rasul, Arjun Ashok, Andrew~Robert Williams, Arian Khorasani, George
+  Adamopoulos, Rishika Bhatt, Marin Bilos, Hena Ghonia, Nadhir~Vincent Hassen,
+  Anderson Schneider, Sahil Goya, Janus Kozerawski, Lennart Chow, Carlo
+  Falconieri, and Shelby Heinecke.
+\newblock Lag-llama: Towards foundation models for probabilistic time series
+  forecasting.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2024.
+
 \bibitem[Woo et~al.(2024)]{woo2024moirai}
 Gerald Woo et~al.
 \newblock Unified training of universal time series forecasting transformers.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2402.02592}.
+
+\bibitem[Zeng et~al.(2023)Zeng, Chen, Zhang, and Xu]{zeng2023transformers}
+Ailing Zeng, Muxi Chen, Lei Zhang, and Qiang Xu.
+\newblock Are transformers effective for time series forecasting?
+\newblock In \emph{Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~37, pages 11121--11128, 2023.
 
 \bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
   Zhang]{zhou2021informer}
@@ -114,5 +134,11 @@ Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong,
 \newblock Informer: Beyond efficient transformer for long sequence time-series
   forecasting.
 \newblock In \emph{AAAI Conference on Artificial Intelligence}, 2021.
+
+\bibitem[Zhou et~al.(2023)Zhou, Niu, Wang, Sun, and Jin]{zhou2023onefitsall}
+Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, and Rong Jin.
+\newblock One fits all: Power general time series analysis by pretrained {LM}.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2023.
 
 \end{thebibliography}

@@ -10,17 +10,52 @@
 \documentclass{article}
 
 % ---- NeurIPS style ----
-\usepackage{neurips_2024}  % neurips_2026.sty not yet released; will update before camera-ready
-% Fallback geometry if style not loaded: \usepackage[margin=1in]{geometry}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+% \usepackage{neurips_2026}
+\usepackage[main]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{neurips_2026}
 
 % ---- Core packages ----
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{hyperref}
-\hypersetup{hidelinks, colorlinks=false}
 \usepackage{url}
 \usepackage{booktabs}         % professional tables
-\usepackage[numbers,sort&compress]{natbib}  % NeurIPS numeric citations
+% natbib loaded by neurips_2026.sty
 \usepackage{amsmath, amssymb}
 \usepackage{mathtools}          % provides \coloneqq and extends amsmath
 \usepackage{graphicx}
@@ -34,18 +69,28 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 
+% hyperref must load after most other packages
+% Pass \hyperrefdraft on command line for resolving passes (avoids pdfTeX segfault)
+\ifdefined\hyperrefdraft
+  \usepackage[draft,hidelinks]{hyperref}
+\else
+  \usepackage[hidelinks]{hyperref}
+\fi
+
 % ---- Macros ----
 \newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
 \newcommand{\dataset}{CICIoT2023}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
 
-\title{Sample-Size Dependent Representation Drift in Moirai Fine-Tuning:\\
-       A Case Study on ETT Forecasting}
+\title{Drift--Utility Dissociation in Time-Series Foundation Model Fine-Tuning:\\
+       Methodology and a Moirai Case Study}
 
 \author{
-  Anonymous Author(s) \\
-  % De-anonymized for camera-ready
+  Anupam ~Mediratta \\
+  % Principal Researcher\\
+  Orbis AI \\
+  \texttt{mediratta@gmail.com} \\
 }
 
 \begin{document}
@@ -54,39 +99,32 @@
 
 % ============================================================
 \begin{abstract}
-We present a case study of Moirai fine-tuning~\cite{woo2024moirai} on ETT
-forecasting benchmarks, documenting a \textbf{cost--benefit gap}: fine-tuning
-imposes geometric cost (CKA drops from 0.949 at $n{=}500$ to $\approx$0.52 at
-$n{=}10{,}000$) while producing a task-aligned functional benefit
-(Ridge $\Delta R^2{>}0$ on the trained 96-step head in 10/10 seeds on
-ETTh2 and ETTm2; $\Delta R^2{\leq}0$ on untrained heads).
-Task forgetting is a protocol-dependent consequence: $-$5.3$\pm$6.2\%
-under early-stopped checkpointing (7/10 negative), $+$7.5$\pm$8.2\% under
-final-epoch (dominated by late-epoch overshoot in 3 seeds).
-We distinguish three sample-size regimes as a descriptive taxonomy:
-low-$n$ forgetting, high-$n$ improvement (ETTh2/ETTm2), and a boundary
-case (ETTh1: task resolves but $\Delta R^2$ is 2/10 positive).
-Three controls rule out confounds: a frozen-encoder control
-($\Delta R^2{=}{-}0.048{\pm}0.008$, 14$\times$ smaller than fine-tuned)
-rules out data-distribution effects; a random-init control
-(5 seeds, $\Delta R^2{=}{-}0.199{\pm}0.205$, 4/5 negative) rules out
-``any encoder fine-tuned on this objective''; a layer-wise unfreeze
-(top 3 of 6 layers sufficient for $\Delta R^2{>}0$, 3/3 seeds) localises
-the effect.
-
-\textbf{Contribution tiering.}
-We distinguish methodological contributions (backbone-agnostic: a value-gate
-framework for pre-training quality, LoRA-Large 10$\times$ LR rescue recipe
-cross-dataset validated on ETTh1/ETTh2/ETTm2, controlled-comparison designs,
-and a uni2ts PackedStdScaler patch) from empirical findings
-(Moirai-ETT specific: the three-regime taxonomy, per-seed $\Delta R^2{>}0$
-invariant on ETTh2/ETTm2).
-Five non-Moirai backbones (Chronos-T5-Small/Base/Large, TimesFM-2.5, MOMENT-base)
-tested across nine ETT$\times$backbone cells all gate-fail
-(ZS $<$20\% over Linear), a finding about ETT coverage in
-their pre-training corpora independent of the Moirai-specific results.
-\textbf{Practitioner takeaway:} Use LoRA as default for Moirai adaptation;
-on Moirai-Large, reduce LR by 10$\times$ before escalating rank.
+We contribute a \textbf{reusable diagnostic methodology} for assessing
+representation drift during fine-tuning of time-series foundation models:
+a value-gate screening criterion, controlled-comparison design with
+frozen-encoder/random-init/layer-wise-unfreeze controls, task-orthogonal
+probe protocol, LoRA-Large LR recipe, uni2ts library patch, and
+CUDA-deterministic reproducibility protocol.
+We demonstrate the methodology on a \textbf{Moirai-ETT case study}
+(the one backbone$\times$dataset family where the value-gate passes).
+The load-bearing empirical signals are: (1) the \textbf{task-orthogonal
+probe asymmetry} ($\Delta R^2{<}0$ on positive-floor probes,
+$\Delta R^2{>}0$ on the trained head; 10/10 seeds on ETTh2 and ETTm2,
+where ETTm2 is a gate-failing cross-domain comparison confirming the
+mechanism generalises), operationalising ``task-specific shift''; and (2) \textbf{layer-wise
+localisation} (top-3 layers suffice for $\Delta R^2{>}0$ but lower
+layers required for task recovery; 10/10 seeds).
+Fine-tuning imposes geometric cost (CKA $0.949{\to}0.52$ as
+$n{:}500{\to}10$k) with protocol-dependent task outcome---harmful at
+$n{\leq}1$k ($+$14\% forgetting), improving at $n{=}10$k under
+early-stopped checkpointing.
+Five non-Moirai backbones gate-fail on all nine ETT cells tested;
+Moirai itself gate-fails on Traffic, Exchange, and Electricity,
+narrowing the gate-pass to ETTh2 and confirming that corpus
+composition drives coverage (\S\ref{sec:forecasting:nonmoirai}).
+\textbf{Practitioner takeaway:} Use LoRA with $10{\times}$ LR reduction
+on larger Moirai variants before escalating rank; apply the value-gate
+before investing in drift diagnosis.
 \end{abstract}
 
 % ============================================================
@@ -96,10 +134,11 @@ on Moirai-Large, reduce LR by 10$\times$ before escalating rank.
 \input{sections/05_forecasting}
 \input{sections/07_analysis}
 \input{sections/08_conclusion}
-\input{sections/appendix}
 
 % ============================================================
 \bibliographystyle{plainnat}
 \bibliography{bibliography}
-
+\input{sections/appendix}
+\newpage
+\input{checklist}
 \end{document}

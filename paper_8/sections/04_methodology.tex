@@ -28,6 +28,19 @@ across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
 All Moirai sizes (Small 13.8M, Base 91M, Large 311M) use the same
 protocol.
 
+\textbf{Deterministic training protocol.}
+All $n{=}10$k per-seed results use CUDA-deterministic training:
+\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8}, \texttt{torch.backends.cudnn.deterministic=True},
+seeded DataLoader workers, and fixed \texttt{PYTHONHASHSEED}.
+This makes the 10-seed per-seed comparison reproducible: any researcher
+can recover identical per-seed forgetting and $\Delta R^2$ values by
+re-running with the same seeds on the same GPU architecture (A10G).
+Full seed list, per-seed values, and hardware specification are in
+Appendix~\ref{app:probing}.
+Cross-hardware reproducibility (e.g., A100 vs.\ A10G) has not been empirically
+verified; the deterministic guarantee applies within the same GPU architecture
+(A10G, as used in this paper).
+
 \textbf{uni2ts PackedStdScaler patch.\footnote{We patched an in-place
 tensor mutation in \texttt{uni2ts}'s \texttt{PackedStdScaler} that
 silently detaches autograd; a differentiable \texttt{torch.where}

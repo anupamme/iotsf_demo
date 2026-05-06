@@ -12,10 +12,11 @@ a Moirai case study on ETT forecasting benchmarks that characterises
 what happens to pre-trained representations during fine-tuning.
 
 \textbf{Representation drift during fine-tuning.}
-We provide systematic empirical characterization of \emph{representation
-drift}---progressive overwriting of pre-trained features---during
-fine-tuning of Moirai.  The drift--utility dissociation is established
-on the Moirai family (Small 13.8M, Base 91M, Large 311M).
+We contribute a systematic \emph{diagnostic methodology} for characterising
+representation drift---progressive overwriting of pre-trained features---during
+fine-tuning of time-series foundation models, and demonstrate it on Moirai
+(Small 13.8M, Base 91M, Large 311M) as the single backbone family where
+pre-trained features pass our value-gate on ETT benchmarks.
 Matched-protocol attempts to replicate on three non-Moirai backbones
 (Chronos-T5-Small~\cite{ansari2024chronos},
 TimesFM-2.5-200M~\cite{das2024timeseries},
@@ -26,94 +27,79 @@ backbone-specific ETT pre-training coverage
 (\S\ref{sec:forecasting}, Appendix~\ref{app:limitations}).
 Catastrophic forgetting during fine-tuning is well-studied in continual
 learning~\cite{kirkpatrick2017ewc, li2017lwf} and
-NLP~\cite{luo2024forgetting}; our contribution is a systematic
-case-study diagnosis for Moirai, with controlled experiments isolating
-drift from overfitting and a spectrum of mitigations.
+NLP~\cite{luo2023forgetting}; our contribution is reusable diagnostic
+methodology, demonstrated on a well-controlled Moirai case study.
 We use ``catastrophic forgetting'' to mean degraded performance on
 distributions the model originally handled well---consistent with
 continual learning usage where the ``previous task'' is the pre-training
 objective.
 
 \textbf{Distinguishing drift from overfitting.}
-Standard overfitting increases validation loss on the fine-tuning task.
-Representation drift instead degrades zero-shot performance on tasks
-the model previously handled well, while training loss continues to
-decrease monotonically.  Our frozen-encoder control (same data, same
-epochs, CKA$=$1.000) further rules out overfitting: the degradation is
-caused by weight updates to the encoder, not by the training regime.
+Representation drift degrades zero-shot performance while training loss
+decreases (not overfitting); the frozen-encoder control
+(CKA$=$1.000, same data/epochs) isolates encoder weight updates as the cause.
 
-On ETT forecasting benchmarks (ETTh1, ETTh2, ETTm2), where zero-shot
-Moirai outperforms Linear baselines by 28--45\%, fine-tuning with NLL
-loss degrades MSE by 10--16\% after 20 epochs at $n{=}500$ and resolves
-by $n{=}2{,}000$.  On IoT (sub-random ZS AUC), CKA drops to 0.31--0.45
-but task performance improves from a near-null baseline: the drift is
-irrelevant because there were no valuable features to forget.
+On ETTh2 (gate-pass: Moirai outperforms Linear by 28--45\%,
+$R^2_{\text{task}}(\text{PT}){=}{+}0.279$), fine-tuning degrades MSE
+by 10--16\% at $n{=}500$ and resolves by $n{=}2{,}000$.
+ETTh1 and ETTm2 gate-fail at the standard evaluation protocol and are
+included as cross-domain comparisons (Table~\ref{tab:r2task}).
+On IoT (sub-random ZS AUC), CKA drops to 0.31--0.45 but task performance
+improves from a near-null baseline: the drift is irrelevant because there
+were no valuable features to forget.
 
 \textbf{Why this matters.}
 Time-series drift directly harms distributional predictions for anomaly
 scoring and probabilistic forecasting.
 Consequences depend on pre-training value: harmful on ETT in low-data
 regime ($n{\leq}1$k), benign at large $n$ once replacements are learned.
+\emph{Counterfactual without the value-gate:}
+Chronos-T5-Small on ETTh2 gives ZS MSE$=$0.304 vs.\ Linear 0.213
+(gate-fail: ZS \emph{underperforms} by 43\%).
+A practitioner who skipped screening would fine-tune Chronos, observe
+CKA dropping, diagnose ``drift,'' and apply LoRA/EWC to preserve
+features that had \emph{no advantage over Linear}---wasted effort.
+The value-gate prevents this: drift diagnosis is meaningful only when
+pre-trained features demonstrably outperform a trivial baseline.
+
+\textbf{Scope.}
+The empirical case study is narrow by design: one gate-passing backbone
+(Moirai) on one clean setting (ETTh2, $n{=}500$--$10$k).
+We do not claim a universal phenomenon; we claim reusable methodology
+and one well-controlled case study illustrating its application.
+The methodology (value-gate, controls, probes, protocol) transfers to
+any backbone; the specific numeric findings require replication.
 
 \textbf{Experimental approach.}
-We design a controlled diagnosis with fine-tuning conditions
-(B:~NLL-only, C:~NLL$+$SupCon) and standard mitigations
-(D:~frozen encoder, E:~LoRA~\cite{hu2022lora},
-F:~L2-SP~\cite{li2018l2sp}, G:~EWC~\cite{kirkpatrick2017ewc})
-across three Moirai model sizes (Small 13.8M, Base 91M, Large 311M).
-We deploy this on two settings:
-(1)~ETT forecasting benchmarks~\cite{zhou2021informer} (ETTh1, ETTh2,
-ETTm2), chosen because zero-shot Moirai outperforms Linear baselines
-by 28--45\%, ensuring pre-trained features are demonstrably useful; and
-(2)~IoT anomaly detection as a \emph{negative control} (Moirai ZS
-AUC sub-random; we do not claim IoT as a contribution, only as
-validation that the value-gate correctly suppresses the dissociation
-test when ZS features have no value).
-Both settings use CKA, linear probing, and weight drift as
-representation-change diagnostics.
-We report forgetting under two protocols (CUDA 10-seed deterministic
-early-stopping and final-epoch $k{=}5$); the sign of the $n{=}10$k
-headline differs between them ($+7.5\%$ vs.\ $-5.3\%$), so we lead on
-the more robust $\Delta R^2{>}0$ majority and treat forgetting sign as
-a secondary, protocol-dependent outcome.
+We deploy the diagnostic methodology across three Moirai sizes
+(Small/Base/Large) on ETT forecasting~\cite{zhou2021informer}
+(ETTh2 gate-pass; ETTh1/ETTm2 cross-domain) and IoT anomaly
+detection (negative control; \S\ref{sec:analysis}).
+Forgetting sign at $n{=}10$k is protocol-dependent ($-5.3\%$ ES
+vs.\ $+7.5\%$ final-epoch); we lead on the more robust $\Delta R^2{>}0$
+majority.
 
-We frame the contribution as a \emph{characterisation of three observed fine-tuning regimes}
-on Moirai--ETT rather than a universal law: the three observed regimes are
-empirical descriptions of what happens in specific (backbone, dataset,
-$n$) cells, not a predictive theory.
-
-\textbf{Contributions.}  We distinguish three tiers:
+\textbf{Contributions.}
+Methodological contributions are offered as reusable infrastructure;
+empirical findings are Moirai-ETT specific and require replication.
 
 \begin{enumerate}
-  \item \textbf{Methodological contributions (backbone-agnostic).}
-    These contributions generalize beyond Moirai-ETT:
-    \begin{itemize}
-      \item[(a)] \textbf{Value-gate framework.} A criterion (ZS advantage $>$20\% vs.\ Linear) for screening whether pre-trained features are worth preserving. IoT (sub-random ZS) validates the gate as a negative control.
-      \item[(b)] \textbf{LoRA-Large 10$\times$ LR rescue recipe.} Cross-dataset validated on ETTh1/ETTh2/ETTm2 (3-5 seeds each). Rank escalation does not rescue; LR reduction does.
-      \item[(c)] \textbf{Controlled-comparison design.} Frozen-encoder control (14$\times$ smaller $\Delta R^2$ than fine-tuned), random-init control (5 seeds, $\Delta R^2{=}{-}0.199{\pm}0.205$ vs.\ pre-trained $+0.668{\pm}0.226$), and layer-wise unfreeze (top 3 of 6 layers sufficient for $\Delta R^2{>}0$) isolate distinct confounds.
-      \item[(d)] \textbf{uni2ts PackedStdScaler patch.} Fixes silent autograd detachment in uni2ts library (reproducibility contribution).
-    \end{itemize}
+  \item \textbf{Diagnostic methodology (backbone-agnostic).}
+    Value-gate screening criterion (ZS $>$20\% vs.\ Linear);
+    controlled-comparison design (frozen-encoder, random-init, layer-wise
+    unfreeze controls); LoRA-Large $10{\times}$ LR rescue recipe
+    (cross-dataset validated); uni2ts PackedStdScaler patch; and
+    CUDA-deterministic per-seed protocol
+    (Appendix~\ref{app:probing}).
 
-  \item \textbf{Empirical findings (Moirai-ETT specific).}
-    These findings stand for Moirai-ETT but require replication to claim universality:
-    \begin{itemize}
-      \item[(a)] \textbf{Cost--benefit gap.} Fine-tuning imposes geometric cost (CKA drops from 0.949 at $n{=}500$ to $\approx$0.52 at $n{=}10$k) while producing task-aligned functional benefit ($\Delta R^2{>}0$ on trained head in 10/10 seeds on ETTh2/ETTm2; $\Delta R^2{\leq}0$ on untrained heads).
-      \item[(b)] \textbf{Three-regime descriptive taxonomy.} Low-$n$ forgetting ($+$14\% at $n{=}500$), high-$n$ improvement (ETTh2/ETTm2 at $n{=}10$k), and boundary case (ETTh1: task resolves but $\Delta R^2$ is 2/10 positive).
-      \item[(c)] \textbf{Per-seed $\Delta R^2{>}0$ invariant.} On ETTh2/ETTm2 at $n{=}10$k, 10/10 CUDA seeds per dataset show $\Delta R^2{>}0$ on the trained head (protocol-robust). Forgetting sign is protocol-dependent.
-    \end{itemize}
-
-  \item \textbf{Negative result (ETT-specific, backbone-independent).}
-    Five non-Moirai backbones gate-fail on all nine ETT$\times$backbone
-    cells tested (ZS underperforms Linear by 14--148\%); see
-    Appendix~\ref{app:limitations} for full table.
+  \item \textbf{Empirical validation (Moirai-ETT case study).}
+    Task-orthogonal probe asymmetry ($\Delta R^2{<}0$ on positive-floor
+    probes, $\Delta R^2{>}0$ on trained head; 10/10 seeds on ETTh2/ETTm2);
+    layer-wise localisation (top-3 layers suffice for $\Delta R^2{>}0$,
+    lower layers for task recovery; 10/10 seeds);
+    corpus-coverage confirmation (Chronos gate-passes M4-Monthly at
+    84.5\% while gate-failing ETT at $-$43\%;
+    Moirai gate-fails on Traffic/$-$38\%, Exchange/$-$21\%,
+    Electricity/$-$28\%; \S\ref{sec:forecasting:nonmoirai}).
 \end{enumerate}
-Code and datasets will be released upon acceptance.
 
-\textbf{Paper organisation.}
-Section~\ref{sec:background} reviews related work and formalises the problem.
-Section~\ref{sec:method} describes the Moirai fine-tuning protocol.
-Section~\ref{sec:forecasting} presents the ETT drift--utility
-diagnosis with a sample sweep, mitigation spectrum, and trajectory
-signature.  Section~\ref{sec:analysis} consolidates the dissociation
-analysis, the cross-domain envelope, and the IoT negative control.
-Section~\ref{sec:conclusion} concludes.

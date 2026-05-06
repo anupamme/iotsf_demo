@@ -3,119 +3,142 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{woo2024moirai}
-\citation{woo2024moirai}
 \citation{ansari2024chronos}
 \citation{das2024timeseries}
 \citation{goswami2024moment}
 \citation{kirkpatrick2017ewc,li2017lwf}
-\citation{luo2024forgetting}
+\citation{luo2023forgetting}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\citation{hu2022lora}
-\citation{li2018l2sp}
-\citation{kirkpatrick2017ewc}
 \citation{zhou2021informer}
 \citation{kirkpatrick2017ewc,li2017lwf}
-\citation{luo2024forgetting}
+\citation{luo2023forgetting}
 \citation{kumar2022finetuning}
 \citation{andreassen2023evolution}
+\citation{rasul2024lagllama}
+\citation{liu2024timer}
+\citation{jin2024timellm}
+\citation{zhou2023onefitsall}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Problem Setup}{2}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{2}{Background and Problem Setup}{section.2}{}}
+\citation{zeng2023transformers}
 \citation{woo2024moirai}
 \citation{khosla2020supcon}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Problem Setup}{3}{section.2}\protected@file@percent }
-\newlabel{sec:background}{{2}{3}{Background and Problem Setup}{section.2}{}}
+\citation{kornblith2019cka}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Fine-Tuning Protocol}{3}{section.3}\protected@file@percent }
 \newlabel{sec:method}{{3}{3}{Fine-Tuning Protocol}{section.3}{}}
-\citation{kornblith2019cka}
 \citation{zhou2021informer}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Representation Drift Diagnosis: ETT Forecasting}{4}{section.4}\protected@file@percent }
 \newlabel{sec:forecasting}{{4}{4}{Representation Drift Diagnosis: ETT Forecasting}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup}{4}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:forecasting:setup}{{4.1}{4}{Experimental Setup}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup and Value Gate}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:forecasting:setup}{{4.1}{4}{Experimental Setup and Value Gate}{subsection.4.1}{}}
+\newlabel{sec:forecasting:gate}{{4.1}{4}{Experimental Setup and Value Gate}{subsection.4.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Representation Drift Degrades High-Value Features}{4}{subsection.4.2}\protected@file@percent }
 \newlabel{sec:forecasting:results}{{4.2}{4}{Representation Drift Degrades High-Value Features}{subsection.4.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Mitigation Spectrum}{4}{subsection.4.3}\protected@file@percent }
 \newlabel{sec:forecasting:mitigation}{{4.3}{4}{Mitigation Spectrum}{subsection.4.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Sample-size sweep on ETTh2 ($h{=}96$, condition B). Drift grows monotonically with sample size (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph  {non-monotonic}: severe at $n{\le }1{,}000$, resolves at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$ we report the CUDA 10-seed deterministic early-stopped result: $k{=}10$ seeds (all completed, no NaN; mean best epoch $4.2{\pm }1.4$), $7/10$ negative forgetting ($-5.3{\pm }6.2\%$); \textbf  {10/10} $\Delta R^2{>}0$. For comparison, MPS early-stopped $k{=}10$ gave $-5.7{\pm }10.4\%$ (8/10 negative, 9/10 $\Delta R^2{>}0$) and final-epoch $k{=}5$ gave $+7.5{\pm }8.2\%$ --- the sign difference is explained by seed~101's late-epoch overshoot (+21.9\% collapsing to $-$20.7\% at best-val-MSE epoch~4). Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from Ridge regression of encoder representations onto the forecasting target on held-out ETTh2) \emph  {increases} with $n$; we also report absolute R$^2$(FT) so readers can judge the noise floor (pre-trained R$^2_{\text  {ZS}}{=}-6.90$ for all rows, single frozen encoder) --- the $\Delta R^2 {>}0$ signal is a \emph  {relative linear-decodability} improvement, not absolute. The dissociation signature (CKA $\downarrow $, $\Delta R^2$ $\uparrow $) is preserved in \textbf  {10 of 10} CUDA deterministic seeds at $n{=}10{,}000$. Mean $\pm $ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$ (7 seeds; see Table~\ref {tab:n5k_seeds}) and $n{=}10{,}000$ ($k{=}10$ deterministic early-stopped). Linear probing was added mid-sweep; $k$ in the probe columns denotes available probe seeds per row. MLP probe column reports $\Delta R^2$ for an MLP probe ($\textrm  {hidden}{=}64$, $\alpha {=}10^{-3}$, early stopping).}}{5}{table.caption.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Sample-Size Sweep: Drift--Forgetting Dynamics}{4}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:forecasting:replication}{{4.4}{4}{Sample-Size Sweep: Drift--Forgetting Dynamics}{subsection.4.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Sample-size sweep on ETTh2 ($h{=}96$, condition~B). Drift grows monotonically (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph  {non-monotonic}: severe at $n{\le }1{,}000$, resolved at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped, $7/10$ negative forgetting; \textbf  {10/10} $\Delta R^2{>}0$ (per-seed values in Appendix~\ref {app:probing}). $\Delta R^2$ is a \emph  {relative} signal: absolute $R^2(\text  {FT})$ remains negative ($R^2_{\text  {ZS}}{=}{-}6.90$ for all rows). Ridge $\Delta R^2$ at $n{=}500$ ($k{=}2$) and $n{=}1{,}000$ ($k{=}1$): point values only.}}{5}{table.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:sample_sweep}{{1}{5}{Sample-size sweep on ETTh2 ($h{=}96$, condition B). Drift grows monotonically with sample size (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph {non-monotonic}: severe at $n{\le }1{,}000$, resolves at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$ we report the CUDA 10-seed deterministic early-stopped result: $k{=}10$ seeds (all completed, no NaN; mean best epoch $4.2{\pm }1.4$), $7/10$ negative forgetting ($-5.3{\pm }6.2\%$); \textbf {10/10} $\Delta R^2{>}0$. For comparison, MPS early-stopped $k{=}10$ gave $-5.7{\pm }10.4\%$ (8/10 negative, 9/10 $\Delta R^2{>}0$) and final-epoch $k{=}5$ gave $+7.5{\pm }8.2\%$ --- the sign difference is explained by seed~101's late-epoch overshoot (+21.9\% collapsing to $-$20.7\% at best-val-MSE epoch~4). Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from Ridge regression of encoder representations onto the forecasting target on held-out ETTh2) \emph {increases} with $n$; we also report absolute R$^2$(FT) so readers can judge the noise floor (pre-trained R$^2_{\text {ZS}}{=}-6.90$ for all rows, single frozen encoder) --- the $\Delta R^2 {>}0$ signal is a \emph {relative linear-decodability} improvement, not absolute. The dissociation signature (CKA $\downarrow $, $\Delta R^2$ $\uparrow $) is preserved in \textbf {10 of 10} CUDA deterministic seeds at $n{=}10{,}000$. Mean $\pm $ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$ (7 seeds; see Table~\ref {tab:n5k_seeds}) and $n{=}10{,}000$ ($k{=}10$ deterministic early-stopped). Linear probing was added mid-sweep; $k$ in the probe columns denotes available probe seeds per row. MLP probe column reports $\Delta R^2$ for an MLP probe ($\textrm {hidden}{=}64$, $\alpha {=}10^{-3}$, early stopping)}{table.caption.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Sample-Size Sweep: Drift-Forgetting Dissociation}{5}{subsection.4.4}\protected@file@percent }
-\newlabel{sec:forecasting:replication}{{4.4}{5}{Sample-Size Sweep: Drift-Forgetting Dissociation}{subsection.4.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Three-measure dissociation on Moirai-Small/ETTh2 fine-tuning (condition B, $h{=}96$). Left: CKA decays monotonically with $n$ (geometric drift $\uparrow $). Middle: $\Delta R^2 {=} R^2(\mathrm  {FT}) {-} R^2(\mathrm  {PT})$ (Ridge) \emph  {rises} over the same range (relative linear-decodability $\uparrow $); the axis label ``$R^2(\mathrm  {FT}{-}\mathrm  {PT})$'' in the PDF is shorthand for this difference. Right: task forgetting is \emph  {non-monotonic} --- severe at $n{\leq }1$k, resolved at $n{=}2$k, bimodal at $n{=}5$k, uniformly negative at $n{=}10$k under the early-stopped protocol. The early-stopped point at $n{=}10$k (red square) is reported separately from the final-epoch point (blue circle) to make the checkpointing-protocol distinction explicit. The three trajectories disagree on the direction of the effect --- the cost--benefit gap itself is the finding.}}{6}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:dissociation}{{1}{6}{Three-measure dissociation on Moirai-Small/ETTh2 fine-tuning (condition B, $h{=}96$). Left: CKA decays monotonically with $n$ (geometric drift $\uparrow $). Middle: $\Delta R^2 {=} R^2(\mathrm {FT}) {-} R^2(\mathrm {PT})$ (Ridge) \emph {rises} over the same range (relative linear-decodability $\uparrow $); the axis label ``$R^2(\mathrm {FT}{-}\mathrm {PT})$'' in the PDF is shorthand for this difference. Right: task forgetting is \emph {non-monotonic} --- severe at $n{\leq }1$k, resolved at $n{=}2$k, bimodal at $n{=}5$k, uniformly negative at $n{=}10$k under the early-stopped protocol. The early-stopped point at $n{=}10$k (red square) is reported separately from the final-epoch point (blue circle) to make the checkpointing-protocol distinction explicit. The three trajectories disagree on the direction of the effect --- the cost--benefit gap itself is the finding}{figure.caption.2}{}}
-\newlabel{sec:forecasting:probehead}{{4.4}{6}{Sample-Size Sweep: Drift-Forgetting Dissociation}{figure.caption.2}{}}
-\citation{pimentel2020information}
+\newlabel{tab:sample_sweep}{{1}{5}{Sample-size sweep on ETTh2 ($h{=}96$, condition~B). Drift grows monotonically (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph {non-monotonic}: severe at $n{\le }1{,}000$, resolved at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped, $7/10$ negative forgetting; \textbf {10/10} $\Delta R^2{>}0$ (per-seed values in Appendix~\ref {app:probing}). $\Delta R^2$ is a \emph {relative} signal: absolute $R^2(\text {FT})$ remains negative ($R^2_{\text {ZS}}{=}{-}6.90$ for all rows). Ridge $\Delta R^2$ at $n{=}500$ ($k{=}2$) and $n{=}1{,}000$ ($k{=}1$): point values only}{table.caption.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Cost--benefit dynamics on Moirai-Small/ETTh2 (condition B, $h{=}96$). (a)~\textbf  {Geometric drift}: CKA decays monotonically with $n$; blue circles = final-epoch, red square = early-stopped at $n{=}10$k. (b)~Trained-head Ridge $\Delta R^2$ rises with $n$ (same protocol markers). (c)~\textbf  {Probe asymmetry} at $n{=}10$k (the load-bearing empirical signal): trained head $\Delta R^2{>}0$ (blue) vs.\ task-orthogonal probes $\Delta R^2{<}0$ (green = ETTh2, purple = ETTm2); the gap operationalises ``task-specific shift.'' (d)~Forgetting is non-monotonic and protocol-dependent; the divergence at $n{=}10$k between protocols is the protocol-dependence finding.}}{5}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:dissociation}{{1}{5}{Cost--benefit dynamics on Moirai-Small/ETTh2 (condition B, $h{=}96$). (a)~\textbf {Geometric drift}: CKA decays monotonically with $n$; blue circles = final-epoch, red square = early-stopped at $n{=}10$k. (b)~Trained-head Ridge $\Delta R^2$ rises with $n$ (same protocol markers). (c)~\textbf {Probe asymmetry} at $n{=}10$k (the load-bearing empirical signal): trained head $\Delta R^2{>}0$ (blue) vs.\ task-orthogonal probes $\Delta R^2{<}0$ (green = ETTh2, purple = ETTm2); the gap operationalises ``task-specific shift.'' (d)~Forgetting is non-monotonic and protocol-dependent; the divergence at $n{=}10$k between protocols is the protocol-dependence finding}{figure.caption.3}{}}
+\newlabel{sec:forecasting:probehead}{{4.4}{5}{Sample-Size Sweep: Drift--Forgetting Dynamics}{figure.caption.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Task-native probe $R^2_{\text  {task}}$ at key $(n, h)$ operating points (condition B, mean over available seeds). $R^2_{\text  {task}}(\text  {PT}) {=} 1 {-} \text  {MSE}_{\text  {ZS}}/\text  {MSE}_{\text  {Linear}}$ uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192, linear baseline lookback$=$96, train-normalised). $\Delta R^2_{\text  {task}} {=} {-}(1{-}R^2_{\text  {task}}(\text  {PT})) {\times } \mathrm  {Forg\%}/100$ (sign is scale-independent; see \S  \ref {sec:forecasting:probehead}). The $n{=}10$k rows use early-stopped (ES) forgetting. ETTh2 is the \textbf  {gate-pass} anchor ($R^2_{\text  {task}}(\text  {PT}){>}0.2$); ETTm2 and ETTh1 are \textbf  {cross-domain comparisons} that gate-fail and are included to show drift behaviour outside the gate-pass regime.}}{6}{table.caption.4}\protected@file@percent }
+\newlabel{tab:r2task}{{2}{6}{Task-native probe $R^2_{\text {task}}$ at key $(n, h)$ operating points (condition B, mean over available seeds). $R^2_{\text {task}}(\text {PT}) {=} 1 {-} \text {MSE}_{\text {ZS}}/\text {MSE}_{\text {Linear}}$ uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192, linear baseline lookback$=$96, train-normalised). $\Delta R^2_{\text {task}} {=} {-}(1{-}R^2_{\text {task}}(\text {PT})) {\times } \mathrm {Forg\%}/100$ (sign is scale-independent; see \S \ref {sec:forecasting:probehead}). The $n{=}10$k rows use early-stopped (ES) forgetting. ETTh2 is the \textbf {gate-pass} anchor ($R^2_{\text {task}}(\text {PT}){>}0.2$); ETTm2 and ETTh1 are \textbf {cross-domain comparisons} that gate-fail and are included to show drift behaviour outside the gate-pass regime}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Layer-Wise Localisation: Probe Shift and Task Recovery Are Separable}{7}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:forecasting:layerwise}{{4.5}{7}{Layer-Wise Localisation: Probe Shift and Task Recovery Are Separable}{subsection.4.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Cross-Domain Analysis and Discussion}{7}{section.5}\protected@file@percent }
 \newlabel{sec:analysis}{{5}{7}{Cross-Domain Analysis and Discussion}{section.5}{}}
-\citation{neto2023ciciot}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm $std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a dissociation replication.}}{8}{table.caption.3}\protected@file@percent }
-\newlabel{tab:cross_domain}{{2}{8}{Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm $std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a dissociation replication}{table.caption.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{8}{section.6}\protected@file@percent }
-\newlabel{sec:conclusion}{{6}{8}{Conclusion}{section.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {A}Limitations and Future Work}{10}{appendix.A}\protected@file@percent }
-\newlabel{app:limitations}{{A}{10}{Limitations and Future Work}{appendix.A}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}uni2ts PackedStdScaler Patch Details}{11}{appendix.B}\protected@file@percent }
-\newlabel{app:scaler_patch}{{B}{11}{uni2ts PackedStdScaler Patch Details}{appendix.B}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Moirai Median Forecast Selection}{11}{appendix.C}\protected@file@percent }
-\newlabel{app:moirai_median}{{C}{11}{Moirai Median Forecast Selection}{appendix.C}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {D}ETTh2 Forecasting Details}{11}{appendix.D}\protected@file@percent }
-\newlabel{app:etth2_details}{{D}{11}{ETTh2 Forecasting Details}{appendix.D}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {E}ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{11}{appendix.E}\protected@file@percent }
-\newlabel{app:full_tables}{{E}{11}{ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{appendix.E}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift.}}{12}{table.caption.4}\protected@file@percent }
-\newlabel{tab:forecasting_forgetting}{{3}{12}{Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift}{table.caption.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph  {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100.}}{12}{table.caption.5}\protected@file@percent }
-\newlabel{tab:mitigation_spectrum}{{4}{12}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100}{table.caption.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {F}LoRA Rank and Hyperparameter Sensitivity}{12}{appendix.F}\protected@file@percent }
-\newlabel{app:lora_rank}{{F}{12}{LoRA Rank and Hyperparameter Sensitivity}{appendix.F}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {G}CKA Calibration: Random-Initialisation Baseline}{12}{appendix.G}\protected@file@percent }
-\newlabel{app:cka_calibration}{{G}{12}{CKA Calibration: Random-Initialisation Baseline}{appendix.G}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$, 3 seeds for $r{=}8$.}}{13}{table.caption.6}\protected@file@percent }
-\newlabel{tab:lora_rank}{{5}{13}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$, 3 seeds for $r{=}8$}{table.caption.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}}{13}{table.caption.7}\protected@file@percent }
-\newlabel{tab:lora_large_hp}{{6}{13}{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail}{table.caption.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {H}Linear Probing: Functional Representation Diagnostic}{13}{appendix.H}\protected@file@percent }
-\newlabel{app:probing}{{H}{13}{Linear Probing: Functional Representation Diagnostic}{appendix.H}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure.}}{14}{table.caption.8}\protected@file@percent }
-\newlabel{tab:cka_calibration}{{7}{14}{CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure}{table.caption.8}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective.}}{14}{table.caption.9}\protected@file@percent }
-\newlabel{tab:probe_horizon}{{8}{14}{Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective}{table.caption.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive.}}{16}{table.caption.10}\protected@file@percent }
-\newlabel{tab:n5k_seeds}{{9}{16}{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive}{table.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {H.1}$n{=}5{,}000$ per-epoch trajectory analysis}{16}{subsection.H.1}\protected@file@percent }
-\newlabel{app:n5k_trajectories}{{H.1}{16}{$n{=}5{,}000$ per-epoch trajectory analysis}{subsection.H.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {I}ETTh1 Extended Analysis}{16}{appendix.I}\protected@file@percent }
-\newlabel{app:etth1_extended}{{I}{16}{ETTh1 Extended Analysis}{appendix.I}{}}
-\citation{neto2023ciciot}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt  {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes.}}{17}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:n5k_trajectories}{{2}{17}{Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes}{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {J}IoT Negative-Control Details}{17}{appendix.J}\protected@file@percent }
-\newlabel{app:cnn_detail}{{J}{17}{IoT Negative-Control Details}{appendix.J}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {K}Probe Noise-Floor Analysis}{17}{appendix.K}\protected@file@percent }
-\newlabel{app:noisefloor}{{K}{17}{Probe Noise-Floor Analysis}{appendix.K}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces $\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$.}}{18}{table.caption.12}\protected@file@percent }
-\newlabel{tab:noisefloor}{{10}{18}{$\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$}{table.caption.12}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {L}Random-Initialisation Negative Control}{18}{appendix.L}\protected@file@percent }
-\newlabel{app:randominit}{{L}{18}{Random-Initialisation Negative Control}{appendix.L}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {M}Layer-Wise Unfreeze Localization}{18}{appendix.M}\protected@file@percent }
-\newlabel{app:layerunfreeze}{{M}{18}{Layer-Wise Unfreeze Localization}{appendix.M}{}}
+\citation{pimentel2020information}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm $std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a case-study replication.}}{8}{table.caption.5}\protected@file@percent }
+\newlabel{tab:cross_domain}{{3}{8}{Cross-setting overview ($h{=}96$, cond.\ B; mean$\pm $std). All cells use Moirai-Small on ETT except ETTh2-B (Base) and ETTh2-L (Large). IoT validates the value-gate criterion as a negative control; it is not a case-study replication}{table.caption.5}{}}
+\citation{woo2024moirai}
+\citation{ansari2024chronos}
+\citation{das2024timeseries}
+\citation{goswami2024moment}
+\citation{woo2024moirai}
 \bibstyle{plainnat}
 \bibdata{bibliography}
 \bibcite{andreassen2023evolution}{{1}{2023}{{Andreassen et~al.}}{{Andreassen, Bahri, Neyshabur, and Roelofs}}}
 \bibcite{ansari2024chronos}{{2}{2024}{{Ansari et~al.}}{{}}}
 \bibcite{das2024timeseries}{{3}{2024}{{Das et~al.}}{{}}}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$: 5 seeds; $N{=}3$/$N{=}6$: seeds 42/101/123; $N{=}4$/$N{=}5$: seed~42 only. Forgetting is final-epoch (no early stopping); $N{=}5$ overshoot reflects late-epoch divergence.}}{19}{table.caption.13}\protected@file@percent }
-\newlabel{tab:layerunfreeze}{{11}{19}{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$: 5 seeds; $N{=}3$/$N{=}6$: seeds 42/101/123; $N{=}4$/$N{=}5$: seed~42 only. Forgetting is final-epoch (no early stopping); $N{=}5$ overshoot reflects late-epoch divergence}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Non-Moirai Backbones: All Nine Cells Gate-Fail}{9}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:forecasting:nonmoirai}{{5.1}{9}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{9}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{6}{9}{Conclusion}{section.6}{}}
 \bibcite{goswami2024moment}{{4}{2024}{{Goswami et~al.}}{{}}}
-\bibcite{hu2022lora}{{5}{2022}{{Hu et~al.}}{{Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}}}
+\bibcite{jin2024timellm}{{5}{2024}{{Jin et~al.}}{{Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan, and Wen}}}
 \bibcite{khosla2020supcon}{{6}{2020}{{Khosla et~al.}}{{}}}
 \bibcite{kirkpatrick2017ewc}{{7}{2017}{{Kirkpatrick et~al.}}{{Kirkpatrick, Pascanu, Rabinowitz, et~al.}}}
 \bibcite{kornblith2019cka}{{8}{2019}{{Kornblith et~al.}}{{Kornblith, Norouzi, Lee, and Hinton}}}
 \bibcite{kumar2022finetuning}{{9}{2022}{{Kumar et~al.}}{{Kumar, Raghunathan, Jones, Ma, and Liang}}}
-\bibcite{li2018l2sp}{{10}{2018}{{Li et~al.}}{{Li, Grandvalet, and Davoine}}}
-\bibcite{li2017lwf}{{11}{2018}{{Li and Hoiem}}{{}}}
-\bibcite{luo2024forgetting}{{12}{2024}{{Luo et~al.}}{{Luo, Yang, Meng, Li, Zhou, and Zhang}}}
+\bibcite{li2017lwf}{{10}{2018}{{Li and Hoiem}}{{}}}
+\bibcite{liu2024timer}{{11}{2024}{{Liu et~al.}}{{Liu, Zhang, Li, Huang, Wang, and Long}}}
+\bibcite{luo2023forgetting}{{12}{2023}{{Luo et~al.}}{{Luo, Yang, Meng, Li, Zhou, and Zhang}}}
 \bibcite{neto2023ciciot}{{13}{2023}{{Neto et~al.}}{{}}}
 \bibcite{pimentel2020information}{{14}{2020}{{Pimentel et~al.}}{{Pimentel, Valvoda, Maudslay, Zmigrod, Williams, and Cotterell}}}
-\bibcite{woo2024moirai}{{15}{2024}{{Woo et~al.}}{{}}}
-\bibcite{zhou2021informer}{{16}{2021}{{Zhou et~al.}}{{Zhou, Zhang, Peng, Zhang, Li, Xiong, and Zhang}}}
-\gdef \@abspage@last{20}
+\bibcite{rasul2024lagllama}{{15}{2024}{{Rasul et~al.}}{{Rasul, Ashok, Williams, Khorasani, Adamopoulos, Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri, and Heinecke}}}
+\bibcite{woo2024moirai}{{16}{2024}{{Woo et~al.}}{{}}}
+\bibcite{zeng2023transformers}{{17}{2023}{{Zeng et~al.}}{{Zeng, Chen, Zhang, and Xu}}}
+\bibcite{zhou2021informer}{{18}{2021}{{Zhou et~al.}}{{Zhou, Zhang, Peng, Zhang, Li, Xiong, and Zhang}}}
+\bibcite{zhou2023onefitsall}{{19}{2023}{{Zhou et~al.}}{{Zhou, Niu, Wang, Sun, and Jin}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Limitations and Future Work}{11}{appendix.A}\protected@file@percent }
+\newlabel{app:limitations}{{A}{11}{Limitations and Future Work}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}uni2ts PackedStdScaler Patch Details}{11}{appendix.B}\protected@file@percent }
+\newlabel{app:scaler_patch}{{B}{11}{uni2ts PackedStdScaler Patch Details}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift.}}{12}{table.caption.7}\protected@file@percent }
+\newlabel{tab:forecasting_forgetting}{{4}{12}{Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Moirai Median Forecast Selection}{12}{appendix.C}\protected@file@percent }
+\newlabel{app:moirai_median}{{C}{12}{Moirai Median Forecast Selection}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}ETTh2 Forecasting Details}{12}{appendix.D}\protected@file@percent }
+\newlabel{app:etth2_details}{{D}{12}{ETTh2 Forecasting Details}{appendix.D}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{12}{appendix.E}\protected@file@percent }
+\newlabel{app:full_tables}{{E}{12}{ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph  {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100.}}{13}{table.caption.8}\protected@file@percent }
+\newlabel{tab:mitigation_spectrum}{{5}{13}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}LoRA Rank and Hyperparameter Sensitivity}{13}{appendix.F}\protected@file@percent }
+\newlabel{app:lora_rank}{{F}{13}{LoRA Rank and Hyperparameter Sensitivity}{appendix.F}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported---point estimates only), 3 seeds for $r{=}8$.}}{13}{table.caption.9}\protected@file@percent }
+\newlabel{tab:lora_rank}{{6}{13}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported---point estimates only), 3 seeds for $r{=}8$}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}CKA Calibration: Random-Initialisation Baseline}{13}{appendix.G}\protected@file@percent }
+\newlabel{app:cka_calibration}{{G}{13}{CKA Calibration: Random-Initialisation Baseline}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}}{14}{table.caption.10}\protected@file@percent }
+\newlabel{tab:lora_large_hp}{{7}{14}{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail}{table.caption.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure.}}{14}{table.caption.11}\protected@file@percent }
+\newlabel{tab:cka_calibration}{{8}{14}{CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure}{table.caption.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}Linear Probing: Functional Representation Diagnostic}{14}{appendix.H}\protected@file@percent }
+\newlabel{app:probing}{{H}{14}{Linear Probing: Functional Representation Diagnostic}{appendix.H}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective.}}{15}{table.caption.12}\protected@file@percent }
+\newlabel{tab:probe_horizon}{{9}{15}{Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {H.1}$n{=}5{,}000$ per-epoch trajectory analysis}{16}{subsection.H.1}\protected@file@percent }
+\newlabel{app:n5k_trajectories}{{H.1}{16}{$n{=}5{,}000$ per-epoch trajectory analysis}{subsection.H.1}{}}
+\citation{neto2023ciciot}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive.}}{17}{table.caption.13}\protected@file@percent }
+\newlabel{tab:n5k_seeds}{{10}{17}{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive}{table.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt  {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes.}}{17}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:n5k_trajectories}{{2}{17}{Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}ETTh1 Spectral Pilot}{17}{appendix.I}\protected@file@percent }
+\newlabel{app:etth1_extended}{{I}{17}{ETTh1 Spectral Pilot}{appendix.I}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}IoT Negative-Control Details}{17}{appendix.J}\protected@file@percent }
+\newlabel{app:cnn_detail}{{J}{17}{IoT Negative-Control Details}{appendix.J}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {J.1}Task-orthogonal probes}{18}{subsection.J.1}\protected@file@percent }
+\newlabel{app:orthogonal}{{J.1}{18}{Task-orthogonal probes}{subsection.J.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Probe Noise-Floor Analysis}{18}{appendix.K}\protected@file@percent }
+\newlabel{app:noisefloor}{{K}{18}{Probe Noise-Floor Analysis}{appendix.K}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces $\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$.}}{19}{table.caption.15}\protected@file@percent }
+\newlabel{tab:noisefloor}{{11}{19}{$\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$}{table.caption.15}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {L}Random-Initialisation Negative Control}{19}{appendix.L}\protected@file@percent }
+\newlabel{app:randominit}{{L}{19}{Random-Initialisation Negative Control}{appendix.L}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Layer-Wise Unfreeze Localization}{20}{appendix.M}\protected@file@percent }
+\newlabel{app:layerunfreeze}{{M}{20}{Layer-Wise Unfreeze Localization}{appendix.M}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$/$N{=}3$/$N{=}6$: 10 CUDA seeds (42/101/123/202/303/456/777/789/888/999); $N{=}4$/$N{=}5$: seed~42 only. Early-stopped checkpointing.}}{20}{table.caption.16}\protected@file@percent }
+\newlabel{tab:layerunfreeze}{{12}{20}{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$/$N{=}3$/$N{=}6$: 10 CUDA seeds (42/101/123/202/303/456/777/789/888/999); $N{=}4$/$N{=}5$: seed~42 only. Early-stopped checkpointing}{table.caption.16}{}}
+\citation{zhou2021informer}
+\citation{woo2024moirai}
+\citation{zhou2021informer}
+\citation{ansari2024chronos}
+\citation{das2024timeseries}
+\citation{goswami2024moment}
+\gdef \@abspage@last{28}

@@ -7,6 +7,7 @@ over zero-shot.
 Mean $\pm$ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times$ 100.}
 \label{tab:mitigation_spectrum}
 \small
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{l cccc cccc c}
 \toprule
 & \multicolumn{4}{c}{$h=96$ (ZS MSE: 0.126)} & \multicolumn{4}{c}{$h=192$ (ZS MSE: 0.158)} & \\
@@ -30,7 +31,8 @@ E: LoRA ($r{=}8$)\textsuperscript{$\dagger$}  & \textbf{.116}{\tiny$\pm$.001} & 
 D: Frozen encoder  & .126{\tiny$\pm$.006} & +0.5  & \textbf{1.000}{\tiny$\pm$.000} & 1.11{\tiny$\pm$.15}
                     & .155{\tiny$\pm$.002} & $-$1.7 & \textbf{1.000}{\tiny$\pm$.000} & 1.30{\tiny$\pm$.18} & 10 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 
 \smallskip
 {\footnotesize $\dagger$ LoRA ($\alpha{=}16$) adds low-rank updates that do not modify base encoder parameters; $\ell_2$ drift is exactly zero by construction.}

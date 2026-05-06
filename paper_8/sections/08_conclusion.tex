@@ -3,41 +3,30 @@
 \label{sec:conclusion}
 % ============================================================
 
-\textbf{Practitioner summary.}
-Use LoRA (not full fine-tuning) as default for Moirai adaptation.
-On Moirai-Small with scarce data, LoRA preserves representations
-(CKA$\approx$0.98); on Moirai-Large, reduce LR by $10{\times}$ to
-$10^{-5}$ (cross-dataset validated on ETTh1/ETTh2/ETTm2).
-If adaptation is unnecessary, freeze the encoder.
-The value-gate heuristic (ZS advantage $>$20\% vs.\ Linear) screens
-for settings where pre-trained features are worth preserving.
+\textbf{Methodology.}
+The primary contribution is a reusable diagnostic toolkit for
+time-series foundation model fine-tuning: value-gate screening, three
+controlled comparisons (frozen-encoder, random-init, layer-wise
+unfreeze), task-orthogonal probe protocol, LoRA-Large LR recipe, and
+CUDA-deterministic per-seed reporting.
+These transfer to any backbone; applying the value-gate before
+investing in drift diagnosis prevents wasted effort on settings where
+pre-trained features have no measurable value.
 
-\textbf{Main finding: a cost--benefit characterisation.}
-Fine-tuning imposes geometric cost (CKA drops from 0.949 at $n{=}500$
-to 0.518 at $n{=}10$k) with task-aligned functional benefit
-($\Delta R^2{>}0$ in 10/10 seeds on ETTh2/ETTm2 at $n{=}10$k;
-Ridge $\Delta R^2$ rises to $+$0.67$\pm$0.23).
-Task forgetting is protocol-conditional: non-monotonic in $n$,
-$-$5.3$\pm$6.2\% under early-stopping (7/10 negative) vs.\
-$+$7.5$\pm$8.2\% final-epoch at $n{=}10$k.
-The $\Delta R^2{>}0$ majority is more robust than forgetting sign.
-ETTh1 at $n{=}10$k shows task-improvement-without-decodability-gain
-(10/10 negative forgetting, 2/10 positive $\Delta R^2$), narrowing
-the invariant to ETTh2/ETTm2.
-
-\textbf{Contribution tiering.}
-Backbone-agnostic methodological contributions (value-gate framework,
-LoRA-Large 10$\times$ LR recipe, controlled-comparison design, uni2ts
-patch) are robust.
-Empirical findings (three-regime taxonomy, per-seed $\Delta R^2{>}0$
-invariant) are Moirai-ETT specific and require replication for
+\textbf{Case-study summary (Moirai-ETT).}
+Fine-tuning imposes geometric cost (CKA $0.949{\to}0.518$) with
+protocol-dependent task outcome: harmful at $n{\leq}1$k, improving
+in 7/10 seeds at $n{=}10$k under early stopping (Wilson CI [0.40,\,0.89]).
+The task-orthogonal probe asymmetry ($\Delta R^2{<}0$ on positive-floor
+probes, $\Delta R^2{>}0$ on the trained head) is cross-cell and
+operationalises task-specific encoder restructuring.
+This case study illustrates the methodology; replication on additional
+gate-passing backbone$\times$dataset cells is required before claiming
 universality.
-Nine-of-nine gate failures (Chronos/TimesFM/MOMENT on ETT) are a
-substantive negative result about ETT coverage, independent of
-Moirai-specific dissociation generalization.
 
-\textbf{Limitations} (Appendix~\ref{app:limitations}): dissociation
+\textbf{Limitations} (Appendix~\ref{app:limitations}): case study
 established on Moirai only; absolute $R^2(\text{FT})$ remains negative
-across all $n$ (deep-floor regime); gate-passing non-Moirai backbone
-on Traffic or Exchange datasets is highest-priority future work for
-broadening single-backbone scope.
+(deep-floor regime; positive-floor probes show $\Delta R^2{<}0$,
+constraining but not eliminating the regime confound);
+gate-passing non-Moirai backbone on Traffic or Exchange is
+highest-priority future work.

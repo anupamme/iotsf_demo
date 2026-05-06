@@ -1,41 +1,23 @@
 \begin{table}[t]
 \centering
-\caption{Sample-size sweep on ETTh2 ($h{=}96$, condition B).
-Drift grows monotonically with sample size (CKA$\downarrow$ as $n\uparrow$);
-forgetting is \emph{non-monotonic}: severe at $n{\le}1{,}000$,
-resolves at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$
-(crossover regime).  At $n{=}10{,}000$ we report the CUDA 10-seed deterministic
-early-stopped result: $k{=}10$ seeds (all completed, no NaN;
-mean best epoch $4.2{\pm}1.4$), $7/10$ negative forgetting
-($-5.3{\pm}6.2\%$); \textbf{10/10} $\Delta R^2{>}0$.
-For comparison, MPS early-stopped $k{=}10$ gave $-5.7{\pm}10.4\%$
-(8/10 negative, 9/10 $\Delta R^2{>}0$) and final-epoch $k{=}5$
-gave $+7.5{\pm}8.2\%$ --- the sign difference is explained by
-seed~101's late-epoch overshoot (+21.9\%
-collapsing to $-$20.7\% at best-val-MSE epoch~4).
-Linear-probing $\Delta R^2$ (fine-tuned minus pre-trained R$^2$ from
-Ridge regression of encoder representations onto the forecasting target
-on held-out ETTh2) \emph{increases} with $n$; we also report
-absolute R$^2$(FT) so readers can judge the noise floor
-(pre-trained R$^2_{\text{ZS}}{=}-6.90$ for all rows, single frozen
-encoder) --- the $\Delta R^2 {>}0$ signal is a
-\emph{relative linear-decodability} improvement, not absolute.
-The dissociation signature (CKA $\downarrow$, $\Delta R^2$
-$\uparrow$) is preserved in \textbf{10 of 10} CUDA deterministic seeds at $n{=}10{,}000$.
-Mean $\pm$ std across 3 seeds (42, 123, 456) except $n{=}5{,}000$
-(7 seeds; see Table~\ref{tab:n5k_seeds}) and $n{=}10{,}000$
-($k{=}10$ deterministic early-stopped).
-Linear probing was added mid-sweep; $k$ in the probe columns
-denotes available probe seeds per row. MLP probe column reports
-$\Delta R^2$ for an MLP probe ($\textrm{hidden}{=}64$,
-$\alpha{=}10^{-3}$, early stopping).}
+\caption{Sample-size sweep on ETTh2 ($h{=}96$, condition~B).
+Drift grows monotonically (CKA$\downarrow$ as $n\uparrow$);
+forgetting is \emph{non-monotonic}: severe at $n{\le}1{,}000$, resolved at
+$n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime).
+At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped,
+$7/10$ negative forgetting; \textbf{10/10} $\Delta R^2{>}0$ (per-seed values
+in Appendix~\ref{app:probing}).
+$\Delta R^2$ is a \emph{relative} signal: absolute $R^2(\text{FT})$ remains
+negative ($R^2_{\text{ZS}}{=}{-}6.90$ for all rows).
+Ridge $\Delta R^2$ at $n{=}500$ ($k{=}2$) and $n{=}1{,}000$ ($k{=}1$):
+point values only.}
 \label{tab:sample_sweep}
 \small
 \begin{tabular}{r cccccc}
 \toprule
 Samples & MSE & Forg.\% & CKA & R$^2$(FT) & $\Delta R^2$ (Ridge) & $\Delta R^2$ (MLP) \\
 \midrule
-500      & .148{\tiny$\pm$.008} & +14.0{\tiny$\pm$6.7}  & .949{\tiny$\pm$.010} & $-$6.79 ($k$=2) & +.12{\tiny$\pm$.02} & $-$.26 ($k$=1) \\
+500      & .148{\tiny$\pm$.008} & +14.0{\tiny$\pm$6.7}  & .949{\tiny$\pm$.010} & $-$6.79 ($k$=2) & +.12 ($k{=}2$) & $-$.26 ($k$=1) \\
 1{,}000  & .147{\tiny$\pm$.010} & +13.4{\tiny$\pm$9.1}  & .936{\tiny$\pm$.025} & $-$6.77 ($k$=1) & +.13 ($k$=1)        & +.30 ($k$=1)   \\
 2{,}000  & .126{\tiny$\pm$.008} & $-$2.9{\tiny$\pm$5.9} & .814{\tiny$\pm$.042} & $-$6.51 ($k$=3) & +.39{\tiny$\pm$.35} & +.73{\tiny$\pm$.75} \\
 5{,}000  & .134{\tiny$\pm$.012} & +6.6{\tiny$\pm$10.0}  & .546{\tiny$\pm$.082} & $-$6.41 ($k$=7) & +.50{\tiny$\pm$.26} & --- \\
@@ -45,14 +27,9 @@ Samples & MSE & Forg.\% & CKA & R$^2$(FT) & $\Delta R^2$ (Ridge) & $\Delta R^2$ 
 
 \smallskip
 {\footnotesize
-$^{\mathrm{cuda}}$ \textbf{CUDA 10-seed deterministic (A10G).}
-Seeds $\{42,101,123,202,303,456,777,789,888,999\}$; all completed.
-\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8}; mean best epoch $4.2{\pm}1.4$.
-Per-seed forgetting (\%): 42:$-$14.0, 101:$-$10.8, 123:$+$1.8, 202:$-$3.6,
-303:$-$8.3, 456:$+$4.4, 777:$-$0.9, 789:$+$0.4, 888:$-$12.8, 999:$-$9.3
-($7/10$ negative).
-$^\dagger$Per-seed Ridge $\Delta R^2$: 42:$+$.21, 101:$+$.74, 123:$+$.94, 202:$+$.60,
-303:$+$.79, 456:$+$.82, 777:$+$.34, 789:$+$.87, 888:$+$.56, 999:$+$.80
-(\textbf{10/10} positive); MLP $k{=}5$: $+0.70{\pm}0.32$ (\textbf{10/10} positive).
-Full protocol comparison (final-epoch, MPS early-stopped) in Appendix~\ref{app:probing}.}
+$^{\mathrm{cuda}}$ CUDA 10-seed deterministic (A10G); all completed, mean best epoch
+$4.2{\pm}1.4$ (Appendix~\ref{app:probing} for per-seed values and protocol comparison).
+$^\dagger$\textbf{10/10} positive; 95\% Wilson CI [0.72,\,1.00]. Forgetting sign: 7/10 negative
+(95\% Wilson CI [0.40,\,0.89]; protocol-dependent---see \S\ref{sec:analysis}).
+$\Delta R^2{>}0$ is the robust signal.}
 \end{table}
