@@ -1,0 +1,260 @@
+% ============================================================
+\section{Representation Drift Diagnosis: ETT Forecasting}
+\label{sec:forecasting}
+% ============================================================
+
+We begin with a domain where pre-trained features are demonstrably
+valuable, enabling a clean test of whether fine-tuning destroys them.
+ETT time-series forecasting benchmarks~\cite{zhou2021informer} provide
+this setting: zero-shot Moirai outperforms Linear baselines by 28--45\%
+(Section~\ref{sec:forecasting:gate}).
+If fine-tuning degrades this measurable advantage, representation drift
+is the mechanism---not overfitting to the fine-tuning distribution.
+The frozen-encoder control (same data, same epochs, CKA$=$1.000)
+confirms this: overfitting would not be eliminated by freezing.
+
+% ============================================================
+\subsection{Experimental Setup and Value Gate}
+\label{sec:forecasting:setup}
+\label{sec:forecasting:gate}
+% ============================================================
+
+We evaluate on ETTh2 (7 features, 17k timesteps, 12/4/4 month split).
+Moirai-Small (13.8M) zero-shot outperforms Linear by 28--45\%
+(ZS MSE: 0.126 at $h{=}96$, 0.158 at $h{=}192$; un-normalised gate-pass
+scale: 0.269 vs.\ 0.373 at $h{=}96$, 0.299 vs.\ 0.544 at $h{=}192$),
+passing the value gate (20\% threshold).
+The 20\% threshold is a practical screen, not a phase boundary: at
+10--20\%, drift diagnosis applies but marginal features reduce both
+harm from drift and benefit from mitigation; we recommend full probes
+at $\geq$20\% and CKA-only at 10--20\%.
+Conditions: \textbf{B}~(NLL-only), \textbf{C}~(NLL$+$SupCon),
+\textbf{D}~(frozen encoder), \textbf{E}~(LoRA $r{=}8$),
+\textbf{F}~(L2-SP), \textbf{G}~(EWC).
+Training: $n{=}500$ samples, 20 epochs, AdamW (lr$=$1e-4), 10 seeds
+(B/C/D) or 5 seeds (E/F/G).
+Diagnosis: CKA and weight drift ($\ell_2$) between pre-trained/fine-tuned encoders.
+
+% ============================================================
+\subsection{Representation Drift Degrades High-Value Features}
+\label{sec:forecasting:results}
+% ============================================================
+
+Fine-tuning degrades ETTh2 performance where pre-trained features are
+valuable (Appendix Table~\ref{tab:forecasting_forgetting}).
+Conditions B (NLL-only) and C (NLL+SupCon) degrade by 10--16\% MSE
+(10/10 seeds positive, $p{=}0.002$ sign test; $d{=}1.23$, 95\%~CI $[0.37,\,2.01]$;
+bootstrap $p{<}10^{-4}$) while
+training loss \emph{decreases}---not overfitting (which raises validation
+loss), but representation drift.
+The frozen-encoder control (D, CKA$=$1.000, same data/epochs) eliminates
+drift, ruling out the training regime.
+Degradation scales with horizon: worse at $h{=}192$ (13--16\%) than $h{=}96$
+(10--11\%).
+Contrastive loss (C) does not prevent drift: C ($+$10.1\%) and B ($+$11.1\%) differ by
+1.0\%, within seed standard deviation---a null result for the contrastive objective.
+
+% ============================================================
+\subsection{Mitigation Spectrum}
+\label{sec:forecasting:mitigation}
+% ============================================================
+
+We evaluate five mitigation strategies (Appendix Table~\ref{tab:mitigation_spectrum}):
+LoRA (E), frozen encoder (D), EWC (G), L2-SP (F), and contrastive loss (C).
+Methods range from unconstrained fine-tuning (most drift) to full encoder
+freezing (no drift).
+
+\textbf{LoRA achieves the best trade-off.}
+LoRA ($r{=}8$, $\alpha{=}16$) \emph{improves} over zero-shot at $h{=}96$
+while maintaining high CKA (0.979) and zero weight drift.
+On Moirai-Large, the same recipe fails at default $\mathrm{LR}{=}10^{-4}$
+($+$25.7$\pm$3.2\%, 3 seeds); rank escalation does \emph{not} rescue.
+Reducing LR by $10\times$ to $10^{-5}$ does rescue: forg.$={-8.5}{\pm}0.7$\%
+(CKA$=$0.989, 5 seeds), transferring cross-dataset to ETTh1/ETTm2 at $n{=}500$.
+\textbf{Practitioner recipe:} tune LR before rank when adapting LoRA across
+model sizes.
+
+\textbf{EWC and L2-SP reduce but do not eliminate drift.}
+Both improve CKA over unconstrained fine-tuning but MSE remains 18--19\%
+above zero-shot.
+Frozen encoder (D) eliminates drift (CKA$=$1.000) but cannot adapt---a
+limitation when pre-trained features are insufficient.
+
+% ============================================================
+\subsection{Sample-Size Sweep: Drift--Forgetting Dynamics}
+\label{sec:forecasting:replication}
+% ============================================================
+
+Table~\ref{tab:sample_sweep} ($n{\in}\{500,\ldots,10\mathrm{k}\}$, ETTh2)
+reveals that \emph{drift and forgetting are dissociable}---a finding best
+illustrated by comparing Moirai-Base (protocol-robust improvement of
+50--57\%, 10/10 seeds; probe asymmetry 9/10 $\Delta R^2{>}0$ despite
+CKA$\approx$0.25; \S\ref{sec:analysis}) with Small, where the same
+mechanism produces capacity-dependent outcomes.
+On Small, drift grows monotonically with $n$ (CKA from 0.949 at 500
+to 0.518 at 10k), but forgetting is non-monotonic: severe at low $n$
+($+$14\% at 500), resolved by 2k ($-$2.9\%), predominantly negative
+at 10k ($-5.3{\pm}6.2$\%, 7/10 negative, 10-seed CUDA deterministic).
+The $n{=}5$k variance ($+$6.6$\pm$10.0\%, 7 seeds) is bimodal: 4 seeds
+cluster at $-$0.1\%, 3 at $+$15.5\% with epoch-1 overshoot (full
+trajectory analysis in Appendix~\ref{app:n5k_trajectories}).
+Linear probing shows $\Delta R^2$ \emph{increasing} with $n$:
+$+$0.12 ($k{=}2$ probe seeds) at 500 to $+$0.67$\pm$0.23 at 10k
+(\textbf{10/10} seeds positive).
+Geometric dissimilarity (CKA$\downarrow$) and relative
+linear-decodability ($\Delta R^2\uparrow$) move in opposite directions.
+
+\textbf{Protocol dependence.}
+Drift resolution at high $n$ is conditional on early stopping for Small
+(final-epoch: $-0.6{\pm}5.8$\%, n.s.); Base is protocol-robust
+($-50$\% to $-57$\% under both protocols; \S\ref{sec:analysis}).
+
+Absolute $R^2(\text{FT})$ remains negative across all $n$
+($R^2_{\text{ZS}}{=}-6.90$), so $\Delta R^2$ is a relative-improvement
+signal (Appendix~\ref{app:probing}).
+Cross-dataset and model-size comparisons are detailed in \S\ref{sec:analysis}.
+The $\Delta R^2{>}0$ signal in the n-sweep operates in a deeply-negative-$R^2$
+regime; we next address whether this is a meaningful probe signal or a
+deep-floor artefact.
+
+\textbf{Interpretability caveat.}
+Absolute $R^2(\text{FT})$ remains negative throughout ($-6.90$ to $-6.24$);
+$\Delta R^2$ is therefore a \emph{relative} signal, not a claim about
+absolute decodability.
+The load-bearing evidence is the \emph{sign pattern across cells}---positive
+on the trained head, negative on all positive-floor probes---not the
+magnitude within a single cell.
+The positive-floor probes (lag-1, mean, variance, delta1) anchor the
+interpretation because their $R^2(\text{PT}){>}0$ regime makes the sign
+directly meaningful.
+Chronos-T5-Small on M4-Monthly provides external confirmation:
+$R^2(\text{PT}){=}{+}0.068{\pm}0.025$ (10/10 positive;
+Appendix~\ref{app:chronos_detail}).
+This demonstrates that the probe protocol operates in a positive-floor
+regime on architectures with standard encoder outputs; the
+deeply-negative $R^2$ on Moirai is a backbone-specific artefact of its
+mixture-distribution head, not a fundamental probe limitation.
+
+\textbf{Headline:} drift is capacity-dependent---harmful on Small at
+$n{\leq}1$k (where practitioners most need pre-trained features),
+resolved by larger capacity (Base improves at all $n$, protocol-robust).
+
+\input{tables/sample_sweep}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/dissociation_trajectory.pdf}
+\caption{Cost--benefit dynamics on Moirai-Small/ETTh2 (condition B, $h{=}96$).
+(a)~\textbf{Geometric drift}: CKA decays monotonically with $n$;
+blue circles = final-epoch, red square = early-stopped at $n{=}10$k.
+(b)~Trained-head Ridge $\Delta R^2$ rises with $n$ (same protocol markers).
+(c)~\textbf{Probe asymmetry} at $n{=}10$k (the load-bearing empirical signal):
+trained head $\Delta R^2{>}0$ (blue) vs.\ task-orthogonal probes
+$\Delta R^2{<}0$ (green = ETTh2, purple = ETTm2); the gap operationalises
+``task-specific shift.''
+(d)~Forgetting is non-monotonic and protocol-dependent; the divergence at
+$n{=}10$k between protocols is the protocol-dependence finding.}
+\label{fig:dissociation}
+\end{figure}
+
+The joint trajectory is plotted in Fig.~\ref{fig:dissociation};
+panel~(c) carries the central empirical claim and readers short on time
+should examine it first.
+
+\textbf{Task-native probe: positive-floor R² and $\Delta R^2 > 0$.}
+\label{sec:forecasting:probehead}
+The frozen-probe paradigm (Ridge/GBM on mean-pooled encoder outputs)
+gives $R^2(\text{PT}) < 0$ because Moirai's encoder outputs are
+optimised for its internal mixture-distribution head, not for generic
+linear readout.
+The task-native probe uses Moirai's own forecasting head directly,
+giving a well-defined positive-floor $R^2$:
+
+\[
+R^2_{\text{task}}(\text{PT}) = 1 - \frac{\text{MSE}_{\text{ZS}}}{\text{MSE}_{\text{Linear}}} = 1 - \frac{0.269}{0.373} = +0.279
+\]
+
+at $h{=}96$, and $+0.450$ at $h{=}192$ (both $>0.2$).
+After fine-tuning ($n{=}10$k, early-stopped), performance improves:
+$\text{MSE}_{\text{FT}}{=}0.122{\pm}0.006$ vs.\ $0.126$ ZS baseline
+(both normalised).
+$\Delta R^2_{\text{task}}{>}0$ in 7/10 seeds (Wilson CI [0.40,\,0.89]; Table~\ref{tab:r2task}).
+The frozen-probe $\Delta R^2$ ($+$0.67$\pm$0.23) measures encoder geometry shift;
+$\Delta R^2_{\text{task}}$ confirms that shift is \emph{functionally beneficial}
+at high $n$ and harmful at low $n$ (forgetting $+$14\% at $n{=}500$).
+
+\input{tables/r2task}
+
+Ridge horizon-sweep: forecast96 (trained head) $\Delta R^2{=}{+}0.116$,
+forecast48 (untrained) ${\approx}0$.
+Gain vanishes at horizon boundary, consistent with task-specificity.
+\textbf{Positive-floor negative control.}
+GBM delta1 head ($x_{t+1}-x_t$) gives $R^2(\text{PT}){=}{+}0.059{>}0$
+(the only probe with a positive floor in the trained-head's target space)
+but $\Delta R^2{=}{-}0.056$: fine-tuning \emph{loses} pre-trained next-step
+signal on this positive-floor target.
+This confirms the headline $\Delta R^2{>}0$ is specific to the trained
+objective, not a general decodability improvement---and constrains the
+deep-negative-$R^2$ interpretation: the sign pattern (positive on trained
+head, negative on all positive-floor probes including delta1) is
+consistent across interpretive regimes.
+Full probe details in Appendix~\ref{app:probing}.
+
+\textbf{Task-specific shift, not general improvement.}
+The diagnostic value is the \emph{task-orthogonal asymmetry}: fine-tuning
+simultaneously improves the trained head ($\Delta R^2{>}0$) and degrades all
+positive-floor probes ($\Delta R^2{\leq}0$), establishing that the encoder
+restructures \emph{toward} the objective rather than improving generally.
+Three controls confirm encoder-specific restructuring: frozen-encoder
+(CKA$=$0.9993, $\Delta R^2$ 14$\times$ smaller), random-init (8/10 negative
+$\Delta R^2$; Appendix~\ref{app:randominit}), and top-3-layer unfreeze
+($\Delta R^2{>}0$, 10/10 seeds; Appendix~\ref{app:layerunfreeze}).
+
+Task-orthogonal probes (lag-1 autocorrelation, input mean, input variance)
+show $\Delta R^2{<}0$ on positive-floor targets ($R^2(\text{PT}){>}0$; 9--10/10
+negative on ETTh2; 10/10 on ETTm2; Appendix~\ref{app:orthogonal}), while the
+trained head gives $\Delta R^2{>}0$ (10/10 on ETTh2/ETTm2).
+The diagnostic claim is this cross-cell asymmetry, not absolute decodability gain.
+ETTm2 at $n{=}10$k replicates the CKA$\downarrow$, $\Delta R^2{>}0$
+pattern with opposite task outcome (10/10 positive Ridge $\Delta R^2$;
+10/10 negative forgetting); ETTh1 is a boundary case where task improves
+but frozen-probe $\Delta R^2$ is 2/10 positive.
+Both are detailed in \S\ref{sec:analysis}.
+
+% ============================================================
+\subsection{Layer-Wise Localisation: Probe Shift and Task Recovery Are Separable}
+\label{sec:forecasting:layerwise}
+% ============================================================
+
+The $n$-sweep shows CKA and $\Delta R^2$ moving in opposite directions
+\emph{across sample sizes}; a sharper test is whether the same separation
+holds \emph{within the encoder} at fixed $n$.
+Unfreezing only the top 3 of 6 Moirai-Small layers ($N{=}3$; ETTh2 $n{=}10$k,
+10 CUDA-deterministic seeds) produces $\Delta R^2{=}{+}0.399{\pm}0.199$
+(10/10 positive; 95\% Wilson CI $[0.72,\,1.00]$) with CKA$=$0.663 and
+forgetting $-6.5{\pm}4.0$\% (9/10 negative).
+Full unfreeze ($N{=}6$, same seeds) produces $\Delta R^2{=}{+}0.701{\pm}0.180$
+(10/10 positive) with CKA$=$0.387 and forgetting $-6.7{\pm}6.3$\% (6/7 negative).
+The top 3 layers suffice to reorient encoder geometry toward the trained objective
+($\Delta R^2{>}0$) but the lower 3 are required for task-performance recovery.
+The frozen-encoder control (condition D) \emph{is} the head-only ablation: only the
+forecasting head trains while encoder weights are fixed.
+$\Delta R^2{\approx}0$ in D ($-0.048{\pm}0.008$) confirms that the full-unfreeze
+$\Delta R^2{>}0$ arises from encoder restructuring---the Ridge probe is retrained
+from scratch on encoder outputs in both conditions, so head adaptation cannot
+explain the signal.
+
+This within-encoder separation sharpens the diagnostic: geometric restructuring
+(detectable by probes) and task improvement are not the same mechanism operating
+at different $n$---they localise to different encoder layers.
+Per-layer CKA confirms: bottom 3 layers drift more (mean CKA$=$0.476) than
+top 3 (0.649), despite the top 3 being sufficient for $\Delta R^2{>}0$
+(full analysis in Appendix~\ref{app:layerunfreeze}).
+(We note that standard backpropagation gradient-magnitude patterns---larger
+updates in earlier layers under full unfreeze---could also produce this
+per-layer CKA pattern; a gradient-norm comparison is required to
+distinguish layer-wise specialization from gradient-flow artefact.)
+
+The diagnostic toolkit resolves this: probes detect \emph{reorientation}
+at $N{=}3$; task metrics require the lower layers ($N{=}6$) for \emph{recovery}.
+

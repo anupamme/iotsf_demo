@@ -1,0 +1,23 @@
+% N-BaIoT baseline comparison (Table for Section 5.8)
+\begin{table}[t]
+\centering
+\caption{%
+  N-BaIoT cross-dataset comparison (Danmini doorbell, 3-seed mean $\pm$ std).
+  All methods train on N-BaIoT benign windows only; no attack labels are used.
+  Isolation Forest uses 72 hand-engineered statistical features;
+  \ours{} fine-tuned uses a general-purpose Moirai backbone with Gaussian-noise negatives.
+}
+\label{tab:nbaiot_baselines}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Method & Overall AUC & Training Data \\
+\midrule
+Isolation Forest    & $0.991 \pm 0.006$ & N-BaIoT benign \\
+One-Class SVM       & $0.931 \pm 0.016$ & N-BaIoT benign \\
+USAD (autoencoder)  & $0.527 \pm 0.004$ & N-BaIoT benign \\
+\midrule
+\ours{} fine-tuned (Cond.~C) & $\nbaiotAUC{} \pm 0.041$ & N-BaIoT benign + Gaussian neg. \\
+\bottomrule
+\end{tabular}
+\end{table}

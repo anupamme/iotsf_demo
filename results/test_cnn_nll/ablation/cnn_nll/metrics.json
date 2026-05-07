@@ -1,0 +1,101 @@
+{
+  "condition": "cnn_nll",
+  "elapsed_s": 70.05112767219543,
+  "seeds": [
+    42
+  ],
+  "results": {
+    "stealth_85": {
+      "accuracy": 0.42916666666666664,
+      "precision": 0.9565217391304348,
+      "recall": 0.33,
+      "f1": 0.49070631970260226,
+      "confusion_matrix": [
+        [
+          37,
+          3
+        ],
+        [
+          134,
+          66
+        ]
+      ],
+      "true_negatives": 37,
+      "false_positives": 3,
+      "false_negatives": 134,
+      "true_positives": 66,
+      "false_positive_rate": 0.075,
+      "roc_auc": 0.719125,
+      "best_threshold": -0.28379207700490955
+    },
+    "stealth_90": {
+      "accuracy": 0.3458333333333333,
+      "precision": 0.9574468085106383,
+      "recall": 0.225,
+      "f1": 0.3643724696356275,
+      "confusion_matrix": [
+        [
+          38,
+          2
+        ],
+        [
+          155,
+          45
+        ]
+      ],
+      "true_negatives": 38,
+      "false_positives": 2,
+      "false_negatives": 155,
+      "true_positives": 45,
+      "false_positive_rate": 0.05,
+      "roc_auc": 0.623875,
+      "best_threshold": -0.28365320563316343
+    },
+    "stealth_95": {
+      "accuracy": 0.2916666666666667,
+      "precision": 0.9411764705882353,
+      "recall": 0.16,
+      "f1": 0.27350427350427353,
+      "confusion_matrix": [
+        [
+          38,
+          2
+        ],
+        [
+          168,
+          32
+        ]
+      ],
+      "true_negatives": 38,
+      "false_positives": 2,
+      "false_negatives": 168,
+      "true_positives": 32,
+      "false_positive_rate": 0.05,
+      "roc_auc": 0.54575,
+      "best_threshold": -0.28365320563316343
+    },
+    "all_stealth": {
+      "accuracy": 0.2796875,
+      "precision": 0.986013986013986,
+      "recall": 0.235,
+      "f1": 0.3795423956931359,
+      "confusion_matrix": [
+        [
+          38,
+          2
+        ],
+        [
+          459,
+          141
+        ]
+      ],
+      "true_negatives": 38,
+      "false_positives": 2,
+      "false_negatives": 459,
+      "true_positives": 141,
+      "false_positive_rate": 0.05,
+      "roc_auc": 0.6074166666666667,
+      "best_threshold": -0.28362643122673037
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "encoder_dir": "results/v19_cuda_etth2_n10k/seed888",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "gbm"
+  ],
+  "head_types": [
+    "delta1"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "gbm_depth": 8,
+  "results": {
+    "delta1": {
+      "gbm_d8": 0.010400398063351468
+    }
+  }
+}

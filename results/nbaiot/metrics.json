@@ -1,0 +1,213 @@
+{
+  "overall": {
+    "f1": {
+      "mean": 0.978920741989882,
+      "std": 0.0
+    },
+    "false_positive_rate": {
+      "mean": 1.0,
+      "std": 0.0
+    },
+    "roc_auc": {
+      "mean": 0.17479754965694225,
+      "std": 0.049024987473446885
+    },
+    "precision": {
+      "mean": 0.9783707865168539,
+      "std": 0.0
+    },
+    "recall": {
+      "mean": 0.9794713160854892,
+      "std": 1.1102230246251565e-16
+    }
+  },
+  "per_attack": {
+    "gafgyt_combo": {
+      "f1": {
+        "mean": 0.9095182138660399,
+        "std": 0.0
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.00768482163831001,
+        "std": 0.0029550253314206943
+      },
+      "n_attack_windows": 387
+    },
+    "gafgyt_junk": {
+      "f1": {
+        "mean": 0.8528301886792452,
+        "std": 1.1102230246251565e-16
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.013025153994316993,
+        "std": 0.005045508923751001
+      },
+      "n_attack_windows": 227
+    },
+    "gafgyt_scan": {
+      "f1": {
+        "mean": 0.8468683008775634,
+        "std": 0.0010116467047774492
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.09646433680768446,
+        "std": 0.005166214152963938
+      },
+      "n_attack_windows": 233
+    },
+    "gafgyt_tcp": {
+      "f1": {
+        "mean": 0.8814759762816942,
+        "std": 0.0016824195080119603
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.07037148897614016,
+        "std": 0.049438740686836055
+      },
+      "n_attack_windows": 387
+    },
+    "gafgyt_udp": {
+      "f1": {
+        "mean": 0.8868449058280387,
+        "std": 0.0006296956124811171
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.07031555868765173,
+        "std": 0.04950117821297107
+      },
+      "n_attack_windows": 387
+    },
+    "mirai_ack": {
+      "f1": {
+        "mean": 0.9095182138660399,
+        "std": 0.0
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.29485329485329487,
+        "std": 0.10017210914129503
+      },
+      "n_attack_windows": 387
+    },
+    "mirai_scan": {
+      "f1": {
+        "mean": 0.8724102262222221,
+        "std": 0.0029551355118566875
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.17952503999015626,
+        "std": 0.02422651161178198
+      },
+      "n_attack_windows": 387
+    },
+    "mirai_syn": {
+      "f1": {
+        "mean": 0.9095182138660399,
+        "std": 0.0
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.27611664820967147,
+        "std": 0.06368829078405319
+      },
+      "n_attack_windows": 387
+    },
+    "mirai_udp": {
+      "f1": {
+        "mean": 0.9095182138660399,
+        "std": 0.0
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.3006364866829983,
+        "std": 0.09754207548310309
+      },
+      "n_attack_windows": 387
+    },
+    "mirai_udpplain": {
+      "f1": {
+        "mean": 0.9095182138660399,
+        "std": 0.0
+      },
+      "false_positive_rate": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "roc_auc": {
+        "mean": 0.3409286665100619,
+        "std": 0.0701362945302021
+      },
+      "n_attack_windows": 387
+    }
+  },
+  "meta": {
+    "device": "danmini_doorbell",
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "n_seeds": 3,
+    "attack_types": [
+      "mirai_scan",
+      "mirai_ack",
+      "mirai_syn",
+      "mirai_udp",
+      "mirai_udpplain",
+      "gafgyt_scan",
+      "gafgyt_junk",
+      "gafgyt_tcp",
+      "gafgyt_udp",
+      "gafgyt_combo"
+    ],
+    "feature_proxy": [
+      "flow_duration",
+      "fwd_pkts_tot",
+      "bwd_pkts_tot",
+      "fwd_data_pkts_tot",
+      "bwd_data_pkts_tot",
+      "fwd_pkts_per_sec",
+      "bwd_pkts_per_sec",
+      "flow_pkts_per_sec",
+      "fwd_byts_b_avg",
+      "bwd_byts_b_avg",
+      "fwd_iat_mean",
+      "bwd_iat_mean"
+    ],
+    "n_benign_val_windows": 77,
+    "n_attack_windows": 3556
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "eval_key": "stealth_95",
+  "n_boot": 10000,
+  "condition_aucs": {
+    "b": [
+      0.5681444383649192,
+      0.56776279259904,
+      0.5689062826533345
+    ],
+    "c": [
+      0.651995195949884,
+      0.6490998879347369,
+      0.6577748326490109
+    ],
+    "cprime": [
+      0.6187407489566286,
+      0.6167090191257661,
+      0.6227965040720532
+    ],
+    "cnn": [
+      0.5669817308870165,
+      0.5642849274353362,
+      0.5723651112106716
+    ],
+    "d": [
+      0.5673225505466329,
+      0.5669174334521238,
+      0.5681312484864097
+    ]
+  },
+  "pairwise_comparisons": [
+    {
+      "comparison": "b_vs_c",
+      "cond_a": "b",
+      "cond_b": "c",
+      "mean_a": 0.5682711712057645,
+      "mean_b": 0.6529566388445439,
+      "observed_diff": -0.08468546763877938,
+      "ci_lo": -0.08937644618795326,
+      "ci_hi": -0.08095593198426554,
+      "p_value_approx": 0.0,
+      "cohens_d": -26.883675279537954,
+      "significance": "**"
+    },
+    {
+      "comparison": "b_vs_cnn",
+      "cond_a": "b",
+      "cond_b": "cnn",
+      "mean_a": 0.5682711712057645,
+      "mean_b": 0.5678772565110081,
+      "observed_diff": 0.0003939146947564698,
+      "ci_lo": -0.0039667247496139035,
+      "ci_hi": 0.003859028515135199,
+      "p_value_approx": 0.3769,
+      "cohens_d": 0.1340794120853185,
+      "significance": "n.s."
+    },
+    {
+      "comparison": "b_vs_cprime",
+      "cond_a": "b",
+      "cond_b": "cprime",
+      "mean_a": 0.5682711712057645,
+      "mean_b": 0.6194154240514825,
+      "observed_diff": -0.051144252845718,
+      "ci_lo": -0.054398117610995556,
+      "ci_hi": -0.04847997974938578,
+      "p_value_approx": 0.0,
+      "cohens_d": -22.935912771436804,
+      "significance": "**"
+    },
+    {
+      "comparison": "b_vs_d",
+      "cond_a": "b",
+      "cond_b": "d",
+      "mean_a": 0.5682711712057645,
+      "mean_b": 0.5674570774950555,
+      "observed_diff": 0.0008140937107090629,
+      "ci_lo": 2.8325347848912052e-05,
+      "ci_hi": 0.0015998620735694358,
+      "p_value_approx": 0.015,
+      "cohens_d": 1.356022520825976,
+      "significance": "**"
+    },
+    {
+      "comparison": "c_vs_cnn",
+      "cond_a": "c",
+      "cond_b": "cnn",
+      "mean_a": 0.6529566388445439,
+      "mean_b": 0.5678772565110081,
+      "observed_diff": 0.08507938233353585,
+      "ci_lo": 0.07949433950366602,
+      "ci_hi": 0.09066442516340567,
+      "p_value_approx": 0.0,
+      "cohens_d": 19.934492402228155,
+      "significance": "**"
+    },
+    {
+      "comparison": "c_vs_cprime",
+      "cond_a": "c",
+      "cond_b": "cprime",
+      "mean_a": 0.6529566388445439,
+      "mean_b": 0.6194154240514825,
+      "observed_diff": 0.03354121479306138,
+      "ci_lo": 0.028620404906207653,
+      "ci_hi": 0.03846202467991511,
+      "p_value_approx": 0.0,
+      "cohens_d": 8.791287828901787,
+      "significance": "**"
+    },
+    {
+      "comparison": "c_vs_d",
+      "cond_a": "c",
+      "cond_b": "d",
+      "mean_a": 0.6529566388445439,
+      "mean_b": 0.5674570774950555,
+      "observed_diff": 0.08549956134948844,
+      "ci_lo": 0.081777337388104,
+      "ci_hi": 0.09018271612245243,
+      "p_value_approx": 0.0,
+      "cohens_d": 27.11277467887897,
+      "significance": "**"
+    },
+    {
+      "comparison": "cnn_vs_cprime",
+      "cond_a": "cnn",
+      "cond_b": "cprime",
+      "mean_a": 0.5678772565110081,
+      "mean_b": 0.6194154240514825,
+      "observed_diff": -0.05153816754047447,
+      "ci_lo": -0.05626072378101532,
+      "ci_hi": -0.046815611299933724,
+      "p_value_approx": 0.0,
+      "cohens_d": -14.150728764715906,
+      "significance": "**"
+    },
+    {
+      "comparison": "cnn_vs_d",
+      "cond_a": "cnn",
+      "cond_b": "d",
+      "mean_a": 0.5678772565110081,
+      "mean_b": 0.5674570774950555,
+      "observed_diff": 0.0004201790159525931,
+      "ci_lo": -0.003037623111296739,
+      "ci_hi": 0.004772994684113074,
+      "p_value_approx": 0.4075,
+      "cohens_d": 0.14284150228462722,
+      "significance": "n.s."
+    },
+    {
+      "comparison": "cprime_vs_d",
+      "cond_a": "cprime",
+      "cond_b": "d",
+      "mean_a": 0.6194154240514825,
+      "mean_b": 0.5674570774950555,
+      "observed_diff": 0.05195834655642706,
+      "ci_lo": 0.049255013916310486,
+      "ci_hi": 0.055204387545494726,
+      "p_value_approx": 0.0,
+      "cohens_d": 23.25081757095201,
+      "significance": "**"
+    }
+  ],
+  "note": "Bootstrap CIs use percentile method with 10,000 replicates. p_value_approx = fraction of bootstrap diffs with opposite sign to observed diff. Cohen's d = (mean_A - mean_B) / pooled_std."
+}

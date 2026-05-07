@@ -1,0 +1,49 @@
+\begin{table}[t]
+\centering
+\caption{Task-native probe $R^2_{\text{task}}$ at key $(n, h)$ operating points
+(condition B, mean over available seeds).
+$R^2_{\text{task}}(\text{PT}) {=} 1 {-} \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$
+uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192,
+linear baseline lookback$=$96, train-normalised).
+$\Delta R^2_{\text{task}} {=} {-}(1{-}R^2_{\text{task}}(\text{PT})) {\times} \mathrm{Forg\%}/100$
+(sign is scale-independent; see \S\ref{sec:forecasting:probehead}).
+The $n{=}10$k rows use early-stopped (ES) forgetting.
+ETTh2 is the \textbf{gate-pass} anchor ($R^2_{\text{task}}(\text{PT}){>}0.2$);
+ETTm2 and ETTh1 are \textbf{cross-domain comparisons} that gate-fail and are included
+to show drift behaviour outside the gate-pass regime.}
+\label{tab:r2task}
+\small
+\begin{tabular}{llcccc}
+\toprule
+$n$ & $h$ & $R^2_{\text{task}}(\text{PT})$ & Forg.\% & $\Delta R^2_{\text{task}}$ & $R^2_{\text{task}}(\text{FT})$ \\
+\midrule
+\multicolumn{6}{l}{\textit{ETTh2-Small (gate-pass: $R^2_{\text{task}}(\text{PT}){>}0.2$, Moirai outperforms Linear by 28\%)}} \\
+500  & 96  & $+$0.279 & $+$11.1 & $-$0.080 & $+$0.199 \\
+500  & 192 & $+$0.450 & $+$15.7 & $-$0.086 & $+$0.364 \\
+10k (ES) & 96  & $+$0.279 & $-$5.3  & $+$0.038 & $+$0.317 \\
+\midrule
+\multicolumn{6}{l}{\textit{ETTh2-Base (gate-pass: $R^2_{\text{task}}(\text{PT}){=}{+}0.31$, Moirai-Base outperforms Linear by 31\%)}} \\
+500  & 96  & $+$0.310 & $-$56.9 & $+$0.393 & $+$0.703 \\
+10k (ES) & 96  & $+$0.310 & $-$54.2 & $+$0.374 & $+$0.684 \\
+\midrule
+\multicolumn{6}{l}{\textit{ETTm2 (gate-fail: $R^2_{\text{task}}(\text{PT}){<}0$, Moirai worse than Linear by 55\%)}} \\
+500  & 96  & $-$0.556 & $-$13.3 & $+$0.207 & $-$0.349 \\
+10k (ES) & 96  & $-$0.556 & $-$28.2{\tiny$\pm$2.2} & $+$0.439 & $-$0.117 \\
+\midrule
+\multicolumn{6}{l}{\textit{ETTh1 (gate-fail: $R^2_{\text{task}}(\text{PT}){<}0$, Moirai worse than Linear by 41\%)}} \\
+500  & 96  & $-$0.406 & $+$7.0 & $-$0.098 & $-$0.505 \\
+10k (ES) & 96  & $-$0.406 & $-$4.6{\tiny$\pm$4.1} & $+$0.065 & $-$0.342 \\
+\bottomrule
+\end{tabular}
+\vspace{1pt}
+
+{\footnotesize
+\textbf{Reading:} ETTh2 (gate-pass): at $n{=}500$, $\Delta R^2_{\text{task}}{<}0$ (forgetting);
+at $n{=}10$k ES, $\Delta R^2_{\text{task}}{>}0$ (improvement) in 7/10 seeds.
+ETTm2 and ETTh1 (gate-fail): fine-tuning can still improve over the ZS baseline
+($\Delta R^2_{\text{task}}{>}0$) even when the ZS baseline itself is weaker than
+linear regression ($R^2_{\text{task}}(\text{PT}){<}0$).
+The $\Delta R^2_{\text{task}}$ sign equals the sign of improvement over ZS baseline
+regardless of scale or gate status.
+ETTm2 seeds: $k{=}5$ (v19 CUDA); ETTh1 seeds: $k{=}10$ (v21 CUDA), 9/10 negative at $n{=}10$k ES.}
+\end{table}

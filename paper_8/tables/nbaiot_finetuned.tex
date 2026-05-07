@@ -1,0 +1,46 @@
+% Table: N-BaIoT Fine-Tuned Results (Condition C protocol on N-BaIoT benign)
+% Generated from results/nbaiot_finetuned/metrics.json
+% 3 seeds (42, 123, 456), Danmini doorbell, 310 train / 77 val benign windows
+
+\begin{table}[h]
+\centering
+\caption{
+  N-BaIoT fine-tuned evaluation (Danmini doorbell, 3 seeds).
+  \textbf{Left}: zero-shot transfer from CICIoT2023 (condition~D,
+  AUC\,$<$\,0.30, score polarity inverted).
+  \textbf{Right}: fine-tuned on N-BaIoT benign data with Gaussian-noise
+  negatives (condition~C protocol, 310 training windows, 5 epochs,
+  $\sigma{=}0.3$).
+  Fine-tuning on target-domain benign data recovers ranking ability
+  (overall AUC$=$\nbaiotAUC{}), but the uniform FPR$=$0.98 indicates
+  \emph{degenerate threshold calibration} from only 77 benign windows
+  --- the model essentially flags all traffic.
+  AUC (threshold-free) is the appropriate metric here; it reflects
+  that fine-tuned anomaly scores successfully separate attack from
+  benign traffic \emph{in ranking}, even though the calibrated threshold
+  is not useful operationally.
+  These results demonstrate recipe transferability (the fine-tuning
+  protocol works on new data) but not deployment readiness.
+}
+\label{tab:nbaiot_finetuned}
+\begin{tabular}{lcc|cc}
+\toprule
+& \multicolumn{2}{c}{Zero-Shot (CICIoT2023)} & \multicolumn{2}{c}{Fine-Tuned (N-BaIoT benign)} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+Attack Type & AUC & FPR & AUC & FPR \\
+\midrule
+Mirai Scan         & $0.176$ & 1.00 & $0.827_{\pm.183}$ & 0.98 \\
+Mirai Ack Flood    & $0.284$ & 1.00 & $0.983_{\pm.014}$ & 0.98 \\
+Mirai Syn Flood    & $0.167$ & 1.00 & $0.937_{\pm.062}$ & 0.98 \\
+Mirai UDP Flood    & $0.282$ & 1.00 & $0.991_{\pm.004}$ & 0.98 \\
+Mirai UDP Plain    & $0.201$ & 1.00 & $0.859_{\pm.090}$ & 0.98 \\
+BASHLITE Scan      & $0.093$ & 1.00 & $0.598_{\pm.043}$ & 0.98 \\
+BASHLITE Junk      & $0.020$ & 1.00 & $0.982_{\pm.004}$ & 0.98 \\
+BASHLITE TCP Flood & $0.051$ & 1.00 & $1.000_{\pm.000}$ & 0.98 \\
+BASHLITE UDP Flood & $0.055$ & 1.00 & $1.000_{\pm.000}$ & 0.98 \\
+BASHLITE Combo     & $0.013$ & 1.00 & $0.990_{\pm.002}$ & 0.98 \\
+\midrule
+\textbf{Overall}   & $\mathbf{0.134}$ & \textbf{1.00} & $\mathbf{\nbaiotAUC{}_{\pm.041}}$ & \textbf{0.98} \\
+\bottomrule
+\end{tabular}
+\end{table}

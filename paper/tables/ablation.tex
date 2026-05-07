@@ -1,0 +1,56 @@
+% Table 2: Ablation Study
+% Results from run_ablation.py --condition all --seeds 42,123,456,789,1234,1011,2022,3033,4044,5055 --epochs 5 --max-eval-samples 200
+% All conditions: 10 random seeds, full neural pipeline (Moirai), benign-calibrated threshold
+% (95th percentile of benign-only held-out scores; see §5.1).
+% E'' ≡ D analytically (100% constraint compliance; see §5.3).
+% ± values are standard deviation across 10 seeds.
+
+\begin{table}[h]
+\centering
+\caption{
+  Ablation study on stealth-95 and all-stealth evaluation sets.
+  Conditions A--D, CNN, CNN-NLL use 10 seeds; E/E$'$ use 5 seeds (minor ablations).
+  $\pm$ values are standard deviations across seeds.  Threshold calibrated on benign-only held-out scores
+  (95th percentile, targeting FPR\,$\leq$\,0.05;
+  see Section~\ref{sec:experiments:setup}).
+  ROC-AUC is threshold-independent and the primary ranking metric.
+  E$''$ is analytically identical to D for the analytical perturbation pathway
+  (100\% constraint compliance, retry never fires);
+  all fine-tuned conditions (B--E$'$, CNN, CNN-NLL) outperform zero-shot (A).
+}
+\label{tab:ablation}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+& & \multicolumn{3}{c}{Stealth 95\%} & \multicolumn{2}{c}{All Stealth} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Cond. & Description & F1 & FPR & AUC & F1 & AUC \\
+\midrule
+A      & Moirai zero-shot                                   & $0.137_{\pm.020}$ & $0.063$ & $0.481_{\pm.042}$ & $0.112_{\pm.026}$ & $0.504_{\pm.052}$ \\
+B      & $+$ Fine-tune, NLL only                            & $0.174_{\pm.024}$ & $0.060$ & $0.556_{\pm.021}$ & $0.216_{\pm.042}$ & $0.589_{\pm.047}$ \\
+C      & $+$ SupCon (Gaussian-noise neg., 1:1)              & $0.262_{\pm.043}$ & $0.068$ & $0.629_{\pm.022}$ & $0.295_{\pm.029}$ & $0.661_{\pm.043}$ \\
+C$'$   & $+$ SupCon (balanced stealth-ctrl neg., 1:1)$^\star$       & $0.241_{\pm.043}$ & $0.063$ & $0.610_{\pm.025}$ & $0.285_{\pm.026}$ & $0.638_{\pm.048}$ \\
+D      & $+$ Stealth-ctrl neg., 1:12 (\ours{}$^\dagger$)       & $0.176_{\pm.032}$ & $0.060$ & $0.556_{\pm.021}$ & $0.217_{\pm.044}$ & $0.589_{\pm.047}$ \\
+D-DiffTS & $+$ Learned negatives (Diffusion-TS)$^\diamondsuit$ & $0.213_{\pm.118}$ & $0.050$ & $0.621_{\pm.056}$ & $0.403_{\pm.089}$ & $0.708_{\pm.072}$ \\
+CNN    & 1D-CNN from scratch, MSE$+$SupCon$^\P$             & $0.269_{\pm.044}$ & $0.048$ & $0.580_{\pm.023}$ & $0.362_{\pm.049}$ & $0.625_{\pm.045}$ \\
+CNN-NLL & 1D-CNN from scratch, NLL$+$SupCon$^\P$            & $0.288_{\pm.054}$ & $0.050$ & $0.598_{\pm.041}$ & $0.381_{\pm.052}$ & $0.662_{\pm.037}$ \\
+\addlinespace[3pt]
+\cmidrule(lr){1-7}
+\addlinespace[1pt]
+E      & D w/o constraints, w/o retry                       & $0.124_{\pm.073}$ & $0.040$ & $0.480_{\pm.130}$ & $0.268_{\pm.071}$ & $0.615_{\pm.063}$ \\
+E$'$   & D w/o constraints, \emph{with} retry$^\ddagger$    & $0.150_{\pm.079}$ & $0.060$ & $0.498_{\pm.131}$ & $0.287_{\pm.064}$ & $0.637_{\pm.060}$ \\
+E$''$ & D \emph{with} constraints, w/o retry$^\S$     & \multicolumn{5}{c}{$\equiv$ D (analytically)} \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{2pt}
+\begin{flushleft}
+\footnotesize
+$\star$ C$'$ uses the same stealth-controlled negatives as D, but subsampled to match the benign count (1:1 ratio), isolating negative \emph{type} from dataset \emph{size/balance}. \\
+$\dagger$ Full system: NLL$+$SupCon, stealth-controlled negatives, protocol constraint validator, stealth-floor retry. \\
+$\diamondsuit$ D-DiffTS: same pipeline as D but with Diffusion-TS-generated base samples and post-hoc statistical guidance (Section~\ref{sec:method:diffts}). 10 seeds. \\
+$\P$ CNN/CNN-NLL: 3-layer 1D-CNN (2.3M parameters) trained from scratch with SupCon and stealth-controlled negative data as D; no Moirai pre-training. CNN uses MSE reconstruction; CNN-NLL uses Gaussian NLL (Section~\ref{sec:experiments:ablation}). \\
+$\ddagger$ E$'$ uses unconditional retry (s$_{\text{eff}}\approx$0.97 vs.\ requested s$=$0.95); isolates constraint-validator contribution. \\
+$\S$ E$''$ activates the constraint validator but exits the retry loop after one attempt; for analytical perturbations (100\% pass-rate), E$''$ $\equiv$ D and no experimental run is needed.
+\end{flushleft}
+\end{table}

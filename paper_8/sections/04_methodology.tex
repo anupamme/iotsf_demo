@@ -1,0 +1,76 @@
+% ============================================================
+\section{Fine-Tuning Protocol}
+\label{sec:method}
+% ============================================================
+
+\textbf{Moirai for forecasting and anomaly scoring.}
+Moirai~\cite{woo2024moirai} predicts a probabilistic distribution
+over a target horizon given context.  For ETT forecasting we report
+MSE on the median of 20 forecast samples at $h{=}96$ and $h{=}192$
+(Appendix~\ref{app:moirai_median}).  For IoT the anomaly score is
+the fraction of timesteps outside the $1{-}\alpha$ CI
+($\alpha{=}0.05$) over a 32-timestep horizon.
+
+\textbf{Fine-tuning objective.}
+Condition~B uses NLL only.  Condition~C adds supervised
+contrastive loss~\cite{khosla2020supcon}:
+$\mathcal{L}(\theta) = \mathcal{L}_{\text{NLL}}(\theta) +
+\lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau)$,
+with $\lambda = 0.5$ and $\tau = 0.07$.
+For ETT, temporal clusters (8 bins by time-series position) serve
+as SupCon label.
+
+\textbf{Training details.}
+AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$), batch size 32,
+early stopping with patience 3, gradient clipping at 1.0.  ETT
+fine-tuning runs 20 epochs at $n{=}500$ (10 seeds) and is swept
+across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
+All Moirai sizes (Small 13.8M, Base 91M, Large 311M) use the same
+protocol.
+
+\textbf{Deterministic training protocol.}
+All $n{=}10$k per-seed results use CUDA-deterministic training:
+\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8}, \texttt{torch.backends.cudnn.deterministic=True},
+seeded DataLoader workers, and fixed \texttt{PYTHONHASHSEED}.
+This makes the 10-seed per-seed comparison reproducible: any researcher
+can recover identical per-seed forgetting and $\Delta R^2$ values by
+re-running with the same seeds on the same GPU architecture (A10G).
+Full seed list, per-seed values, and hardware specification are in
+Appendix~\ref{app:probing}.
+Cross-hardware reproducibility (e.g., A100 vs.\ A10G) has not been empirically
+verified; the deterministic guarantee applies within the same GPU architecture
+(A10G, as used in this paper).
+
+\textbf{uni2ts PackedStdScaler patch.\footnote{We patched an in-place
+tensor mutation in \texttt{uni2ts}'s \texttt{PackedStdScaler} that
+silently detaches autograd; a differentiable \texttt{torch.where}
+replaces the in-place write. All results use the patched scaler
+(released with our code). See Appendix~\ref{app:scaler_patch} for details.}}
+\textbf{Any Moirai fine-tuning reproduction of this paper requires the patch.}
+
+\textbf{Representation diagnostics.}
+We track representation change with three metrics:
+(1)~CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned
+encoder representations (geometric similarity);
+(2)~linear probing R$^2$ (Ridge, MLP, Linear-Forecaster heads on
+frozen representations, predicting forecasting target; we report
+$\Delta R^2{=}R^2(\text{FT}){-}R^2(\text{ZS})$; absolute
+$R^2(\text{FT})$ remains negative, so $\Delta R^2$ quantifies
+relative improvement over pre-trained linear decoding); and
+(3)~weight drift ($\ell_2$ distance from pre-trained parameters).
+
+\begin{table}[h]
+\centering\small
+\caption{Notation summary for probe-related quantities.}
+\label{tab:notation}
+\begin{tabular}{ll}
+\toprule
+Symbol & Definition \\
+\midrule
+$R^2_{\text{task}}(\text{PT})$ & $1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$; positive $\Rightarrow$ gate-pass \\
+$R^2(\text{PT})$, $R^2(\text{FT})$ & Ridge probe score on pre-trained / fine-tuned encoder \\
+$\Delta R^2$ & $R^2(\text{FT}) - R^2(\text{PT})$; relative linear-decodability change \\
+$\Delta R^2_{\text{task}}$ & Task-level improvement measured via forecasting head \\
+\bottomrule
+\end{tabular}
+\end{table}

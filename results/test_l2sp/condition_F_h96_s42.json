@@ -1,0 +1,55 @@
+{
+  "condition": "F",
+  "condition_name": "L2-SP",
+  "model_size": "small",
+  "horizon": 96,
+  "seed": 42,
+  "epochs": 1,
+  "max_train_samples": 50,
+  "l2sp_weight": 0.1,
+  "ewc_lambda": 0.0,
+  "lora_rank": 0,
+  "zeroshot_mse": 0.16556578528912688,
+  "zeroshot_mae": 0.25579334523530534,
+  "final_val_mse": 0.1297886781582847,
+  "final_val_mae": 0.23156833652187295,
+  "test_mse": 0.5976096111655752,
+  "test_mae": 0.5176887075991162,
+  "final_cka": 0.9817155003547668,
+  "final_weight_drift": 0.5085373440461112,
+  "forgetting_pct": -21.608997939015453,
+  "history": {
+    "train_nll": [
+      0.0,
+      12.00959062576294
+    ],
+    "train_contrastive": [
+      0.0,
+      0.0
+    ],
+    "train_total": [
+      0.0,
+      12.019042809804281
+    ],
+    "val_mse": [
+      0.16556578528912688,
+      0.1297886781582847
+    ],
+    "val_mae": [
+      0.25579334523530534,
+      0.23156833652187295
+    ],
+    "cka": [
+      1.0,
+      0.9817155003547668
+    ],
+    "weight_drift": [
+      0.0,
+      0.5085373440461112
+    ],
+    "epoch": [
+      0,
+      1
+    ]
+  }
+}

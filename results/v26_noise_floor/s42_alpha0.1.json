@@ -1,0 +1,28 @@
+{
+  "encoder_dir": "results/v19_cuda_etth2_n10k/seed42",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge"
+  ],
+  "head_types": [
+    "forecast96"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "gbm_depth": 6,
+  "ridge_alpha": 0.1,
+  "pooling": "mean",
+  "results": {
+    "forecast96": {
+      "ridge": -7.939708588530258
+    }
+  }
+}

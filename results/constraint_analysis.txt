@@ -1,0 +1,22 @@
+==========================================================================================
+PROTOCOL CONSTRAINT COMPLIANCE PASS RATES  (Table 3)
+==========================================================================================
+Attack Type            Protocol     Strict   Moderate   Permissive
+------------------------------------------------------------------------------------------
+slow_exfiltration      modbus       100.0%     100.0%       100.0%
+slow_exfiltration      mqtt         100.0%     100.0%       100.0%
+slow_exfiltration      coap         100.0%     100.0%       100.0%
+
+lotl_mimicry           modbus       100.0%     100.0%       100.0%
+lotl_mimicry           mqtt         100.0%     100.0%       100.0%
+lotl_mimicry           coap         100.0%     100.0%       100.0%
+
+beacon                 modbus       100.0%     100.0%       100.0%
+beacon                 mqtt         100.0%     100.0%       100.0%
+beacon                 coap         100.0%     100.0%       100.0%
+
+protocol_anomaly       modbus       100.0%     100.0%       100.0%
+protocol_anomaly       mqtt         100.0%     100.0%       100.0%
+protocol_anomaly       coap         100.0%     100.0%       100.0%
+
+==========================================================================================

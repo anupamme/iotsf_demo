@@ -1,0 +1,39 @@
+{
+  "encoder_dir": null,
+  "zero_shot": true,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge",
+    "mlp",
+    "gbm"
+  ],
+  "head_types": [
+    "forecast96",
+    "delta1"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "results": {
+    "forecast96": {
+      "ridge": -6.904331359209705,
+      "mlp_k1": -8.481996626573775,
+      "mlp_k2": -8.243754107321841,
+      "mlp_k5": -6.932081669502874,
+      "gbm": -5.941471609295341
+    },
+    "delta1": {
+      "ridge": -2.2786220009541287,
+      "mlp_k1": -0.12325485617691079,
+      "mlp_k2": -0.03034505530923962,
+      "mlp_k5": -0.004076631899273034,
+      "gbm": 0.05887039959505125
+    }
+  }
+}

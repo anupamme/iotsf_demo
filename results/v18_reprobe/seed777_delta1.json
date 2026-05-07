@@ -1,0 +1,25 @@
+{
+  "encoder_dir": "results/v17r2_etth2_n10k_es_mlp/seed777",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge",
+    "gbm"
+  ],
+  "head_types": [
+    "delta1"
+  ],
+  "mlp_layers": [
+    1
+  ],
+  "results": {
+    "delta1": {
+      "ridge": -1.5217107371356995,
+      "gbm": 0.01935092112261516
+    }
+  }
+}

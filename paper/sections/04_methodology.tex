@@ -1,0 +1,116 @@
+% ============================================================
+\section{\ours{}: Methodology}
+\label{sec:method}
+% ============================================================
+
+Figure~\ref{fig:architecture} illustrates the end-to-end \ours{} pipeline:
+(1) protocol-constrained stealth-controlled negative generation and
+(2) supervised contrastive fine-tuning of Moirai.
+
+% --- Figure 1: Architecture ---
+\begin{figure}[t]
+  \centering
+  \resizebox{\textwidth}{!}{\input{figures/architecture.tikz}}
+  \caption{
+    \ours{} architecture.
+    \textbf{Stage 1}: Stealth-controlled negative sequences are generated via closed-form
+    perturbation (analytical) or Diffusion-TS (learned), with a
+    constraint-retry loop ensuring protocol validity
+    (Appendix~\ref{app:algorithm}).
+    \textbf{Stage 2}: Moirai is fine-tuned with combined NLL + SupCon loss.
+  }
+  \label{fig:architecture}
+\end{figure}
+
+% ============================================================
+\subsection{Stage 1: Protocol-Constrained Stealth-Controlled Negative Generation}
+\label{sec:method:gen}
+% ============================================================
+
+We synthesise stealth-controlled negative attacks via closed-form perturbations
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}): given benign $\mathbf{X}_b$,
+pattern $P_k$, and stealth $s$, the stealth-controlled negative is
+$\mathbf{X}_a = P_k(\mathbf{X}_b, s)$.
+Each perturbation is deterministic and CPU-reproducible ($<$2\,s/sample).
+
+Raw generated samples may violate IoT protocol specifications.
+A constraint-retry loop (Appendix~\ref{app:algorithm})
+iterates up to $R{=}3$ times, relaxing
+stealth by $+$0.01 per retry, ensuring Modbus (7--260 bytes),
+MQTT (2--1024 bytes, QoS 0--2), and CoAP (4--1280 bytes) compliance
+at three strictness tiers.
+
+% ============================================================
+\subsection{Stage 1b: Learned Negatives via Diffusion-TS}
+\label{sec:method:diffts}
+% ============================================================
+
+To test whether \emph{learned} negatives outperform the analytical
+perturbations above, we train a Diffusion-TS~\cite{zhang2024diffusionts}
+generative model on CICIoT2023 benign traffic.
+
+\textbf{Model and training.}
+Diffusion-TS uses a decomposition-aware architecture
+(encoder: 3 layers, decoder: 6 layers, $d_{\text{model}}{=}256$)
+with a cosine noise schedule (1000 diffusion steps).
+We train for 300 epochs on the benign training windows
+($\text{seq\_length}{=}128$, $\text{features}{=}12$) with Adam
+($\eta{=}10^{-4}$, batch size 32), selecting the checkpoint with
+lowest validation loss (0.238).
+
+\textbf{Sampling and guidance.}
+At inference, we use 50 DDIM denoising steps ($20\times$ speedup)
+to generate benign base samples in batches.
+Post-hoc statistical guidance rescales each generated sample to match
+a target distribution: given reference benign sample $\mathbf{X}_b$
+and stealth level $s$, we set
+$\mu_{\text{target}} = \mu(\mathbf{X}_b)$ and
+$\sigma_{\text{target}} = \sigma(\mathbf{X}_b) \cdot (1 + (1{-}s) \cdot 0.5)$,
+then rescale the generated sample to these moments.
+The same analytical perturbation pipeline
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}) is applied to the DiffTS
+base samples, creating \emph{learned negatives} (condition D-DiffTS)
+that can be compared directly with the analytical negatives
+(condition~D).
+
+% ============================================================
+\subsection{Stage 2: Moirai Fine-Tuning with Supervised Contrastive Loss}
+\label{sec:method:finetune}
+% ============================================================
+
+\textbf{Moirai for anomaly scoring.}
+Moirai~\cite{woo2024moirai} predicts a distribution over
+$\mathbf{X}_{97:128}$ given context $\mathbf{X}_{1:96}$.
+The anomaly score is the fraction of forecast timesteps falling outside the
+$1{-}\alpha$ CI ($\alpha{=}0.05$), where $T' = 128 - 96 = 32$ is the
+forecast horizon:
+\begin{equation}
+  \hat{s}(\mathbf{X}) = \frac{1}{T'}\sum_{t=97}^{128}
+    \mathbf{1}\!\left[x_t \notin \text{CI}_{0.95}(\hat{X}_t)\right].
+\end{equation}
+A sample is classified as an attack if $\hat{s}(\mathbf{X}) > \delta$,
+where $\delta$ is calibrated on a benign validation set
+(Section~\ref{sec:experiments:setup}).
+
+\textbf{Combined training objective.}
+We fine-tune with:
+\begin{equation}
+  \label{eq:combined_loss}
+  \mathcal{L}(\theta) =
+    \mathcal{L}_{\text{NLL}}(\theta) +
+    \lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau),
+\end{equation}
+where $\lambda = 0.5$ and $\tau = 0.07$ (sensitivity in
+Appendix~\ref{app:hparams}; stable within $\pm$0.02 AUC).
+$\mathcal{L}_{\text{SupCon}}$~\cite{khosla2020supcon} is applied to
+L2-normalised embeddings from a projection head
+$h_\phi: \R^{384} \to \R^{256} \to \text{ReLU} \to \R^{128}$.
+
+\textbf{Training details.}
+AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$),
+batch size 32, up to 10 epochs (5 in the main ablation,
+10--20 in scaling experiments), early stopping (patience 3),
+gradient clipping at 1.0.  Moirai-Small (13.8M parameters).\footnote{%
+  An in-place tensor operation in \texttt{uni2ts} \texttt{PackedStdScaler}
+  was replaced with a differentiable \texttt{torch.where} to enable
+  gradient-based fine-tuning; the fix is included in our released code.}

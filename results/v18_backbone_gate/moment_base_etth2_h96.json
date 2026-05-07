@@ -1,0 +1,12 @@
+{
+  "model_id": "AutonLab/MOMENT-1-base",
+  "horizon": 96,
+  "seed": 42,
+  "device": "mps",
+  "n_test_windows": 300,
+  "linear_baseline_mse_lb96": 0.23500414192676544,
+  "moment_zs_probe_mse": 0.5278818607330322,
+  "moment_zs_probe_r2": 0.06550458073616028,
+  "gate_pass_vs_linear": false,
+  "gate_margin_pct": -147.8318594990762
+}

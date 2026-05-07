@@ -1,0 +1,23 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+\textbf{Methodology.}
+The primary contribution is a reusable diagnostic toolkit---value-gate
+screening, controlled comparisons, and task-orthogonal probes---that
+transfers to any backbone.
+
+\textbf{Findings.}
+Probe asymmetry replicates across datasets (ETTh2, ETTm2, ILI: all
+10/10) and sizes (Small 10/10, Base 9/10); strong gate-pass predicts
+encoder stability (Chronos-M4, CKA${\geq}$0.95).
+Limitations (Appendix~\ref{app:limitations}): probe asymmetry on Moirai
+only; absolute $R^2(\text{FT})$ remains negative.
+
+\textbf{Practitioner protocol.}
+(1)~Compute ZS MSE vs.\ lookback-matched Linear;
+(2)~gate-pass${<}$20\%: fine-tune freely;
+(3)~gate-pass 20--80\%: expect restructuring---use LoRA with
+$10{\times}$ LR reduction, monitor CKA;
+(4)~gate-pass${>}$80\%: encoder near-optimal---use frozen-encoder.

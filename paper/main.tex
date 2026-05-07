@@ -1,0 +1,107 @@
+% ============================================================
+% NeurIPS 2026 Submission
+% "Fighting AI-Powered Threats with AI-Generated Defense"
+% ============================================================
+% Use neurips_2025.sty until neurips_2026.sty is released.
+% Download from: https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
+% Place as paper/neurips_2025.sty
+% ============================================================
+
+\documentclass{article}
+
+% ---- NeurIPS style ----
+\usepackage{neurips_2024}  % neurips_2026.sty not yet available (as of Apr 2026); will update before camera-ready
+% Fallback geometry if style not loaded: \usepackage[margin=1in]{geometry}
+
+% ---- Core packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{hidelinks, colorlinks=false}
+\usepackage{url}
+\usepackage{booktabs}         % professional tables
+\usepackage{amsmath, amssymb}
+\usepackage{mathtools}          % provides \coloneqq and extends amsmath
+\usepackage{graphicx}
+\usepackage{subcaption}       % subfigures
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---- Macros ----
+\newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
+\newcommand{\dataset}{CICIoT2023}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
+
+\title{When Fine-Tuning Forgets: Diagnosing Catastrophic Forgetting\\
+       in Contrastive IoT Anomaly Detection}
+
+\author{
+  Anupam Chattopadhyay\thanks{Correspondence: \texttt{anupam@example.com}} \\
+  % Add remaining authors / affiliations here
+}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+Fine-tuning foundation models for IoT intrusion detection is dominated by
+catastrophic forgetting: extended training erases pre-trained features,
+collapsing detection to from-scratch levels.
+We diagnose this failure mode through \ours{}, a framework that fine-tunes
+Moirai~\cite{woo2024moirai} with NLL and supervised contrastive loss on
+stealth-controlled synthetic negatives (best calibrated F1 at stealth-95
+is 0.262; the system is a research diagnostic, not a production IDS).
+
+\textbf{Our central finding: catastrophic forgetting is the dominant failure
+mode, and its severity depends on negative-sample quality.}
+At 200 samples / 5 epochs, all negative types perform comparably
+(10 seeds; AUC 0.556--0.629).
+With 10-seed evaluation, all conditions degrade monotonically from 200/5
+onward; the Gaussian-noise advantage narrows from $+$0.073 to $+$0.024
+(n.s.)\ at 1000/20.
+Freezing the encoder confirms the mechanism: frozen Moirai yields
+identical AUC across conditions (B$=$C$=$D$=$0.549, 10 seeds),
+establishing that NLL-based evaluation depends on the frozen encoder
+alone.
+Controlled cross-evaluations show that both frozen and unfrozen
+D-DiffTS, when evaluated on the \emph{same} analytical negatives as B/C/D,
+achieve AUC$\approx$0.464---below zero-shot, revealing the previously-reported
+0.728 (frozen) and apparent unfrozen advantage as evaluation-distribution
+artifacts (Section~\ref{sec:experiments:scaling}; Appendix~\ref{app:controlled_frozen}).
+Converging evidence from learning-rate ablation ($10^{-4}$ to $10^{-6}$),
+LoRA, and L2-SP regularisation rules out hyperparameter misconfiguration.
+
+We contribute: (1)~a scale-dependent diagnosis of catastrophic forgetting
+across negative types, encoder-freezing strategies, and regularisation
+baselines; (2)~an NLL$+$SupCon training recipe validated on two architectures
+(Moirai and from-scratch CNN); (3)~a stealth-controlled evaluation
+protocol (four IoT attack archetypes at three stealth levels with
+Modbus/MQTT/CoAP protocol constraints).
+Cross-dataset validation on N-BaIoT~\cite{meidan2018n} confirms recipe
+generalisation (Gaussian: AUC$=$0.928; learned: AUC$=$0.939
+with $\geq$500 training windows).
+Code, datasets, and calibration scripts are released.
+\end{abstract}
+
+% ============================================================
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_problem_formulation}
+\input{sections/04_methodology}
+\input{sections/05_experiments}
+\input{sections/06_analysis}
+\input{sections/07_conclusion}
+\input{sections/appendix}
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+
+\end{document}

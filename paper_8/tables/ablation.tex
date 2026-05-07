@@ -1,0 +1,40 @@
+% Table 2: Ablation Study (10 seeds)
+% Results from run_ablation.py with 10 seeds (42, 123, 456, 789, 1234, 1011, 2022, 3033, 4044, 5055)
+% All conditions: benign-calibrated threshold (95th percentile of benign-only held-out scores)
+
+\begin{table}[h]
+\centering
+\caption{
+  Ablation study on stealth-95 and all-stealth evaluation sets (10 seeds).
+  $\pm$ values are standard deviations.
+  Threshold calibrated on benign-only held-out scores
+  (95th percentile, targeting FPR\,$\leq$\,0.05;
+  see Section~\ref{sec:experiments:setup}).
+  ROC-AUC is threshold-independent and the primary ranking metric.
+  CNN-NLL resolves the loss-function confound (Section~\ref{sec:analysis}).
+}
+\label{tab:ablation}
+\begin{tabular}{llccccc}
+\toprule
+& & \multicolumn{3}{c}{Stealth 95\%} & \multicolumn{2}{c}{All Stealth} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-7}
+Cond. & Description & F1 & FPR & AUC & F1 & AUC \\
+\midrule
+A      & Moirai zero-shot                                   & $0.137_{\pm.020}$ & $0.063$ & $0.481_{\pm.042}$ & $0.112_{\pm.026}$ & $0.504_{\pm.052}$ \\
+B      & $+$ Fine-tune, NLL only                            & $0.174_{\pm.024}$ & $0.060$ & $0.556_{\pm.021}$ & $0.216_{\pm.042}$ & $0.589_{\pm.047}$ \\
+C      & $+$ SupCon (Gaussian-noise neg., 1:1)              & $\mathbf{0.262}_{\pm.043}$ & $0.068$ & $\mathbf{0.629}_{\pm.022}$ & $0.295_{\pm.029}$ & $0.661_{\pm.043}$ \\
+C$'$   & $+$ SupCon (balanced hard neg., 1:1)$^\star$       & $0.241_{\pm.043}$ & $0.062$ & $0.610_{\pm.025}$ & $0.285_{\pm.026}$ & $0.638_{\pm.048}$ \\
+D      & $+$ Hard negatives, 1:12 (\ours{})                 & $0.176_{\pm.032}$ & $0.060$ & $0.556_{\pm.021}$ & $0.217_{\pm.044}$ & $0.589_{\pm.047}$ \\
+\midrule
+CNN    & 1D-CNN from scratch (MSE)                          & $0.269_{\pm.044}$ & $0.048$ & $0.580_{\pm.023}$ & $0.362_{\pm.049}$ & $0.625_{\pm.045}$ \\
+CNN-NLL & 1D-CNN from scratch (Gaussian NLL)$^\dagger$      & $0.288_{\pm.054}$ & $0.050$ & $0.598_{\pm.041}$ & $\mathbf{0.381}_{\pm.052}$ & $\mathbf{0.662}_{\pm.037}$ \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+\begin{flushleft}
+\footnotesize
+$\star$ C$'$ uses the same hard negatives as D, subsampled to 1:1 ratio, isolating negative \emph{type} from dataset \emph{balance}. \\
+$\dagger$ CNN-NLL: identical CNN architecture with Gaussian NLL head instead of MSE reconstruction.
+CNN-NLL$\geq$CNN-MSE rules out the loss-function confound between CNN and Moirai (Section~\ref{sec:analysis}).
+\end{flushleft}
+\end{table}

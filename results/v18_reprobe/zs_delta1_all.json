@@ -1,0 +1,27 @@
+{
+  "encoder_dir": null,
+  "zero_shot": true,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge",
+    "gbm"
+  ],
+  "head_types": [
+    "delta1"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "results": {
+    "delta1": {
+      "ridge": -2.2786220009541287,
+      "gbm": 0.05887039959505125
+    }
+  }
+}

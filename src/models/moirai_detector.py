@@ -197,7 +197,12 @@ class MoiraiAnomalyDetector:
 
         # Device selection
         if device == 'auto':
-            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            if torch.cuda.is_available():
+                self.device = torch.device('cuda')
+            elif torch.backends.mps.is_available():
+                self.device = torch.device('mps')
+            else:
+                self.device = torch.device('cpu')
         else:
             self.device = torch.device(device)
 
@@ -210,14 +215,41 @@ class MoiraiAnomalyDetector:
         self.model = None
         self._initialized = False
         self._mock_mode = False
+        self.projection_head = None  # set after fine_tune_supervised()
 
-    def initialize(self, checkpoint_path: Optional[str] = None):
+    def _safe_val_loss(self, **kwargs):
+        """Wrapper around model._val_loss that handles MPS float64 limitation.
+
+        MPS doesn't support float64 which uni2ts uses internally.
+        Temporarily moves model to CPU for this call, then back to MPS.
+        """
+        if self.device.type == 'mps':
+            self.model.to('cpu')
+            # Move tensor args to CPU
+            for k, v in kwargs.items():
+                if isinstance(v, torch.Tensor):
+                    kwargs[k] = v.to('cpu')
+            result = self.model._val_loss(**kwargs)
+            self.model.to(self.device)
+            return result.to(self.device)
+        return self.model._val_loss(**kwargs)
+
+    def _get_encoder(self):
+        """Get the encoder module, handling both normal and LoRA-wrapped models."""
+        module = self.model.module
+        if hasattr(module, 'base_model'):
+            return module.base_model.model.encoder
+        return module.encoder
+
+    def initialize(self, checkpoint_path: Optional[str] = None, random_init: bool = False):
         """
         Initialize the model and load weights.
 
         Args:
             checkpoint_path: Path to fine-tuned checkpoint (optional)
                            If None, loads pre-trained Moirai from Hugging Face
+            random_init: If True, use randomly-initialized weights (skip pretrained loading).
+                        Used as a negative control experiment.
         """
         if not UNI2TS_AVAILABLE:
             logger.info("uni2ts not available. Using mock mode.")
@@ -229,8 +261,8 @@ class MoiraiAnomalyDetector:
             model_id = MODEL_SIZE_MAP[self.model_size]
             logger.info(f"Loading Moirai model: {model_id}")
 
-            # Always load base model from HuggingFace first
-            self.model = self._load_from_huggingface(model_id)
+            # Load base model (with or without pretrained weights)
+            self.model = self._load_from_huggingface(model_id, random_init=random_init)
 
             # If checkpoint provided, load fine-tuned weights
             if checkpoint_path:
@@ -263,23 +295,22 @@ class MoiraiAnomalyDetector:
             logger.info("Falling back to mock mode")
             self._initialize_mock()
 
-    def _load_from_huggingface(self, model_id: str) -> MoiraiForecast:
+    def _load_from_huggingface(self, model_id: str, random_init: bool = False) -> MoiraiForecast:
         """
         Load Moirai model from HuggingFace using safetensors format.
 
         Args:
             model_id: HuggingFace model ID (e.g., 'Salesforce/moirai-1.1-R-small')
+            random_init: If True, skip loading pretrained weights (random initialization).
 
         Returns:
             MoiraiForecast model instance
         """
         import json
         from huggingface_hub import hf_hub_download
-        from safetensors.torch import load_file
 
-        # Download config and weights
+        # Always download config; only download weights when not using random init
         config_path = hf_hub_download(repo_id=model_id, filename="config.json")
-        weights_path = hf_hub_download(repo_id=model_id, filename="model.safetensors")
 
         # Load config
         with open(config_path) as f:
@@ -305,9 +336,14 @@ class MoiraiAnomalyDetector:
             scaling=config.get('scaling', True)
         )
 
-        # Load weights
-        state_dict = load_file(weights_path)
-        module.load_state_dict(state_dict)
+        # Load pretrained weights unless random_init is requested
+        if random_init:
+            logger.info("Random-init mode: skipping pretrained weight loading (negative control)")
+        else:
+            from safetensors.torch import load_file
+            weights_path = hf_hub_download(repo_id=model_id, filename="model.safetensors")
+            state_dict = load_file(weights_path)
+            module.load_state_dict(state_dict)
 
         logger.info(f"Loaded MoiraiModule with {sum(p.numel() for p in module.parameters()):,} parameters")
 
@@ -544,7 +580,7 @@ class MoiraiAnomalyDetector:
 
         # Initialize arrays
         predictions = np.zeros_like(traffic)
-        nll_scores = np.zeros(seq_length)
+        nll_scores = np.full(seq_length, -np.inf)
 
         # Patch size for model
         patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
@@ -568,7 +604,7 @@ class MoiraiAnomalyDetector:
 
                 try:
                     # Compute NLL using model's internal method
-                    nll = self.model._val_loss(
+                    nll = self._safe_val_loss(
                         patch_size=patch_size,
                         target=target,
                         observed_target=observed_target,
@@ -581,27 +617,12 @@ class MoiraiAnomalyDetector:
                     window_nlls.append(0.0)
                     window_positions.append((i, i + full_length))
 
-            # Convert to numpy
+            # Convert to numpy — return raw NLL as anomaly score.
+            # Higher NLL = less predictable = more anomalous.
+            # No normalization: the calibration script finds the optimal
+            # threshold on the raw scale.
             window_nlls = np.array(window_nlls)
-
-            # Convert NLL to anomaly score
-            # For STEALTH attacks: HIGHER NLL = less predictable = more likely attack
-            # (Stealth attacks are designed to look unpredictable/random like noise)
-            #
-            # Base model produces NLL ~ -1 to -4:
-            #   - Attacks: higher NLL (~ -1.3 to -2.2)
-            #   - Benign: lower NLL (~ -2.2 to -3.9)
-            #
-            # We use INVERTED sigmoid: higher NLL → higher anomaly score
-            BASELINE_NLL = -2.5  # Midpoint for base model (attacks > -2.5, benign < -2.5)
-            SCALE_FACTOR = 2.0  # Steeper sigmoid for clearer separation
-
-            if len(window_nlls) > 0:
-                # Higher NLL -> higher anomaly score (for stealth attack detection)
-                # sigmoid(k*(nll - baseline)) gives high score for high NLL
-                normalized_nlls = 1.0 / (1.0 + np.exp(-SCALE_FACTOR * (window_nlls - BASELINE_NLL)))
-            else:
-                normalized_nlls = np.zeros_like(window_nlls)
+            normalized_nlls = window_nlls
 
             # Map window NLL scores to per-timestep scores
             # Each timestep gets the max NLL of windows it belongs to
@@ -623,7 +644,12 @@ class MoiraiAnomalyDetector:
                 window = traffic[i:i + full_length]
                 predictions[i:i + full_length] = window  # Simple: use actual as prediction
 
-        # Flag anomalies based on normalized NLL score
+        # Replace any uncovered timesteps (still -inf) with the minimum observed NLL
+        still_neg_inf = np.isinf(nll_scores) & (nll_scores < 0)
+        if still_neg_inf.any() and not still_neg_inf.all():
+            nll_scores[still_neg_inf] = nll_scores[~still_neg_inf].min()
+
+        # Flag anomalies based on NLL score
         is_anomaly = nll_scores > threshold
 
         # For NLL method, we don't have traditional confidence intervals
@@ -992,7 +1018,7 @@ class MoiraiAnomalyDetector:
                     # Use patch_size from model (default 32 for small model)
                     patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
 
-                    per_sample_loss = self.model._val_loss(
+                    per_sample_loss = self._safe_val_loss(
                         patch_size=patch_size,
                         target=full_target,
                         observed_target=observed_target,
@@ -1048,7 +1074,7 @@ class MoiraiAnomalyDetector:
                     try:
                         patch_size = self.patch_size if hasattr(self, 'patch_size') and self.patch_size != 'auto' else 32
 
-                        per_sample_loss = self.model._val_loss(
+                        per_sample_loss = self._safe_val_loss(
                             patch_size=patch_size,
                             target=full_target,
                             observed_target=observed_target,
@@ -1198,7 +1224,9 @@ class MoiraiAnomalyDetector:
         batch_size: int,
         learning_rate: float,
         temperature: float,
-        n_epochs: int
+        n_epochs: int,
+        freeze_encoder: str = "none",
+        l2sp_weight: float = 0.0,
     ) -> Dict[str, Any]:
         """
         Set up components for supervised contrastive training.
@@ -1212,6 +1240,8 @@ class MoiraiAnomalyDetector:
             learning_rate: Learning rate for optimizer
             temperature: Temperature for contrastive loss
             n_epochs: Number of epochs (for scheduler)
+            freeze_encoder: "none" (default), "full" (freeze all encoder weights),
+                or "partial" (freeze all but last transformer layer)
 
         Returns:
             Dictionary containing all training components:
@@ -1257,11 +1287,41 @@ class MoiraiAnomalyDetector:
         # Initialize contrastive loss
         contrastive_loss_fn = SupervisedContrastiveLoss(temperature=temperature)
 
-        # Optimizer includes both model and projection head parameters
-        optimizer = torch.optim.AdamW(
-            list(self.model.parameters()) + list(projection_head.parameters()),
-            lr=learning_rate
-        )
+        # Snapshot pretrained weights for L2-SP regularization
+        pretrained_params = None
+        if l2sp_weight > 0.0:
+            pretrained_params = {
+                name: param.detach().clone()
+                for name, param in self.model.named_parameters()
+            }
+            logger.info(f"L2-SP regularization enabled (weight={l2sp_weight})")
+
+        # Optimizer: freeze encoder if requested (tests catastrophic forgetting hypothesis)
+        if freeze_encoder == "full":
+            for param in self.model.parameters():
+                param.requires_grad = False
+            trainable_params = list(projection_head.parameters())
+            logger.info("Encoder fully frozen — training projection head only")
+        elif freeze_encoder == "partial":
+            n_layers = len(self.model.module.encoder.layers)
+            for name, param in self.model.named_parameters():
+                if 'encoder.layers.' in name:
+                    layer_idx = int(name.split('encoder.layers.')[1].split('.')[0])
+                    if layer_idx < n_layers - 1:
+                        param.requires_grad = False
+                elif 'encoder.norm' not in name and 'param_proj' not in name:
+                    param.requires_grad = False
+            n_frozen = sum(1 for p in self.model.parameters() if not p.requires_grad)
+            n_total = sum(1 for p in self.model.parameters())
+            trainable_params = [p for p in self.model.parameters() if p.requires_grad] + list(projection_head.parameters())
+            logger.info(f"Encoder partially frozen ({n_frozen}/{n_total} params frozen) — last layer + norm + param_proj trainable")
+        elif freeze_encoder == "lora":
+            from src.models.lora_adapter import apply_lora
+            self.model = apply_lora(self.model, rank=8, alpha=16)
+            trainable_params = [p for p in self.model.parameters() if p.requires_grad] + list(projection_head.parameters())
+        else:
+            trainable_params = list(self.model.parameters()) + list(projection_head.parameters())
+        optimizer = torch.optim.AdamW(trainable_params, lr=learning_rate)
 
         # Learning rate scheduler
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=n_epochs)
@@ -1272,7 +1332,9 @@ class MoiraiAnomalyDetector:
             'projection_head': projection_head,
             'contrastive_loss_fn': contrastive_loss_fn,
             'optimizer': optimizer,
-            'scheduler': scheduler
+            'scheduler': scheduler,
+            'pretrained_params': pretrained_params,
+            'l2sp_weight': l2sp_weight,
         }
 
     def _train_epoch_supervised(
@@ -1283,8 +1345,11 @@ class MoiraiAnomalyDetector:
         optimizer,
         captured_embeddings: Dict,
         contrastive_weight: float,
-        epoch: int
-    ) -> Tuple[float, float, float, int]:
+        epoch: int,
+        log_gradients: bool = False,
+        pretrained_params: Optional[Dict] = None,
+        l2sp_weight: float = 0.0,
+    ) -> Tuple[float, float, float, int, Dict]:
         """
         Run a single training epoch for supervised contrastive learning.
 
@@ -1296,28 +1361,38 @@ class MoiraiAnomalyDetector:
             captured_embeddings: Dict to store encoder outputs (via hook)
             contrastive_weight: Weight for contrastive loss
             epoch: Current epoch number (for logging)
+            log_gradients: If True, compute and return gradient norm diagnostics
 
         Returns:
-            Tuple of (avg_total_loss, avg_nll_loss, avg_contrastive_loss, batch_count)
+            Tuple of (avg_total_loss, avg_nll_loss, avg_contrastive_loss, batch_count, grad_info)
+            where grad_info is a dict with gradient diagnostics (empty if log_gradients=False)
         """
         self.model.train()
         projection_head.train()
 
         epoch_nll, epoch_cont, epoch_total = 0.0, 0.0, 0.0
+        epoch_proj_grad, epoch_encoder_grad = 0.0, 0.0
         batch_count = 0
         patch_size = self.patch_size if self.patch_size != 'auto' else 32
 
+        # MPS doesn't support float64 which uni2ts uses internally in _val_loss.
+        # Run training on CPU when on MPS to keep autograd graph intact.
+        train_device = 'cpu' if self.device.type == 'mps' else self.device
+        if train_device == 'cpu' and self.device.type == 'mps':
+            self.model.to('cpu')
+            projection_head.to('cpu')
+
         for batch_idx, batch in enumerate(train_loader):
-            context = batch['context'].to(self.device)
-            target = batch['target'].to(self.device)
-            labels = batch['label'].to(self.device)
+            context = batch['context'].to(train_device)
+            target = batch['target'].to(train_device)
+            labels = batch['label'].to(train_device)
 
             # Concatenate context and target for NLL computation
             full_target = torch.cat([context, target], dim=1)
             B, seq_len, n_features = full_target.shape
 
-            observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
-            is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+            observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=train_device)
+            is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=train_device)
 
             try:
                 # Compute NLL loss (also triggers encoder hook)
@@ -1340,6 +1415,15 @@ class MoiraiAnomalyDetector:
                 # Combined loss
                 total_loss = nll_loss + contrastive_weight * cont_loss
 
+                # L2-SP regularization: penalize drift from pretrained weights
+                if pretrained_params is not None and l2sp_weight > 0.0:
+                    l2sp_loss = sum(
+                        (p - pretrained_params[name]).pow(2).sum()
+                        for name, p in self.model.named_parameters()
+                        if p.requires_grad and name in pretrained_params
+                    )
+                    total_loss = total_loss + l2sp_weight * l2sp_loss
+
             except Exception as e:
                 logger.warning(f"Batch {batch_idx} failed: {e}")
                 continue
@@ -1347,6 +1431,17 @@ class MoiraiAnomalyDetector:
             # Backward pass
             optimizer.zero_grad()
             total_loss.backward()
+
+            if log_gradients:
+                proj_grad_norm = torch.sqrt(sum(
+                    p.grad.norm()**2 for p in projection_head.parameters() if p.grad is not None
+                )).item()
+                encoder_grad_norm = torch.sqrt(sum(
+                    p.grad.norm()**2 for p in self.model.parameters() if p.grad is not None
+                )).item()
+                epoch_proj_grad += proj_grad_norm
+                epoch_encoder_grad += encoder_grad_norm
+
             torch.nn.utils.clip_grad_norm_(
                 list(self.model.parameters()) + list(projection_head.parameters()),
                 FINETUNE_GRAD_CLIP_NORM
@@ -1364,14 +1459,30 @@ class MoiraiAnomalyDetector:
                     f"NLL: {nll_loss.item():.4f}, Cont: {cont_loss.item():.4f}"
                 )
 
+        # Move model and projection head back to MPS after CPU training
+        if train_device == 'cpu' and self.device.type == 'mps':
+            self.model.to(self.device)
+            projection_head.to(self.device)
+
         if batch_count == 0:
-            return 0.0, 0.0, 0.0, 0
+            return 0.0, 0.0, 0.0, 0, {}
+
+        grad_info = {}
+        if log_gradients and batch_count > 0:
+            avg_nll = epoch_nll / batch_count
+            avg_cont = epoch_cont / batch_count
+            grad_info = {
+                "proj_grad_norm": epoch_proj_grad / batch_count,
+                "encoder_grad_norm": epoch_encoder_grad / batch_count,
+                "cont_loss_ratio": avg_cont / max(abs(avg_nll), 1e-8),
+            }
 
         return (
             epoch_total / batch_count,
             epoch_nll / batch_count,
             epoch_cont / batch_count,
-            batch_count
+            batch_count,
+            grad_info
         )
 
     def _validate_epoch_supervised(
@@ -1381,7 +1492,7 @@ class MoiraiAnomalyDetector:
         contrastive_loss_fn,
         captured_embeddings: Dict,
         contrastive_weight: float
-    ) -> float:
+    ) -> Tuple[float, float, Dict]:
         """
         Run a single validation epoch for supervised contrastive learning.
 
@@ -1393,26 +1504,34 @@ class MoiraiAnomalyDetector:
             contrastive_weight: Weight for contrastive loss
 
         Returns:
-            Average validation loss (or inf if no successful batches)
+            Tuple of (avg_val_total_loss, avg_val_nll, grad_info) where
+            grad_info is always empty dict for validation (no gradients computed).
         """
         self.model.eval()
         projection_head.eval()
 
         epoch_val_loss = 0.0
+        epoch_val_nll = 0.0
         val_batch_count = 0
         patch_size = self.patch_size if self.patch_size != 'auto' else 32
 
+        # MPS doesn't support float64; run validation on CPU
+        val_device = 'cpu' if self.device.type == 'mps' else self.device
+        if val_device == 'cpu' and self.device.type == 'mps':
+            self.model.to('cpu')
+            projection_head.to('cpu')
+
         with torch.no_grad():
             for batch in val_loader:
-                context = batch['context'].to(self.device)
-                target = batch['target'].to(self.device)
-                labels = batch['label'].to(self.device)
+                context = batch['context'].to(val_device)
+                target = batch['target'].to(val_device)
+                labels = batch['label'].to(val_device)
 
                 full_target = torch.cat([context, target], dim=1)
                 B, seq_len, n_features = full_target.shape
 
-                observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
-                is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+                observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=val_device)
+                is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=val_device)
 
                 try:
                     per_sample_nll = self.model._val_loss(
@@ -1435,9 +1554,17 @@ class MoiraiAnomalyDetector:
                     continue
 
                 epoch_val_loss += total_loss.item()
+                epoch_val_nll += nll_loss.item()
                 val_batch_count += 1
 
-        return epoch_val_loss / val_batch_count if val_batch_count > 0 else float('inf')
+        # Move back to MPS after validation
+        if val_device == 'cpu' and self.device.type == 'mps':
+            self.model.to(self.device)
+            projection_head.to(self.device)
+
+        avg_val = epoch_val_loss / val_batch_count if val_batch_count > 0 else float('inf')
+        avg_val_nll = epoch_val_nll / val_batch_count if val_batch_count > 0 else float('inf')
+        return avg_val, avg_val_nll, {}
 
     def fine_tune_supervised(
         self,
@@ -1451,7 +1578,11 @@ class MoiraiAnomalyDetector:
         contrastive_weight: float = 0.5,
         temperature: float = 0.07,
         checkpoint_dir: str = "models/moirai_supervised",
-        early_stopping_patience: int = FINETUNE_EARLY_STOPPING_PATIENCE
+        early_stopping_patience: int = FINETUNE_EARLY_STOPPING_PATIENCE,
+        log_gradients: bool = False,
+        early_stopping_criterion: str = "nll",
+        freeze_encoder: str = "none",
+        l2sp_weight: float = 0.0,
     ) -> Dict[str, List[float]]:
         """
         Fine-tune Moirai with supervised contrastive loss.
@@ -1472,6 +1603,7 @@ class MoiraiAnomalyDetector:
             temperature: Temperature for contrastive loss
             checkpoint_dir: Directory to save checkpoints
             early_stopping_patience: Epochs to wait before early stopping
+            l2sp_weight: L2-SP regularization weight (0.0 = disabled)
 
         Returns:
             Dictionary with training history:
@@ -1507,7 +1639,9 @@ class MoiraiAnomalyDetector:
         # Setup training components
         components = self._setup_supervised_training(
             train_data, train_labels, val_data, val_labels,
-            batch_size, learning_rate, temperature, n_epochs
+            batch_size, learning_rate, temperature, n_epochs,
+            freeze_encoder=freeze_encoder,
+            l2sp_weight=l2sp_weight,
         )
 
         train_loader = components['train_loader']
@@ -1518,9 +1652,11 @@ class MoiraiAnomalyDetector:
         scheduler = components['scheduler']
 
         # Training state
-        train_losses, train_nlls, train_contrastives, val_losses = [], [], [], []
+        train_losses, train_nlls, train_contrastives, val_losses, val_nlls = [], [], [], [], []
+        gradient_history = []
         best_val_loss = float('inf')
         patience_counter = 0
+        best_epoch = 0
 
         checkpoint_path = Path(checkpoint_dir)
         checkpoint_path.mkdir(parents=True, exist_ok=True)
@@ -1532,7 +1668,7 @@ class MoiraiAnomalyDetector:
         def capture_hook(module, input, output):
             captured_embeddings['encoder'] = output
 
-        encoder_hook = self.model.module.encoder.register_forward_hook(capture_hook)
+        encoder_hook = self._get_encoder().register_forward_hook(capture_hook)
 
         logger.info("Starting supervised training loop...")
 
@@ -1541,9 +1677,12 @@ class MoiraiAnomalyDetector:
                 epoch_start = time.time()
 
                 # Training phase
-                avg_total, avg_nll, avg_cont, batch_count = self._train_epoch_supervised(
+                avg_total, avg_nll, avg_cont, batch_count, grad_info = self._train_epoch_supervised(
                     train_loader, projection_head, contrastive_loss_fn,
-                    optimizer, captured_embeddings, contrastive_weight, epoch
+                    optimizer, captured_embeddings, contrastive_weight, epoch,
+                    log_gradients=log_gradients,
+                    pretrained_params=components.get('pretrained_params'),
+                    l2sp_weight=components.get('l2sp_weight', 0.0),
                 )
 
                 if batch_count == 0:
@@ -1553,13 +1692,21 @@ class MoiraiAnomalyDetector:
                 train_losses.append(avg_total)
                 train_nlls.append(avg_nll)
                 train_contrastives.append(avg_cont)
+                if grad_info:
+                    gradient_history.append(grad_info)
+                    logger.info(
+                        f"  Grad norms - Proj: {grad_info['proj_grad_norm']:.6f}, "
+                        f"Encoder: {grad_info['encoder_grad_norm']:.6f}, "
+                        f"Cont/NLL ratio: {grad_info['cont_loss_ratio']:.4f}"
+                    )
 
                 # Validation phase
-                avg_val_loss = self._validate_epoch_supervised(
+                avg_val_loss, avg_val_nll, _ = self._validate_epoch_supervised(
                     val_loader, projection_head, contrastive_loss_fn,
                     captured_embeddings, contrastive_weight
                 )
                 val_losses.append(avg_val_loss)
+                val_nlls.append(avg_val_nll)
 
                 # Logging
                 epoch_time = time.time() - epoch_start
@@ -1567,20 +1714,27 @@ class MoiraiAnomalyDetector:
                 logger.info(
                     f"Epoch {epoch+1}/{n_epochs} - "
                     f"Train: {avg_total:.4f} (NLL: {avg_nll:.4f}, Cont: {avg_cont:.4f}), "
-                    f"Val: {avg_val_loss:.4f}, LR: {current_lr:.6f}, Time: {epoch_time:.1f}s"
+                    f"Val: {avg_val_loss:.4f} (NLL: {avg_val_nll:.4f}), "
+                    f"LR: {current_lr:.6f}, Time: {epoch_time:.1f}s"
                 )
 
                 scheduler.step()
 
                 # Early stopping check
-                if avg_val_loss < best_val_loss:
-                    best_val_loss = avg_val_loss
+                es_metric = avg_val_nll if early_stopping_criterion == "nll" else avg_val_loss
+                if es_metric < best_val_loss:
+                    best_val_loss = es_metric
                     patience_counter = 0
+                    best_epoch = epoch + 1
                     self._save_supervised_checkpoint(
                         str(best_checkpoint_path), projection_head,
                         epoch=epoch, val_loss=best_val_loss
                     )
-                    logger.info(f"New best model saved (val_loss: {best_val_loss:.4f})")
+                    logger.info(
+                        f"New best model saved "
+                        f"(es_criterion={early_stopping_criterion}, "
+                        f"es_metric: {best_val_loss:.4f})"
+                    )
                 else:
                     patience_counter += 1
                     logger.info(f"No improvement ({patience_counter}/{early_stopping_patience})")
@@ -1596,6 +1750,10 @@ class MoiraiAnomalyDetector:
             logger.info("Loading best checkpoint...")
             self._load_supervised_checkpoint(str(best_checkpoint_path), projection_head)
 
+        # Store projection head so get_embeddings() can use it
+        self.projection_head = projection_head
+        self.projection_head.eval()
+
         logger.info("=" * 60)
         logger.info("SUPERVISED FINE-TUNING COMPLETE")
         logger.info("=" * 60)
@@ -1603,12 +1761,92 @@ class MoiraiAnomalyDetector:
         logger.info(f"Checkpoint: {best_checkpoint_path}")
         logger.info("=" * 60)
 
-        return {
+        result = {
             'train_loss': train_losses,
             'train_nll': train_nlls,
             'train_contrastive': train_contrastives,
-            'val_loss': val_losses
+            'val_loss': val_losses,
+            'val_nll': val_nlls,
+            'best_epoch': best_epoch,
+            'stopped_epoch': len(train_losses),
         }
+        if gradient_history:
+            result['gradient_history'] = gradient_history
+        return result
+
+    def get_embeddings(self, X: np.ndarray) -> np.ndarray:
+        """
+        Extract L2-normalised projection-head embeddings for each sample in X.
+
+        Requires that fine_tune_supervised() has been called first (sets self.projection_head).
+
+        Args:
+            X: Array of shape (n_samples, T, F)
+
+        Returns:
+            embeddings: Array of shape (n_samples, 128)
+        """
+        if self.projection_head is None:
+            raise RuntimeError(
+                "get_embeddings() requires a trained projection head. "
+                "Call fine_tune_supervised() first."
+            )
+        if not hasattr(self, 'model') or self.model is None:
+            raise RuntimeError("Moirai model not initialised. Call initialize() first.")
+
+        from src.data.torch_dataset import MoiraiSupervisedDataset
+        from torch.utils.data import DataLoader
+
+        self.model.eval()
+        self.projection_head.eval()
+
+        # Use dummy labels (not needed for embedding extraction)
+        dummy_labels = np.zeros(len(X), dtype=np.int64)
+        dataset = MoiraiSupervisedDataset(X, dummy_labels, context_length=self.context_length)
+        loader = DataLoader(dataset, batch_size=32, shuffle=False)
+
+        captured_embeddings = {}
+        def _hook(module, input, output):
+            captured_embeddings['encoder'] = output
+
+        hook = self._get_encoder().register_forward_hook(_hook)
+
+        patch_size = self.patch_size if self.patch_size != 'auto' else 32
+        all_embeddings = []
+
+        try:
+            with torch.no_grad():
+                for batch in loader:
+                    context = batch['context'].to(self.device)
+                    target = batch['target'].to(self.device)
+
+                    full_target = torch.cat([context, target], dim=1)
+                    B, seq_len, n_features = full_target.shape
+                    observed_target = torch.ones(B, seq_len, n_features, dtype=torch.bool, device=self.device)
+                    is_pad = torch.zeros(B, seq_len, dtype=torch.bool, device=self.device)
+
+                    try:
+                        # Use _val_loss (same as validation code) — triggers the hook
+                        _ = self._safe_val_loss(
+                            patch_size=patch_size,
+                            target=full_target,
+                            observed_target=observed_target,
+                            is_pad=is_pad,
+                        )
+                        encoder_out = captured_embeddings.get('encoder')
+                        if encoder_out is not None:
+                            pooled = encoder_out.mean(dim=1)           # (B, d_model)
+                            projected = self.projection_head(pooled)   # (B, 128)
+                            # L2 normalise
+                            projected = torch.nn.functional.normalize(projected, dim=1)
+                            all_embeddings.append(projected.cpu().numpy())
+                    except Exception as e:
+                        logger.warning(f"Embedding extraction batch error: {e}")
+                        all_embeddings.append(np.zeros((B, 128)))
+        finally:
+            hook.remove()
+
+        return np.concatenate(all_embeddings, axis=0) if all_embeddings else np.zeros((len(X), 128))
 
     def _save_supervised_checkpoint(
         self,

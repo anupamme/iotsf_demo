@@ -1,0 +1,103 @@
+{
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "best_configs": {
+    "USAD": {
+      "params": {
+        "z_dim": 40,
+        "alpha": 0.7,
+        "epochs": 100
+      },
+      "cal_auc": 0.614375,
+      "cal_auc_std": 0.036472913751166146
+    },
+    "TranAD": {
+      "params": {
+        "d_model": 256,
+        "n_layers": 2,
+        "epochs": 100
+      },
+      "cal_auc": 0.5262500000000001,
+      "cal_auc_std": 0.026992234608617882
+    },
+    "AnomalyTransformer": {
+      "params": {
+        "d_model": 128,
+        "epochs": 50
+      },
+      "cal_auc": 0.6132291666666667,
+      "cal_auc_std": 0.017670916352080412
+    },
+    "PatchTST-Anomaly": {
+      "params": {
+        "patch_size": 32,
+        "d_model": 256
+      },
+      "cal_auc": 0.5495833333333334,
+      "cal_auc_std": 0.04015702685154313
+    }
+  },
+  "test_results": {
+    "USAD": {
+      "params": {
+        "z_dim": 40,
+        "alpha": 0.7,
+        "epochs": 100
+      },
+      "test_auc": {
+        "mean": 0.5647083333333334,
+        "std": 0.023579946753309013
+      },
+      "test_f1": {
+        "mean": 0.09711963192438576,
+        "std": 0.0290827475398167
+      }
+    },
+    "TranAD": {
+      "params": {
+        "d_model": 256,
+        "n_layers": 2,
+        "epochs": 100
+      },
+      "test_auc": {
+        "mean": 0.5008125,
+        "std": 0.025638157191316763
+      },
+      "test_f1": {
+        "mean": 0.10564587811812469,
+        "std": 0.04721332284895121
+      }
+    },
+    "AnomalyTransformer": {
+      "params": {
+        "d_model": 128,
+        "epochs": 50
+      },
+      "test_auc": {
+        "mean": 0.5416666666666666,
+        "std": 0.026137523579882062
+      },
+      "test_f1": {
+        "mean": 0.09018400426937777,
+        "std": 0.0556828235159588
+      }
+    },
+    "PatchTST-Anomaly": {
+      "params": {
+        "patch_size": 32,
+        "d_model": 256
+      },
+      "test_auc": {
+        "mean": 0.515625,
+        "std": 0.02984665670835966
+      },
+      "test_f1": {
+        "mean": 0.11483810854880037,
+        "std": 0.007823799698663168
+      }
+    }
+  }
+}

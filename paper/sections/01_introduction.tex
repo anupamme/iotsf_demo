@@ -1,0 +1,109 @@
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+The proliferation of Internet-of-Things (IoT) devices---projected to exceed
+29 billion by 2030~\cite{iotanalyticsmarket2023}---has dramatically expanded
+the attack surface available to adversaries.  Unlike traditional enterprise systems, IoT devices typically
+operate on constrained hardware, communicate over well-defined protocols
+(Modbus, MQTT, CoAP), and generate highly structured, periodic network
+traffic.  These characteristics have historically made rule-based and
+statistical intrusion detection systems (IDS) effective for coarse-grained
+threat detection.
+
+\textbf{The AI-powered threat gap.}
+Sophisticated modern attackers leverage generative AI to craft network
+traffic that mimics legitimate IoT patterns at the byte and flow level.
+Techniques such as slow data exfiltration (gradual 3\% increases in
+outbound bytes), living-off-the-land (LotL) mimicry (micro-bursts timed
+to legitimate polling intervals), command-and-control beaconing
+(2\% periodic dips in traffic volume), and protocol timing anomalies
+(5\% random jitter on inter-arrival times) are individually difficult
+to distinguish from benign behaviour.  We formalise these as
+\emph{stealth-controlled negative} attacks: sequences where the statistical similarity
+to benign traffic exceeds a stealth threshold $s \in \{0.85, 0.90, 0.95\}$
+(see Section~\ref{sec:problem}).
+Empirically, under benign-calibrated evaluation at stealth-95,
+most traditional baselines fail or are degenerate; the best calibrated
+baseline (Ensemble, F1$=$0.136) reflects its fixed training distribution
+(Section~\ref{sec:experiments}).
+
+\textbf{Research question and approach.}
+We ask: \emph{what failure modes arise when fine-tuning foundation models
+for IoT anomaly detection, and how does negative-sample quality interact
+with these failure modes?}
+To answer this, we build \ours{} (\textbf{H}ard-\textbf{N}egative \textbf{IDS}),
+a diagnostic framework.
+First, we generate stealth-controlled synthetic negatives at
+stealth level $s$ using both closed-form perturbations
+(Eqs.~\ref{eq:slow}--\ref{eq:proto}) and learned negatives from
+Diffusion-TS~\cite{zhang2024diffusionts}, while enforcing IoT protocol
+constraints (Modbus, MQTT, CoAP) via a multi-tier validation framework.
+Second, we fine-tune Moirai~\cite{woo2024moirai}, a universal time-series
+forecasting foundation model, using a combined NLL and supervised contrastive
+(SupCon) loss~\cite{khosla2020supcon}, with a multi-condition ablation
+(10 seeds) that isolates the contributions of negative type, negative
+quality, contrastive learning, and training scale.
+
+\textbf{Why build a stealth-controlled negative pipeline?}
+The stealth-controlled infrastructure provides protocol-compliant generation,
+calibrated evaluation, and adversarial augmentation without real
+attack traffic.
+Crucially, it enables a controlled diagnosis of catastrophic forgetting:
+by varying negative quality (Gaussian, analytical, learned), training scale
+(200/5 to 2000/30), and encoder freezing strategies, we isolate how
+pre-trained feature corruption interacts with negative-sample quality.
+
+\textbf{Contributions.}  We make three contributions:
+\begin{enumerate}
+  \item \textbf{Catastrophic Forgetting Diagnosis.}
+    We provide a systematic, scale-dependent analysis of catastrophic
+    forgetting when fine-tuning foundation models for IoT anomaly detection.
+    With 10-seed evaluation, all conditions degrade monotonically from
+    200/5 onward as pre-trained features are overwritten.
+    Encoder freezing (10 seeds) yields identical AUC across conditions
+    (B$=$C$=$D$=$0.549), confirming that NLL-based evaluation depends
+    on the frozen encoder alone; learning-rate ablation ($10^{-4}$ to
+    $10^{-6}$), LoRA (rank$=$8), and L2-SP regularisation provide
+    converging evidence that encoder-weight corruption---not
+    hyperparameter misconfiguration---drives degradation.
+    Controlled cross-evaluations (frozen and unfrozen D-DiffTS both evaluated
+    on the same analytical negatives as B/C/D) reveal AUC$=$0.464 and
+    AUC$=$0.463 respectively---confirming that both the frozen 0.728 and the
+    unfrozen apparent advantage of learned negatives were evaluation-distribution
+    artifacts (Appendix~\ref{app:controlled_frozen}).
+    N-BaIoT validation (Gaussian AUC$=$\nbaiotAUC{};
+    D-DiffTS AUC$=$0.939 with $\geq$500 training windows) confirms
+    cross-domain generalisation.\footnote{%
+      Enabling fine-tuning required fixing an in-place tensor operation in
+      the \texttt{uni2ts} \texttt{PackedStdScaler} that silently blocked
+      gradient flow; the fix is included in our released code.}
+
+  \item \textbf{Training Recipe Validated on Two Architectures.}
+    An NLL$+$SupCon training recipe with NLL-only early stopping,
+    tested on both Moirai (foundation model) and a from-scratch 1D-CNN.
+    CNN baselines (AUC$=$0.580--0.598) confirm that Moirai's pre-trained
+    features are valuable \emph{when preserved}, but provide no benefit
+    when overwritten by extended training.
+    Supervised classifiers (LogReg, XGBoost, MLP) on the same labeled negatives
+    establish the labeled-data baseline, isolating the temporal-modeling
+    contribution from the label-availability effect.
+    Code and datasets released at \url{https://github.com/anupamme/iotsf_demo}.
+
+  \item \textbf{Stealth-Controlled Evaluation Protocol.}
+    Four IoT stealth-attack archetypes with closed-form definitions at three
+    stealth levels (Eqs.~\ref{eq:slow}--\ref{eq:proto}), a multi-tier protocol
+    validation layer (Modbus, MQTT, CoAP), and a leave-one-out experiment
+    showing positive transfer for all four held-out types.
+    The archetypes are hand-designed diagnostic probes rather than a comprehensive
+    benchmark; validation against real attack corpora is future work.
+\end{enumerate}
+
+\textbf{Paper organisation.}
+Section~\ref{sec:related} reviews related work.
+Section~\ref{sec:problem} formalises the problem.
+Section~\ref{sec:method} describes \ours{}.
+Section~\ref{sec:experiments} presents experimental results.
+Section~\ref{sec:analysis} discusses findings and limitations.
+Section~\ref{sec:conclusion} concludes.

@@ -1,0 +1,28 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We investigated whether synthetic hard negatives improve contrastive
+anomaly detection for IoT IDS, using a five-condition ablation with
+protocol-constrained stealth-attack synthesis and benign-calibrated thresholds.
+Three key findings emerge.
+
+First, the NLL$+$SupCon training recipe is \emph{backbone-agnostic}:
+it improves detection for both Moirai (C, AUC$=$0.563) and a from-scratch
+CNN (AUC$=$0.597) at 200/5, and generalises cross-domain to N-BaIoT
+(AUC$=$\nbaiotAUC{}).
+Second, the C$>$D gap (Gaussian-noise vs.\ hard negatives) collapses
+to near-zero at 5$\times$ scale with NLL-only early stopping---a
+small-scale training artefact: the advantage of easy negatives diminishes
+with sufficient data.
+Third, \textbf{catastrophic forgetting} is the dominant failure mode at
+extended scale: freezing the encoder recovers AUC
+(frozen B$=$0.606, C$=$0.582, D$=$0.573 vs.\ unfrozen 0.506--0.521),
+confirming that fine-tuning destroys the pre-trained features that
+provide discriminative power.
+
+The practical implication: freeze the encoder when fine-tuning foundation
+models at scale; use CNN at small scale; recalibrate thresholds on
+deployment-specific benign traffic.
+We release all code, datasets, and calibration scripts.

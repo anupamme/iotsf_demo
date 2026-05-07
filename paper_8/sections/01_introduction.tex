@@ -1,0 +1,109 @@
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+% ============================================================
+
+Moirai~\cite{woo2024moirai} is a foundation time-series model trained
+on billions of time points that achieves strong zero-shot performance
+on forecasting benchmarks.  A natural next step is to fine-tune it on
+domain-specific tasks---but when should a practitioner worry about
+overwriting the representations that made zero-shot work?
+\emph{Counterfactual:} Chronos-T5-Small on ETTh2 gives ZS MSE$=$0.304
+vs.\ Linear 0.213 (ZS \emph{underperforms} by 43\%).
+A practitioner who skipped screening would fine-tune Chronos, observe
+CKA dropping, and apply LoRA/EWC to preserve features that had
+\emph{no advantage over Linear}---wasted effort.
+Our value-gate prevents this: drift diagnosis is meaningful only when
+pre-trained features demonstrably outperform a trivial baseline.
+
+\textbf{Representation drift during fine-tuning.}
+We contribute a systematic \emph{diagnostic methodology} for characterising
+representation drift---progressive overwriting of pre-trained features---during
+fine-tuning of time-series foundation models, and demonstrate it on Moirai
+(Small 13.8M, Base 91M, Large 311M) as the single backbone family where
+pre-trained features pass our value-gate on ETT benchmarks.
+Matched-protocol attempts on three non-Moirai backbones
+(Chronos-T5-Small~\cite{ansari2024chronos},
+TimesFM-2.5-200M~\cite{das2024timeseries},
+MOMENT-1-base~\cite{goswami2024moment}) gate-fail on all nine
+ETT cells tested---the expected behaviour of a well-calibrated
+screening criterion, since these corpora lack ETT coverage.
+Chronos gate-\emph{passes} M4-Monthly (in its corpus) at 84.5\%,
+confirming the gate identifies applicable cells across backbones
+(\S\ref{sec:forecasting:nonmoirai}).
+Catastrophic forgetting during fine-tuning is well-studied in continual
+learning~\cite{kirkpatrick2017ewc, li2017lwf} and
+NLP~\cite{luo2023forgetting}; our contribution is reusable diagnostic
+methodology, demonstrated on a well-controlled Moirai case study.
+We use ``catastrophic forgetting'' to mean degraded performance on
+distributions the model originally handled well---consistent with
+continual learning usage where the ``previous task'' is the pre-training
+objective.
+
+\textbf{Distinguishing drift from overfitting.}
+Representation drift degrades zero-shot performance while training loss
+decreases (not overfitting); the frozen-encoder control
+(CKA$=$1.000, same data/epochs) isolates encoder weight updates as the cause.
+
+On ETTh2 (gate-pass: Moirai outperforms Linear by 28--45\%,
+$R^2_{\text{task}}(\text{PT}){=}{+}0.279$), fine-tuning degrades MSE
+by 10--16\% at $n{=}500$ and resolves by $n{=}2{,}000$.
+ETTh1 and ETTm2 gate-fail at the standard evaluation protocol and are
+included as cross-domain comparisons (Table~\ref{tab:r2task}).
+On IoT (sub-random ZS AUC), CKA drops to 0.31--0.45 but task performance
+improves from a near-null baseline: the drift is irrelevant because there
+were no valuable features to forget.
+
+\textbf{Why this matters.}
+Time-series drift directly harms distributional predictions for anomaly
+scoring and probabilistic forecasting.
+Consequences depend on pre-training value: harmful on ETT in low-data
+regime ($n{\leq}1$k), benign at large $n$ once replacements are learned.
+
+\textbf{Scope.}
+The empirical case study spans three gate-passing cells: Moirai-Small/Base
+on ETTh2, Moirai-Small on ILI, and Chronos-T5-Small on M4-Monthly.
+The central empirical finding is \textbf{non-monotone capacity dependence}:
+Base (91M) improves protocol-robustly at all $n$; Small (13.8M) degrades
+at low $n$; Large (311M) degrades at default LR but is rescued by
+$10{\times}$ LR reduction (forg.\ $-8.5$\%, CKA$=$0.989;
+Appendix~\ref{app:lora_rank}).
+A step-size falsification test (Base at $10{\times}$ LR, 10 seeds) restructures
+\emph{more} aggressively than Small (CKA$=$0.14 vs.\ 0.94) yet still
+improves ($-58.2$\%; Appendix~\ref{app:step_size})---capacity provides
+an independent buffer against destructive drift.
+Both Small and Base share the probe-asymmetry mechanism (10/10, 9/10
+seeds), confirming that drift harm depends on capacity relative to the
+adaptation target, not on the restructuring itself.
+We do not claim a universal phenomenon; we claim reusable methodology
+demonstrated across three (backbone, dataset) configurations.
+The methodology transfers to any backbone that gate-passes; the specific
+numeric findings require broader replication.
+
+\textbf{Experimental approach.}
+We deploy the diagnostic methodology across three Moirai sizes
+(Small/Base/Large) on ETT forecasting~\cite{zhou2021informer}
+(ETTh2 gate-pass; ETTh1/ETTm2 cross-domain) and IoT anomaly
+detection (negative control; \S\ref{sec:analysis}).
+Forgetting sign at $n{=}10$k is protocol-dependent ($-5.3\%$ ES
+vs.\ $+7.5\%$ final-epoch); we lead on the more robust $\Delta R^2{>}0$
+majority.
+
+\textbf{Contributions.}
+
+\begin{enumerate}
+  \item \textbf{Diagnostic methodology (backbone-agnostic).}
+    Value-gate screening (ZS ${>}$20\% vs.\ Linear),
+    controlled-comparison design (frozen-encoder, random-init, layer-wise
+    unfreeze), and task-orthogonal probe protocol.
+    Supporting infrastructure (uni2ts patch, CUDA-deterministic protocol,
+    LoRA-Large $10{\times}$ LR recipe) released with code.
+
+  \item \textbf{Empirical validation across three gate-passing cells.}
+    Probe asymmetry on Moirai/ETTh2 (10/10 seeds), ETTm2 (10/10),
+    and ILI (10/10; gate-pass 57\%, CKA$=$0.478;
+    \S\ref{sec:analysis:ili});
+    encoder-stability confirmation on Chronos/M4 (gate-pass 84.5\%,
+    CKA${\geq}$0.95; \S\ref{sec:forecasting:nonmoirai}).
+\end{enumerate}
+

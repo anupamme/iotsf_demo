@@ -1,0 +1,2844 @@
+{
+  "seed": 42,
+  "n_pretrained_params": 73,
+  "probe_size": 50,
+  "drift_measurements": [
+    {
+      "condition": "c",
+      "scale": 200,
+      "epochs": 5,
+      "summary": {
+        "mean_cosine_distance": 0.0001426445294732917,
+        "max_cosine_distance": 0.0008219480514526367,
+        "mean_frobenius_ratio": 0.012869265633296935,
+        "max_frobenius_ratio": 0.04082722250786048,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00026752089156484586
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00032657384872436523,
+          "frobenius_ratio": 0.026082335507728115
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005410909652709961,
+          "frobenius_ratio": 0.033319532285134124
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0008219480514526367,
+          "frobenius_ratio": 0.04082722250786048
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0006450590463125247
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000638958326860344
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00034868717193603516,
+          "frobenius_ratio": 0.026515475446782424
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0001965165138244629,
+          "frobenius_ratio": 0.020233656507693803
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.00017070770263671875,
+          "frobenius_ratio": 0.018758477989615205
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0001385807991027832,
+          "frobenius_ratio": 0.017084719203415602
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 4.649162292480469e-06,
+          "frobenius_ratio": 0.003092659490802087
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.00046626708963006896
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00017659728423696075
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005136728286743164,
+          "frobenius_ratio": 0.032107461275947324
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00038999319076538086,
+          "frobenius_ratio": 0.027992906875060182
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00024515390396118164,
+          "frobenius_ratio": 0.02220929099991928
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006446283818271213
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000584635399528133
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00019729137420654297,
+          "frobenius_ratio": 0.019943173298067243
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.00020134449005126953,
+          "frobenius_ratio": 0.020340681996429442
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.00017392635345458984,
+          "frobenius_ratio": 0.018976628062283
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0001571178436279297,
+          "frobenius_ratio": 0.018003633652568924
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007199696761274415
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0004829362410206217
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.00031710137741275483
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00037848949432373047,
+          "frobenius_ratio": 0.02758414067897057
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0002760887145996094,
+          "frobenius_ratio": 0.02364779871645769
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00019085407257080078,
+          "frobenius_ratio": 0.01958084699175105
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007008934646018633
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007187832695895572
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0001842975616455078,
+          "frobenius_ratio": 0.019287135931546143
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.00018286705017089844,
+          "frobenius_ratio": 0.01940460188318761
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.0001697540283203125,
+          "frobenius_ratio": 0.0186998460382485
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00015658140182495117,
+          "frobenius_ratio": 0.01797980062466542
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005301880516192161
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004047612076095145
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.0001987947898773464
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0003243684768676758,
+          "frobenius_ratio": 0.02553805006409361
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00025141239166259766,
+          "frobenius_ratio": 0.022494906979323135
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00016707181930541992,
+          "frobenius_ratio": 0.018327851584621024
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005322681425903704
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005402941457569747
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0001671314239501953,
+          "frobenius_ratio": 0.018336957876291003
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0002079606056213379,
+          "frobenius_ratio": 0.020641593863538976
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.0001920461654663086,
+          "frobenius_ratio": 0.019851965672964836
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00017464160919189453,
+          "frobenius_ratio": 0.01897348517336552
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005441756786273355
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00034933758776553223
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00011469566442474012
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.000296175479888916,
+          "frobenius_ratio": 0.024431044925777624
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00027823448181152344,
+          "frobenius_ratio": 0.02361918777905866
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00018227100372314453,
+          "frobenius_ratio": 0.01917601017019462
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005145411360580207
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005004809158626101
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00019073486328125,
+          "frobenius_ratio": 0.01957326415424098
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.00020247697830200195,
+          "frobenius_ratio": 0.020484004933762037
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.00019311904907226562,
+          "frobenius_ratio": 0.019919734318084543
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00015819072723388672,
+          "frobenius_ratio": 0.018087133363467806
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004726363454211157
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00028415114575890707
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0002163222101086856
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00022906064987182617,
+          "frobenius_ratio": 0.021434296899568966
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00020682811737060547,
+          "frobenius_ratio": 0.020417567739012377
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0001876354217529297,
+          "frobenius_ratio": 0.019429278689880165
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00041029034105831744
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00040153496576768836
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00020599365234375,
+          "frobenius_ratio": 0.0203583802042409
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.00019282102584838867,
+          "frobenius_ratio": 0.020011626172977005
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.000276029109954834,
+          "frobenius_ratio": 0.023955859683375
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00015968084335327148,
+          "frobenius_ratio": 0.018290930529758567
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005460610919856638
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00033407560735993765
+        },
+        "norm.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0011732750125804893
+        }
+      },
+      "elapsed_s": 95.32307291030884,
+      "best_epoch": 5,
+      "stopped_epoch": 5,
+      "label": "c"
+    },
+    {
+      "condition": "d",
+      "scale": 200,
+      "epochs": 5,
+      "summary": {
+        "mean_cosine_distance": 0.00013462811300199326,
+        "max_cosine_distance": 0.0008150935173034668,
+        "mean_frobenius_ratio": 0.01247447934427535,
+        "max_frobenius_ratio": 0.040665701327665324,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00034137967886378967
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00031685829162597656,
+          "frobenius_ratio": 0.025708293845608785
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005306005477905273,
+          "frobenius_ratio": 0.033047194322784586
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0008150935173034668,
+          "frobenius_ratio": 0.040665701327665324
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0006219846381490369
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0006060650102719633
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00033348798751831055,
+          "frobenius_ratio": 0.025962822054078457
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.00017267465591430664,
+          "frobenius_ratio": 0.01898277289647543
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.00015485286712646484,
+          "frobenius_ratio": 0.017843233797970506
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00012356042861938477,
+          "frobenius_ratio": 0.016107467486226164
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 4.5299530029296875e-06,
+          "frobenius_ratio": 0.003023858448395579
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00038043435263477844
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00017661045188875092
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005158185958862305,
+          "frobenius_ratio": 0.03218924973915177
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0004012584686279297,
+          "frobenius_ratio": 0.028397549893911685
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00023829936981201172,
+          "frobenius_ratio": 0.021898074459384832
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006979697059909147
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006372151969290982
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00018471479415893555,
+          "frobenius_ratio": 0.019284081502579115
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.00019061565399169922,
+          "frobenius_ratio": 0.019710939944184543
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.00016415119171142578,
+          "frobenius_ratio": 0.018453891698369747
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00014543533325195312,
+          "frobenius_ratio": 0.017316055778360033
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007289175578573455
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0004780624274242675
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0002543024073871878
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00031828880310058594,
+          "frobenius_ratio": 0.025312085100837167
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00025016069412231445,
+          "frobenius_ratio": 0.022486827972696487
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00018966197967529297,
+          "frobenius_ratio": 0.019516898125388222
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0006140910696035361
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006202767825798157
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00017398595809936523,
+          "frobenius_ratio": 0.018736272886480516
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.00017440319061279297,
+          "frobenius_ratio": 0.019035188442997498
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.00015848875045776367,
+          "frobenius_ratio": 0.01810375837196982
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00014889240264892578,
+          "frobenius_ratio": 0.01756173234849656
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0005403913883820731
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00036932348420155956
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00014350368783405193
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00029838085174560547,
+          "frobenius_ratio": 0.024508516332180836
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00023669004440307617,
+          "frobenius_ratio": 0.02182055850545388
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0001506805419921875,
+          "frobenius_ratio": 0.01739301074339766
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005172050879079111
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005276257248560088
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0001506805419921875,
+          "frobenius_ratio": 0.017409826103175305
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0001906752586364746,
+          "frobenius_ratio": 0.01978844628252308
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00017708539962768555,
+          "frobenius_ratio": 0.019135800782974673
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0001627206802368164,
+          "frobenius_ratio": 0.018409420310067506
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005127456433627833
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00031593553427784656
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.00010871317189320319
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0002665519714355469,
+          "frobenius_ratio": 0.02316347722701409
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0002575516700744629,
+          "frobenius_ratio": 0.02274480497667564
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0001741647720336914,
+          "frobenius_ratio": 0.01873743831284929
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005178631224415072
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005165662439119851
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00018066167831420898,
+          "frobenius_ratio": 0.019033864458825673
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.00018674135208129883,
+          "frobenius_ratio": 0.019683812078036454
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.00018090009689331055,
+          "frobenius_ratio": 0.019340329723689962
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00014913082122802734,
+          "frobenius_ratio": 0.017574129520966035
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000473128836894889
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0002749272020285809
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.0001764089750004829
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00021201372146606445,
+          "frobenius_ratio": 0.02063918229555747
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00019502639770507812,
+          "frobenius_ratio": 0.01983522810826469
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00018095970153808594,
+          "frobenius_ratio": 0.01906228190699458
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0004126391959803958
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004142723899966509
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0001964569091796875,
+          "frobenius_ratio": 0.019860747802655582
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0001760721206665039,
+          "frobenius_ratio": 0.01908641751704756
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.00025141239166259766,
+          "frobenius_ratio": 0.02286641647510297
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00014418363571166992,
+          "frobenius_ratio": 0.01742015264118701
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005423593020988586
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00032467133738408986
+        },
+        "norm.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0009335899754143625
+        }
+      },
+      "elapsed_s": 75.4928948879242,
+      "best_epoch": 5,
+      "stopped_epoch": 5,
+      "label": "d"
+    },
+    {
+      "condition": "d",
+      "scale": 200,
+      "epochs": 5,
+      "summary": {
+        "mean_cosine_distance": 0.00016387358103712944,
+        "max_cosine_distance": 0.0009778141975402832,
+        "mean_frobenius_ratio": 0.013712237898822503,
+        "max_frobenius_ratio": 0.04448503315622158,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.00048145216567272873
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00041097402572631836,
+          "frobenius_ratio": 0.0291654119869824
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006279945373535156,
+          "frobenius_ratio": 0.035842439346207386
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0009778141975402832,
+          "frobenius_ratio": 0.04448503315622158
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007405521771286314
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007425134229644767
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00039309263229370117,
+          "frobenius_ratio": 0.028151019015192062
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0002129077911376953,
+          "frobenius_ratio": 0.02102705961044892
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.00018966197967529297,
+          "frobenius_ratio": 0.019791165156583485
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00015020370483398438,
+          "frobenius_ratio": 0.01769958899730133
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 5.543231964111328e-06,
+          "frobenius_ratio": 0.003326453580280211
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004950225484345042
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00015992671433405348
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006969571113586426,
+          "frobenius_ratio": 0.037422131432254056
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00057220458984375,
+          "frobenius_ratio": 0.03387756906539455
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00033032894134521484,
+          "frobenius_ratio": 0.02575437713011371
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0007956882451168079
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007205842253278524
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0002359151840209961,
+          "frobenius_ratio": 0.021764414103910973
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0002244710922241211,
+          "frobenius_ratio": 0.021369492971782773
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.00019872188568115234,
+          "frobenius_ratio": 0.02029281294406688
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00017076730728149414,
+          "frobenius_ratio": 0.018829787487290185
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008624193845230454
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000479477859056842
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0002753964118726202
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00041687488555908203,
+          "frobenius_ratio": 0.028948619973441957
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00031876564025878906,
+          "frobenius_ratio": 0.025306369921759664
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.000247955322265625,
+          "frobenius_ratio": 0.0223160366910548
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0007224902108835773
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007489448933812252
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00021201372146606445,
+          "frobenius_ratio": 0.02066657763148406
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.00021255016326904297,
+          "frobenius_ratio": 0.020912884067628614
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.00019431114196777344,
+          "frobenius_ratio": 0.019963430166860707
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00017690658569335938,
+          "frobenius_ratio": 0.019123262426198127
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005966507212235359
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00041490902249283635
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00011795924621250585
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0003154873847961426,
+          "frobenius_ratio": 0.025203512486487344
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00026798248291015625,
+          "frobenius_ratio": 0.02324807120729213
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00019592046737670898,
+          "frobenius_ratio": 0.019849003108181665
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0004492642653266452
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00045998173456488937
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00018292665481567383,
+          "frobenius_ratio": 0.01915911328066042
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.00022137165069580078,
+          "frobenius_ratio": 0.02126013800489696
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00020051002502441406,
+          "frobenius_ratio": 0.02030565537799198
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00018018484115600586,
+          "frobenius_ratio": 0.01934853408887426
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005682692826117649
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0003561117468315229
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0001148356256192349
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0003019571304321289,
+          "frobenius_ratio": 0.024614231520495012
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0002912282943725586,
+          "frobenius_ratio": 0.024166130458436994
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00021082162857055664,
+          "frobenius_ratio": 0.020574752486019744
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000529404104748063
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005130350947779926
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00020545721054077148,
+          "frobenius_ratio": 0.020340558940827817
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0002167224884033203,
+          "frobenius_ratio": 0.021128544040343783
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.00020563602447509766,
+          "frobenius_ratio": 0.02056897475654691
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00017261505126953125,
+          "frobenius_ratio": 0.018873253771612468
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004761141771957849
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00029373412016317176
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.0002287833488083865
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0002734065055847168,
+          "frobenius_ratio": 0.023430610449489696
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00025153160095214844,
+          "frobenius_ratio": 0.022514829848703625
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00022494792938232422,
+          "frobenius_ratio": 0.021278738450115568
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00043486721440621947
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0004306326745403279
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00022530555725097656,
+          "frobenius_ratio": 0.021261222349773776
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0001990199089050293,
+          "frobenius_ratio": 0.020293882857585967
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.00027441978454589844,
+          "frobenius_ratio": 0.023878499666946097
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00016421079635620117,
+          "frobenius_ratio": 0.018500031767379983
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005738701366836782
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00033935223123007243
+        },
+        "norm.weight": {
+          "cosine_distance": 5.364418029785156e-07,
+          "frobenius_ratio": 0.0010368978267892533
+        }
+      },
+      "elapsed_s": 98.56543517112732,
+      "best_epoch": 5,
+      "stopped_epoch": 5,
+      "label": "d-diffts"
+    },
+    {
+      "condition": "c",
+      "scale": 500,
+      "epochs": 10,
+      "summary": {
+        "mean_cosine_distance": 0.0003948513775655668,
+        "max_cosine_distance": 0.002931356430053711,
+        "mean_frobenius_ratio": 0.020918999948327147,
+        "max_frobenius_ratio": 0.07671314148329961,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0009153653140744609
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0011886358261108398,
+          "frobenius_ratio": 0.04917740324738694
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.002282083034515381,
+          "frobenius_ratio": 0.06816703315029886
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.002931356430053711,
+          "frobenius_ratio": 0.07671314148329961
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0010879326246312862
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0010828474318509726
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0012372136116027832,
+          "frobenius_ratio": 0.04982265676530339
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0007108449935913086,
+          "frobenius_ratio": 0.037924996094657076
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.0005411505699157715,
+          "frobenius_ratio": 0.033040584699107256
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005668401718139648,
+          "frobenius_ratio": 0.033866022420621616
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 1.1682510375976562e-05,
+          "frobenius_ratio": 0.004845701157129823
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0006459059835070466
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007032188956847364
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0015462040901184082,
+          "frobenius_ratio": 0.05571683943728828
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0011763572692871094,
+          "frobenius_ratio": 0.048593126384665994
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0005930662155151367,
+          "frobenius_ratio": 0.03447827629289674
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0010422161298286603
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0009633060890562595
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004665851593017578,
+          "frobenius_ratio": 0.030591343761803884
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0005829930305480957,
+          "frobenius_ratio": 0.03428037487057604
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.0004877448081970215,
+          "frobenius_ratio": 0.03144565559244604
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00048613548278808594,
+          "frobenius_ratio": 0.03135321770794478
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0010407626229223504
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007420897935853706
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007511618627371241
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0008895993232727051,
+          "frobenius_ratio": 0.042284090570669466
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006396770477294922,
+          "frobenius_ratio": 0.03586932826334658
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00042378902435302734,
+          "frobenius_ratio": 0.029174265040643972
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009554784794889423
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0009659822600255694
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004139542579650879,
+          "frobenius_ratio": 0.028825489765679155
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.00047326087951660156,
+          "frobenius_ratio": 0.03101177819866696
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.0004253983497619629,
+          "frobenius_ratio": 0.02936310793050305
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004521608352661133,
+          "frobenius_ratio": 0.030261452932921446
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0008180227341435529
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005606555633109001
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0003227045248984888
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0007251501083374023,
+          "frobenius_ratio": 0.0381430845164274
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005687475204467773,
+          "frobenius_ratio": 0.03378744021076973
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00036400556564331055,
+          "frobenius_ratio": 0.027025755625583067
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007829773540922645
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007607073163292745
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00038427114486694336,
+          "frobenius_ratio": 0.027771872163132087
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0004787445068359375,
+          "frobenius_ratio": 0.03111116376000418
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.0004329681396484375,
+          "frobenius_ratio": 0.029638875598397507
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004305243492126465,
+          "frobenius_ratio": 0.029516045604977573
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008197077245823836
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005383991889582319
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.00020931604199845867
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006098747253417969,
+          "frobenius_ratio": 0.03496296637086673
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005440711975097656,
+          "frobenius_ratio": 0.033010752952140225
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0004086494445800781,
+          "frobenius_ratio": 0.02863289544846256
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.000791979258440199
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0007909350381561997
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004436969757080078,
+          "frobenius_ratio": 0.02982810862474385
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.00046944618225097656,
+          "frobenius_ratio": 0.030852248867970535
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.0004601478576660156,
+          "frobenius_ratio": 0.030527020991139082
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00039207935333251953,
+          "frobenius_ratio": 0.028208706232476774
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006883954692856494
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00043748856501454257
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.000437789028154693
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005634427070617676,
+          "frobenius_ratio": 0.03359650368029785
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005000829696655273,
+          "frobenius_ratio": 0.03167133422142641
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00043576955795288086,
+          "frobenius_ratio": 0.029551564446311965
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0006437971793036219
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0006258686035454721
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004989504814147949,
+          "frobenius_ratio": 0.03162957039022377
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.00047326087951660156,
+          "frobenius_ratio": 0.031009451008938208
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.000693976879119873,
+          "frobenius_ratio": 0.03760145104011634
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00041103363037109375,
+          "frobenius_ratio": 0.028917294778556066
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0008504618652969789
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0005236720427107066
+        },
+        "norm.weight": {
+          "cosine_distance": 1.3709068298339844e-06,
+          "frobenius_ratio": 0.0017878589414483763
+        }
+      },
+      "elapsed_s": 599.2005138397217,
+      "best_epoch": 6,
+      "stopped_epoch": 9,
+      "label": "c"
+    },
+    {
+      "condition": "d",
+      "scale": 500,
+      "epochs": 10,
+      "summary": {
+        "mean_cosine_distance": 0.00037276581542132654,
+        "max_cosine_distance": 0.0026961565017700195,
+        "mean_frobenius_ratio": 0.020205885227026044,
+        "max_frobenius_ratio": 0.07356483443382913,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008885535331154438
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0016194581985473633,
+          "frobenius_ratio": 0.0574122479874206
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0022888779640197754,
+          "frobenius_ratio": 0.0682281713917433
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0026961565017700195,
+          "frobenius_ratio": 0.07356483443382913
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 6.556510925292969e-07,
+          "frobenius_ratio": 0.0012114628029273316
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0011877574283480398
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0011955499649047852,
+          "frobenius_ratio": 0.048971029453475035
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0006805658340454102,
+          "frobenius_ratio": 0.03712881782516564
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.0005027055740356445,
+          "frobenius_ratio": 0.031890408790827454
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005539059638977051,
+          "frobenius_ratio": 0.03346259285802921
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 1.239776611328125e-05,
+          "frobenius_ratio": 0.004974821455884417
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007905068405576473
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004181150291854897
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0014690756797790527,
+          "frobenius_ratio": 0.05429491148439059
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0011234283447265625,
+          "frobenius_ratio": 0.04746178901269037
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0006202459335327148,
+          "frobenius_ratio": 0.035255971117507535
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 5.364418029785156e-07,
+          "frobenius_ratio": 0.0011067035539481952
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 5.364418029785156e-07,
+          "frobenius_ratio": 0.0009938581423076874
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00045949220657348633,
+          "frobenius_ratio": 0.030354033807678336
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0005577206611633301,
+          "frobenius_ratio": 0.03352182152858652
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.00045883655548095703,
+          "frobenius_ratio": 0.03047551707319662
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00047206878662109375,
+          "frobenius_ratio": 0.030896596416938246
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0011443825391091724
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007093936322627955
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005375491795573395
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.000831305980682373,
+          "frobenius_ratio": 0.040904380712832346
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005882978439331055,
+          "frobenius_ratio": 0.034382870233536075
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0004038810729980469,
+          "frobenius_ratio": 0.028471125593675477
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009437819228422022
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0009044549450035512
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00037282705307006836,
+          "frobenius_ratio": 0.02735656885714586
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.00042116641998291016,
+          "frobenius_ratio": 0.029295686343406176
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.00036644935607910156,
+          "frobenius_ratio": 0.027275952989081545
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.000398099422454834,
+          "frobenius_ratio": 0.028368843571678213
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008292424512987225
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005630146975725853
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.00026940752976102145
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006586313247680664,
+          "frobenius_ratio": 0.036350416549777956
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00051116943359375,
+          "frobenius_ratio": 0.03203705343293733
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00032001733779907227,
+          "frobenius_ratio": 0.02537492097265299
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0008045850057339295
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008292485085412663
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0003237128257751465,
+          "frobenius_ratio": 0.025474794383926507
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.00039696693420410156,
+          "frobenius_ratio": 0.028392196702817916
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00036716461181640625,
+          "frobenius_ratio": 0.02731637455704309
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0003629326820373535,
+          "frobenius_ratio": 0.027160621701937324
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007828558722364208
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00048408999651080247
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00017930412502371334
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005599260330200195,
+          "frobenius_ratio": 0.03352534573897314
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.000528872013092041,
+          "frobenius_ratio": 0.03255738359863144
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0003687143325805664,
+          "frobenius_ratio": 0.02723386785323284
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007396865514242589
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007354283246911557
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.000392913818359375,
+          "frobenius_ratio": 0.028092375837221503
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0004140138626098633,
+          "frobenius_ratio": 0.029003843609683628
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.00039881467819213867,
+          "frobenius_ratio": 0.02849521366303633
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00033032894134521484,
+          "frobenius_ratio": 0.025934455998436145
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0006697694389378553
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004091248618395834
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004207194239355058
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0004550814628601074,
+          "frobenius_ratio": 0.030214345648520026
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.00041663646697998047,
+          "frobenius_ratio": 0.02894562821322049
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00042808055877685547,
+          "frobenius_ratio": 0.029290115086267263
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0006119826228073953
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0006121866659657179
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00046193599700927734,
+          "frobenius_ratio": 0.030433551774046646
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.00043952465057373047,
+          "frobenius_ratio": 0.029887610038007027
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.000604093074798584,
+          "frobenius_ratio": 0.035079007703221754
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00037169456481933594,
+          "frobenius_ratio": 0.027531903031900496
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008111686745690463
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005397006558680059
+        },
+        "norm.weight": {
+          "cosine_distance": 1.0132789611816406e-06,
+          "frobenius_ratio": 0.0016215675828087667
+        }
+      },
+      "elapsed_s": 785.9740738868713,
+      "best_epoch": 10,
+      "stopped_epoch": 10,
+      "label": "d"
+    },
+    {
+      "condition": "d",
+      "scale": 500,
+      "epochs": 10,
+      "summary": {
+        "mean_cosine_distance": 0.000427173425073493,
+        "max_cosine_distance": 0.003657519817352295,
+        "mean_frobenius_ratio": 0.021184258069609236,
+        "max_frobenius_ratio": 0.08576466347900805,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0002991911238592605
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0018730759620666504,
+          "frobenius_ratio": 0.06163899048923345
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0033850669860839844,
+          "frobenius_ratio": 0.08281012630760232
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.003657519817352295,
+          "frobenius_ratio": 0.08576466347900805
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.3113021850585938e-06,
+          "frobenius_ratio": 0.0016252768140894854
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 1.3709068298339844e-06,
+          "frobenius_ratio": 0.0016105276601418206
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0014634132385253906,
+          "frobenius_ratio": 0.054214920943893644
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0008546710014343262,
+          "frobenius_ratio": 0.04155715629604066
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.0005972981452941895,
+          "frobenius_ratio": 0.03470577271991982
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0007153749465942383,
+          "frobenius_ratio": 0.03797139075598789
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 1.3887882232666016e-05,
+          "frobenius_ratio": 0.0053548804432706045
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0008520794155261698
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0004159666041560308
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0017331838607788086,
+          "frobenius_ratio": 0.05893574365271026
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0013847947120666504,
+          "frobenius_ratio": 0.052683804117386344
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00063323974609375,
+          "frobenius_ratio": 0.03564056024947687
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0011393301347196658
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 6.556510925292969e-07,
+          "frobenius_ratio": 0.0010695880862416991
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004349350929260254,
+          "frobenius_ratio": 0.029524562695886197
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.000638127326965332,
+          "frobenius_ratio": 0.035883038919362995
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.0005164742469787598,
+          "frobenius_ratio": 0.03234100058425067
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005518198013305664,
+          "frobenius_ratio": 0.03343566517490243
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 8.344650268554688e-07,
+          "frobenius_ratio": 0.0012398900477778782
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0006489715768709036
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0004443545082415707
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0008492469787597656,
+          "frobenius_ratio": 0.0413256045258012
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006531476974487305,
+          "frobenius_ratio": 0.03622479284135833
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0003972053527832031,
+          "frobenius_ratio": 0.028221873324879673
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008269371544446171
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007780092756292118
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0003629922866821289,
+          "frobenius_ratio": 0.026993945798985827
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.0004426240921020508,
+          "frobenius_ratio": 0.02998830076799848
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.0003720521926879883,
+          "frobenius_ratio": 0.02749869681925493
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004394054412841797,
+          "frobenius_ratio": 0.029833521733803322
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007502175530811062
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005481348495229385
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.00020400972518889044
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006691217422485352,
+          "frobenius_ratio": 0.03665559664718611
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005272030830383301,
+          "frobenius_ratio": 0.03252521117719526
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00031816959381103516,
+          "frobenius_ratio": 0.02527049487449011
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007631099104193852
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007660572022765777
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0003204345703125,
+          "frobenius_ratio": 0.02534213449723239
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0004150271415710449,
+          "frobenius_ratio": 0.029020815461086737
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00038236379623413086,
+          "frobenius_ratio": 0.027831406979128042
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00039571523666381836,
+          "frobenius_ratio": 0.028358379202892563
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007865144846155966
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00048585355984790226
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0001246376930898593
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005484819412231445,
+          "frobenius_ratio": 0.03319088385140645
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005365610122680664,
+          "frobenius_ratio": 0.03281015024576829
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0003676414489746094,
+          "frobenius_ratio": 0.027173538217194818
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.000735909392779313
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007144487146329933
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0003883838653564453,
+          "frobenius_ratio": 0.02791002914646828
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0004197359085083008,
+          "frobenius_ratio": 0.02919734484907001
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.0004132986068725586,
+          "frobenius_ratio": 0.028962102866080044
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0003453493118286133,
+          "frobenius_ratio": 0.026513688848698366
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0006720904285172125
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004153329230258202
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0003191066561537673
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00045740604400634766,
+          "frobenius_ratio": 0.030271311671270285
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0004215240478515625,
+          "frobenius_ratio": 0.029100318907521946
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00043314695358276367,
+          "frobenius_ratio": 0.02946811479171525
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005608089249182712
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005750903522821346
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00044989585876464844,
+          "frobenius_ratio": 0.03001710538556865
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0004475712776184082,
+          "frobenius_ratio": 0.030162825590870797
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.0005639195442199707,
+          "frobenius_ratio": 0.033893420305354936
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0003833174705505371,
+          "frobenius_ratio": 0.02796557708451921
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007946443213479113
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0005165332695310476
+        },
+        "norm.weight": {
+          "cosine_distance": 1.0728836059570312e-06,
+          "frobenius_ratio": 0.0015787534768124981
+        }
+      },
+      "elapsed_s": 745.6801550388336,
+      "best_epoch": 10,
+      "stopped_epoch": 10,
+      "label": "d-diffts"
+    },
+    {
+      "condition": "c",
+      "scale": 1000,
+      "epochs": 20,
+      "summary": {
+        "mean_cosine_distance": 0.00043183075238580575,
+        "max_cosine_distance": 0.002997756004333496,
+        "mean_frobenius_ratio": 0.02190465386992134,
+        "max_frobenius_ratio": 0.0775171879778959,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-06,
+          "frobenius_ratio": 0.0015467157186896897
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.001514732837677002,
+          "frobenius_ratio": 0.055719844756074874
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0027303099632263184,
+          "frobenius_ratio": 0.0748000730134058
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.002997756004333496,
+          "frobenius_ratio": 0.0775171879778959
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-06,
+          "frobenius_ratio": 0.0016159966533193012
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-06,
+          "frobenius_ratio": 0.0016068314783204785
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0013268589973449707,
+          "frobenius_ratio": 0.05157272201988321
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0007441043853759766,
+          "frobenius_ratio": 0.038772806025652196
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.0005728006362915039,
+          "frobenius_ratio": 0.03400427378547128
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005800127983093262,
+          "frobenius_ratio": 0.034215934535207264
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 1.33514404296875e-05,
+          "frobenius_ratio": 0.005165216496133781
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0006379557304652476
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007799516437144567
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.001653909683227539,
+          "frobenius_ratio": 0.05761558997896926
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0011511445045471191,
+          "frobenius_ratio": 0.04806855231885056
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0006590485572814941,
+          "frobenius_ratio": 0.03634181038995337
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0010314976772480995
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0009550531933629196
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0005120038986206055,
+          "frobenius_ratio": 0.03204205903246695
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0005997419357299805,
+          "frobenius_ratio": 0.03479687668048235
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.0005086660385131836,
+          "frobenius_ratio": 0.03210146631720821
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005001425743103027,
+          "frobenius_ratio": 0.031798038840626125
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0011487168855436672
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007944153325270201
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0008306355531771866
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0009554624557495117,
+          "frobenius_ratio": 0.04381763861011166
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.000672459602355957,
+          "frobenius_ratio": 0.03678675414047453
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0004616975784301758,
+          "frobenius_ratio": 0.030415043851483477
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.001030690843926672
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0010460550208178658
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00045180320739746094,
+          "frobenius_ratio": 0.030098084946643542
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.0004903674125671387,
+          "frobenius_ratio": 0.03151665452162082
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.00046050548553466797,
+          "frobenius_ratio": 0.030538189819104746
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004677772521972656,
+          "frobenius_ratio": 0.030788767550661098
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0008788780419812182
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006418616212620064
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0002871739571599861
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0008404850959777832,
+          "frobenius_ratio": 0.04108821015306827
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006510019302368164,
+          "frobenius_ratio": 0.03616839785827543
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0004114508628845215,
+          "frobenius_ratio": 0.0287163165348117
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0009334788865235444
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009330851178906171
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004159212112426758,
+          "frobenius_ratio": 0.028856985999137795
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0005227327346801758,
+          "frobenius_ratio": 0.03250390476792162
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00048351287841796875,
+          "frobenius_ratio": 0.031275017509259234
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00046241283416748047,
+          "frobenius_ratio": 0.03058669596866121
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008705468701695636
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005993404356881443
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0003064376368502571
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006806850433349609,
+          "frobenius_ratio": 0.03697436735273041
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006248950958251953,
+          "frobenius_ratio": 0.03539845587923519
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0004767179489135742,
+          "frobenius_ratio": 0.03093617178083679
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008524169229424486
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0007976229634379798
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0004838109016418457,
+          "frobenius_ratio": 0.031142038765332822
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0005312561988830566,
+          "frobenius_ratio": 0.03280057710627505
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.0005045533180236816,
+          "frobenius_ratio": 0.03200312809149963
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004241466522216797,
+          "frobenius_ratio": 0.029327443184255723
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0007617033191936065
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004907801569890587
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": -1.1920928955078125e-07,
+          "frobenius_ratio": 0.0004423422207289125
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005850791931152344,
+          "frobenius_ratio": 0.03424952700374385
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005117654800415039,
+          "frobenius_ratio": 0.03208513187373642
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.000519096851348877,
+          "frobenius_ratio": 0.03223961549875357
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0006248366348086581
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006220805718239056
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0005700588226318359,
+          "frobenius_ratio": 0.03379623816870437
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0005387067794799805,
+          "frobenius_ratio": 0.033060219527977976
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.0007588863372802734,
+          "frobenius_ratio": 0.03926794385386777
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004892349243164062,
+          "frobenius_ratio": 0.031501739549130395
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.000894695184787227
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006129648910985401
+        },
+        "norm.weight": {
+          "cosine_distance": 1.7881393432617188e-06,
+          "frobenius_ratio": 0.001993259304213317
+        }
+      },
+      "elapsed_s": 10381.844774007797,
+      "best_epoch": 3,
+      "stopped_epoch": 6,
+      "label": "c"
+    },
+    {
+      "condition": "d",
+      "scale": 1000,
+      "epochs": 20,
+      "summary": {
+        "mean_cosine_distance": 0.0005562011509725492,
+        "max_cosine_distance": 0.004958391189575195,
+        "mean_frobenius_ratio": 0.024133615603636648,
+        "max_frobenius_ratio": 0.10037561240730106,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007409340834015783
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.00288313627243042,
+          "frobenius_ratio": 0.07661674629743656
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.004958391189575195,
+          "frobenius_ratio": 0.10037561240730106
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.003997445106506348,
+          "frobenius_ratio": 0.08957541560465868
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 1.3113021850585938e-06,
+          "frobenius_ratio": 0.0016668855503365354
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 1.2516975402832031e-06,
+          "frobenius_ratio": 0.0016212384742971793
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.001921534538269043,
+          "frobenius_ratio": 0.06206339976809813
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0010858774185180664,
+          "frobenius_ratio": 0.046772674201724644
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.000780940055847168,
+          "frobenius_ratio": 0.03965032367068722
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0009601116180419922,
+          "frobenius_ratio": 0.04397442672906908
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 1.901388168334961e-05,
+          "frobenius_ratio": 0.006216070876690645
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0010090407834684974
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.000473757071886134
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.002343416213989258,
+          "frobenius_ratio": 0.06855324004557423
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0017229318618774414,
+          "frobenius_ratio": 0.05878155919709501
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0008008480072021484,
+          "frobenius_ratio": 0.04005421117402018
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0012644201554277911
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 7.748603820800781e-07,
+          "frobenius_ratio": 0.00117632070878578
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0006134510040283203,
+          "frobenius_ratio": 0.03505633712024227
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0007809996604919434,
+          "frobenius_ratio": 0.0396494936437012
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.0006458759307861328,
+          "frobenius_ratio": 0.03610859405603552
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0006999373435974121,
+          "frobenius_ratio": 0.03759056345058074
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 1.0132789611816406e-06,
+          "frobenius_ratio": 0.001439437944087708
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0008398491301273976
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0005895117801744824
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0012089014053344727,
+          "frobenius_ratio": 0.04930979040892021
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0007474422454833984,
+          "frobenius_ratio": 0.03877922338608331
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0005363225936889648,
+          "frobenius_ratio": 0.032764462915103106
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.001208017158327533
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.001176671376466421
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00047326087951660156,
+          "frobenius_ratio": 0.030802964319297264
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.0005526542663574219,
+          "frobenius_ratio": 0.03344409320569688
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.00047385692596435547,
+          "frobenius_ratio": 0.030977003665833863
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005363821983337402,
+          "frobenius_ratio": 0.032951688429509636
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.000981396325961201
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000699949311249443
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.0002138084333831321
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0007786750793457031,
+          "frobenius_ratio": 0.03952969376074102
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006150603294372559,
+          "frobenius_ratio": 0.03513369354880021
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0003949403762817383,
+          "frobenius_ratio": 0.028130240369998654
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008613794603620719
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0008595396140724826
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.00040781497955322266,
+          "frobenius_ratio": 0.028582119960610414
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0005003809928894043,
+          "frobenius_ratio": 0.03183230606890453
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.00045931339263916016,
+          "frobenius_ratio": 0.03053130121111297
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.00045675039291381836,
+          "frobenius_ratio": 0.030423672371936276
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0009222443287625996
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0006810922760725521
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.00020650126389523538
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0006666183471679688,
+          "frobenius_ratio": 0.03657223930469215
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0006251931190490723,
+          "frobenius_ratio": 0.035414625849447816
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.00047767162322998047,
+          "frobenius_ratio": 0.030961119812670516
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0008146566949583049
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0007671397661678399
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0005231499671936035,
+          "frobenius_ratio": 0.03238275009420051
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0005617141723632812,
+          "frobenius_ratio": 0.033746953344981886
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.0005415678024291992,
+          "frobenius_ratio": 0.03309014589901787
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0004512667655944824,
+          "frobenius_ratio": 0.030221250649341936
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007687434138665745
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.000530307745255649
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 0.0,
+          "frobenius_ratio": 0.00044611149561341057
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0005568265914916992,
+          "frobenius_ratio": 0.0334221706059062
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0005011558532714844,
+          "frobenius_ratio": 0.03172910016752353
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0006164312362670898,
+          "frobenius_ratio": 0.035128902911306964
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 1.1920928955078125e-07,
+          "frobenius_ratio": 0.0007227783516318222
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0007353079776083127
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0006494522094726562,
+          "frobenius_ratio": 0.036075748884289945
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0006676316261291504,
+          "frobenius_ratio": 0.03671078665092666
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.0008234977722167969,
+          "frobenius_ratio": 0.04083188949975698
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0005725622177124023,
+          "frobenius_ratio": 0.034030194695529176
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009521815804322717
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006954419852491204
+        },
+        "norm.weight": {
+          "cosine_distance": 1.9073486328125e-06,
+          "frobenius_ratio": 0.0021404745890905245
+        }
+      },
+      "elapsed_s": 13639.605304002762,
+      "best_epoch": 6,
+      "stopped_epoch": 9,
+      "label": "d"
+    },
+    {
+      "condition": "d",
+      "scale": 1000,
+      "epochs": 20,
+      "summary": {
+        "mean_cosine_distance": 0.0019499120646960114,
+        "max_cosine_distance": 0.029856562614440918,
+        "mean_frobenius_ratio": 0.041232303527456556,
+        "max_frobenius_ratio": 0.25276211549283784,
+        "n_layers": 73
+      },
+      "per_layer": {
+        "layers.0.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.7285346984863281e-06,
+          "frobenius_ratio": 0.0020533417448450357
+        },
+        "layers.0.self_attn.q_proj.weight": {
+          "cosine_distance": 0.011992692947387695,
+          "frobenius_ratio": 0.15517144357740487
+        },
+        "layers.0.self_attn.k_proj.weight": {
+          "cosine_distance": 0.01922506093978882,
+          "frobenius_ratio": 0.1969333438056818
+        },
+        "layers.0.self_attn.v_proj.weight": {
+          "cosine_distance": 0.029856562614440918,
+          "frobenius_ratio": 0.25276211549283784
+        },
+        "layers.0.self_attn.q_norm.weight": {
+          "cosine_distance": 7.092952728271484e-06,
+          "frobenius_ratio": 0.005455723602631057
+        },
+        "layers.0.self_attn.k_norm.weight": {
+          "cosine_distance": 6.973743438720703e-06,
+          "frobenius_ratio": 0.005387521178861459
+        },
+        "layers.0.self_attn.out_proj.weight": {
+          "cosine_distance": 0.01015704870223999,
+          "frobenius_ratio": 0.14453105665448693
+        },
+        "layers.0.ffn.fc1.weight": {
+          "cosine_distance": 0.0038834810256958008,
+          "frobenius_ratio": 0.08868203118675104
+        },
+        "layers.0.ffn.fc2.weight": {
+          "cosine_distance": 0.002627253532409668,
+          "frobenius_ratio": 0.07279068035214786
+        },
+        "layers.0.ffn.fc_gate.weight": {
+          "cosine_distance": 0.003404855728149414,
+          "frobenius_ratio": 0.08304884364320493
+        },
+        "layers.0.norm1.weight": {
+          "cosine_distance": 0.00018650293350219727,
+          "frobenius_ratio": 0.019778713668018907
+        },
+        "layers.0.norm2.weight": {
+          "cosine_distance": 2.86102294921875e-06,
+          "frobenius_ratio": 0.0030479687948404685
+        },
+        "layers.1.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 1.430511474609375e-06,
+          "frobenius_ratio": 0.0017597336345770158
+        },
+        "layers.1.self_attn.q_proj.weight": {
+          "cosine_distance": 0.007485032081604004,
+          "frobenius_ratio": 0.12263409686759345
+        },
+        "layers.1.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0071067214012146,
+          "frobenius_ratio": 0.11939496992252258
+        },
+        "layers.1.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0024057626724243164,
+          "frobenius_ratio": 0.06956167710119797
+        },
+        "layers.1.self_attn.q_norm.weight": {
+          "cosine_distance": 1.9073486328125e-06,
+          "frobenius_ratio": 0.0024665985924042966
+        },
+        "layers.1.self_attn.k_norm.weight": {
+          "cosine_distance": 1.7881393432617188e-06,
+          "frobenius_ratio": 0.002353819025475327
+        },
+        "layers.1.self_attn.out_proj.weight": {
+          "cosine_distance": 0.001443624496459961,
+          "frobenius_ratio": 0.05381966402729463
+        },
+        "layers.1.ffn.fc1.weight": {
+          "cosine_distance": 0.0025587081909179688,
+          "frobenius_ratio": 0.0718546191782826
+        },
+        "layers.1.ffn.fc2.weight": {
+          "cosine_distance": 0.0019879937171936035,
+          "frobenius_ratio": 0.06330276743900373
+        },
+        "layers.1.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0025402307510375977,
+          "frobenius_ratio": 0.07163886775355192
+        },
+        "layers.1.norm1.weight": {
+          "cosine_distance": 3.516674041748047e-06,
+          "frobenius_ratio": 0.0026723198806731657
+        },
+        "layers.1.norm2.weight": {
+          "cosine_distance": 1.0728836059570312e-06,
+          "frobenius_ratio": 0.001955059935262302
+        },
+        "layers.2.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539062e-07,
+          "frobenius_ratio": 0.0012144513734180626
+        },
+        "layers.2.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0034076571464538574,
+          "frobenius_ratio": 0.0826992597543261
+        },
+        "layers.2.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0026415586471557617,
+          "frobenius_ratio": 0.07285156023334215
+        },
+        "layers.2.self_attn.v_proj.weight": {
+          "cosine_distance": 0.001289963722229004,
+          "frobenius_ratio": 0.050835137192796344
+        },
+        "layers.2.self_attn.q_norm.weight": {
+          "cosine_distance": 6.556510925292969e-07,
+          "frobenius_ratio": 0.0010879211939903897
+        },
+        "layers.2.self_attn.k_norm.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0011730560634531475
+        },
+        "layers.2.self_attn.out_proj.weight": {
+          "cosine_distance": 0.001010119915008545,
+          "frobenius_ratio": 0.04501418242497497
+        },
+        "layers.2.ffn.fc1.weight": {
+          "cosine_distance": 0.001491546630859375,
+          "frobenius_ratio": 0.054820456394488994
+        },
+        "layers.2.ffn.fc2.weight": {
+          "cosine_distance": 0.0011234879493713379,
+          "frobenius_ratio": 0.04755043537253847
+        },
+        "layers.2.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0018597841262817383,
+          "frobenius_ratio": 0.06122925562849972
+        },
+        "layers.2.norm1.weight": {
+          "cosine_distance": 8.940696716308594e-07,
+          "frobenius_ratio": 0.0013970098258878206
+        },
+        "layers.2.norm2.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0012128266331300102
+        },
+        "layers.3.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 4.172325134277344e-07,
+          "frobenius_ratio": 0.0009008667265589209
+        },
+        "layers.3.self_attn.q_proj.weight": {
+          "cosine_distance": 0.002532958984375,
+          "frobenius_ratio": 0.07125924411437663
+        },
+        "layers.3.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0021637678146362305,
+          "frobenius_ratio": 0.06584490189481604
+        },
+        "layers.3.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0008269548416137695,
+          "frobenius_ratio": 0.04072017530977448
+        },
+        "layers.3.self_attn.q_norm.weight": {
+          "cosine_distance": 7.748603820800781e-07,
+          "frobenius_ratio": 0.001244181752885913
+        },
+        "layers.3.self_attn.k_norm.weight": {
+          "cosine_distance": 7.152557373046875e-07,
+          "frobenius_ratio": 0.0012360431860716486
+        },
+        "layers.3.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0007958412170410156,
+          "frobenius_ratio": 0.03993651541650104
+        },
+        "layers.3.ffn.fc1.weight": {
+          "cosine_distance": 0.0010497570037841797,
+          "frobenius_ratio": 0.04596512038218607
+        },
+        "layers.3.ffn.fc2.weight": {
+          "cosine_distance": 0.0008759498596191406,
+          "frobenius_ratio": 0.042027490674450545
+        },
+        "layers.3.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0013391971588134766,
+          "frobenius_ratio": 0.051923429380715744
+        },
+        "layers.3.norm1.weight": {
+          "cosine_distance": 6.556510925292969e-07,
+          "frobenius_ratio": 0.001241750281358216
+        },
+        "layers.3.norm2.weight": {
+          "cosine_distance": 2.980232238769531e-07,
+          "frobenius_ratio": 0.0006988150223708055
+        },
+        "layers.4.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0006073219384844627
+        },
+        "layers.4.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0013019442558288574,
+          "frobenius_ratio": 0.05108820835916819
+        },
+        "layers.4.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0012245774269104004,
+          "frobenius_ratio": 0.049544065020671796
+        },
+        "layers.4.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0007088184356689453,
+          "frobenius_ratio": 0.03772747066436652
+        },
+        "layers.4.self_attn.q_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009586706245933389
+        },
+        "layers.4.self_attn.k_norm.weight": {
+          "cosine_distance": 3.5762786865234375e-07,
+          "frobenius_ratio": 0.0009551527502622873
+        },
+        "layers.4.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0008237361907958984,
+          "frobenius_ratio": 0.040637200671779644
+        },
+        "layers.4.ffn.fc1.weight": {
+          "cosine_distance": 0.0008862018585205078,
+          "frobenius_ratio": 0.04227486943634797
+        },
+        "layers.4.ffn.fc2.weight": {
+          "cosine_distance": 0.0009001493453979492,
+          "frobenius_ratio": 0.04258859080240556
+        },
+        "layers.4.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0008538961410522461,
+          "frobenius_ratio": 0.04148059594695974
+        },
+        "layers.4.norm1.weight": {
+          "cosine_distance": 4.76837158203125e-07,
+          "frobenius_ratio": 0.0008888365489390076
+        },
+        "layers.4.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0005234840784990588
+        },
+        "layers.5.self_attn.var_attn_bias.emb.weight": {
+          "cosine_distance": 5.960464477539063e-08,
+          "frobenius_ratio": 0.0005539511753553313
+        },
+        "layers.5.self_attn.q_proj.weight": {
+          "cosine_distance": 0.0008176565170288086,
+          "frobenius_ratio": 0.04047952283797007
+        },
+        "layers.5.self_attn.k_proj.weight": {
+          "cosine_distance": 0.0008157491683959961,
+          "frobenius_ratio": 0.04044493150407949
+        },
+        "layers.5.self_attn.v_proj.weight": {
+          "cosine_distance": 0.0007944107055664062,
+          "frobenius_ratio": 0.039895389835721405
+        },
+        "layers.5.self_attn.q_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007336319245258944
+        },
+        "layers.5.self_attn.k_norm.weight": {
+          "cosine_distance": 2.384185791015625e-07,
+          "frobenius_ratio": 0.0007335913540746443
+        },
+        "layers.5.self_attn.out_proj.weight": {
+          "cosine_distance": 0.0009045600891113281,
+          "frobenius_ratio": 0.042577159359580175
+        },
+        "layers.5.ffn.fc1.weight": {
+          "cosine_distance": 0.0008769035339355469,
+          "frobenius_ratio": 0.042039233773389945
+        },
+        "layers.5.ffn.fc2.weight": {
+          "cosine_distance": 0.0013132095336914062,
+          "frobenius_ratio": 0.05146680921310774
+        },
+        "layers.5.ffn.fc_gate.weight": {
+          "cosine_distance": 0.0008115172386169434,
+          "frobenius_ratio": 0.04046922871571334
+        },
+        "layers.5.norm1.weight": {
+          "cosine_distance": 5.364418029785156e-07,
+          "frobenius_ratio": 0.0010230184384927511
+        },
+        "layers.5.norm2.weight": {
+          "cosine_distance": 1.7881393432617188e-07,
+          "frobenius_ratio": 0.0006625619027854801
+        },
+        "norm.weight": {
+          "cosine_distance": 2.7418136596679688e-06,
+          "frobenius_ratio": 0.002463597334591129
+        }
+      },
+      "elapsed_s": 3590.024565219879,
+      "best_epoch": 11,
+      "stopped_epoch": 14,
+      "label": "d-diffts"
+    }
+  ],
+  "cka_measurements": [
+    {
+      "label": "c",
+      "scale": 200,
+      "cka": 0.4256420059202828
+    },
+    {
+      "label": "d",
+      "scale": 200,
+      "cka": 0.43586911742311735
+    },
+    {
+      "label": "d-diffts",
+      "scale": 200,
+      "cka": 0.4664778582338642
+    },
+    {
+      "label": "c",
+      "scale": 500,
+      "cka": 0.44271735459457506
+    },
+    {
+      "label": "d",
+      "scale": 500,
+      "cka": 0.40045370188299617
+    },
+    {
+      "label": "d-diffts",
+      "scale": 500,
+      "cka": 0.3428423321180862
+    },
+    {
+      "label": "c",
+      "scale": 1000,
+      "cka": 0.3734389244129047
+    },
+    {
+      "label": "d",
+      "scale": 1000,
+      "cka": 0.38080751069802565
+    },
+    {
+      "label": "d-diffts",
+      "scale": 1000,
+      "cka": 0.1826066742133243
+    }
+  ]
+}

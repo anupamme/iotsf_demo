@@ -1,0 +1,55 @@
+{
+  "condition": "B",
+  "condition_name": "NLL-only",
+  "model_size": "small",
+  "horizon": 96,
+  "seed": 42,
+  "epochs": 1,
+  "max_train_samples": 50,
+  "l2sp_weight": 0.0,
+  "ewc_lambda": 0.0,
+  "lora_rank": 0,
+  "zeroshot_mse": 0.16556578528912688,
+  "zeroshot_mae": 0.25579334523530534,
+  "final_val_mse": 0.12841900269836595,
+  "final_val_mae": 0.22935078204251047,
+  "test_mse": 0.5903465538332018,
+  "test_mae": 0.5155499864816778,
+  "final_cka": 0.9831939935684204,
+  "final_weight_drift": 0.5113820891713622,
+  "forgetting_pct": -22.43626756934813,
+  "history": {
+    "train_nll": [
+      0.0,
+      12.009490172068277
+    ],
+    "train_contrastive": [
+      0.0,
+      0.0
+    ],
+    "train_total": [
+      0.0,
+      12.009490172068277
+    ],
+    "val_mse": [
+      0.16556578528912688,
+      0.12841900269836595
+    ],
+    "val_mae": [
+      0.25579334523530534,
+      0.22935078204251047
+    ],
+    "cka": [
+      1.0,
+      0.9831939935684204
+    ],
+    "weight_drift": [
+      0.0,
+      0.5113820891713622
+    ],
+    "epoch": [
+      0,
+      1
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+% Table: Generator Ablation (D-DiffTS components)
+% All conditions: 200/5, 5 seeds, stealth-95, benign-calibrated threshold
+
+\begin{table}[h]
+\centering
+\caption{
+  Generator ablation at 200/5 (stealth-95, 5 seeds).
+  Isolates the contribution of the learned base distribution vs.\
+  post-hoc statistical guidance.
+  D-analytical uses closed-form benign samples;
+  D-DiffTS variants use Diffusion-TS-generated benign samples.
+}
+\label{tab:gen_ablation}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Condition & Base $+$ Guidance & AUC & F1 \\
+\midrule
+D-analytical      & Analytical $+$ none     & $.556_{\pm.021}$ & $.176_{\pm.032}$ \\
+D-DiffTS-noguide  & Learned $+$ none        & $.465_{\pm.086}$ & $.137_{\pm.057}$ \\
+D-DiffTS (full)   & Learned $+$ guidance    & $.621_{\pm.056}$ & $.213_{\pm.118}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
