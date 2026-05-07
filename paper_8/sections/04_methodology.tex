@@ -58,3 +58,19 @@ $\Delta R^2{=}R^2(\text{FT}){-}R^2(\text{ZS})$; absolute
 $R^2(\text{FT})$ remains negative, so $\Delta R^2$ quantifies
 relative improvement over pre-trained linear decoding); and
 (3)~weight drift ($\ell_2$ distance from pre-trained parameters).
+
+\begin{table}[h]
+\centering\small
+\caption{Notation summary for probe-related quantities.}
+\label{tab:notation}
+\begin{tabular}{ll}
+\toprule
+Symbol & Definition \\
+\midrule
+$R^2_{\text{task}}(\text{PT})$ & $1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$; positive $\Rightarrow$ gate-pass \\
+$R^2(\text{PT})$, $R^2(\text{FT})$ & Ridge probe score on pre-trained / fine-tuned encoder \\
+$\Delta R^2$ & $R^2(\text{FT}) - R^2(\text{PT})$; relative linear-decodability change \\
+$\Delta R^2_{\text{task}}$ & Task-level improvement measured via forecasting head \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -85,12 +85,16 @@ limitation when pre-trained features are insufficient.
 \label{sec:forecasting:replication}
 % ============================================================
 
-Table~\ref{tab:sample_sweep} ($n{\in}\{500,1\mathrm{k},2\mathrm{k},5\mathrm{k},10\mathrm{k}\}$, ETTh2)
-reveals that \emph{drift and forgetting are dissociable}.
-Drift grows monotonically with $n$ (CKA from 0.949 at 500 to 0.518
-at 10k), but forgetting is non-monotonic: severe at low $n$ ($+$14\%
-at 500), resolved by 2k ($-$2.9\%), predominantly negative at 10k
-($-5.3{\pm}6.2$\%, 7/10 negative, 10-seed CUDA deterministic).
+Table~\ref{tab:sample_sweep} ($n{\in}\{500,\ldots,10\mathrm{k}\}$, ETTh2)
+reveals that \emph{drift and forgetting are dissociable}---a finding best
+illustrated by comparing Moirai-Base (protocol-robust improvement of
+50--57\%, 10/10 seeds; probe asymmetry 9/10 $\Delta R^2{>}0$ despite
+CKA$\approx$0.25; \S\ref{sec:analysis}) with Small, where the same
+mechanism produces capacity-dependent outcomes.
+On Small, drift grows monotonically with $n$ (CKA from 0.949 at 500
+to 0.518 at 10k), but forgetting is non-monotonic: severe at low $n$
+($+$14\% at 500), resolved by 2k ($-$2.9\%), predominantly negative
+at 10k ($-5.3{\pm}6.2$\%, 7/10 negative, 10-seed CUDA deterministic).
 The $n{=}5$k variance ($+$6.6$\pm$10.0\%, 7 seeds) is bimodal: 4 seeds
 cluster at $-$0.1\%, 3 at $+$15.5\% with epoch-1 overshoot (full
 trajectory analysis in Appendix~\ref{app:n5k_trajectories}).
@@ -99,6 +103,11 @@ $+$0.12 ($k{=}2$ probe seeds) at 500 to $+$0.67$\pm$0.23 at 10k
 (\textbf{10/10} seeds positive).
 Geometric dissimilarity (CKA$\downarrow$) and relative
 linear-decodability ($\Delta R^2\uparrow$) move in opposite directions.
+
+\textbf{Protocol dependence.}
+Drift resolution at high $n$ is conditional on early stopping for Small
+(final-epoch: $-0.6{\pm}5.8$\%, n.s.); Base is protocol-robust
+($-50$\% to $-57$\% under both protocols; \S\ref{sec:analysis}).
 
 Absolute $R^2(\text{FT})$ remains negative across all $n$
 ($R^2_{\text{ZS}}{=}-6.90$), so $\Delta R^2$ is a relative-improvement
@@ -118,9 +127,17 @@ magnitude within a single cell.
 The positive-floor probes (lag-1, mean, variance, delta1) anchor the
 interpretation because their $R^2(\text{PT}){>}0$ regime makes the sign
 directly meaningful.
+Chronos-T5-Small on M4-Monthly provides external confirmation:
+$R^2(\text{PT}){=}{+}0.068{\pm}0.025$ (10/10 positive;
+Appendix~\ref{app:chronos_detail}).
+This demonstrates that the probe protocol operates in a positive-floor
+regime on architectures with standard encoder outputs; the
+deeply-negative $R^2$ on Moirai is a backbone-specific artefact of its
+mixture-distribution head, not a fundamental probe limitation.
 
-\textbf{Headline:} drift is harmful in the low-data regime
-($n{\leq}1$k), where practitioners most need pre-trained features.
+\textbf{Headline:} drift is capacity-dependent---harmful on Small at
+$n{\leq}1$k (where practitioners most need pre-trained features),
+resolved by larger capacity (Base improves at all $n$, protocol-robust).
 
 \input{tables/sample_sweep}
 
@@ -184,28 +201,14 @@ consistent across interpretive regimes.
 Full probe details in Appendix~\ref{app:probing}.
 
 \textbf{Task-specific shift, not general improvement.}
-\textbf{The ``three-measure'' framing reflects two independent quantities, not three:}
-geometric drift (CKA, frozen-probe $\Delta R^2$) and task-level outcome
-(forgetting\%\ $\equiv$ $\Delta R^2_{\text{task}}$ sign when
-$R^2_{\text{task}}(\text{PT}){>}0$); CKA and frozen-probe $\Delta R^2$ are two
-expressions of the geometric quantity; forgetting\% and $\Delta R^2_{\text{task}}$
-are two expressions of the task quantity.
-The diagnostic value is not the observation that fine-tuning works at
-high $n$---it is the \emph{task-orthogonal asymmetry}: fine-tuning
-simultaneously improves the trained head and degrades all positive-floor
-probes we tested, establishing that the encoder restructures \emph{toward}
-the objective, not that it simply improves.
-Fine-tuning imposes geometric cost (CKA$\downarrow$) with task-specific
-benefit ($\Delta R^2{>}0$ on trained head, ${\leq}0$ on untrained).
-These two framings---``the encoder shifted toward the task'' vs.\ ``the
-encoder now produces inputs the trained head expects''---are equivalent
-descriptions of the same geometric fact; the diagnostic value is that
-the shift is \emph{not general} (positive-floor probes show $\Delta R^2{\leq}0$),
-ruling out undirected improvement of the representation.
+The diagnostic value is the \emph{task-orthogonal asymmetry}: fine-tuning
+simultaneously improves the trained head ($\Delta R^2{>}0$) and degrades all
+positive-floor probes ($\Delta R^2{\leq}0$), establishing that the encoder
+restructures \emph{toward} the objective rather than improving generally.
 Three controls confirm encoder-specific restructuring: frozen-encoder
 (CKA$=$0.9993, $\Delta R^2$ 14$\times$ smaller), random-init (8/10 negative
-$\Delta R^2$, 10-seed matched; Appendix~\ref{app:randominit}), and top-3-layer unfreeze
-($\Delta R^2{>}0$, 3/3 seeds; Appendix~\ref{app:layerunfreeze}).
+$\Delta R^2$; Appendix~\ref{app:randominit}), and top-3-layer unfreeze
+($\Delta R^2{>}0$, 10/10 seeds; Appendix~\ref{app:layerunfreeze}).
 
 Task-orthogonal probes (lag-1 autocorrelation, input mean, input variance)
 show $\Delta R^2{<}0$ on positive-floor targets ($R^2(\text{PT}){>}0$; 9--10/10
@@ -247,14 +250,11 @@ at different $n$---they localise to different encoder layers.
 Per-layer CKA confirms: bottom 3 layers drift more (mean CKA$=$0.476) than
 top 3 (0.649), despite the top 3 being sufficient for $\Delta R^2{>}0$
 (full analysis in Appendix~\ref{app:layerunfreeze}).
+(We note that standard backpropagation gradient-magnitude patterns---larger
+updates in earlier layers under full unfreeze---could also produce this
+per-layer CKA pattern; a gradient-norm comparison is required to
+distinguish layer-wise specialization from gradient-flow artefact.)
 
-This layer-wise control is the cleanest demonstration of why the full
-diagnostic toolkit matters: without it, a practitioner observing
-$\Delta R^2{>}0$ at $N{=}3$ would conclude that fine-tuning succeeded---yet
-forgetting is only $-6.5$\% (modest task benefit relative to $N{=}6$).
-Conversely, at $N{=}6$, forgetting is $-6.7$\% (comparable task improvement) but the
-additional geometric cost (CKA $0.66{\to}0.39$) might trigger unnecessary
-mitigation.  The diagnostic distinguishes: probes detect \emph{reorientation}
+The diagnostic toolkit resolves this: probes detect \emph{reorientation}
 at $N{=}3$; task metrics require the lower layers ($N{=}6$) for \emph{recovery}.
-Neither alone tells the full story.
 

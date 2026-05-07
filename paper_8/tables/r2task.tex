@@ -17,10 +17,14 @@ to show drift behaviour outside the gate-pass regime.}
 \toprule
 $n$ & $h$ & $R^2_{\text{task}}(\text{PT})$ & Forg.\% & $\Delta R^2_{\text{task}}$ & $R^2_{\text{task}}(\text{FT})$ \\
 \midrule
-\multicolumn{6}{l}{\textit{ETTh2 (gate-pass: $R^2_{\text{task}}(\text{PT}){>}0.2$, Moirai outperforms Linear by 28\%)}} \\
+\multicolumn{6}{l}{\textit{ETTh2-Small (gate-pass: $R^2_{\text{task}}(\text{PT}){>}0.2$, Moirai outperforms Linear by 28\%)}} \\
 500  & 96  & $+$0.279 & $+$11.1 & $-$0.080 & $+$0.199 \\
 500  & 192 & $+$0.450 & $+$15.7 & $-$0.086 & $+$0.364 \\
 10k (ES) & 96  & $+$0.279 & $-$5.3  & $+$0.038 & $+$0.317 \\
+\midrule
+\multicolumn{6}{l}{\textit{ETTh2-Base (gate-pass: $R^2_{\text{task}}(\text{PT}){=}{+}0.31$, Moirai-Base outperforms Linear by 31\%)}} \\
+500  & 96  & $+$0.310 & $-$56.9 & $+$0.393 & $+$0.703 \\
+10k (ES) & 96  & $+$0.310 & $-$54.2 & $+$0.374 & $+$0.684 \\
 \midrule
 \multicolumn{6}{l}{\textit{ETTm2 (gate-fail: $R^2_{\text{task}}(\text{PT}){<}0$, Moirai worse than Linear by 55\%)}} \\
 500  & 96  & $-$0.556 & $-$13.3 & $+$0.207 & $-$0.349 \\

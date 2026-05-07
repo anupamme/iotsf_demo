@@ -70,12 +70,7 @@
 \pgfplotsset{compat=1.18}
 
 % hyperref must load after most other packages
-% Pass \hyperrefdraft on command line for resolving passes (avoids pdfTeX segfault)
-\ifdefined\hyperrefdraft
-  \usepackage[draft,hidelinks]{hyperref}
-\else
-  \usepackage[hidelinks]{hyperref}
-\fi
+\usepackage[draft,hidelinks]{hyperref}
 
 % ---- Macros ----
 \newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
@@ -100,31 +95,26 @@
 % ============================================================
 \begin{abstract}
 We contribute a \textbf{reusable diagnostic methodology} for assessing
-representation drift during fine-tuning of time-series foundation models:
-a value-gate screening criterion, controlled-comparison design with
-frozen-encoder/random-init/layer-wise-unfreeze controls, task-orthogonal
-probe protocol, LoRA-Large LR recipe, uni2ts library patch, and
-CUDA-deterministic reproducibility protocol.
-We demonstrate the methodology on a \textbf{Moirai-ETT case study}
-(the one backbone$\times$dataset family where the value-gate passes).
-The load-bearing empirical signals are: (1) the \textbf{task-orthogonal
-probe asymmetry} ($\Delta R^2{<}0$ on positive-floor probes,
-$\Delta R^2{>}0$ on the trained head; 10/10 seeds on ETTh2 and ETTm2,
-where ETTm2 is a gate-failing cross-domain comparison confirming the
-mechanism generalises), operationalising ``task-specific shift''; and (2) \textbf{layer-wise
-localisation} (top-3 layers suffice for $\Delta R^2{>}0$ but lower
-layers required for task recovery; 10/10 seeds).
-Fine-tuning imposes geometric cost (CKA $0.949{\to}0.52$ as
-$n{:}500{\to}10$k) with protocol-dependent task outcome---harmful at
-$n{\leq}1$k ($+$14\% forgetting), improving at $n{=}10$k under
-early-stopped checkpointing.
-Five non-Moirai backbones gate-fail on all nine ETT cells tested;
-Moirai itself gate-fails on Traffic, Exchange, and Electricity,
-narrowing the gate-pass to ETTh2 and confirming that corpus
-composition drives coverage (\S\ref{sec:forecasting:nonmoirai}).
-\textbf{Practitioner takeaway:} Use LoRA with $10{\times}$ LR reduction
-on larger Moirai variants before escalating rank; apply the value-gate
-before investing in drift diagnosis.
+representation drift during fine-tuning of time-series foundation models,
+comprising a value-gate screening criterion, controlled-comparison design,
+and task-orthogonal probe protocol.
+On Moirai/ETTh2 (gate-pass 28\%), task-orthogonal probe asymmetry
+($\Delta R^2{>}0$ on the trained head, ${<}0$ on positive-floor probes;
+10/10 seeds) establishes that fine-tuning restructures toward the
+objective rather than improving generally.
+Restructuring is generally beneficial for gate-passing cells;
+harm occurs only in the narrow low-$n$/small-capacity regime
+(1 of 7 cells tested).
+Cross-backbone validation on Chronos-T5-Small/M4-Monthly (gate-pass
+84.5\%) confirms the value-gate as a regime indicator: strong gate-pass
+predicts encoder stability (CKA${\geq}$0.95), no probe signal, and no
+forgetting.
+On ILI (gate-pass 57\%), full probes show restructuring with beneficial
+outcome (CKA$=$0.478, $\Delta R^2{>}0$ in 10/10 seeds, forgetting
+$-$80.7\%), extending the probe-asymmetry regularity to a third
+gate-passing cell and revising the predicted stability threshold upward.
+\textbf{Practitioner takeaway:} apply the value-gate before investing
+in drift diagnosis; use LoRA with reduced LR on larger variants.
 \end{abstract}
 
 % ============================================================

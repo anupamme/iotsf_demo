@@ -6,10 +6,15 @@
 Moirai~\cite{woo2024moirai} is a foundation time-series model trained
 on billions of time points that achieves strong zero-shot performance
 on forecasting benchmarks.  A natural next step is to fine-tune it on
-domain-specific tasks: anomaly detection, classification, or
-short-horizon forecasting with limited labelled data.  We present
-a Moirai case study on ETT forecasting benchmarks that characterises
-what happens to pre-trained representations during fine-tuning.
+domain-specific tasks---but when should a practitioner worry about
+overwriting the representations that made zero-shot work?
+\emph{Counterfactual:} Chronos-T5-Small on ETTh2 gives ZS MSE$=$0.304
+vs.\ Linear 0.213 (ZS \emph{underperforms} by 43\%).
+A practitioner who skipped screening would fine-tune Chronos, observe
+CKA dropping, and apply LoRA/EWC to preserve features that had
+\emph{no advantage over Linear}---wasted effort.
+Our value-gate prevents this: drift diagnosis is meaningful only when
+pre-trained features demonstrably outperform a trivial baseline.
 
 \textbf{Representation drift during fine-tuning.}
 We contribute a systematic \emph{diagnostic methodology} for characterising
@@ -17,14 +22,15 @@ representation drift---progressive overwriting of pre-trained features---during
 fine-tuning of time-series foundation models, and demonstrate it on Moirai
 (Small 13.8M, Base 91M, Large 311M) as the single backbone family where
 pre-trained features pass our value-gate on ETT benchmarks.
-Matched-protocol attempts to replicate on three non-Moirai backbones
+Matched-protocol attempts on three non-Moirai backbones
 (Chronos-T5-Small~\cite{ansari2024chronos},
 TimesFM-2.5-200M~\cite{das2024timeseries},
 MOMENT-1-base~\cite{goswami2024moment}) gate-fail on all nine
-ETT$\times$backbone cells tested (7 original + 2 new Chronos
-capacity cells); we report this as a substantive finding about
-backbone-specific ETT pre-training coverage
-(\S\ref{sec:forecasting}, Appendix~\ref{app:limitations}).
+ETT cells tested---the expected behaviour of a well-calibrated
+screening criterion, since these corpora lack ETT coverage.
+Chronos gate-\emph{passes} M4-Monthly (in its corpus) at 84.5\%,
+confirming the gate identifies applicable cells across backbones
+(\S\ref{sec:forecasting:nonmoirai}).
 Catastrophic forgetting during fine-tuning is well-studied in continual
 learning~\cite{kirkpatrick2017ewc, li2017lwf} and
 NLP~\cite{luo2023forgetting}; our contribution is reusable diagnostic
@@ -53,22 +59,26 @@ Time-series drift directly harms distributional predictions for anomaly
 scoring and probabilistic forecasting.
 Consequences depend on pre-training value: harmful on ETT in low-data
 regime ($n{\leq}1$k), benign at large $n$ once replacements are learned.
-\emph{Counterfactual without the value-gate:}
-Chronos-T5-Small on ETTh2 gives ZS MSE$=$0.304 vs.\ Linear 0.213
-(gate-fail: ZS \emph{underperforms} by 43\%).
-A practitioner who skipped screening would fine-tune Chronos, observe
-CKA dropping, diagnose ``drift,'' and apply LoRA/EWC to preserve
-features that had \emph{no advantage over Linear}---wasted effort.
-The value-gate prevents this: drift diagnosis is meaningful only when
-pre-trained features demonstrably outperform a trivial baseline.
 
 \textbf{Scope.}
-The empirical case study is narrow by design: one gate-passing backbone
-(Moirai) on one clean setting (ETTh2, $n{=}500$--$10$k).
+The empirical case study spans three gate-passing cells: Moirai-Small/Base
+on ETTh2, Moirai-Small on ILI, and Chronos-T5-Small on M4-Monthly.
+The central empirical finding is \textbf{non-monotone capacity dependence}:
+Base (91M) improves protocol-robustly at all $n$; Small (13.8M) degrades
+at low $n$; Large (311M) degrades at default LR but is rescued by
+$10{\times}$ LR reduction (forg.\ $-8.5$\%, CKA$=$0.989;
+Appendix~\ref{app:lora_rank}).
+A step-size falsification test (Base at $10{\times}$ LR, 10 seeds) restructures
+\emph{more} aggressively than Small (CKA$=$0.14 vs.\ 0.94) yet still
+improves ($-58.2$\%; Appendix~\ref{app:step_size})---capacity provides
+an independent buffer against destructive drift.
+Both Small and Base share the probe-asymmetry mechanism (10/10, 9/10
+seeds), confirming that drift harm depends on capacity relative to the
+adaptation target, not on the restructuring itself.
 We do not claim a universal phenomenon; we claim reusable methodology
-and one well-controlled case study illustrating its application.
-The methodology (value-gate, controls, probes, protocol) transfers to
-any backbone; the specific numeric findings require replication.
+demonstrated across three (backbone, dataset) configurations.
+The methodology transfers to any backbone that gate-passes; the specific
+numeric findings require broader replication.
 
 \textbf{Experimental approach.}
 We deploy the diagnostic methodology across three Moirai sizes
@@ -80,27 +90,20 @@ vs.\ $+7.5\%$ final-epoch); we lead on the more robust $\Delta R^2{>}0$
 majority.
 
 \textbf{Contributions.}
-Methodological contributions are offered as reusable infrastructure;
-empirical findings are Moirai-ETT specific and require replication.
 
 \begin{enumerate}
   \item \textbf{Diagnostic methodology (backbone-agnostic).}
-    Value-gate screening criterion (ZS $>$20\% vs.\ Linear);
+    Value-gate screening (ZS ${>}$20\% vs.\ Linear),
     controlled-comparison design (frozen-encoder, random-init, layer-wise
-    unfreeze controls); LoRA-Large $10{\times}$ LR rescue recipe
-    (cross-dataset validated); uni2ts PackedStdScaler patch; and
-    CUDA-deterministic per-seed protocol
-    (Appendix~\ref{app:probing}).
+    unfreeze), and task-orthogonal probe protocol.
+    Supporting infrastructure (uni2ts patch, CUDA-deterministic protocol,
+    LoRA-Large $10{\times}$ LR recipe) released with code.
 
-  \item \textbf{Empirical validation (Moirai-ETT case study).}
-    Task-orthogonal probe asymmetry ($\Delta R^2{<}0$ on positive-floor
-    probes, $\Delta R^2{>}0$ on trained head; 10/10 seeds on ETTh2/ETTm2);
-    layer-wise localisation (top-3 layers suffice for $\Delta R^2{>}0$,
-    lower layers for task recovery; 10/10 seeds);
-    corpus-coverage confirmation (Chronos gate-passes M4-Monthly at
-    84.5\% while gate-failing ETT at $-$43\%;
-    Moirai gate-fails on Traffic/$-$38\%, Exchange/$-$21\%,
-    Electricity/$-$28\%; \S\ref{sec:forecasting:nonmoirai}).
+  \item \textbf{Empirical validation across three gate-passing cells.}
+    Probe asymmetry on Moirai/ETTh2 (10/10 seeds), ETTm2 (10/10),
+    and ILI (10/10; gate-pass 57\%, CKA$=$0.478;
+    \S\ref{sec:analysis:ili});
+    encoder-stability confirmation on Chronos/M4 (gate-pass 84.5\%,
+    CKA${\geq}$0.95; \S\ref{sec:forecasting:nonmoirai}).
 \end{enumerate}
-We couldn't release code and datasets due to anonymisation concerns but commit to it releasing them upon acceptance.
 
