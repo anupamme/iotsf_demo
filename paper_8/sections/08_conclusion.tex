@@ -4,20 +4,20 @@
 % ============================================================
 
 \textbf{Methodology.}
-The primary contribution is a reusable diagnostic toolkit---value-gate
-screening, controlled comparisons, and task-orthogonal probes---that
+The primary contribution is a reusable diagnostic toolkit (value-gate
+screening, controlled comparisons, and task-orthogonal probes) that
 transfers to any backbone.
 
 \textbf{Findings.}
-Probe asymmetry replicates across datasets (ETTh2, ETTm2, ILI: all
-10/10) and sizes (Small 10/10, Base 9/10); strong gate-pass predicts
-encoder stability (Chronos-M4, CKA${\geq}$0.95).
-Limitations (Appendix~\ref{app:limitations}): probe asymmetry on Moirai
-only; absolute $R^2(\text{FT})$ remains negative.
+Probe asymmetry replicates across gate-passing cells (ETTh2, ILI:
+both 10/10) and sizes (Small 10/10, Base 9/10); also on gate-fail
+ETTm2 (10/10).
+Strong gate-pass is associated with encoder stability (Chronos-M4,
+CKA${\geq}$0.95).
+Scope: dissociation is validated on Moirai only; Chronos/M4 confirms
+the value-gate but not probe asymmetry on a second backbone.
 
-\textbf{Practitioner protocol.}
-(1)~Compute ZS MSE vs.\ lookback-matched Linear;
-(2)~gate-pass${<}$20\%: fine-tune freely;
-(3)~gate-pass 20--80\%: expect restructuring---use LoRA with
-$10{\times}$ LR reduction, monitor CKA;
-(4)~gate-pass${>}$80\%: encoder near-optimal---use frozen-encoder.
+\textbf{Practitioner heuristic} (based on cells tested; not yet universal).
+(1)~Compute ZS vs.\ Linear; (2)~gate-fail: preservation-focused drift mitigation is not indicated;
+(3)~moderate gate-pass (28--57\% in our data): expect restructuring,
+monitor CKA; (4)~very strong gate-pass (as in Chronos/M4): consider frozen-encoder as a first baseline.

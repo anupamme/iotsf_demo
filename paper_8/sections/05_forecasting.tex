@@ -9,7 +9,7 @@ ETT time-series forecasting benchmarks~\cite{zhou2021informer} provide
 this setting: zero-shot Moirai outperforms Linear baselines by 28--45\%
 (Section~\ref{sec:forecasting:gate}).
 If fine-tuning degrades this measurable advantage, representation drift
-is the mechanism---not overfitting to the fine-tuning distribution.
+is the mechanism, not overfitting to the fine-tuning distribution.
 The frozen-encoder control (same data, same epochs, CKA$=$1.000)
 confirms this: overfitting would not be eliminated by freezing.
 
@@ -45,14 +45,14 @@ valuable (Appendix Table~\ref{tab:forecasting_forgetting}).
 Conditions B (NLL-only) and C (NLL+SupCon) degrade by 10--16\% MSE
 (10/10 seeds positive, $p{=}0.002$ sign test; $d{=}1.23$, 95\%~CI $[0.37,\,2.01]$;
 bootstrap $p{<}10^{-4}$) while
-training loss \emph{decreases}---not overfitting (which raises validation
+training loss \emph{decreases}, not overfitting (which raises validation
 loss), but representation drift.
 The frozen-encoder control (D, CKA$=$1.000, same data/epochs) eliminates
 drift, ruling out the training regime.
 Degradation scales with horizon: worse at $h{=}192$ (13--16\%) than $h{=}96$
 (10--11\%).
 Contrastive loss (C) does not prevent drift: C ($+$10.1\%) and B ($+$11.1\%) differ by
-1.0\%, within seed standard deviation---a null result for the contrastive objective.
+1.0\%, within seed standard deviation; a null result for the contrastive objective.
 
 % ============================================================
 \subsection{Mitigation Spectrum}
@@ -77,7 +77,7 @@ model sizes.
 \textbf{EWC and L2-SP reduce but do not eliminate drift.}
 Both improve CKA over unconstrained fine-tuning but MSE remains 18--19\%
 above zero-shot.
-Frozen encoder (D) eliminates drift (CKA$=$1.000) but cannot adapt---a
+Frozen encoder (D) eliminates drift (CKA$=$1.000) but cannot adapt: a
 limitation when pre-trained features are insufficient.
 
 % ============================================================
@@ -86,7 +86,7 @@ limitation when pre-trained features are insufficient.
 % ============================================================
 
 Table~\ref{tab:sample_sweep} ($n{\in}\{500,\ldots,10\mathrm{k}\}$, ETTh2)
-reveals that \emph{drift and forgetting are dissociable}---a finding best
+reveals that \emph{drift and forgetting are dissociable}, a finding best
 illustrated by comparing Moirai-Base (protocol-robust improvement of
 50--57\%, 10/10 seeds; probe asymmetry 9/10 $\Delta R^2{>}0$ despite
 CKA$\approx$0.25; \S\ref{sec:analysis}) with Small, where the same
@@ -118,11 +118,11 @@ regime; we next address whether this is a meaningful probe signal or a
 deep-floor artefact.
 
 \textbf{Interpretability caveat.}
-Absolute $R^2(\text{FT})$ remains negative throughout ($-6.90$ to $-6.24$);
-$\Delta R^2$ is therefore a \emph{relative} signal, not a claim about
-absolute decodability.
-The load-bearing evidence is the \emph{sign pattern across cells}---positive
-on the trained head, negative on all positive-floor probes---not the
+We do not interpret trained-head $\Delta R^2$ as improved absolute
+decodability; we interpret only the signed contrast between the trained
+target ($\Delta R^2{>}0$) and positive-floor task-orthogonal probes ($\Delta R^2{\leq}0$).
+The load-bearing evidence is the \emph{sign pattern across cells} (positive
+on the trained head, negative on all positive-floor probes), not the
 magnitude within a single cell.
 The positive-floor probes (lag-1, mean, variance, delta1) anchor the
 interpretation because their $R^2(\text{PT}){>}0$ regime makes the sign
@@ -135,7 +135,7 @@ regime on architectures with standard encoder outputs; the
 deeply-negative $R^2$ on Moirai is a backbone-specific artefact of its
 mixture-distribution head, not a fundamental probe limitation.
 
-\textbf{Headline:} drift is capacity-dependent---harmful on Small at
+\textbf{Headline:} drift is capacity-dependent: harmful on Small at
 $n{\leq}1$k (where practitioners most need pre-trained features),
 resolved by larger capacity (Base improves at all $n$, protocol-robust).
 
@@ -194,7 +194,7 @@ GBM delta1 head ($x_{t+1}-x_t$) gives $R^2(\text{PT}){=}{+}0.059{>}0$
 but $\Delta R^2{=}{-}0.056$: fine-tuning \emph{loses} pre-trained next-step
 signal on this positive-floor target.
 This confirms the headline $\Delta R^2{>}0$ is specific to the trained
-objective, not a general decodability improvement---and constrains the
+objective, not a general decodability improvement, and constrains the
 deep-negative-$R^2$ interpretation: the sign pattern (positive on trained
 head, negative on all positive-floor probes including delta1) is
 consistent across interpretive regimes.
@@ -240,18 +240,18 @@ The top 3 layers suffice to reorient encoder geometry toward the trained objecti
 The frozen-encoder control (condition D) \emph{is} the head-only ablation: only the
 forecasting head trains while encoder weights are fixed.
 $\Delta R^2{\approx}0$ in D ($-0.048{\pm}0.008$) confirms that the full-unfreeze
-$\Delta R^2{>}0$ arises from encoder restructuring---the Ridge probe is retrained
+$\Delta R^2{>}0$ arises from encoder restructuring (the Ridge probe is retrained
 from scratch on encoder outputs in both conditions, so head adaptation cannot
-explain the signal.
+explain the signal).
 
 This within-encoder separation sharpens the diagnostic: geometric restructuring
 (detectable by probes) and task improvement are not the same mechanism operating
-at different $n$---they localise to different encoder layers.
+at different $n$; they localise to different encoder layers.
 Per-layer CKA confirms: bottom 3 layers drift more (mean CKA$=$0.476) than
 top 3 (0.649), despite the top 3 being sufficient for $\Delta R^2{>}0$
 (full analysis in Appendix~\ref{app:layerunfreeze}).
-(We note that standard backpropagation gradient-magnitude patterns---larger
-updates in earlier layers under full unfreeze---could also produce this
+(We note that standard backpropagation gradient-magnitude patterns, i.e.\ larger
+updates in earlier layers under full unfreeze, could also produce this
 per-layer CKA pattern; a gradient-norm comparison is required to
 distinguish layer-wise specialization from gradient-flow artefact.)
 

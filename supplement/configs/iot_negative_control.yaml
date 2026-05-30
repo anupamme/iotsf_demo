@@ -1,0 +1,21 @@
+dataset: CICIoT2023
+data_path: data/ciciot2023/
+model_size: small
+max_train_samples: 1000
+horizon: 64
+lookback: 512
+epochs: 10
+batch_size: 32
+lr: 1.0e-4
+contrastive_weight: 0.5
+features: M
+conditions: [A, B, C]
+eval_every: 2
+deterministic: true
+num_samples: 20
+patch_size: 32
+note: >
+  Negative control: IoT security task where zero-shot does NOT beat
+  linear baseline (gate-fail). Included to verify that the diagnostic
+  protocol correctly identifies cases where fine-tuning is unambiguously
+  needed rather than drift-preserving.

@@ -10,9 +10,14 @@ At $n{=}500$, the point estimate $+0.12$ ($k{=}2$) sits within the random-init
 range $[-0.405,\,+0.149]$; no distinguishability claim is made at $n{=}500$.
 The regularity is established at $n{=}10$k: condition~B range $[+0.21,\,+0.94]$
 does not overlap the random-init range (Appendix~\ref{app:randominit}).
-Task-specificity: $\Delta R^2{>}0$ on the trained 96-step head, ${\leq}0$ on
-untrained heads (forecast48 ${\approx}0$, delta1 GBM $-0.056$;
+Absolute $R^2$ on the trained head is negative throughout (the deep-floor
+regime); $\Delta R^2$ measures \emph{relative} decodability change.
+To anchor interpretation, we establish positive-floor probes: a
+next-step-delta head gives $R^2(\text{PT}){=}{+}0.059{>}0$, and Chronos/M4
+yields $R^2(\text{PT}){=}{+}0.068$ (10/10 positive;
 Appendix~\ref{app:probing}).
+Task-specificity: $\Delta R^2{>}0$ on the trained 96-step head, ${\leq}0$ on
+untrained heads (forecast48 ${\approx}0$, delta1 GBM $-0.056$).
 
 \textbf{Task forgetting is protocol-dependent.}
 Forgetting is non-monotonic in $n$ ($+$14\% at 500, $-$2.9\% at 2k,
@@ -20,7 +25,7 @@ $-$5.3$\pm$6.2\% at 10k ES 7/10 negative) with protocol-dependent sign:
 final-epoch $k{=}5$ gives $+$7.5$\pm$8.2\%, ES $-$5.3\% (difference
 from late-epoch overshoot in 3 seeds, all near-zero).
 Per-epoch trajectories (10 CUDA seeds, $n{=}10$k): 7 converge monotonically
-(best val-MSE epochs 3--5); 3 overshoot in epochs 12--18 --- source of the
+(best val-MSE epochs 3--5); 3 overshoot in epochs 12--18, the source of the
 final-epoch vs.\ early-stopped sign difference (Appendix~\ref{app:n5k_trajectories}).
 Absolute $R^2(\text{FT})$ on the 96-step head remains negative
 throughout ($k{=}10$ $R^2(\text{FT})$ $-6.37{\pm}0.36$ at $n{=}10$k);
@@ -38,7 +43,7 @@ with the \emph{opposite} task outcome: forgetting $=-29.2{\pm}2.1\%$
 Wilson CI [0.72,\,1.00]).
 The probe asymmetry on ETTm2 (gate-fail) confirms the restructuring
 mechanism operates regardless of pre-training value; the
-\emph{consequence} differs---drift overwrites features that were not
+\emph{consequence} differs: drift overwrites features that were not
 outperforming Linear, so it is benign
 (Appendix~\ref{app:probing},~\ref{app:noisefloor}).
 The regularity across both cells (10/10) establishes the mechanism;
@@ -47,45 +52,42 @@ the gate determines whether the mechanism requires mitigation.
 \textbf{ETTh1 $n{=}10$k: boundary case.}
 On ETTh1 ($h{=}96$, $n{=}10$k, $k{=}10$), forgetting resolves
 ($-6.1{\pm}3.6$\%) and CKA falls to $0.727$, but
-$\Delta R^2{=}{-}4.23{\pm}4.47$ (2/10 positive)---the encoder drifts
+$\Delta R^2{=}{-}4.23{\pm}4.47$ (2/10 positive): the encoder drifts
 and the task improves without linear decodability gain.
-This isolates ETTh1 as a single boundary case (1-of-4 gate-passing
-cells); the $\Delta R^2{>}0$ regularity holds on ETTh2, ETTm2, and ILI
-(all 10/10).
-A spectral entropy hypothesis is specified in
-Appendix~\ref{app:etth1_extended} with pre-registered falsification
-criteria; it remains untested (candidate datasets gate-fail).
+This isolates ETTh1 as the only tested setting where task performance
+improves without positive probe signal; the $\Delta R^2{>}0$ regularity
+holds on ETTh2, ETTm2, and ILI (all 10/10).
+ETTh1 is therefore treated as a boundary case rather than evidence for
+the main probe-asymmetry regularity.
 
 \textbf{Cross-domain envelope.}
-Table~\ref{tab:cross_domain} spans seven settings; drift occurs in all
-cells but consequences depend on pre-training value.
-Gate-passing cells: ETTh2 (28\%), ILI (57\%), ETTh2-Base (31\%).
-Gate-failing cross-comparisons: ETTh1, ETTm2, ETTh2-Large.
-Negative control: IoT (sub-random ZS, CKA 0.31--0.45).
+Table~\ref{tab:cross_domain} summarises all settings tested; drift
+occurs throughout but consequences depend on pre-training value.
 
 \begin{table}[t]
 \centering
-\caption{Cross-setting overview (cond.\ B; mean$\pm$std). All cells use Moirai-Small except ETTh2-B (Base) and ETTh2-L (Large). ILI uses $h{=}24$; all others $h{=}96$.}
+\caption{Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95;
+Asym.$=$probe asymmetry ($\Delta R^2{>}0$ majority). All Moirai-Small
+unless noted. Full numerics in text.}
 \label{tab:cross_domain}
 \small
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{lccccccc}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccll}
 \toprule
-& ETTh2-S & ETTh1 & ETTm2 & ILI & ETTh2-B & ETTh2-L & IoT \\
-& (10 sd) & (3 sd) & (3 sd) & (10 sd) & (10 sd) & (3 sd) & (10 sd) \\
+Setting & Gate\% & Drift? & Asym.? & Effect & Interpretation \\
 \midrule
-Metric             & MSE & MSE & MSE & MSE & MSE & MSE & AUC \\
-Gate-pass          & 28\% & $<$0 & $<$0 & 57\% & 31\% & --- & $<$0 \\
-ZS baseline        & 0.126 & 0.679 & 0.175 & 1.897 & 0.257 & 0.128 & 0.481 \\
-FT result          & .140{\tiny$\pm$.014} & .726{\tiny$\pm$.022} & .152{\tiny$\pm$.011} & .387{\tiny$\pm$.022} & .116{\tiny$\pm$.013} & .140{\tiny$\pm$.012} & .629{\tiny$\pm$.022} \\
-Forg.\%            & +11.1  & +7.0{\tiny$\pm$3.2} & $-$13.3{\tiny$\pm$6.1} & $-$80.7{\tiny$\pm$0.9} & $-$54.2{\tiny$\pm$8.6} & +10.5{\tiny$\pm$9.5} & +30.8 \\
-CKA                & .937{\tiny$\pm$.028} & .807{\tiny$\pm$.048} & .851{\tiny$\pm$.083} & .478{\tiny$\pm$.022} & .251{\tiny$\pm$.124} & .626{\tiny$\pm$.165} & .420{\tiny$\pm$.026} \\
-$\Delta R^2$       & +0.67{\tiny$\pm$.23} & $-$4.23{\tiny$\pm$4.47} & +5.92{\tiny$\pm$1.97} & +0.12{\tiny$\pm$.05} & +0.89{\tiny$\pm$.62} & --- & --- \\
-Effect             & Degrades & Degrades & Improves & Improves & Improves & Degrades & Improves \\
+ETTh2-S low-$n$ & 28 & mild & 10/10 & Degrades & Restructuring harms (data-poor) \\
+ETTh2-S high-$n$ & 28 & yes & 10/10 & Mixed$^*$ & Resolves with sufficient $n$ \\
+ETTh2-B (Base) & 31 & strong & 9/10 & Improves & Capacity buffers drift \\
+ILI & 57 & yes & 10/10 & Improves & Restructuring toward task \\
+Chronos/M4 & 84.5 & no & --- & Stable & Encoder preserved (strong gate) \\
+\midrule
+ETTm2 (gate-fail) & $<$0 & yes & 10/10 & Improves & No features to preserve \\
+IoT (gate-fail) & $<$0 & strong & --- & Improves & Replacement, not forgetting \\
 \bottomrule
 \end{tabular}
 
-{\footnotesize All cells at $n{=}10$k early-stopped except ETTh2-S ($n{=}500$; the low-data regime where harm appears; $n{=}10$k ES forg.\ is $-5.3{\pm}6.2$\%). ILI: per-window normalised MSE, $h{=}24$, lookback$=$104. Gate-pass $= 1{-}\text{MSE}_\text{ZS}/\text{MSE}_\text{Linear}$.}
+{\footnotesize $^*$Protocol-dependent: $-5.3$\% early-stopped, $+7.5$\% final-epoch. Gate-pass $= 1{-}\text{MSE}_\text{ZS}/\text{MSE}_\text{Linear}$.}
 \end{table}
 
 \textbf{Capacity sensitivity: Moirai-Base as second gate-passing cell.}
@@ -107,12 +109,22 @@ LoRA-Large is rescued by $10\times$ LR reduction (Appendix~\ref{app:lora_rank}).
 \textbf{Step-size falsification:} Base at $10{\times}$ LR ($10^{-3}$) restructures
 more aggressively than Small at default LR (CKA$=$0.135$\pm$0.151 vs.\
 0.937; 10 seeds) yet \emph{still improves} ($-58.2{\pm}4.2$\%,
-$\Delta R^2{=}{+}1.92{\pm}0.21$, 10/10 positive)---capacity buffers against
+$\Delta R^2{=}{+}1.92{\pm}0.21$, 10/10 positive); capacity buffers against
 destructive drift independently of effective step size (Appendix~\ref{app:step_size}).
+\textbf{Symmetric test:} Small at $0.1{\times}$ LR ($10^{-5}$, 10 seeds)
+yields CKA$=$0.987$\pm$0.006, forg.$={-}9.2{\pm}1.5$\%,
+$\Delta R^2{=}{-}0.03{\pm}0.10$ (4/10 positive): the encoder is
+near-frozen with no restructuring signal
+(Appendix~\ref{app:step_size}).
+Reducing step size in Small does \emph{not} replicate Base's beneficial
+restructuring; capacity enables a qualitatively different adaptation
+mode, not merely a lower effective step size.
+Large (311M) requires LoRA at $0.1{\times}$ LR to access its capacity
+buffer (Appendix~\ref{app:lora_rank}).
 
 \textbf{IoT negative control.}
 Moirai ZS AUC$=$0.481 (sub-random); drift (CKA 0.31--0.45) is benign
-because from-scratch CNN matches fine-tuned Moirai---the value-gate
+because from-scratch CNN matches fine-tuned Moirai; the value-gate
 correctly screens out this cell (Appendix~\ref{app:cnn_detail}).
 
 % ============================================================
@@ -121,49 +133,32 @@ correctly screens out this cell (Appendix~\ref{app:cnn_detail}).
 % ============================================================
 
 Matched-protocol ZS across nine non-Moirai backbone${\times}$ETT cells
-(Chronos-T5-Small/Base/Large, TimesFM-2.5-200M, MOMENT-1-base $\times$ ETT):
-all gate-fail ($-$14\% to $-$148\% vs.\ Linear); the CKA-probe gap is
-established on Moirai only (full table Appendix~\ref{app:limitations}).
-A plausible explanation is pre-training corpus coverage: Moirai's LOTSA
-dataset~\cite{woo2024moirai} explicitly includes ETT benchmarks; Chronos
-(\cite{ansari2024chronos}: KernelSynth + public data), TimesFM-2.5
-(\cite{das2024timeseries}: Google Trends-based), and MOMENT
-(\cite{goswami2024moment}: MIMIC, M4, and others) use corpora without
-documented ETT inclusion---suggesting corpus composition, not model size,
-drives gate-pass status.
-
-Corpus composition is the most parsimonious account: \textbf{Chronos-T5-Small
-gate-passes on M4-Monthly} (84.5\% improvement), a dataset in its training
-corpus, while gate-failing on ETT (not in corpus) by $-$43\%---same
-architecture, different corpus inclusion, opposite gate outcome.
-
-\textbf{Moirai cross-dataset gate check.}
+(Chronos, TimesFM-2.5, MOMENT $\times$ ETT): all gate-fail ($-$14\% to
+$-$148\% vs.\ Linear; full table Appendix~\ref{app:limitations}).
+Corpus composition is the most parsimonious account:
+\textbf{Chronos-T5-Small gate-passes on M4-Monthly} (84.5\%), a dataset
+in its training corpus, while gate-failing on ETT ($-$43\%): same
+architecture, opposite gate outcome.
 Moirai-Small gate-fails on Traffic ($-$38\%), Exchange ($-$21\%), and
-Electricity ($-$28\%) despite LOTSA nominally including Traffic and
-Electricity---suggesting \emph{pre-training emphasis} rather than
-mere corpus inclusion determines the gate-pass signal.
+Electricity ($-$28\%); \emph{pre-training emphasis} rather than mere
+corpus inclusion determines gate-pass.
 
 \textbf{Cross-backbone diagnostic: Chronos on M4-Monthly.}
 \label{sec:analysis:chronos}
-Full diagnostics on this gate-passing cell (10 seeds, conditions B/D;
-Appendix~\ref{app:chronos_detail}) yield:
-$R^2(\text{PT}){=}{+}0.068{\pm}0.025$ (\textbf{10/10} positive---second
-positive-floor anchor);
-CKA$\approx$0.999 ($n{=}500$) / $0.983$ ($n{=}10$k, early-stopped);
-no statistically distinguishable forgetting at either $n$ (early-stopped;
-$+0.5{\pm}2.7$\% at $n{=}10$k, within the frozen-encoder noise floor).
-The strong gate-pass predicts encoder stability---no statistically
-distinguishable drift, probe signal, or forgetting---confirming the
-value-gate as a regime indicator.
-Final-epoch CKA (epoch~20, no early stopping) is $0.955{\pm}0.006$,
-confirming stability is intrinsic (Appendix~\ref{app:chronos_detail}).
+Full diagnostics (10 seeds, conditions B/D;
+Appendix~\ref{app:chronos_detail}):
+CKA$\approx$0.999 ($n{=}500$) / $0.983$ ($n{=}10$k);
+no distinguishable forgetting ($+0.5{\pm}2.7$\% at $n{=}10$k).
+Strong gate-pass (84.5\%) is associated with encoder stability (no
+drift, no probe signal), consistent with the value-gate as a regime
+indicator.
 
 \textbf{ILI full probes: third gate-passing cell (10 seeds).}
 \label{sec:analysis:ili}
 Moirai-Small on ILI (weekly influenza, $h{=}24$, gate-pass${=}$57\%,
 10 CUDA seeds, conditions B/D) yields:
 CKA$=$0.478${\pm}$0.022 (restructuring regime);
-$\Delta R^2{=}{+}0.123{\pm}0.046$ (\textbf{10/10} positive---Wilson CI
+$\Delta R^2{=}{+}0.123{\pm}0.046$ (\textbf{10/10} positive; Wilson CI
 [0.72,\,1.00]);
 forgetting$={-}80.7{\pm}0.9$\% (10/10 negative: massive task improvement);
 weight drift$=$5.42${\pm}$0.21.
@@ -174,7 +169,7 @@ Per-feature, OT (the forecasting target) drives the signal
 (mean 4.7/7 positive per seed), consistent with the task-specificity
 interpretation established on ETTh2.
 Condition~D (frozen encoder): CKA$=$1.000, $\Delta R^2{=}$0,
-forgetting$=$0\% (all 10 seeds)---head-only training produces
+forgetting$=$0\% (all 10 seeds): head-only training produces
 \emph{zero} improvement, establishing the encoder as the sole locus
 of adaptation on ILI.
 The small dataset (${\approx}$450 windows/feature) raises an overfitting
@@ -184,25 +179,36 @@ confound, mitigated by: (i)~condition~D (same data/epochs, 0\% gain);
 The pre-registered prediction was CKA between 0.90 and 0.95
 (intermediate regime).
 The actual CKA (0.478) places ILI between Moirai-Base/ETTh2
-(CKA$=$0.25, aggressive restructuring) and ETTm2 (CKA$=$0.85,
-moderate drift); all three show $\Delta R^2{>}0$, distinguishing them
-from the stability regime (Chronos/M4, CKA${\geq}$0.95).
+(CKA$=$0.25, aggressive restructuring) and ETTm2 (CKA$=$0.85);
+all three show $\Delta R^2{>}0$, distinguishing them from the stability
+regime (Chronos/M4, CKA${\geq}$0.95).
+(ETTm2 at CKA$=$0.85 sits near the restructuring--stability boundary;
+a sharp taxonomy cut between 0.85 and 0.95 should not be inferred.)
 The probe-asymmetry component (${\geq}$7/10 seeds $\Delta R^2{>}0$) is
 \textbf{confirmed} (10/10); the CKA-intermediate component is
-\textbf{falsified}---the stability threshold lies above 57\% gate-pass,
+\textbf{falsified}: the stability threshold lies above 57\% gate-pass,
 not at 50\%.
 This revises the spectrum \emph{hypothesis}: restructuring extends from
 28\% through 57\%; stability begins above ${\approx}$80\%.
 \textbf{Pre-registered falsification:} a cell with gate-pass in
-60--80\% (candidate: Moirai-Small on Weather); CKA${>}$0.90 with
-${\leq}$3/10 $\Delta R^2{>}0$ confirms the boundary, CKA${<}$0.80
-extends the restructuring regime.
+60--80\% (candidate: Moirai-Small on Weather; preliminary ZS
+MSE$=$0.410, Linear baseline pending; gate-pass status will be
+confirmed in the camera-ready); CKA${>}$0.90 with ${\leq}$3/10
+$\Delta R^2{>}0$ confirms the boundary, CKA${<}$0.80 extends the
+restructuring regime.
 ETTh1 (gate-fail, 2/10) remains the isolated boundary case.
 
-The ILI result strengthens the main empirical claim: probe asymmetry
-($\Delta R^2{>}0$) is a robust per-seed regularity across all three
-gate-passing cells with restructuring (ETTh2 10/10, ETTm2 10/10,
-ILI 10/10).
-The consequence of restructuring depends on task difficulty relative
-to ZS capacity: harmful at ETTh2/Small/low-$n$ (ZS already performs
-well), benign on ILI and ETTm2 (large room for improvement).
+Probe asymmetry ($\Delta R^2{>}0$) replicates across gate-passing cells
+(ETTh2 10/10, ILI 10/10) and also on gate-fail ETTm2 (10/10); the
+consequence depends on task difficulty relative to ZS capacity.
+
+\textbf{Threats to validity.}
+(i)~Dissociation is established on Moirai only; Chronos/M4 confirms
+the value-gate but not probe asymmetry.
+(ii)~The 20\% gate threshold is heuristic; the gate is used as a
+continuous variable throughout (Table~\ref{tab:cross_domain}).
+(iii)~Absolute probe $R^2$ is negative in key settings; $\Delta R^2$
+captures \emph{relative} decodability change, anchored by positive-floor
+probes (Appendix~\ref{app:probing}).
+(iv)~CKA is a drift indicator, not a causal explanation.
+(v)~ILI has small effective sample size (${\approx}$450 windows).

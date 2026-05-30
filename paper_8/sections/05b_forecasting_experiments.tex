@@ -17,8 +17,8 @@ To resolve this ambiguity, we replicate the forgetting diagnosis on
 a domain where Moirai's pre-trained features are demonstrably valuable:
 zero-shot Moirai outperforms a Linear baseline by 28\% at $h{=}96$
 and 45\% at $h{=}192$ (Section~\ref{sec:forecasting:gate}).
-If forgetting replicates here---where pre-trained features provide
-measurable advantage---the mechanism is general, not an artefact
+If forgetting replicates here, where pre-trained features provide
+measurable advantage, the mechanism is general, not an artefact
 of low task signal.
 
 % ============================================================
@@ -30,7 +30,7 @@ We require a forecasting benchmark where Moirai zero-shot performance
 substantially exceeds simple baselines, establishing that pre-trained
 features provide genuine value.
 Following \citet{woo2024moirai} Table~6, we evaluate on ETTh2
-(Electricity Transformer Temperature---Hourly, 7 features, 17{,}420
+(Electricity Transformer Temperature, Hourly, 7 features, 17{,}420
 timesteps, standard 12/4/4 month train/val/test split).
 
 \textbf{Gate criterion:} Moirai zero-shot MSE must improve over
@@ -54,7 +54,7 @@ $h=192$ & 0.544 & \textbf{0.299} & $+$45.0\% \\
 \end{center}
 
 Both horizons pass the 20\% gate.
-Pre-trained features are demonstrably useful on this task---unlike
+Pre-trained features are demonstrably useful on this task, unlike
 IoT anomaly detection, where the frozen encoder barely exceeds
 zero-shot (AUC: 0.549 vs.\ 0.481).
 
@@ -102,7 +102,7 @@ Both B (NLL-only) and C (NLL$+$SupCon) show significant forgetting:
 $+$8.9\% and $+$9.0\% at $h{=}96$, increasing to $+$12.6\% and
 $+$13.1\% at $h{=}192$.
 The NLL training loss decreases monotonically throughout, confirming
-that the model is learning---but what it learns destroys the pre-trained
+that the model is learning, but what it learns destroys the pre-trained
 representations that enable accurate zero-shot forecasting.
 
 \textbf{Frozen encoder preserves performance.}

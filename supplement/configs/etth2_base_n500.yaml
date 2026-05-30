@@ -1,0 +1,18 @@
+dataset: ETTh2
+data_path: data/ETTh2.csv
+model_size: base
+max_train_samples: 500
+horizon: 96
+lookback: 96
+epochs: 20
+batch_size: 16
+lr: 1.0e-4
+contrastive_weight: 0.5
+n_temporal_clusters: 8
+features: M
+conditions: [A, B, C, D]
+eval_every: 5
+early_stopping: true
+deterministic: true
+num_samples: 20
+patch_size: 32

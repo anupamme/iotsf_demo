@@ -116,7 +116,7 @@ Moirai generates probabilistic forecasts as a mixture of
 distributions (StudentT, NormalFixedScale, NegativeBinomial,
 LogNormal).  The heavy-tailed components (NegBin, LogNormal) produce
 extreme right-tail outliers when using the \emph{mean} of forecast
-samples as the point prediction --- for ETTh2 at $h{=}192$, sample
+samples as the point prediction; for ETTh2 at $h{=}192$, sample
 means reached 21{,}431 against a target maximum of 45.5, inflating
 MSE from 0.30 to 8.58.
 
@@ -131,7 +131,7 @@ while preserving the distributional forecast's central tendency.
 % ============================================================
 
 \textbf{Dataset.}
-ETTh2 (Electricity Transformer Temperature---Hourly, dataset 2)
+ETTh2 (Electricity Transformer Temperature, Hourly, dataset 2)
 contains 17{,}420 timesteps of 7 features (HUFL, HULL, MUFL, MULL,
 LUFL, LULL, OT) recorded hourly from electrical transformers.
 We use the standard chronological split: 12 months training,
@@ -192,7 +192,7 @@ $+$30\% across $r \in \{8, 16, 32, 64\}$.
 Table~\ref{tab:lora_large_hp} extends the sweep to $\alpha$, target-module
 scope, and LR (all at $r{=}8$, seed 42): varying $\alpha \in \{8,16,32\}$ and
 module scope provides no rescue, but reducing LR to $1{\times}10^{-5}$ does
-(forg.$=-8.5\pm0.7\%$, CKA$=$0.989$\pm$0.003, 5~seeds) --- the Small-recipe
+(forg.$=-8.5\pm0.7\%$, CKA$=$0.989$\pm$0.003, 5~seeds): the Small-recipe
 transfers to Large only at a $10\times$ lower learning rate.
 
 \begin{table}[h]
@@ -202,7 +202,7 @@ Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq$0.979.
 Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering
 Moirai-Small's negative forgetting.
 Mean $\pm$ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large
-single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported---point estimates only),
+single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only),
 3 seeds for $r{=}8$.}
 \label{tab:lora_rank}
 \small
@@ -264,7 +264,7 @@ the default learning rate (LR$=$1e-3 vs.\ default 1e-4) on ETTh2 ($h{=}96$,
 $n{=}10$k, early-stopped, 7 CUDA-deterministic seeds).
 
 \textbf{Prediction (step-size hypothesis):} Base at 10$\times$ LR should
-mirror Small/Large at default LR---destructive forgetting ($+$10--25\%),
+mirror Small/Large at default LR: destructive forgetting ($+$10--25\%),
 since the per-parameter update magnitude now exceeds the threshold that
 causes harm in smaller models.
 
@@ -284,7 +284,7 @@ task-relevant structure.
 \centering
 \caption{Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k,
 condition~B, early-stopped). Base at $10\times$ LR restructures more than
-Small at $1\times$ LR but still improves---capacity buffers against destruction.}
+Small at $1\times$ LR but still improves; capacity buffers against destruction.}
 \label{tab:step_size}
 \small
 \begin{tabular}{lccccc}
@@ -406,8 +406,8 @@ forg.$<0$ at $n{\geq}2$k.
 Raw $\Delta R^2$ is not directly comparable across datasets because
 it depends on the ZS Ridge floor depth.
 On ETTm2 ($n{=}10$k, CUDA $k{=}10$), the ZS Ridge floor is
-$R^2(\text{ZS}){=}-24.52$ --- 3.5$\times$ deeper than ETTh2's
-$-6.90$ --- which proportionally inflates the raw $\Delta R^2$
+$R^2(\text{ZS}){=}-24.52$, 3.5$\times$ deeper than ETTh2's
+$-6.90$, which proportionally inflates the raw $\Delta R^2$
 ($+$5.43 on ETTm2 vs.\ $+$0.67 on ETTh2).
 The cross-dataset comparable statistic is the \emph{sign test}:
 both cells give \textbf{10/10} positive $\Delta R^2$.
@@ -419,7 +419,7 @@ same encoders as the main-text MLP sweep).  The gain is concentrated
 on the \emph{trained} 96-step head: $\Delta R^2{=}{+}0.116{\pm}0.153$
 ($k{=}4$).  On the untrained \emph{forecast48} head (first 48 steps
 of the 96-step target, a sub-horizon the encoder was not directly
-optimised for), $\Delta R^2 {\approx} 0.000{\pm}0.163$---the gain
+optimised for), $\Delta R^2 {\approx} 0.000{\pm}0.163$: the gain
 vanishes at the horizon boundary.  On the untrained \emph{delta1}
 head, a GBM probe gives $R^2(\text{PT}){=}{+}0.059{>}0$, establishing
 a positive-floor reference, with $\Delta R^2{=}{-}0.056{\pm}0.030$
@@ -466,7 +466,7 @@ that the ZS delta1 Ridge baseline is very negative ($R^2(\text{ZS}){\approx}{-}2
 while the FT encoder partially encodes next-step changes as a side-effect of
 96-step NLL optimisation.  The diagnostic signal is the GBM result
 (\S\ref{sec:forecasting:probehead}): GBM gives $R^2(\text{PT}){=}{+}0.059{>}0$
-and $\Delta R^2{=}{-}0.056$, yielding $R^2(\text{FT}){=}{+}0.003$---
+and $\Delta R^2{=}{-}0.056$, yielding $R^2(\text{FT}){=}{+}0.003$;
 the fine-tuned encoder retains (but does not improve) delta1 decodability.
 With a positive floor, decodability \emph{falls} on the untrained readout,
 confirming task-alignment.
@@ -483,7 +483,7 @@ Result: $R^2(\text{ZS}){=}{-}0.030$ (negative floor) and per-seed
 $\Delta R^2{=}\{+0.025, -0.060, +0.026, +0.030, +0.016\}$ (4/5 positive,
 mean $+0.007\pm0.031$). \emph{Substantive negative:} the only positive-floor
 head (ETTh2 delta1/GBM, $R^2(\text{ZS}){=}{+}0.059$) gives $\Delta R^2{=}{-}0.056$
---- no positive-floor $+$ $\Delta R^2{>}0$ cell was found.
+; no positive-floor $+$ $\Delta R^2{>}0$ cell was found.
 The $\Delta R^2{>}0$ signal on the trained 96-step head operates in a
 deeply-negative-$R^2$ regime; see Appendix~\ref{app:noisefloor} for probe
 noise-floor analysis.
@@ -674,7 +674,7 @@ rules out the loss-function confound.  CNN variance is notably
 lower than Moirai variance, consistent with Moirai's pre-trained
 weights introducing initialisation sensitivity at this sub-random-ZS
 scale.  This is the expected outcome when pre-trained features
-carry no task-relevant signal --- a from-scratch architecture with
+carry no task-relevant signal; a from-scratch architecture with
 correct inductive bias matches or exceeds a fine-tuned foundation
 model.
 
@@ -802,7 +802,7 @@ We also ran random-init at $\alpha{=}100$ (same 10 seeds) to confirm the
 within-$\alpha$ argument: at $\alpha{=}100$, random-init gives
 $\Delta R^2{=}{-0.011}{\pm}0.018$ (range $[-0.032,\,+0.009]$), shrinking to
 near-zero as expected from heavy $\ell_2$ regularisation.
-Condition~B at $\alpha{=}100$ gives $\Delta R^2{=}{+}0.04$ --- also near-zero.
+Condition~B at $\alpha{=}100$ gives $\Delta R^2{=}{+}0.04$, also near-zero.
 The within-$\alpha$ comparison is therefore valid at every $\alpha$: both
 encoders converge toward zero under heavy regularisation; the large
 separation at $\alpha{=}1.0$ (condition~B $+0.20$--$+0.67$ vs.\ random-init
@@ -935,7 +935,7 @@ The key dissociation is in \emph{forgetting}: $N{=}3$ gives forg.\ $-6.5{\pm}4.0
 unfreeze, condition~B) gives $-6.7{\pm}6.3$\% (task substantially better).
 The $N{=}5$ final-epoch forgetting of $+31.8$\% reflects a single seed that overshot
 (val MSE bottoms at epoch~7 before diverging); its best-epoch MSE is $0.132$, essentially
-unchanged from ZS---qualitatively consistent with the $N{=}5$k trajectory
+unchanged from ZS, qualitatively consistent with the $N{=}5$k trajectory
 analysis (Fig.~\ref{fig:dissociation}, right panel).
 $\Delta R^2$ and forgetting are therefore not co-determined by the same
 encoder layers.  The top-3 of 6 layers are sufficient to restructure the
@@ -958,7 +958,7 @@ but the \emph{lower 3 layers} are required for task-performance recovery
 ($N{=}3$: forg.\ $-6.5$\%, 9/10 negative; $N{=}6$: forg.\ $-6.7$\%).
 Both $N{=}3$ and $N{=}6$ operate in the same deeply-negative-$R^2$ regime;
 the $\Delta R^2{>}0$ signal at $N{=}3$ is a geometric reorientation, not a
-decodability gain---consistent with the main-text framing of frozen-probe
+decodability gain, consistent with the main-text framing of frozen-probe
 $\Delta R^2$ as directional evidence, not absolute evidence.
 (Probe-design robustness of Appendix~\ref{app:noisefloor} applies to both.)
 
@@ -1032,7 +1032,7 @@ Seeds neg/pos & 4/10 neg forg & --- & 3/10 pos & \textbf{10/10 pos} \\
 
 At $n{=}500$ the encoder is essentially unchanged (CKA$\approx$1).
 The positive $R^2(\text{PT})$ confirms that Chronos's pre-trained T5
-encoder representations carry decodable forecasting structure---providing
+encoder representations carry decodable forecasting structure, providing
 a second positive-floor anchor distinct from Moirai.
 
 \textbf{Condition B (full fine-tune), $n{=}10$k (10 seeds).}
@@ -1086,7 +1086,7 @@ The mild CKA decline from 0.999 (early-stopped) to 0.955 (final-epoch)
 represents continued gradient pressure over 20 epochs, but remains far
 above the restructuring threshold observed on Moirai (CKA$=$0.52 on Small,
 0.25 on Base).
-Final-epoch forgetting is $+3.4{\pm}5.2$\%---mild degradation vs.\ the
+Final-epoch forgetting is $+3.4{\pm}5.2$\%, mild degradation vs.\ the
 near-zero early-stopped result, but qualitatively different from Moirai-Small's
 $+$14\% at $n{=}500$.
 
@@ -1097,7 +1097,7 @@ objective.
 We do \emph{not} interpret this as ``no drift''; rather, the drift is
 quantitatively minor (CKA${>}$0.94) and functionally benign
 (final-epoch forgetting +3.4\% vs.\ Moirai-Small's +14\% at $n{=}500$).
-The value-gate predicts this: when pre-trained features are already
+The value-gate is consistent with this: when pre-trained features are already
 near-optimal (84.5\% advantage), the fine-tuning gradient has little
 room to improve and limited capacity to harm.
 
@@ -1123,12 +1123,12 @@ orthogonal$<$0), forgetting is capacity- and protocol-dependent.
 \emph{Strong gate-pass} (Chronos/M4, 84.5\%): encoder is stable
 (CKA$\geq$0.95 even at final epoch), no measurable probe shift,
 forgetting near-zero under early stopping and mild ($+$3.4\%) at
-final epoch---fine-tuning is unnecessary but not harmful.
+final epoch; fine-tuning is unnecessary but not harmful.
 Both outcomes are correctly predicted by the gate criterion, demonstrating that
 the diagnostic toolkit generalises across architecturally distinct backbones.
 The probe asymmetry mechanism (task-specific $\Delta R^2{>}0$) requires encoder
 restructuring to produce a measurable signal; on Chronos, encoder stability
-means the asymmetry is not observable---this is a correct null prediction,
+means the asymmetry is not observable; this is a correct null prediction,
 not a failure of the diagnostic.
 
 % ============================================================
