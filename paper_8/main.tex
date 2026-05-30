@@ -1,5 +1,5 @@
 % ============================================================
-% NeurIPS 2026 Submission
+% Preprint
 % "Fighting AI-Powered Threats with AI-Generated Defense"
 % ============================================================
 % Use neurips_2025.sty until neurips_2026.sty is released.
@@ -13,7 +13,7 @@
 % the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
 % 1. "main" option is used for the Main Track
 % \usepackage{neurips_2026}
-\usepackage[main]{neurips_2026}
+\usepackage[preprint]{neurips_2026}
 % 2. "position" option is used for the Position Paper Track
 %  \usepackage[position]{neurips_2026}
 % 3. "eandd" option is used for the Evaluations & Datasets Track
@@ -70,7 +70,7 @@
 \pgfplotsset{compat=1.18}
 
 % hyperref must load after most other packages
-\usepackage[draft,hidelinks]{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 % ---- Macros ----
 \newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
@@ -78,8 +78,8 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
 
-\title{Drift--Utility Dissociation in Time-Series Foundation Model Fine-Tuning:\\
-       Methodology and a Moirai Case Study}
+\title{Diagnosing Representation Drift in Time-Series Foundation Model Fine-Tuning:\\
+       A Moirai Case Study}
 
 \author{
   Anupam ~Mediratta \\
@@ -94,27 +94,23 @@
 
 % ============================================================
 \begin{abstract}
-We contribute a \textbf{reusable diagnostic methodology} for assessing
-representation drift during fine-tuning of time-series foundation models,
-comprising a value-gate screening criterion, controlled-comparison design,
-and task-orthogonal probe protocol.
-On Moirai/ETTh2 (gate-pass 28\%), task-orthogonal probe asymmetry
-($\Delta R^2{>}0$ on the trained head, ${<}0$ on positive-floor probes;
-10/10 seeds) establishes that fine-tuning restructures toward the
-objective rather than improving generally.
-Restructuring is generally beneficial for gate-passing cells;
-harm occurs only in the narrow low-$n$/small-capacity regime
-(1 of 7 cells tested).
-Cross-backbone validation on Chronos-T5-Small/M4-Monthly (gate-pass
-84.5\%) confirms the value-gate as a regime indicator: strong gate-pass
-predicts encoder stability (CKA${\geq}$0.95), no probe signal, and no
-forgetting.
-On ILI (gate-pass 57\%), full probes show restructuring with beneficial
-outcome (CKA$=$0.478, $\Delta R^2{>}0$ in 10/10 seeds, forgetting
-$-$80.7\%), extending the probe-asymmetry regularity to a third
-gate-passing cell and revising the predicted stability threshold upward.
-\textbf{Practitioner takeaway:} apply the value-gate before investing
-in drift diagnosis; use LoRA with reduced LR on larger variants.
+We propose a \textbf{diagnostic protocol} for representation drift during
+fine-tuning of time-series foundation models.
+The protocol first tests whether zero-shot features are valuable relative
+to a linear baseline (value-gate), then uses controlled encoder comparisons
+and task-orthogonal probes to distinguish harmful forgetting from useful
+restructuring.
+In a Moirai case study spanning three model sizes and multiple datasets,
+fine-tuning often restructures representations toward the downstream
+objective, but the utility consequence depends on sample size and model
+capacity: Moirai-Small degrades in low-data ETTh2, while Moirai-Base and
+ILI fine-tuning improve despite substantial drift.
+Cross-backbone experiments (Chronos-T5-Small on M4-Monthly) confirm that
+the value-gate serves as a screening heuristic for when preservation-focused
+drift diagnosis is warranted.
+These results suggest that drift alone is insufficient evidence of harm;
+practitioners should first establish pre-training value, then assess
+whether drift affects task-relevant structure.
 \end{abstract}
 
 % ============================================================
@@ -130,5 +126,5 @@ in drift diagnosis; use LoRA with reduced LR on larger variants.
 \bibliography{bibliography}
 \input{sections/appendix}
 \newpage
-\input{checklist}
+% \input{checklist}
 \end{document}

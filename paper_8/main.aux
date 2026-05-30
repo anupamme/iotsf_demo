@@ -25,9 +25,9 @@
 \citation{woo2024moirai}
 \citation{khosla2020supcon}
 \citation{kornblith2019cka}
+\citation{zhou2021informer}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Fine-Tuning Protocol}{3}{section.3}\protected@file@percent }
 \newlabel{sec:method}{{3}{3}{Fine-Tuning Protocol}{section.3}{}}
-\citation{zhou2021informer}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Notation summary for probe-related quantities.}}{4}{table.caption.2}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{tab:notation}{{1}{4}{Notation summary for probe-related quantities}{table.caption.2}{}}
@@ -53,17 +53,13 @@
 \newlabel{sec:forecasting:layerwise}{{4.5}{7}{Layer-Wise Localisation: Probe Shift and Task Recovery Are Separable}{subsection.4.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Cross-Domain Analysis and Discussion}{7}{section.5}\protected@file@percent }
 \newlabel{sec:analysis}{{5}{7}{Cross-Domain Analysis and Discussion}{section.5}{}}
-\citation{woo2024moirai}
-\citation{ansari2024chronos}
-\citation{das2024timeseries}
-\citation{goswami2024moment}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Cross-setting overview (cond.\ B; mean$\pm $std). All cells use Moirai-Small except ETTh2-B (Base) and ETTh2-L (Large). ILI uses $h{=}24$; all others $h{=}96$.}}{8}{table.caption.6}\protected@file@percent }
-\newlabel{tab:cross_domain}{{4}{8}{Cross-setting overview (cond.\ B; mean$\pm $std). All cells use Moirai-Small except ETTh2-B (Base) and ETTh2-L (Large). ILI uses $h{=}24$; all others $h{=}96$}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Non-Moirai Backbones: All Nine Cells Gate-Fail}{8}{subsection.5.1}\protected@file@percent }
-\newlabel{sec:forecasting:nonmoirai}{{5.1}{8}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95; Asym.$=$probe asymmetry ($\Delta R^2{>}0$ majority). All Moirai-Small unless noted. Full numerics in text.}}{8}{table.caption.6}\protected@file@percent }
+\newlabel{tab:cross_domain}{{4}{8}{Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95; Asym.$=$probe asymmetry ($\Delta R^2{>}0$ majority). All Moirai-Small unless noted. Full numerics in text}{table.caption.6}{}}
 \bibstyle{plainnat}
 \bibdata{bibliography}
 \bibcite{andreassen2023evolution}{{1}{2023}{{Andreassen et~al.}}{{Andreassen, Bahri, Neyshabur, and Roelofs}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Non-Moirai Backbones: All Nine Cells Gate-Fail}{9}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:forecasting:nonmoirai}{{5.1}{9}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
 \newlabel{sec:analysis:chronos}{{5.1}{9}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
 \newlabel{sec:analysis:ili}{{5.1}{9}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{9}{section.6}\protected@file@percent }
@@ -101,14 +97,14 @@
 \newlabel{tab:mitigation_spectrum}{{6}{14}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100}{table.caption.9}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {F}LoRA Rank and Hyperparameter Sensitivity}{14}{appendix.F}\protected@file@percent }
 \newlabel{app:lora_rank}{{F}{14}{LoRA Rank and Hyperparameter Sensitivity}{appendix.F}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported---point estimates only), 3 seeds for $r{=}8$.}}{14}{table.caption.10}\protected@file@percent }
-\newlabel{tab:lora_rank}{{7}{14}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported---point estimates only), 3 seeds for $r{=}8$}{table.caption.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only), 3 seeds for $r{=}8$.}}{14}{table.caption.10}\protected@file@percent }
+\newlabel{tab:lora_rank}{{7}{14}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only), 3 seeds for $r{=}8$}{table.caption.10}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {G}Step-Size Falsification: Base at $10{\times }$ LR}{14}{appendix.G}\protected@file@percent }
 \newlabel{app:step_size}{{G}{14}{Step-Size Falsification: Base at $10{\times }$ LR}{appendix.G}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}}{15}{table.caption.11}\protected@file@percent }
 \newlabel{tab:lora_large_hp}{{8}{15}{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail}{table.caption.11}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves---capacity buffers against destruction.}}{15}{table.caption.12}\protected@file@percent }
-\newlabel{tab:step_size}{{9}{15}{Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves---capacity buffers against destruction}{table.caption.12}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves; capacity buffers against destruction.}}{15}{table.caption.12}\protected@file@percent }
+\newlabel{tab:step_size}{{9}{15}{Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves; capacity buffers against destruction}{table.caption.12}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {H}CKA Calibration: Random-Initialisation Baseline}{15}{appendix.H}\protected@file@percent }
 \newlabel{app:cka_calibration}{{H}{15}{CKA Calibration: Random-Initialisation Baseline}{appendix.H}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure.}}{15}{table.caption.13}\protected@file@percent }
@@ -146,10 +142,4 @@
 \newlabel{app:ili_gate}{{O.1}{24}{ILI Gate Check}{subsection.O.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces ILI per-seed results (condition B, Moirai-Small, $h{=}24$, lookback$=$104). Aggregate $\Delta R^2$ is the mean across 7 univariate features.}}{24}{table.caption.19}\protected@file@percent }
 \newlabel{tab:ili_perseed}{{15}{24}{ILI per-seed results (condition B, Moirai-Small, $h{=}24$, lookback$=$104). Aggregate $\Delta R^2$ is the mean across 7 univariate features}{table.caption.19}{}}
-\citation{zhou2021informer}
-\citation{woo2024moirai}
-\citation{zhou2021informer}
-\citation{ansari2024chronos}
-\citation{das2024timeseries}
-\citation{goswami2024moment}
-\gdef \@abspage@last{32}
+\gdef \@abspage@last{25}
