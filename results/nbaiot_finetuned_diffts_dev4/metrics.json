@@ -1,0 +1,223 @@
+{
+  "overall": {
+    "f1": {
+      "mean": 0.9724517906336088,
+      "std": 0.00017470501875958488
+    },
+    "false_positive_rate": {
+      "mean": 0.951159951159951,
+      "std": 0.004568568237819244
+    },
+    "roc_auc": {
+      "mean": 0.9386783369259343,
+      "std": 0.013820505650090093
+    },
+    "precision": {
+      "mean": 0.9639452004072943,
+      "std": 0.0001731767743577852
+    },
+    "recall": {
+      "mean": 0.9811098549086114,
+      "std": 0.0001762604761057779
+    }
+  },
+  "per_attack": {
+    "gafgyt_combo": {
+      "f1": {
+        "mean": 0.7772708558136779,
+        "std": 0.0010440205563717246
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9884193144105039,
+        "std": 0.0012663246209040186
+      },
+      "n_attack_windows": 454
+    },
+    "gafgyt_junk": {
+      "f1": {
+        "mean": 0.6279753498421292,
+        "std": 0.0011185873179934338
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9814142619572483,
+        "std": 0.0012301294213698485
+      },
+      "n_attack_windows": 221
+    },
+    "gafgyt_scan": {
+      "f1": {
+        "mean": 0.5206486869650933,
+        "std": 0.02773607517649156
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.555307979271113,
+        "std": 0.012977380418590386
+      },
+      "n_attack_windows": 217
+    },
+    "gafgyt_tcp": {
+      "f1": {
+        "mean": 0.84663505125439,
+        "std": 0.0003533956325623567
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9674247682546439,
+        "std": 0.00829180978627746
+      },
+      "n_attack_windows": 723
+    },
+    "gafgyt_udp": {
+      "f1": {
+        "mean": 0.862978067517052,
+        "std": 0.0010451704408665683
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.966908797417272,
+        "std": 0.0071990327526746025
+      },
+      "n_attack_windows": 826
+    },
+    "mirai_ack": {
+      "f1": {
+        "mean": 0.8409952249002973,
+        "std": 0.0011983292000586085
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9598014112782045,
+        "std": 0.010509393418991765
+      },
+      "n_attack_windows": 711
+    },
+    "mirai_scan": {
+      "f1": {
+        "mean": 0.8592681015123521,
+        "std": 0.00390148501131349
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.8961635809596254,
+        "std": 0.04727044101181428
+      },
+      "n_attack_windows": 809
+    },
+    "mirai_syn": {
+      "f1": {
+        "mean": 0.8706585527686325,
+        "std": 0.0012754009355338042
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9687055533042518,
+        "std": 0.006628665794077961
+      },
+      "n_attack_windows": 922
+    },
+    "mirai_udp": {
+      "f1": {
+        "mean": 0.9155648399433377,
+        "std": 0.0018584382981220642
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.9582076765175357,
+        "std": 0.009816586710423764
+      },
+      "n_attack_windows": 1562
+    },
+    "mirai_udpplain": {
+      "f1": {
+        "mean": 0.8025961082196362,
+        "std": 0.0016124292850881131
+      },
+      "false_positive_rate": {
+        "mean": 0.951159951159951,
+        "std": 0.004568568237819244
+      },
+      "roc_auc": {
+        "mean": 0.8883586918452212,
+        "std": 0.0280562903869917
+      },
+      "n_attack_windows": 631
+    }
+  },
+  "meta": {
+    "device": "philips_b120n10",
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "n_seeds": 3,
+    "attack_types": [
+      "mirai_scan",
+      "mirai_ack",
+      "mirai_syn",
+      "mirai_udp",
+      "mirai_udpplain",
+      "gafgyt_scan",
+      "gafgyt_junk",
+      "gafgyt_tcp",
+      "gafgyt_udp",
+      "gafgyt_combo"
+    ],
+    "feature_proxy": [
+      "flow_duration",
+      "fwd_pkts_tot",
+      "bwd_pkts_tot",
+      "fwd_data_pkts_tot",
+      "bwd_data_pkts_tot",
+      "fwd_pkts_per_sec",
+      "bwd_pkts_per_sec",
+      "flow_pkts_per_sec",
+      "fwd_byts_b_avg",
+      "bwd_byts_b_avg",
+      "fwd_iat_mean",
+      "bwd_iat_mean"
+    ],
+    "n_benign_train_windows": 1096,
+    "n_benign_val_windows": 273,
+    "n_attack_windows": 7076,
+    "fine_tuning": {
+      "method": "nbaiot_benign_diffts",
+      "negative_type": "diffts",
+      "noise_sigma": null,
+      "contrastive_weight": 0.5,
+      "epochs": 5,
+      "batch_size": 32,
+      "learning_rate": 0.0001
+    }
+  }
+}

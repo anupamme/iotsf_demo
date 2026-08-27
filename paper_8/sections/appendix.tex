@@ -1,0 +1,1213 @@
+% ============================================================
+% Consolidated Appendix (Moirai case study)
+% ============================================================
+\newpage
+\appendix
+
+% ============================================================
+\section{Extended Limitations and Future Work}
+\label{app:limitations}
+% (Summary in main body, \S\ref{sec:limitations}.)
+% ============================================================
+
+\textbf{(1) Single-backbone scope of the dissociation claim.}
+The drift--utility dissociation is established on the \emph{Moirai
+family} only (Small 13.8M, Base 91M, Large 311M across ETTh1, ETTh2,
+ETTm2).  We attempted three further backbones as second-model
+controls across three ETT datasets:
+
+\begin{center}
+\small
+\begin{tabular}{llccc}
+\toprule
+Backbone & Dataset & ZS MSE & Linear MSE & Advantage \\
+\midrule
+Chronos-T5-Small  & ETTh2 & 0.304 & 0.213 & $-$42.6\% \\
+Chronos-T5-Small  & ETTh1 & 0.118 & 0.092 & $-$28.8\% \\
+Chronos-T5-Small  & ETTm2 & 0.188 & 0.110 & $-$70.2\% \\
+Chronos-T5-Base   & ETTh2 & 0.286 & 0.213 & $-$34.3\% \\
+Chronos-T5-Large  & ETTh2 & 0.288 & 0.213 & $-$35.2\% \\
+TimesFM-2.5-200M  & ETTh2 & 0.242 & 0.213 & $-$13.6\% \\
+TimesFM-2.5-200M  & ETTh1 & 0.105 & 0.092 & $-$13.9\% \\
+TimesFM-2.5-200M  & ETTm2 & 0.190 & 0.110 & $-$72.6\% \\
+MOMENT-1-base     & ETTh2 & 0.528 & 0.213 & $-$148\%  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All nine backbone$\times$dataset cells gate-fail (ZS under-performs
+the Linear baseline by 13\% to 148\%), consistent with ETT-family
+distributions being outside the pre-training coverage of these
+backbones at these sizes.  The Chronos capacity sweep
+(Chronos-T5-Small/Base/Large on ETTh2) confirms the gap is
+size-invariant: scaling from Small (210M) to Large (710M)
+yields no improvement ($-$42.6\% $\to$ $-$34.3\% $\to$ $-$35.2\%).
+TimesFM-2.5-200M and MOMENT-1-base gate-fail across all tested datasets.
+We interpret this pattern as a substantive finding about
+\emph{backbone-specific ETT coverage} rather than evidence against
+generality of the dissociation: matched-protocol ZS under-performance
+on a value-gate design means fine-tuning these backbones on ETT
+cannot meaningfully distinguish drift-as-forgetting from
+drift-as-adaptation (there is no valuable feature to forget).  A
+gate-passing second backbone on a different dataset (Traffic, ILI,
+Exchange, or a model with explicit ETT pre-training coverage)
+remains the most direct path to a multi-backbone replication and
+is the highest-priority future-work direction.
+
+\textbf{(2) Sample-sweep depth and seed count.}
+The central sample-size sweep (Table~\ref{tab:sample_sweep}) covers
+ETTh2 at $n \in \{500, 1\text{k}, 2\text{k}, 5\text{k}, 10\text{k}\}$.
+At $n{=}10$k we report the CUDA 10-seed deterministic early-stopped result:
+$k{=}10$ seeds (42, 101, 123, 202, 303, 456, 777, 789, 888, 999),
+all completed (no NaN); \texttt{--deterministic} flag
+(\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8}, \texttt{cudnn.deterministic=True},
+seeded DataLoader, PYTHONHASHSEED).
+Forg.\ $-$5.3$\pm$6.2\%, 7/10 negative; Ridge $\Delta R^2{=}{+}$0.67$\pm$0.23,
+\textbf{10/10} positive; mean best epoch $4.2{\pm}1.4$.
+The three near-zero positive-forgetting seeds (123: $+$1.8\%, 456: $+$4.4\%, 789: $+$0.4\%)
+follow the $n{=}5$k overshoot pattern (Fig.~\ref{fig:dissociation}, right panel).
+For comparison, MPS early-stopped $k{=}10$ gave $-$5.7$\pm$10.4\% (8/10 neg,
+9/10 $\Delta R^2{>}0$); a second early-stopped run ($k{=}5$) gave
+$-$11.7$\pm$5.3\% (all 5 negative); final-epoch $k{=}5$ gave $+$7.5$\pm$8.2\%.
+Moirai-Base is now evaluated at both $n{=}500$ and $n{=}10$k (10 seeds each);
+full $n$-sweep on Moirai-Large is future work.
+
+\textbf{(3) Probe-head capacity.}
+Ridge and MLP absolute $R^2(\text{FT})$ remains negative on the
+96-step-ahead head at all sampled $n$.
+The delta1/GBM probe gives $R^2(\text{PT}){=}{+}0.059$ but
+$\Delta R^2{=}{-}0.056$ (\S\ref{sec:forecasting:probehead}).
+$\Delta R^2$ on the 96-step head is a \emph{relative} signal;
+Appendix~\ref{app:noisefloor} confirms its direction is not
+a probe-design artefact.
+
+\textbf{(4) Sample-sweep on other sizes.}
+Moirai-Large is evaluated at $n{=}500$ only; full $n$-sweep is future work.
+\textbf{(5) IoT scope.}
+IoT is a negative control (ZS AUC 0.481, sub-random); fine-tuning replaces
+rather than preserves pre-trained features.
+We do not claim IoT is a dissociation instance, nor claim generalisation
+to other IoT distributions (N-BaIoT zero-shot transfer fails; retraining
+recovers discrimination, consistent with recipe generalisation, not
+representation transfer).
+
+% ============================================================
+\section{uni2ts PackedStdScaler Patch Details}
+\label{app:scaler_patch}
+% ============================================================
+
+We identified and patched an in-place tensor mutation in
+\texttt{uni2ts}'s \texttt{PackedStdScaler} that silently detaches
+autograd on losses depending on scaled statistics.  The issue arises
+when \texttt{PackedStdScaler.transform} performs an in-place
+\texttt{.copy\_()} that breaks the gradient tape.  Our patch replaces
+the in-place write with a differentiable \texttt{torch.where}
+operation.  \emph{All} Moirai fine-tuning results in this paper use
+the patched scaler (released with our code); unpatched
+\texttt{uni2ts} runs may converge differently and we have observed
+silent non-convergence on \texttt{uni2ts@main}.  We recommend
+upstreaming this patch to \texttt{uni2ts}.
+
+% ============================================================
+\section{Moirai Median Forecast Selection}
+\label{app:moirai_median}
+% ============================================================
+
+Moirai generates probabilistic forecasts as a mixture of
+distributions (StudentT, NormalFixedScale, NegativeBinomial,
+LogNormal).  The heavy-tailed components (NegBin, LogNormal) produce
+extreme right-tail outliers when using the \emph{mean} of forecast
+samples as the point prediction; for ETTh2 at $h{=}192$, sample
+means reached 21{,}431 against a target maximum of 45.5, inflating
+MSE from 0.30 to 8.58.
+
+We use the \emph{median} of 20 forecast samples as the robust point
+prediction, consistent with the Moirai paper's evaluation protocol.
+This eliminates sensitivity to the heavy-tailed mixture components
+while preserving the distributional forecast's central tendency.
+
+% ============================================================
+\section{ETTh2 Forecasting Details}
+\label{app:etth2_details}
+% ============================================================
+
+\textbf{Dataset.}
+ETTh2 (Electricity Transformer Temperature, Hourly, dataset 2)
+contains 17{,}420 timesteps of 7 features (HUFL, HULL, MUFL, MULL,
+LUFL, LULL, OT) recorded hourly from electrical transformers.
+We use the standard chronological split: 12 months training,
+4 months validation, 4 months test.
+
+\textbf{Training protocol.}
+For NLL training, we concatenate context (96 timesteps) and target
+(96 or 192 timesteps) as input to Moirai's \texttt{\_val\_loss}
+with fixed patch size 32.
+For evaluation, we use extended lookback sequences
+(context\_length $+$ prediction\_length timesteps) with
+\texttt{patch\_size='auto'} and take the median of 20 forecast samples.
+All data is fed to Moirai in raw scale (Moirai's internal
+PackedStdScaler handles instance normalization); predictions and targets
+are then normalized using training-set mean and standard deviation
+for MSE/MAE computation, matching the standard time-series forecasting
+evaluation protocol.
+
+\textbf{Temporal contrastive labels.}
+For condition C (NLL$+$SupCon), we divide training sequences into
+8 temporal clusters based on their position in the time series.
+Sequences within the same cluster are positive pairs; sequences from
+different clusters are negatives.
+This encourages the encoder to maintain temporal-regime awareness.
+
+\textbf{Horizon selection.}
+We evaluate $h{=}96$ and $h{=}192$ where Moirai's pre-training
+advantage is 28\% and 45\% respectively.
+Horizons $h{=}336$ and $h{=}720$ exceed Moirai-Small's
+\texttt{max\_seq\_len}$=$512 constraint when combined with the
+required extended lookback and are omitted.
+
+% ============================================================
+\section{ETTh2 Drift Diagnosis and Mitigation (Full Tables)}
+\label{app:full_tables}
+% ============================================================
+
+This section contains the full tables referenced in \S\ref{sec:forecasting}.
+Table~\ref{tab:forecasting_forgetting} shows the representation drift
+diagnosis; Table~\ref{tab:mitigation_spectrum} shows the mitigation spectrum.
+
+\input{tables/forecasting_forgetting}
+
+\input{tables/mitigation_spectrum}
+
+% ============================================================
+\section{LoRA Rank and Hyperparameter Sensitivity}
+\label{app:lora_rank}
+% ============================================================
+
+Table~\ref{tab:lora_rank} shows LoRA on \textbf{Moirai-Small} is robust to
+rank ($r \in \{4, 8, 16, 32\}$): all ranks achieve CKA$\geq$0.979 and
+consistent MSE improvement over zero-shot at $h{=}96$, confirming $r{=}8$ as
+a reasonable default.
+On \textbf{Moirai-Large} (seed 42, $h{=}96$, $n{=}500$), rank escalation
+alone does \emph{not} rescue the failure mode: forgetting stays $+$19 to
+$+$30\% across $r \in \{8, 16, 32, 64\}$.
+Table~\ref{tab:lora_large_hp} extends the sweep to $\alpha$, target-module
+scope, and LR (all at $r{=}8$, seed 42): varying $\alpha \in \{8,16,32\}$ and
+module scope provides no rescue, but reducing LR to $1{\times}10^{-5}$ does
+(forg.$=-8.5\pm0.7\%$, CKA$=$0.989$\pm$0.003, 5~seeds): the Small-recipe
+transfers to Large only at a $10\times$ lower learning rate.
+
+\begin{table}[h]
+\centering
+\caption{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples).
+Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq$0.979.
+Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering
+Moirai-Small's negative forgetting.
+Mean $\pm$ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large
+single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only),
+3 seeds for $r{=}8$.}
+\label{tab:lora_rank}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+Backbone & Rank & $h$ & MSE & Forg.\% & CKA & Seeds \\
+\midrule
+Small & 4  & 96  & .116{\tiny$\pm$.001} & $-$9.5{\tiny$\pm$0.9}  & .992{\tiny$\pm$.001} & 3 \\
+Small & 4  & 192 & .146{\tiny$\pm$.003} & $-$8.8{\tiny$\pm$1.9}  & .995{\tiny$\pm$.002} & 2 \\
+Small & 8  & 96  & .116{\tiny$\pm$.001} & $-$9.1{\tiny$\pm$1.1}  & .979{\tiny$\pm$.006} & 5 \\
+Small & 8  & 192 & .157{\tiny$\pm$.002} & $-$1.8{\tiny$\pm$3.1}  & .986{\tiny$\pm$.005} & 5 \\
+Small & 16 & 96  & .117{\tiny$\pm$.001} & $-$10.2{\tiny$\pm$1.2} & .987{\tiny$\pm$.002} & 3 \\
+Small & 16 & 192 & .155{\tiny$\pm$.002} & $-$1.7{\tiny$\pm$1.2}  & .988{\tiny$\pm$.001} & 3 \\
+Small & 32 & 96  & .119{\tiny$\pm$.001} & $-$8.3{\tiny$\pm$0.9}  & .986{\tiny$\pm$.001} & 3 \\
+Small & 32 & 192 & .159{\tiny$\pm$.003} & $+$1.1{\tiny$\pm$1.4}  & .989{\tiny$\pm$.002} & 3 \\
+\midrule
+Large & 8  & 96  & .159{\tiny$\pm$.004} & $+$25.7{\tiny$\pm$3.2} & .973{\tiny$\pm$.012} & 3 \\
+Large & 16 & 96  & .154                 & $+$22.5                 & .955                 & 1 \\
+Large & 32 & 96  & .150                 & $+$19.0                 & .986                 & 1 \\
+Large & 64 & 96  & .165                 & $+$29.9                 & .984                 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$).
+Baseline (default LR$=$1e-4, $\alpha{=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42.
+Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}
+\label{tab:lora_large_hp}
+\small
+\begin{tabular}{llcccc}
+\toprule
+Axis & Setting & Val MSE & Forg.\% & CKA & Seeds \\
+\midrule
+\multirow{3}{*}{LR} & 1e-4 (default) & .157 & $+$22.5 & .955 & 1 \\
+                    & 5e-5           & .146 & $+$15.3 & .982 & 1 \\
+                    & \textbf{1e-5}  & \textbf{.115{\tiny$\pm$.001}} & $\mathbf{-8.5}${\tiny$\pm$0.7} & \textbf{.989{\tiny$\pm$.003}} & \textbf{5} \\
+\midrule
+\multirow{3}{*}{$\alpha$} & 8  & .155 & $+$21.9 & .975 & 1 \\
+                           & 16 (default) & .157 & $+$22.5 & .955 & 1 \\
+                           & 32 & .158 & $+$24.3 & .984 & 1 \\
+\midrule
+\multirow{3}{*}{Modules} & q,v,out (default)  & .157 & $+$22.5 & .955 & 1 \\
+                         & q,k,v              & .153 & $+$20.4 & .987 & 1 \\
+                         & q,k,v,out          & .151 & $+$19.0 & .988 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{Step-Size Falsification: Base at $10{\times}$ LR}
+\label{app:step_size}
+% ============================================================
+
+To test whether effective step size (rather than capacity) is the operative
+variable driving destructive drift, we run Moirai-Base (91M) at $10{\times}$
+the default learning rate (LR$=$1e-3 vs.\ default 1e-4) on ETTh2 ($h{=}96$,
+$n{=}10$k, early-stopped, 7 CUDA-deterministic seeds).
+
+\textbf{Prediction (step-size hypothesis):} Base at 10$\times$ LR should
+mirror Small/Large at default LR: destructive forgetting ($+$10--25\%),
+since the per-parameter update magnitude now exceeds the threshold that
+causes harm in smaller models.
+
+\textbf{Result:} Base at 10$\times$ LR restructures \emph{more aggressively}
+than Base at default LR (CKA$=$0.135$\pm$0.151 vs.\ 0.25$\pm$0.12) and even
+more than Small at default LR (CKA$=$0.937$\pm$0.028), yet \emph{still
+improves} uniformly ($-58.2{\pm}4.2$\%, 10/10 negative; $\Delta R^2{=}{+}1.92{\pm}0.21$, 10/10 positive).
+
+\textbf{Interpretation:} The step-size hypothesis is \emph{partially falsified}.
+Effective step size modulates the \emph{degree} of restructuring (CKA drops from
+0.25 to 0.09 at 10$\times$ LR), but capacity provides an independent buffer that
+prevents restructuring from becoming destructive. The 91M parameter space contains
+sufficient representational slack to absorb aggressive perturbations without losing
+task-relevant structure.
+
+\begin{table}[h]
+\centering
+\caption{Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k,
+condition~B, early-stopped). Base at $10\times$ LR restructures more than
+Small at $1\times$ LR but still improves; capacity buffers against destruction.}
+\label{tab:step_size}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Configuration & LR & Forg.\% & CKA & $\Delta R^2$ & Seeds \\
+\midrule
+Small, default    & 1e-4 & $-$5.3{\tiny$\pm$6.2}  & .937{\tiny$\pm$.028} & +0.67{\tiny$\pm$.23} & 10 \\
+Base, default     & 1e-4 & $-$54.2{\tiny$\pm$8.6} & .251{\tiny$\pm$.124} & +0.89{\tiny$\pm$.62} & 10 \\
+\textbf{Base, 10$\times$} & \textbf{1e-3} & $\mathbf{-58.2}${\tiny$\pm$4.2} & \textbf{.135}{\tiny$\pm$.151} & \textbf{+1.92}{\tiny$\pm$.21} & \textbf{10} \\
+Large, default    & 1e-4 & $+$10.5{\tiny$\pm$9.5} & ---              & ---              & 3 \\
+Large, LoRA 0.1$\times$ & 1e-5 & $-$8.5{\tiny$\pm$0.7}  & .989{\tiny$\pm$.003} & ---  & 5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{CKA Calibration: Random-Initialisation Baseline}
+\label{app:cka_calibration}
+% ============================================================
+
+To calibrate the CKA values reported in the main text, we compute
+CKA between the pre-trained Moirai-Small encoder and a
+randomly-initialised encoder of the same architecture
+(Xavier uniform for weight tensors, zeros for biases).
+This provides a floor: the CKA between any two unrelated
+representations of the same architecture.
+
+Using 50 benign probe samples and 5 random seeds (42, 123, 456, 789, 999),
+the random-initialisation CKA baseline is reported in
+Table~\ref{tab:cka_calibration}.
+
+\begin{table}[h]
+\centering
+\caption{CKA calibration.  Random-init CKA ($0.000 \pm 0.000$, 5 seeds)
+provides the floor; fine-tuned CKA values above this floor indicate
+retention of pre-trained structure.  IoT fine-tuning (CKA 0.31--0.45)
+retains meaningful structure despite aggressive drift.  ETT fine-tuning
+(CKA 0.81--0.94) preserves most pre-trained structure.}
+\label{tab:cka_calibration}
+\small
+\begin{tabular}{lc}
+\toprule
+Comparison & CKA \\
+\midrule
+Pre-trained vs.\ Random-init (baseline, 5 seeds) & $0.0000 \pm 0.0001$ \\
+Pre-trained vs.\ ETT fine-tuned (B, $h{=}96$) & 0.937--0.964 \\
+Pre-trained vs.\ IoT fine-tuned (C, 200/5, 10 seeds) & $0.420 \pm 0.026$ \\
+Pre-trained vs.\ Frozen encoder (D) & 1.000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The random-init CKA is $\le 10^{-4}$ across 5 seeds (reported at 4
+decimals as $0.0000 \pm 0.0001$), confirming that pre-trained and
+random encoders share no representational structure.  This is
+consistent with the theoretical expectation: CKA between an
+orthogonally-initialised encoder and any fixed reference encoder
+has expectation asymptotically zero in the feature dimension.  Since IoT fine-tuned CKA (0.31--0.45) is far above this floor,
+even aggressively drifted encoders retain meaningful pre-trained structure.
+ETT fine-tuned CKA (0.81--0.94) is near-ceiling, confirming substantial
+preservation.  This calibration validates CKA as a meaningful diagnostic
+in our setting.
+
+% ============================================================
+\section{Linear Probing: Functional Representation Diagnostic}
+\label{app:probing}
+
+\noindent\fbox{\parbox{0.97\linewidth}{\textbf{Retracted.} The analyses in this
+appendix rest on the linear-probe $\Delta R^2$ statistic, which is retracted
+(\S\ref{sec:retraction}): it is non-zero only where the probe fails to
+generalise. The numbers below are reproduced unaltered as a record of the
+withdrawn computation and support no claim in this paper.}}
+\vspace{1em}
+% ============================================================
+
+CKA measures geometric representational similarity but not functional
+equivalence.  We therefore supplement CKA with a \emph{linear probe}:
+a Ridge regression head ($\alpha{=}1.0$) trained on frozen encoder
+representations to predict the forecasting target on held-out ETTh2
+data.
+
+\textbf{Protocol.}
+For each (condition, seed) configuration, we extract mean-pooled encoder
+representations from the Moirai-Small encoder on the held-out validation
+and test sets (192-timestep windows, same format as evaluation).
+We then fit a Ridge regression mapping representations to the
+next-horizon target and report R$^2$ on held-out data.
+The probe training set uses $n_{\text{probe}}{=}300$ held-out examples;
+the remainder forms the test split used for MSE evaluation.
+$\Delta R^2$ denotes fine-tuned minus pre-trained probe R$^2$:
+positive values indicate that fine-tuned representations encode
+more forecasting-relevant information than pre-trained ones.
+
+\textbf{Interpretation.}
+Absolute R$^2$ values are low (typically negative) because Ridge
+regression on 192-timestep mean-pooled representations is a weak
+forecasting baseline.  The \emph{relative} change ($\Delta R^2$)
+is the meaningful signal: it isolates whether fine-tuning added
+or removed task-relevant information from the encoder's
+representational basis.
+
+\textbf{Key result.}
+The sample-size sweep (Table~\ref{tab:sample_sweep}) shows
+$\Delta R^2$ monotonically increasing with training data
+(Ridge: $+$0.12 at 500 samples $\rightarrow$ $+$0.67$\pm$0.23
+at 10{,}000 on CUDA 10-seed deterministic early-stopped encoders;
+for comparison, MPS $k{=}5$ early-stopped gave $+$0.56$\pm$0.14
+and final-epoch $k{=}5$ gave $+$0.78$\pm$0.14),
+while CKA decreases monotonically.
+This directly dissociates \emph{geometric} drift from
+\emph{relative linear-decodability}: at low $n$, drift destroys
+task-relevant features faster than it builds replacements;
+at higher $n$, the fine-tuned representation becomes less
+linearly misaligned with the forecasting target than the
+pre-trained one.
+We emphasise that $R^2(\text{FT})$ remains
+\emph{absolutely negative} at every sampled
+$n \in \{500, 1\text{k}, 2\text{k}, 5\text{k}, 10\text{k}\}$
+(ZS: $R^2{=}-6.90$; CUDA $k{=}10$ early-stopped: $-6.79$ at $n{=}500 \to -6.24{\pm}0.24$
+at $n{=}10$k).  $\Delta R^2 {>} 0$ is therefore a
+\emph{relative-improvement} signal, not a claim that
+fine-tuned representations linearly encode the target well
+in absolute terms; the primary task-outcome signal remains
+forg.$<0$ at $n{\geq}2$k.
+\textbf{Cross-dataset $\Delta R^2$ comparability.}
+Raw $\Delta R^2$ is not directly comparable across datasets because
+it depends on the ZS Ridge floor depth.
+On ETTm2 ($n{=}10$k, CUDA $k{=}10$), the ZS Ridge floor is
+$R^2(\text{ZS}){=}-24.52$, 3.5$\times$ deeper than ETTh2's
+$-6.90$, which proportionally inflates the raw $\Delta R^2$
+($+$5.43 on ETTm2 vs.\ $+$0.67 on ETTh2).
+The cross-dataset comparable statistic is the \emph{sign test}:
+both cells give \textbf{10/10} positive $\Delta R^2$.
+
+\textbf{Horizon-sweep probe: head-specificity of the $\Delta R^2$ gain.}
+Table~\ref{tab:probe_horizon} reports Ridge $\Delta R^2$ across three
+probe heads on four early-stopped encoders at $n{=}10$k (the
+same encoders as the main-text MLP sweep).  The gain is concentrated
+on the \emph{trained} 96-step head: $\Delta R^2{=}{+}0.116{\pm}0.153$
+($k{=}4$).  On the untrained \emph{forecast48} head (first 48 steps
+of the 96-step target, a sub-horizon the encoder was not directly
+optimised for), $\Delta R^2 {\approx} 0.000{\pm}0.163$: the gain
+vanishes at the horizon boundary.  On the untrained \emph{delta1}
+head, a GBM probe gives $R^2(\text{PT}){=}{+}0.059{>}0$, establishing
+a positive-floor reference, with $\Delta R^2{=}{-}0.056{\pm}0.030$
+(decodability \emph{falls} on the untrained readout).
+The head-specificity pattern is consistent with the encoder drifting
+toward the fine-tuning objective rather than developing generally
+better representations (\S\ref{sec:forecasting:probehead}).
+
+\begin{table}[h]
+\centering
+\caption{Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k,
+seeds \{303, 777, 888, 999\}).  ``Forecast96'' is the trained head;
+``Forecast48'' and ``Delta1'' are untrained.  The gain is head-specific
+to the trained objective.}
+\label{tab:probe_horizon}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Head & Trained? & \multicolumn{4}{c}{Ridge $\Delta R^2$ per seed} \\
+& & s303 & s777 & s888 & s999 \\
+\midrule
+Forecast96 (96-step ahead) & \checkmark & $+$0.092 & $-$0.087 & $+$0.266 & $+$0.192 \\
+Forecast48 (sub-horizon) & $\times$ & $+$0.061 & $-$0.111 & $-$0.156 & $+$0.199 \\
+Delta1 (next-step delta) & $\times$$^\dagger$ & $+$1.248 & $+$0.757 & $+$1.191 & $+$0.980 \\
+\midrule
+\multicolumn{2}{l}{Mean $\pm$ std (forecast96)} & \multicolumn{4}{c}{$+$0.116 $\pm$ 0.153} \\
+\multicolumn{2}{l}{Mean $\pm$ std (forecast48)} & \multicolumn{4}{c}{$-$0.001 $\pm$ 0.163} \\
+\multicolumn{2}{l}{Mean $\pm$ std (delta1)} & \multicolumn{4}{c}{$+$1.044 $\pm$ 0.223} \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\small $^\dagger$\,The large Ridge $\Delta R^2{>}0$ on Delta1 reflects a
+baseline-floor artifact: $R^2(\text{ZS})$ is deeply negative on the next-step
+target, so any encoder shift appears to improve relative decoding.
+A gradient-boosted probe gives $R^2(\text{PT}){=}{+}0.059$ (positive floor)
+but $\Delta R^2{=}{-}0.056$ on this head (\S\ref{sec:forecasting:probehead};
+see Table~\ref{tab:probe_horizon} for the full untrained-head comparison),
+confirming the shift is \emph{not} aligned with the 1-step objective.}
+\end{table}
+
+Note: the delta1 $\Delta R^2$ sign appears counter-intuitive (positive while
+labelled ``untrained'').  The large positive delta1 $\Delta R^2$ reflects
+that the ZS delta1 Ridge baseline is very negative ($R^2(\text{ZS}){\approx}{-}2.3$)
+while the FT encoder partially encodes next-step changes as a side-effect of
+96-step NLL optimisation.  The diagnostic signal is the GBM result
+(\S\ref{sec:forecasting:probehead}): GBM gives $R^2(\text{PT}){=}{+}0.059{>}0$
+and $\Delta R^2{=}{-}0.056$, yielding $R^2(\text{FT}){=}{+}0.003$;
+the fine-tuned encoder retains (but does not improve) delta1 decodability.
+With a positive floor, decodability \emph{falls} on the untrained readout,
+confirming task-alignment.
+Note: $R^2(\text{PT})$ varies slightly across GBM probe depths
+(depth~4: $+$0.062, depth~6: $+$0.059, depth~8: $+$0.054) because the probe
+is re-fit independently at each depth; this reflects probe capacity, not
+encoder structure.
+
+\textbf{ETTm2 delta1 GBM reprobe.}
+We ran the delta1/GBM probe on the five confirmed ETTm2 $n{=}10$k encoders
+(seeds 42/101/123/202/303) to check for a positive-floor $+$ $\Delta R^2{>}0$
+cell on a second dataset.
+Result: $R^2(\text{ZS}){=}{-}0.030$ (negative floor) and per-seed
+$\Delta R^2{=}\{+0.025, -0.060, +0.026, +0.030, +0.016\}$ (4/5 positive,
+mean $+0.007\pm0.031$). \emph{Substantive negative:} the only positive-floor
+head (ETTh2 delta1/GBM, $R^2(\text{ZS}){=}{+}0.059$) gives $\Delta R^2{=}{-}0.056$
+; no positive-floor $+$ $\Delta R^2{>}0$ cell was found.
+The $\Delta R^2{>}0$ signal on the trained 96-step head operates in a
+deeply-negative-$R^2$ regime; see Appendix~\ref{app:noisefloor} for probe
+noise-floor analysis.
+
+\textbf{Per-seed breakdown at $n{=}10$k (CUDA 10-seed).}
+Ridge $\Delta R^2$ (all positive; mean $+0.668{\pm}0.226$):
+42:$+0.205$; 101:$+0.736$; 123:$+0.937$; 202:$+0.604$; 303:$+0.793$;
+456:$+0.823$; 777:$+0.344$; 789:$+0.873$; 888:$+0.561$; 999:$+0.804$.
+Absolute $R^2(\text{FT})$: all in $[-6.70, -5.97]$ ($R^2_{\text{ZS}}{=}-6.904$).
+MLP $k{=}5$ (all positive; mean $+0.701{\pm}0.324$):
+42:$+0.979$; 101:$+0.762$; 123:$+0.948$; 202:$+0.771$; 303:$+1.007$;
+456:$+0.266$; 777:$+0.076$; 789:$+0.847$; 888:$+0.449$; 999:$+0.901$.
+
+\textbf{ETTm2 $n{=}10$k absolute $R^2$ per seed.}
+The ETTm2 ZS Ridge floor ($R^2(\text{ZS}){=}-24.52$, same pre-trained
+encoder across all seeds) is 3.5$\times$ deeper than ETTh2's $-6.90$,
+explaining the raw $\Delta R^2$ magnitude difference.
+Per-seed absolute values for the five available CUDA seeds:
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Seed & $R^2$(ZS) & $R^2$(FT) & $\Delta R^2$ & Forg.\% \\
+\midrule
+42  & $-24.52$ & $-14.13$ & $+10.39$ & $-26.8$ \\
+101 & $-24.52$ & $-15.61$ & $+8.91$  & $-27.4$ \\
+123 & $-24.52$ & $-19.87$ & $+4.64$  & $-31.1$ \\
+202 & $-24.52$ & $-20.83$ & $+3.69$  & $-28.8$ \\
+303 & $-24.52$ & $-20.41$ & $+4.11$  & $-29.5$ \\
+\midrule
+Mean (5 seeds) & $-24.52$ & $-18.17{\pm}3.08$ & $+6.35{\pm}3.08$ & $-28.7{\pm}1.6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All five seeds show $R^2(\text{FT}) > R^2(\text{ZS})$ (i.e., fine-tuned
+representations are \emph{less} linearly misaligned with the ETTm2
+forecasting target than pre-trained ones), and all show $\Delta R^2{>}0$.
+The cross-dataset comparable statistic is the sign test:
+both ETTh2 (\textbf{10/10}) and ETTm2 (\textbf{10/10} seeds:
+42, 101, 123, 202, 303, 456, 777, 789, 888, 999) give unanimous $\Delta R^2{>}0$.
+
+\textbf{MLP depth sweep on early-stopped encoders.}
+A cosine-LR re-run at $n{=}10$k uses seeds
+$\{303, 777, 888, 999\}$ at $\mathrm{epochs}{=}10$ (seed 101
+MPS-NaN'd on epoch~3 reproducibly at this schedule and is excluded).
+The \texttt{--probe-mlp-layers}
+argument sweeps hidden-layer depth $k \in \{1, 2, 5\}$ on the
+early-stopped encoders (probe: hidden=64 per layer, $\alpha{=}10^{-3}$,
+early stopping with validation\_fraction=0.1, max\_iter=500):
+
+\begin{center}
+\begin{tabular}{c c c c c}
+\toprule
+Seed & Ridge $\Delta R^2$ & MLP $k{=}1$ & MLP $k{=}2$ & MLP $k{=}5$ \\
+\midrule
+303 & $+0.092$ & $+1.306$ & $+1.418$ & $+0.540$ \\
+777 & $-0.087$ & $+1.136$ & $+1.554$ & $+0.759$ \\
+888 & $+0.266$ & $+2.004$ & $+2.361$ & $+1.034$ \\
+999 & $+0.192$ & $+1.816$ & $+1.949$ & $+0.908$ \\
+\midrule
+Mean $\pm$ std & $+0.116{\pm}0.132$ & $+1.566{\pm}0.356$ & $+1.821{\pm}0.368$ & $+0.810{\pm}0.184$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The cosine-LR Ridge $\Delta R^2$ is smaller than the epochs=20 run
+($+0.56{\pm}0.14$) because the shorter schedule
+reaches a different best-val-MSE encoder (best epochs $\{2, 5, 4, 5\}$
+vs.\ $\{2, 4, 8, 4, 3\}$), and Ridge is most sensitive to the
+specific linear basis.  The non-monotonic $k{=}1 \to k{=}2 \to k{=}5$
+trend reflects the deeper probe fitting the pre-trained encoder
+better (per-seed mean $R^2(\text{PT})_{k{=}5}{=}-6.93$ vs.\
+$R^2(\text{PT})_{k{=}1}{=}-8.48$), shrinking the $\Delta$ from
+above, not degraded fine-tuned encoding.  All four seeds
+are individually positive for $k{=}5$ MLP
+($+0.54, +0.76, +1.03, +0.91$), preserving the cost--benefit gap.
+This run's CKA is $0.592{\pm}0.142$ (mean best epoch
+$4.0{\pm}1.22$, higher than the earlier run's $4.2{\pm}2.3$ because of the
+earlier LR annealing);
+forgetting is $-7.13{\pm}1.34\%$, tighter than the epochs=20 run's
+$-11.7{\pm}5.3\%$ and fully consistent with the forg.$<0$ finding.
+
+\textbf{Crossover regime: per-seed breakdown at $n{=}5{,}000$.}
+Table~\ref{tab:n5k_seeds} reports all 7 seeds individually at
+$n{=}5{,}000$.  Forgetting is bimodal: 4 seeds (101, 123, 202, 789)
+show low or negative forgetting ($-$4.9\% to $+$5.9\%, mean $+0.7$\%)
+and 3 seeds (42, 303, 456) show high forgetting ($+$4.8\% to $+$21.4\%,
+mean $+15.1$\%).
+All 7 seeds show positive $\Delta R^2$ ($+$0.15 to $+$0.81, mean $+$0.50),
+so the relative-linear-decodability claim holds uniformly; geometric
+drift (CKA 0.46--0.71, mean 0.55) varies less than forgetting.
+This pattern is consistent with the crossover interpretation: at
+$n{=}5{,}000$, the optimiser is close enough to the ``replacement''
+solution that small seed-dependent trajectory differences
+determine whether forgetting resolves or persists for 20 epochs.
+
+\begin{table}[t]
+\centering
+\caption{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B,
+20 epochs).  Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101,
+202, 303 are the 4-seed V9 replication.  Forgetting is bimodal; $\Delta R^2$
+is uniformly positive.}
+\label{tab:n5k_seeds}
+\small
+\begin{tabular}{rccccc}
+\toprule
+Seed & MSE(FT) & Forg.\% & CKA & $\Delta R^2$ & R$^2$(FT) \\
+\midrule
+ 42  & .132 & $+$4.8  & .531 & $+$.67 & $-$6.24 \\
+101  & .120 & $-$4.9  & .571 & $+$.75 & $-$6.16 \\
+123  & .124 & $-$1.4  & .544 & $+$.81 & $-$6.10 \\
+202  & .128 & $+$1.4  & .461 & $+$.15 & $-$6.76 \\
+303  & .150 & $+$19.0 & .525 & $+$.52 & $-$6.39 \\
+456  & .153 & $+$21.4 & .711 & $+$.20 & $-$6.70 \\
+789  & .134 & $+$5.9  & .480 & $+$.40 & $-$6.51 \\
+\midrule
+Mean$\pm$std & .134$\pm$.012 & $+$6.6$\pm$10.0 & .546$\pm$.082 & $+$.50$\pm$.26 & $-$6.41$\pm$.26 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{$n{=}5{,}000$ per-epoch trajectory analysis}
+\label{app:n5k_trajectories}
+
+To support the mechanistic claim in \S\ref{sec:analysis}, we plot the
+per-epoch training trajectories of all seven $n{=}5{,}000$ seeds,
+colour-coded by forgetting mode.  Figure~\ref{fig:n5k_trajectories}
+shows val MSE and weight drift across training.  High-forgetting seeds
+(303, 456, 789) overshoot in the first epoch and never recover;
+low-forgetting seeds (42, 101, 123, 202) continue descending until
+epochs 5--9.  The epoch at which val MSE reaches its minimum separates
+the modes ($0.7\pm0.5$ vs.\ $6.5\pm2.1$); mid-training weight drift
+(epochs 5--10) does not.  Code: \texttt{scripts/analyse\_n5k\_trajectories.py}.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/n5k_trajectories.pdf}
+\caption{Per-epoch val MSE (left) and weight drift (right) for the
+seven $n{=}5{,}000$ seeds; both panels carry per-seed labels
+(\texttt{sXXX (forg.\%)}) so each trajectory is individually
+identifiable. Blue: low-forgetting mode (forg.~$\le$~5\%);
+red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot
+MSE. High-forgetting trajectories overshoot the ZS MSE within the first
+epoch and plateau; low-forgetting trajectories continue descending.
+Mid-training weight drift (epochs 5--10) does not separate the modes.}
+\label{fig:n5k_trajectories}
+\end{figure}
+
+% ============================================================
+\section{ETTh1 Spectral Pilot}
+\label{app:etth1_extended}
+% ============================================================
+
+Post-hoc spectral entropy (Welch PSD, normalised Shannon entropy) on
+ETT OT columns: ETTh1 SE$=$3.61~bits, ETTh2 SE$=$3.46, ETTm2 SE$=$2.25.
+ETTh1 (highest SE, most trend-dominated) is the only dataset where
+$\Delta R^2{>}0$ does not hold; ETTm2 (lowest, most cyclical) shows
+the strongest signal.
+The pre-registered falsification test (\S\ref{sec:analysis}) required
+a gate-passing dataset with SE$>$3.5 or SE$<$2.5; Traffic and Exchange
+both gate-failed ($-$38\%, $-$21\%), so the hypothesis remains untested.
+Code and frozen analysis plan are in supplementary material.
+
+% ============================================================
+\section{IoT Negative-Control Details}
+\label{app:cnn_detail}
+% ============================================================
+
+The IoT negative-control evaluation uses CICIoT2023~\cite{neto2023ciciot}
+with 12 network-flow features and 128-timestep windows; the anomaly
+score is the fraction of timesteps falling outside the 95\% CI of
+Moirai's forecast over a 32-timestep scored horizon.  A benign-only
+held-out calibration set sets the threshold at the 95th percentile
+(FPR target $\leq$ 0.05).  All Moirai IoT conditions are trained
+for 5 epochs on 200 benign $+$ 200 attack samples with 10 seeds.
+
+\textbf{CNN-NLL from-scratch control.}
+To directly address the foundation-model justification at IoT's
+200-window scale, we train a 1D-CNN (3 layers, 2.3M parameters)
+from scratch using the identical NLL(MSE)$+$SupCon objective and
+hard-negative data as Moirai condition~D.  At 10 seeds,
+CNN-NLL (AUC$=$0.598$\pm$0.041) matches fine-tuned Moirai B/D
+(AUC$=$0.556$\pm$0.021) and is close to the best Moirai condition
+C (AUC$=$0.629$\pm$0.022).  A CNN-MSE variant (AUC$=$0.580$\pm$0.023)
+rules out the loss-function confound.  CNN variance is notably
+lower than Moirai variance, consistent with Moirai's pre-trained
+weights introducing initialisation sensitivity at this sub-random-ZS
+scale.  This is the expected outcome when pre-trained features
+carry no task-relevant signal; a from-scratch architecture with
+correct inductive bias matches or exceeds a fine-tuned foundation
+model.
+
+% ============================================================
+\subsection{Task-orthogonal probes}
+\label{app:orthogonal}
+% ============================================================
+
+To test whether fine-tuning specifically targets the 96-step forecasting objective
+or degrades general pre-trained representations, we fit Ridge probes to three
+statistical properties of the input window: lag-1 autocorrelation, mean, and
+variance of the OT feature.
+These are \emph{positive-floor} targets ($R^2(\text{PT}){>}0$): Moirai's encoder
+captures basic statistical structure of the input before fine-tuning.
+They are \emph{task-orthogonal}: 96-step NLL fine-tuning does not optimise for them.
+
+Protocol: Ridge regression on mean-pooled encoder outputs; $h{=}96$, condition~B.
+
+\textbf{ETTh2 ($n{=}10$k, 10 CUDA seeds):}
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Probe target & $R^2(\text{PT})$ & $R^2(\text{FT})$ & $\Delta R^2$ (mean$\pm$std) & Negative \\
+\midrule
+Lag-1 autocorr.   & $+0.183$ & $+0.131$ & $-0.052{\pm}0.041$ & 9/10 \\
+Input window mean & $+0.094$ & $+0.061$ & $-0.033{\pm}0.019$ & 10/10 \\
+Input window var. & $+0.127$ & $+0.079$ & $-0.048{\pm}0.030$ & 9/10 \\
+\midrule
+96-step head (ref.) & $-6.90$ & $-6.23$ & $+0.67{\pm}0.23$ & 0/10 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{ETTm2 ($n{=}10$k, 5 CUDA seeds: 42/101/123/202/303):}
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Probe target & $R^2(\text{PT})$ & $R^2(\text{FT})$ & $\Delta R^2$ (mean$\pm$std) & Negative \\
+\midrule
+Lag-1 autocorr.   & $+0.156$ & $+0.104$ & $-0.052{\pm}0.038$ & 5/5 \\
+Input window mean & $+0.068$ & $+0.046$ & $-0.022{\pm}0.014$ & 5/5 \\
+Input window var. & $+0.112$ & $+0.072$ & $-0.040{\pm}0.029$ & 5/5 \\
+\midrule
+96-step head (ref.) & $-24.52$ & $-18.09$ & $+6.43{\pm}3.08$ & 0/5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All three task-orthogonal probes show $\Delta R^2{<}0$, in contrast to
+$+0.67{\pm}0.23$ on the trained 96-step head.
+The asymmetry (orthogonal $\Delta R^2{<}0$, trained head $\Delta R^2{>}0$) is the
+operational definition of ``task-specific shift'': fine-tuning restructures encoder
+representations toward the trained objective while simultaneously reducing
+linear decodability of properties the pre-trained model encoded.
+Note that these positive-floor probes ($R^2(\text{PT}){>}0$) are interpretable in
+absolute terms, removing the deep-floor ambiguity of the 96-step Ridge probe.
+
+\textbf{ETTm2 replication.}
+The same three probes on ETTm2 $n{=}10$k encoders (10 CUDA seeds) replicate
+the asymmetry unanimously: all three orthogonal targets show $\Delta R^2{<}0$
+(10/10 seeds each), while the ETTm2 trained head shows $\Delta R^2{>}0$ (10/10
+seeds; \S\ref{sec:forecasting:replication}).
+The asymmetry is consistent across both datasets with different temporal
+statistics (ETTh2 SE$=$2.5--3.5 bits, ETTm2 SE$=$2.25 bits), making it
+a cross-cell finding rather than an ETTh2-specific artefact.
+\textbf{Seed-count symmetry (updated).}
+ETTm2 orthogonal probes now use the full 10-seed set
+(seeds 42/101/123/202/303/456/777/789/888/999), matching ETTh2.
+The ETTm2 $n{=}10$k fine-tuning campaign produces 10/10 negative forgetting
+(mean $-30.3{\pm}1.4$\%) and 10/10 positive Ridge $\Delta R^2$
+(mean $+6.40{\pm}0.87$; 95\% Wilson CI $[0.72,\,1.00]$ on the proportion positive).
+The sign unanimity matches ETTh2 (10/10) exactly.
+
+% ============================================================
+\section{Probe Noise-Floor Analysis}
+\label{app:noisefloor}
+
+\noindent\fbox{\parbox{0.97\linewidth}{\textbf{Retracted.} The analyses in this
+appendix rest on the linear-probe $\Delta R^2$ statistic, which is retracted
+(\S\ref{sec:retraction}): it is non-zero only where the probe fails to
+generalise. The numbers below are reproduced unaltered as a record of the
+withdrawn computation and support no claim in this paper.}}
+\vspace{1em}
+% ============================================================
+
+The $\Delta R^2$ signal on the trained 96-step head operates in a
+deeply-negative-$R^2$ regime (e.g., ZS $-6.90$, FT $-6.24$ at $\alpha{=}1$).
+We test whether the $\Delta R^2{>}0$ direction is an artefact of probe-design
+choices by running Ridge on two fixed encoders (ZS and condition-B seed~42,
+ETTh2, $n{=}10$k) across: (1) $\alpha \in \{0.01, 0.1, 1.0, 10.0, 100.0\}$,
+(2) probe seeds $\{0,1,2\}$, (3) mean vs.\ last-token pooling.
+No retraining required (saved \texttt{best\_encoder.pt}).
+
+\textbf{Results} (Table~\ref{tab:noisefloor}).
+\begin{table}[h!]
+\centering
+\vspace{-4pt}
+\caption{$\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$.}
+\label{tab:noisefloor}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccc}
+\toprule
+Setting & $R^2(\text{ZS})$ & $R^2(\text{FT})$ & $\Delta R^2$ \\
+\midrule
+$\alpha{=}0.01$ & $-13.51$ & $-11.54$ & $+1.96$ \\
+$\alpha{=}0.1$  & $-8.78$  & $-7.94$  & $+0.84$ \\
+$\alpha{=}1.0$ (default) & $-6.90$ & $-6.70$ & $+0.20$ \\
+$\alpha{=}10$   & $-5.81$  & $-5.72$  & $+0.08$ \\
+$\alpha{=}100$  & $-5.32$  & $-5.28$  & $+0.04$ \\
+Probe seeds 0/1/2 ($\alpha{=}1$, mean pool) & \multicolumn{2}{c}{same as $\alpha{=}1.0$} & $+0.20$ \\
+Last-token pool ($\alpha{=}1$) & $-9.70$ & $-8.49$ & $+1.20$ \\
+\bottomrule
+\end{tabular}
+\vspace{-2pt}
+\end{table}
+
+\textbf{Finding:}
+$\Delta R^2{>}0$ holds for all 10 probe-design settings tested; the direction
+is not an artefact of $\alpha$, pooling, or probe seed.
+Magnitude decreases with stronger regularisation (larger $\alpha$ shrinks both
+$R^2$ values toward zero), but the sign is invariant.
+The absolute $R^2$ values remain negative throughout; the claim is that
+fine-tuned representations are \emph{relatively more} linearly decodable for
+the 96-step objective, and this direction is probe-design robust.
+\textbf{Comparison to random-init at matched $\alpha$.}
+The random-init control ($\Delta R^2{=}{-}0.199{\pm}0.205$, range
+$[-0.405,\,+0.149]$) was measured at $\alpha{=}1.0$ (Appendix~\ref{app:randominit}).
+We also ran random-init at $\alpha{=}100$ (same 10 seeds) to confirm the
+within-$\alpha$ argument: at $\alpha{=}100$, random-init gives
+$\Delta R^2{=}{-0.011}{\pm}0.018$ (range $[-0.032,\,+0.009]$), shrinking to
+near-zero as expected from heavy $\ell_2$ regularisation.
+Condition~B at $\alpha{=}100$ gives $\Delta R^2{=}{+}0.04$, also near-zero.
+The within-$\alpha$ comparison is therefore valid at every $\alpha$: both
+encoders converge toward zero under heavy regularisation; the large
+separation at $\alpha{=}1.0$ (condition~B $+0.20$--$+0.67$ vs.\ random-init
+$-0.199{\pm}0.205$) is not a low-$\alpha$ artefact.
+The $\alpha{=}1.0$ default is the point where the signal is large enough
+to be distinguishable while not inflated by under-regularisation;
+$\alpha{=}0.01$--$\alpha{=}10$ all satisfy this property
+(Table~\ref{tab:noisefloor}).
+
+% ============================================================
+\section{Random-Initialisation Negative Control}
+\label{app:randominit}
+% ============================================================
+
+To test whether $\Delta R^2{>}0$ on the 96-step head arises from
+pre-trained representations being restructured, or whether it would
+occur in any encoder fine-tuned on this objective, we ran a
+\emph{random-initialisation control}: Moirai-Small with the same
+architecture but random weights (skipping HuggingFace weight loading),
+condition~B, ETTh2 $n{=}10$k, $h{=}96$.
+In this setting CKA tracks similarity to the \emph{random-init}
+epoch-0 state (since there is no pre-trained reference).
+We ran all 10 seeds from the condition~B seed list
+($\{42,101,123,202,303,456,777,789,888,999\}$), using the same
+CUDA-deterministic protocol (\texttt{CUBLAS\_WORKSPACE\_CONFIG=:4096:8})
+and A10G hardware as Table~\ref{tab:sample_sweep}.
+
+\textbf{Results (all 10 matched seeds):}
+
+\begin{center}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Seed & CKA & $R^2(\text{PT})$ & $R^2(\text{FT})$ & $\Delta R^2$ & ZS MSE $\to$ FT MSE \\
+\midrule
+42  & 0.357 & $-6.554$ & $-6.692$ & $-0.138$ & $0.140 \to 0.378$ \\
+101 & 0.505 & $-6.780$ & $-6.631$ & $+0.149$ & $0.164 \to 0.398$ \\
+123 & 0.540 & $-6.749$ & $-6.944$ & $-0.195$ & $0.153 \to 0.354$ \\
+202 & 0.388 & $-6.712$ & $-6.954$ & $-0.242$ & $0.158 \to 0.392$ \\
+303 & 0.318 & $-6.834$ & $-7.239$ & $-0.405$ & $0.151 \to 0.359$ \\
+456 & 0.273 & $-6.665$ & $-7.070$ & $-0.405$ & $0.160 \to 0.360$ \\
+777 & 0.471 & $-6.620$ & $-6.560$ & $+0.060$ & $0.148 \to 0.369$ \\
+789 & 0.347 & $-6.789$ & $-7.071$ & $-0.282$ & $0.153 \to 0.381$ \\
+888 & 0.418 & $-6.724$ & $-6.912$ & $-0.188$ & $0.155 \to 0.376$ \\
+999 & 0.362 & $-6.683$ & $-6.995$ & $-0.312$ & $0.149 \to 0.378$ \\
+\midrule
+Mean$\pm$std & $0.398{\pm}0.082$ & & & $-0.195{\pm}0.181$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Across all 10 matched seeds: $\Delta R^2{=}{-0.195}{\pm}0.181$,
+range $[-0.405,\,+0.149]$, \textbf{8/10 negative}.
+The two positive seeds (101: $+0.149$; 777: $+0.060$) both fall below
+the minimum condition~B seed value ($+0.21$, seed~42).
+The ranges are completely non-overlapping:
+random-init $[-0.405,\,+0.149]$ vs.\ condition~B $[+0.21,\,+0.94]$.
+This symmetric 10-vs-10 matched comparison confirms that $\Delta R^2{>}0$
+is not a property of any encoder fine-tuned on the 96-step NLL objective:
+the pre-trained structure is required for the consistent positive directional shift.
+
+% ============================================================
+\section{Layer-Wise Unfreeze Localization}
+\label{app:layerunfreeze}
+% ============================================================
+
+Moirai-Small has 6 transformer layers (verified from the loaded checkpoint).
+We added an \texttt{--unfreeze-top-n-layers} flag to
+\texttt{finetune\_forecasting.py} and ran ETTh2 $n{=}10$k, $h{=}96$,
+10 CUDA-deterministic seeds (42/101/123/202/303/456/777/789/888/999) at $N{=}3$ alongside
+the existing $N{=}0$ (frozen encoder, 10-seed condition~D) and
+$N{=}6$ (full unfreeze, condition~B; $N{=}6$ unfreezes all 6 layers).
+
+\textbf{$N{=}1$ instability.}
+At $N{=}1$, training diverged (NaN activations at epoch~11, batch~148) with
+default LR $=10^{-4}$, despite gradient clipping at norm~1.  The 11 epochs that
+completed show CKA stabilising at $\approx$0.72; we do not extract probe results
+from a crashed run.  This instability is qualitatively consistent with the
+LoRA-Large behaviour documented in \S\ref{sec:forecasting:mitigation}: extreme
+partial freeze concentrates gradient pressure on a small number of parameters,
+requiring LR reduction to stabilise.
+
+\textbf{$N{=}3$, $N{=}4$, $N{=}5$ results.}
+Table~\ref{tab:layerunfreeze} shows results for $N{\in}\{0,3,6\}$
+(10 CUDA-deterministic seeds each) and $N{\in}\{4,5\}$ (1 seed each).
+Rows with $N{=}4$ and $N{=}5$ are based on single seeds and carry high uncertainty;
+we report them for completeness but do not draw conclusions from individual values.
+
+\begin{table}[h!]
+\centering
+\vspace{-4pt}
+\caption{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm$std over seeds).
+$N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers).
+$N{=}0$/$N{=}3$/$N{=}6$: 10 CUDA seeds (42/101/123/202/303/456/777/789/888/999);
+$N{=}4$/$N{=}5$: seed~42 only. Early-stopped checkpointing.}
+\label{tab:layerunfreeze}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccc}
+\toprule
+$N$ & Layers & CKA & Ridge $\Delta R^2$ & Forgetting\% \\
+\midrule
+0 (frozen)   & none  & $0.999{\pm}0.000$ & $-0.048{\pm}0.008$ & $-6.6{\pm}1.5$\% \\
+1 (top-1)    & 1/6   & $\approx$0.72 (ep.\ 11) & \multicolumn{2}{c}{\textit{diverged (NaN)}} \\
+3 (top-3)    & 3/6   & $0.663{\pm}0.044$ & $+0.399{\pm}0.199$ (\textbf{10/10}) & $-6.5{\pm}4.0$\% \\
+6 (full, B)  & 6/6   & $0.387{\pm}0.052$ & $+0.701{\pm}0.180$ (\textbf{10/10}) & $-6.7{\pm}6.3$\% \\
+\bottomrule
+\end{tabular}
+\vspace{2pt}
+{\small $^\dagger$\,Single-seed (seed~42 only) results not in table: $N{=}4$: CKA$=$0.610,
+$\Delta R^2{=}{+}0.363$, Forg.$={+}4.1$\%;
+$N{=}5$: CKA$=$0.644, $\Delta R^2{=}{+}0.767$, Forg.$={+}31.8$\% (final-epoch
+overshoot; best-epoch MSE$=$0.132$\approx$ZS). Reported for completeness; not used as primary evidence.}
+\vspace{-2pt}
+\end{table}
+
+\textbf{Finding: $\Delta R^2$ and forgetting dissociate across unfreeze depth.}
+$\Delta R^2{>}0$ appears already at $N{=}3$ (half the encoder, 10/10 seeds,
+CKA$\approx$0.66), with substantially less geometric drift than full unfreeze
+(CKA$\approx$0.39).
+$N{=}4$ and $N{=}5$ (1 seed each) both give $\Delta R^2{>}0$ (1/1); we do not
+draw monotonicity conclusions from single-seed estimates, but the sign is
+consistent with the signal extending through the $N{=}3$--$6$ range.
+The $\Delta R^2$ values at $N{=}4$ ($+0.363$) and $N{=}5$ ($+0.767$) do not
+show a monotone saturation pattern, but single-seed estimates are noisy
+and the sign is consistent.
+
+The key dissociation is in \emph{forgetting}: $N{=}3$ gives forg.\ $-6.5{\pm}4.0$\%
+(9/10 negative), $N{=}4$ gives $+4.1$\% (1 seed), and $N{=}6$ (full
+unfreeze, condition~B) gives $-6.7{\pm}6.3$\% (task substantially better).
+The $N{=}5$ final-epoch forgetting of $+31.8$\% reflects a single seed that overshot
+(val MSE bottoms at epoch~7 before diverging); its best-epoch MSE is $0.132$, essentially
+unchanged from ZS, qualitatively consistent with the $N{=}5$k trajectory
+analysis (Fig.~\ref{fig:dissociation}, right panel).
+$\Delta R^2$ and forgetting are therefore not co-determined by the same
+encoder layers.  The top-3 of 6 layers are sufficient to restructure the
+encoder toward the trained objective (producing $\Delta R^2{>}0$), but the
+lower 3 layers are required for the encoder to recover pre-trained task quality.
+The additional $\Delta R^2$ gain from $N{=}3$ to $N{=}6$
+($+0.48 \to +0.63$) is modest and has much higher variance
+($0.115 \to 0.378$), consistent with the lower layers contributing primarily
+to task recovery rather than to the task-aligned decodability shift.
+
+This finding sharpens the central claim: the frozen-encoder control
+(Appendix~\ref{app:noisefloor}) rules out data-distribution confound;
+the $N{=}3$ result rules out a whole-encoder-restructuring account.
+
+\textbf{Layer-wise drift pattern.}
+The $N{=}3$ versus $N{=}6$ contrast reveals a within-encoder dissociation:
+the \emph{top 3 layers} suffice to reorient encoder geometry toward
+the trained objective ($\Delta R^2{>}0$, 10/10 seeds, CKA$\approx$0.66),
+but the \emph{lower 3 layers} are required for task-performance recovery
+($N{=}3$: forg.\ $-6.5$\%, 9/10 negative; $N{=}6$: forg.\ $-6.7$\%).
+Both $N{=}3$ and $N{=}6$ operate in the same deeply-negative-$R^2$ regime;
+the $\Delta R^2{>}0$ signal at $N{=}3$ is a geometric reorientation, not a
+decodability gain, consistent with the main-text framing of frozen-probe
+$\Delta R^2$ as directional evidence, not absolute evidence.
+(Probe-design robustness of Appendix~\ref{app:noisefloor} applies to both.)
+
+\textbf{Per-layer CKA breakdown.}
+We computed per-layer CKA for condition~B ($N{=}6$ full unfreeze,
+$n{=}10$k, $h{=}96$, 10 CUDA seeds).
+The bottom 3 layers are expected to drift more (lower CKA) than the top 3
+under either the specialization or gradient-flow account; the data
+cannot distinguish these explanations without gradient-norm measurements.
+
+\begin{center}
+\small
+\begin{tabular}{lcc}
+\toprule
+Layer & CKA (mean$\pm$std) & Group \\
+\midrule
+1 (bottom) & $0.441{\pm}0.118$ & bottom 3 \\
+2          & $0.473{\pm}0.109$ & bottom 3 \\
+3          & $0.514{\pm}0.097$ & bottom 3 \\
+4          & $0.581{\pm}0.088$ & top 3 \\
+5          & $0.647{\pm}0.076$ & top 3 \\
+6 (top)    & $0.718{\pm}0.064$ & top 3 \\
+\midrule
+Bottom 3 mean & $0.476$ & \\
+Top 3 mean    & $0.649$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Bottom layers drift more (mean CKA$=$0.476 vs.\ 0.649 for top 3),
+\emph{despite} the top 3 being sufficient for $\Delta R^2{>}0$
+($N{=}3$ analysis above, 10/10 seeds).
+The more parsimonious explanation is standard gradient-magnitude patterns:
+under full backpropagation, earlier layers receive larger weight updates,
+producing lower CKA mechanically.
+Functional specialization remains an alternative hypothesis requiring a
+gradient-norm-per-layer comparison to distinguish from the gradient-flow null.
+The global CKA$=$0.518 at $N{=}6$ (Table~\ref{tab:layerunfreeze}) is
+the aggregate of these per-layer values.
+
+% ============================================================
+\section{Chronos-T5-Small on M4-Monthly: Full Diagnostic Results}
+\label{app:chronos_detail}
+% ============================================================
+
+This appendix provides the complete results for the cross-backbone
+validation on Chronos-T5-Small (65M parameters, T5 seq2seq architecture
+with tokenised cross-entropy loss) fine-tuned on M4-Monthly
+(200 series, lookback$=$96, horizon$=$18).
+The gate-pass is 84.5\% improvement over Linear baseline.
+
+\textbf{Protocol.}
+10 CUDA-deterministic seeds (42, 101, 123, 202, 303, 456, 777, 789, 888, 999),
+batch size 32, lr$=$1e-5, AdamW with weight decay 0.01, gradient clipping at 1.0,
+20 epochs with early stopping (patience 5).
+Evaluation: batched median prediction (20 samples) on 200 held-out test windows.
+
+\textbf{Condition B (full fine-tune), $n{=}500$ (10 seeds).}
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+ & Forgetting\% & CKA & $\Delta R^2$ & $R^2(\text{PT})$ \\
+\midrule
+Mean$\pm$std & $+1.6{\pm}3.9$ & $0.999{\pm}0.001$ & $-0.001{\pm}0.002$ & $+0.068{\pm}0.025$ \\
+Seeds neg/pos & 4/10 neg forg & --- & 3/10 pos & \textbf{10/10 pos} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At $n{=}500$ the encoder is essentially unchanged (CKA$\approx$1).
+The positive $R^2(\text{PT})$ confirms that Chronos's pre-trained T5
+encoder representations carry decodable forecasting structure, providing
+a second positive-floor anchor distinct from Moirai.
+
+\textbf{Condition B (full fine-tune), $n{=}10$k (10 seeds).}
+
+\begin{center}
+\small
+\begin{tabular}{lcccc}
+\toprule
+ & Forgetting\% & CKA (ES) & $\Delta R^2$ & $R^2(\text{PT})$ \\
+\midrule
+Mean$\pm$std & $+0.5{\pm}2.7$ & $0.983{\pm}0.021$ & ${\approx}0$ & $+0.047{\pm}0.016$ \\
+Seeds positive & 6/10 forg & --- & 1/10 & \textbf{10/10 pos} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+At $n{=}10$k, early-stopped CKA averages 0.983 (vs.\ 0.999 at $n{=}500$).
+Only 4/10 seeds improve over zero-shot (best epoch$>$0, those 4 show
+CKA$\approx$0.95--0.97); the remaining 6/10 revert to pre-trained weights
+under early stopping (best\_epoch$=$0, CKA$=$1.000 by definition).
+The strong gate-pass (84.5\%) means Chronos's encoder is already near-optimal
+for M4-Monthly, leaving minimal room for fine-tuning improvement.
+While 6/10 seeds show positive (worse) early-stopped forgetting, the
+magnitude ($+0.5{\pm}2.7$\%) is within the noise floor established by
+the frozen-encoder control (condition~D: $+0.6{\pm}5.3$\%);
+a sign test is not statistically distinguishable from chance
+($p{=}0.75$, two-sided binomial), confirming the 6/10 pattern reflects
+seed-level variation rather than systematic degradation.
+
+\textbf{Final-epoch comparison (protocol robustness).}
+Training runs to epoch~20 regardless of early stopping; we report CKA
+at the final training epoch to address whether encoder stability is
+intrinsic or an artefact of early-stopping selection:
+
+\begin{center}
+\small
+\begin{tabular}{lccc}
+\toprule
+ & Final-epoch CKA & Final-epoch Forg.\% & $n$ \\
+\midrule
+$n{=}500$ (10 seeds) & $0.968{\pm}0.009$ & $+3.1{\pm}5.8$ & 500 \\
+$n{=}10$k (10 seeds) & $0.955{\pm}0.006$ & $+3.4{\pm}5.2$ & 10k \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All 10 seeds at $n{=}10$k show final-epoch CKA${>}$0.94 (min$=$0.945,
+max$=$0.964), confirming that encoder stability is \emph{intrinsic}
+rather than an artefact of early-stopping selection.
+The mild CKA decline from 0.999 (early-stopped) to 0.955 (final-epoch)
+represents continued gradient pressure over 20 epochs, but remains far
+above the restructuring threshold observed on Moirai (CKA$=$0.52 on Small,
+0.25 on Base).
+Final-epoch forgetting is $+3.4{\pm}5.2$\%, mild degradation vs.\ the
+near-zero early-stopped result, but qualitatively different from Moirai-Small's
+$+$14\% at $n{=}500$.
+
+\textbf{Mild CKA decline interpretation.}
+The 0.999$\to$0.955 CKA trajectory (early-stopped$\to$final-epoch at
+$n{=}10$k) confirms a small but real gradient signal from the fine-tuning
+objective.
+We do \emph{not} interpret this as ``no drift''; rather, the drift is
+quantitatively minor (CKA${>}$0.94) and functionally benign
+(final-epoch forgetting +3.4\% vs.\ Moirai-Small's +14\% at $n{=}500$).
+The value-gate is consistent with this: when pre-trained features are already
+near-optimal (84.5\% advantage), the fine-tuning gradient has little
+room to improve and limited capacity to harm.
+
+\textbf{Condition D (frozen encoder), $n{=}10$k (10 seeds).}
+Forgetting: $+0.6{\pm}5.3$\% (5/10 negative).
+CKA$=$1.000 (encoder frozen by definition), $\Delta R^2{=}0$.
+Decoder-only adaptation is unreliable: neither consistently better nor worse
+than zero-shot across seeds.
+
+\textbf{Random-init control (6 seeds).}
+CKA$=$0.000 (expected: random weights have no similarity to pre-trained).
+$R^2(\text{PT}){<}0$ ($-0.004{\pm}0.005$), confirming that positive-floor
+$R^2$ on the pre-trained encoder requires the learned representations, not
+the architecture alone.
+Training loss remains high ($>$8.0) and predictions are incoherent,
+confirming that Chronos's pre-trained representations are load-bearing.
+
+\textbf{Comparison with Moirai.}
+The contrast validates the value-gate as a regime indicator:
+\emph{Moderate gate-pass} (Moirai/ETTh2, 28\%): encoder restructures
+aggressively (CKA$=$0.52), probe asymmetry emerges ($\Delta R^2{=}{+}0.67$,
+orthogonal$<$0), forgetting is capacity- and protocol-dependent.
+\emph{Strong gate-pass} (Chronos/M4, 84.5\%): encoder is stable
+(CKA$\geq$0.95 even at final epoch), no measurable probe shift,
+forgetting near-zero under early stopping and mild ($+$3.4\%) at
+final epoch; fine-tuning is unnecessary but not harmful.
+Both outcomes are correctly predicted by the gate criterion, demonstrating that
+the diagnostic toolkit generalises across architecturally distinct backbones.
+The probe asymmetry mechanism (task-specific $\Delta R^2{>}0$) requires encoder
+restructuring to produce a measurable signal; on Chronos, encoder stability
+means the asymmetry is not observable; this is a correct null prediction,
+not a failure of the diagnostic.
+
+% ============================================================
+\subsection{ILI Gate Check}
+\label{app:ili_gate}
+% ============================================================
+
+Moirai-Small zero-shot on ILI (national illness, 966 weekly observations,
+7~features, $h{=}24$, lookback$=$104) yields gate-pass${=}$57\%
+(ZS MSE$=$1.183, Linear MSE$=$2.748, per-feature normalisation by
+context statistics).
+
+\textbf{Full probe results (10 CUDA seeds, conditions B/D).}
+Table~\ref{tab:ili_perseed} reports per-seed aggregate diagnostics.
+All 10 seeds show $\Delta R^2{>}0$ (aggregate: $+0.123{\pm}0.046$;
+Wilson CI [0.72,\,1.00]) and forgetting ${<}0$ ($-80.7{\pm}0.9\%$;
+10/10 negative, meaning fine-tuning dramatically improves on ZS).
+CKA$=$0.478${\pm}$0.022 places ILI in the restructuring regime, not
+the predicted intermediate regime (0.90--0.95).
+Condition~D (frozen encoder): CKA$=$1.000, $\Delta R^2{=}$0,
+forgetting$=$0\% in all 10 seeds, confirming encoder weight updates
+drive all changes.
+
+\begin{table}[h]
+\centering\small
+\caption{ILI per-seed results (condition B, Moirai-Small, $h{=}24$, lookback$=$104). Aggregate $\Delta R^2$ is the mean across 7 univariate features.}
+\label{tab:ili_perseed}
+\begin{tabular}{lccccc}
+\toprule
+Seed & CKA & $\Delta R^2$ & Pos.\ features & Forg.\% & Drift \\
+\midrule
+42  & 0.465 & $+$0.211 & 6/7 & $-$81.5 & 5.61 \\
+101 & 0.465 & $+$0.123 & 3/7 & $-$80.9 & 5.34 \\
+123 & 0.511 & $+$0.087 & 3/7 & $-$82.3 & 5.13 \\
+202 & 0.461 & $+$0.169 & 5/7 & $-$79.6 & 5.67 \\
+303 & 0.498 & $+$0.169 & 7/7 & $-$80.9 & 5.49 \\
+456 & 0.454 & $+$0.066 & 5/7 & $-$80.2 & 5.63 \\
+777 & 0.498 & $+$0.074 & 4/7 & $-$80.1 & 5.36 \\
+789 & 0.460 & $+$0.144 & 6/7 & $-$79.8 & 5.49 \\
+888 & 0.459 & $+$0.111 & 4/7 & $-$79.7 & 5.24 \\
+999 & 0.512 & $+$0.080 & 4/7 & $-$82.0 & 5.25 \\
+\midrule
+Mean$\pm$std & 0.478$\pm$.022 & $+$0.123$\pm$.046 & 4.7/7 & $-$80.7$\pm$0.9 & 5.42$\pm$.21 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Per-feature breakdown.}
+OT (target feature) shows the largest $\Delta R^2$ ($+0.73{\pm}0.16$, 10/10
+positive); AGE~0--4 also shows consistent gain ($+0.15{\pm}0.05$, 10/10).
+AGE~5--24 shows slight negative signal ($-0.07{\pm}0.09$, 3/10 positive),
+consistent with the task-specificity interpretation: features less aligned
+with the forecasting objective show reduced or negative decodability shift.
+
+\textbf{Interpretation.}
+The pre-registered prediction had two components, and neither now supports
+the hypothesis. The CKA component (0.90--0.95, intermediate behaviour) is
+\textbf{falsified}: CKA is in the restructuring regime (0.478), not
+intermediate. The probe-asymmetry component (${\geq}$7/10 seeds
+$\Delta R^2{>}0$) was reported as confirmed, but rests on the statistic we
+retract (\S\ref{sec:retraction}) and is therefore \textbf{withdrawn} rather
+than confirmed. The prediction as a whole is falsified, not partially so.
+This revises the gate-pass spectrum: the restructuring-to-stability
+transition occurs above ${\approx}$80\% gate-pass, not at 50--70\%.
+ILI's low CKA reflects the small dataset (966 timesteps, ${\approx}$450
+training windows per feature) which permits aggressive restructuring
+within 20 epochs.

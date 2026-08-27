@@ -1,0 +1,14 @@
+dataset: M4-Monthly
+model_type: chronos
+model_id: amazon/chronos-t5-small
+max_train_samples: 500
+horizon: 18
+lookback: 96
+epochs: 20
+batch_size: 16
+lr: 1.0e-4
+n_series: 200
+conditions: [A, B, D]
+eval_every: 5
+early_stopping: true
+deterministic: true

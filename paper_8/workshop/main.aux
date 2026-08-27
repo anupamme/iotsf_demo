@@ -1,0 +1,89 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{kirkpatrick2017ewc,hu2022lora,li2018l2sp}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{woo2024moirai}
+\citation{ansari2024chronos}
+\citation{das2024timeseries}
+\citation{goswami2024moment}
+\citation{zhou2021informer}
+\citation{kornblith2019cka}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Setup and the Diagnostic Framework}{2}{section.2}\protected@file@percent }
+\newlabel{sec:method}{{2}{2}{Setup and the Diagnostic Framework}{section.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {The chain, and why drift cannot stand in for the intervention.} \textbf  {(a)}~The three quantities the chain keeps apart. \textbf  {(b)}~All 23 cells; red marks the six \textbf  {pretrained-capability degradation} cells. They are the \emph  {least}-drifted cells we measure (CKA $0.67$--$0.89$) while adaptation helps most at $0.09$--$0.46$, so the reflex---large drift means damage---points the wrong way. The $x$-axis is not a decision boundary: CKA is comparable only \emph  {within} a backbone, and within Moirai it does not reliably order the column ($\rho {=}{+}0.495$, CI includes $0$; App.~\ref {app:crosscell}).}}{3}{figure.1}\protected@file@percent }
+\newlabel{fig:chain}{{1}{3}{\textbf {The chain, and why drift cannot stand in for the intervention.} \textbf {(a)}~The three quantities the chain keeps apart. \textbf {(b)}~All 23 cells; red marks the six \textbf {pretrained-capability degradation} cells. They are the \emph {least}-drifted cells we measure (CKA $0.67$--$0.89$) while adaptation helps most at $0.09$--$0.46$, so the reflex---large drift means damage---points the wrong way. The $x$-axis is not a decision boundary: CKA is comparable only \emph {within} a backbone, and within Moirai it does not reliably order the column ($\rho {=}{+}0.495$, CI includes $0$; App.~\ref {app:crosscell})}{figure.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {The intervention spans 101~pp; drift does not order it.} Held-out B$-$D (pp): negative $=$ adaptation helps, \textbf  {positive $=$ freezing is better}. 23 cells, three backbones, 3--10 seeds; gate and B$-$D both scored on the test split. $^{\text  {f}}$gate-fails there despite passing on the selection windows; $^{*}$directional ($|$mean$|<2$\,SEM); $^{\ddagger }$B$-$D only---Chronos's head/decoder mismatch makes per-condition forgetting non-comparable (limitation~iii). \textbf  {degradation} $=$ pretrained-capability degradation (\S  \ref {sec:results}); Fig.~\ref {fig:chain}b plots all 23. Per-cell values App.~\ref {app:heldout}, statistics in App.~\ref {app:crosscell}.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:regimes}{{1}{3}{\textbf {The intervention spans 101~pp; drift does not order it.} Held-out B$-$D (pp): negative $=$ adaptation helps, \textbf {positive $=$ freezing is better}. 23 cells, three backbones, 3--10 seeds; gate and B$-$D both scored on the test split. $^{\text {f}}$gate-fails there despite passing on the selection windows; $^{*}$directional ($|$mean$|<2$\,SEM); $^{\ddagger }$B$-$D only---Chronos's head/decoder mismatch makes per-condition forgetting non-comparable (limitation~iii). \textbf {degradation} $=$ pretrained-capability degradation (\S \ref {sec:results}); Fig.~\ref {fig:chain}b plots all 23. Per-cell values App.~\ref {app:heldout}, statistics in App.~\ref {app:crosscell}}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Results: What the Intervention Separates}{3}{section.3}\protected@file@percent }
+\newlabel{sec:results}{{3}{3}{Results: What the Intervention Separates}{section.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Discussion}{4}{section.4}\protected@file@percent }
+\newlabel{sec:discussion}{{4}{4}{Discussion}{section.4}{}}
+\bibstyle{plainnat}
+\bibdata{workshop_refs}
+\bibcite{ansari2024chronos}{{1}{2024}{{Ansari et~al.}}{{Ansari, Stella, Turkmen, Zhang, Mercado, Shen, Shchur, Rangapuram, Arango, Kapoor, Zschiegner, Maddix, Wang, Mahoney, Torkkola, Wilson, Bohlke-Schneider, and Wang}}}
+\bibcite{das2024timeseries}{{2}{2024}{{Das et~al.}}{{Das, Kong, Sen, and Zhou}}}
+\bibcite{goswami2024moment}{{3}{2024}{{Goswami et~al.}}{{Goswami, Szafer, Choudhry, Cai, Li, and Dubrawski}}}
+\bibcite{hu2022lora}{{4}{2022}{{Hu et~al.}}{{Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and Chen}}}
+\bibcite{kirkpatrick2017ewc}{{5}{2017}{{Kirkpatrick et~al.}}{{Kirkpatrick, Pascanu, Rabinowitz, Veness, Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska, Hassabis, Clopath, Kumaran, and Hadsell}}}
+\bibcite{kornblith2019cka}{{6}{2019}{{Kornblith et~al.}}{{Kornblith, Norouzi, Lee, and Hinton}}}
+\bibcite{kumar2022finetuning}{{7}{2022}{{Kumar et~al.}}{{Kumar, Raghunathan, Jones, Ma, and Liang}}}
+\bibcite{li2018l2sp}{{8}{2018}{{Li et~al.}}{{Li, Grandvalet, and Davoine}}}
+\bibcite{li2017lwf}{{9}{2018}{{Li and Hoiem}}{{}}}
+\bibcite{luo2023forgetting}{{10}{2023}{{Luo et~al.}}{{Luo, Yang, Meng, Li, Zhou, and Zhang}}}
+\bibcite{neyshabur2020transferred}{{11}{2020}{{Neyshabur et~al.}}{{Neyshabur, Sedghi, and Zhang}}}
+\bibcite{wilinski2025representations}{{12}{2025}{{Wili{\'n}ski et~al.}}{{Wili{\'n}ski, Goswami, Potosnak, {\.Z}ukowska, and Dubrawski}}}
+\bibcite{woo2024moirai}{{13}{2024}{{Woo et~al.}}{{Woo, Liu, Kumar, Xiong, Savarese, and Sahoo}}}
+\bibcite{zhou2021informer}{{14}{2021}{{Zhou et~al.}}{{Zhou, Zhang, Peng, Zhang, Li, Xiong, and Zhang}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Within-Model Dissociation Sweep}{6}{appendix.A}\protected@file@percent }
+\newlabel{app:sweep}{{A}{6}{Within-Model Dissociation Sweep}{appendix.A}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Within-model dissociation.} Moirai-Small/ETTh2 ($h{=}96$, cond.~B) across $n$: as $n$ rises CKA drift is monotonic (top) while forgetting is non-monotonic and sign-flipping (bottom), improving at maximum drift: \textbf  {drift and downstream outcome can move independently}. Sample size is uncontrolled here, so this demonstrates \textbf  {non-monotonic co-movement, not causal independence}: it is a dissociation, not an intervention on drift. Error bars $\pm 1$ SD; $n{=}10$k is 10-seed CUDA-deterministic.}}{6}{figure.2}\protected@file@percent }
+\newlabel{fig:dissociation}{{2}{6}{\textbf {Within-model dissociation.} Moirai-Small/ETTh2 ($h{=}96$, cond.~B) across $n$: as $n$ rises CKA drift is monotonic (top) while forgetting is non-monotonic and sign-flipping (bottom), improving at maximum drift: \textbf {drift and downstream outcome can move independently}. Sample size is uncontrolled here, so this demonstrates \textbf {non-monotonic co-movement, not causal independence}: it is a dissociation, not an intervention on drift. Error bars $\pm 1$ SD; $n{=}10$k is 10-seed CUDA-deterministic}{figure.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}The Probe Evidence We Retract}{6}{appendix.B}\protected@file@percent }
+\newlabel{app:probes}{{B}{6}{The Probe Evidence We Retract}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Probe $\Delta R^2$ on Moirai-Small/ETTh2, $h{=}96$, $n{=}10$k. Auxiliary targets span statistical properties (mean, variance, lag-1 autocorrelation), an alternative forecast horizon (forecast-48), and a positive-floor readout (GBM delta1).}}{7}{table.2}\protected@file@percent }
+\newlabel{tab:probestats}{{2}{7}{Probe $\Delta R^2$ on Moirai-Small/ETTh2, $h{=}96$, $n{=}10$k. Auxiliary targets span statistical properties (mean, variance, lag-1 autocorrelation), an alternative forecast horizon (forecast-48), and a positive-floor readout (GBM delta1)}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}ILI Cell Detail}{7}{appendix.C}\protected@file@percent }
+\newlabel{app:ili}{{C}{7}{ILI Cell Detail}{appendix.C}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces ILI per-seed results (Moirai-Small, $h{=}24$, lookback 104), both conditions, regenerated for this revision. Each value is the mean across the 7 univariate features. The $\Delta R^2$ column of the earlier version of this table is dropped with the retracted probe axis; condition~D is shown because it previously did not exist as a measurement.}}{8}{table.3}\protected@file@percent }
+\newlabel{tab:iliperseed}{{3}{8}{ILI per-seed results (Moirai-Small, $h{=}24$, lookback 104), both conditions, regenerated for this revision. Each value is the mean across the 7 univariate features. The $\Delta R^2$ column of the earlier version of this table is dropped with the retracted probe axis; condition~D is shown because it previously did not exist as a measurement}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Full Preservation Spectrum}{8}{appendix.D}\protected@file@percent }
+\newlabel{app:preservation}{{D}{8}{Full Preservation Spectrum}{appendix.D}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph  {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100. \textbf  {Two caveats on comparability, added in revision.} Forgetting\% divides by the single shared zero-shot printed in each horizon header, not by each run's own zero-shot; the anchoring and LoRA runs measure their own at $0.127$--$0.131$, so their figures here are inflated by $1.2$--$3.4$~pp. And the rows are not matched on training-set size: B and C use $n{=}500$ training samples while L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). Matched at $n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP $\lambda {=}0.01$ $.939$/$+16.0$, L2-SP $\lambda {=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA $.979$/$-9.2$. On that comparison L2-SP $\lambda {=}0.1$ ties full fine-tuning rather than losing to it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not predicting utility---is unaffected.}}{9}{table.4}\protected@file@percent }
+\newlabel{tab:mitigation_spectrum}{{4}{9}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100. \textbf {Two caveats on comparability, added in revision.} Forgetting\% divides by the single shared zero-shot printed in each horizon header, not by each run's own zero-shot; the anchoring and LoRA runs measure their own at $0.127$--$0.131$, so their figures here are inflated by $1.2$--$3.4$~pp. And the rows are not matched on training-set size: B and C use $n{=}500$ training samples while L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). Matched at $n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP $\lambda {=}0.01$ $.939$/$+16.0$, L2-SP $\lambda {=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA $.979$/$-9.2$. On that comparison L2-SP $\lambda {=}0.1$ ties full fine-tuning rather than losing to it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not predicting utility---is unaffected}{table.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Chronos and TimesFM Intervention Detail}{9}{appendix.E}\protected@file@percent }
+\newlabel{app:crossbackbone}{{E}{9}{Chronos and TimesFM Intervention Detail}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Chronos-T5-Small, $h{=}24$, $n{=}8$k, matched seeds and eval windows. MSE is per-element validation MSE; B$-$D${=}(\mathrm  {MSE_B}-\mathrm  {MSE_D})/\mathrm  {MSE_{ZS}}\times 100$, so the zero-shot reference cancels and only the two same-head models are compared. All six D runs converged (early stopping fired) and all six ridge optima were interior.}}{10}{table.5}\protected@file@percent }
+\newlabel{tab:chronos_bd}{{5}{10}{Chronos-T5-Small, $h{=}24$, $n{=}8$k, matched seeds and eval windows. MSE is per-element validation MSE; B$-$D${=}(\mathrm {MSE_B}-\mathrm {MSE_D})/\mathrm {MSE_{ZS}}\times 100$, so the zero-shot reference cancels and only the two same-head models are compared. All six D runs converged (early stopping fired) and all six ridge optima were interior}{table.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Cross-Cell Statistics, and a Pooled Analysis We Do Not License}{12}{appendix.F}\protected@file@percent }
+\newlabel{app:crosscell}{{F}{12}{Cross-Cell Statistics, and a Pooled Analysis We Do Not License}{appendix.F}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Held-Out Re-Scoring of the Intervention}{13}{appendix.G}\protected@file@percent }
+\newlabel{app:heldout}{{G}{13}{Held-Out Re-Scoring of the Intervention}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Every cell, both scorings. Gate and B$-$D are computed on the same test windows; \textsuperscript  {f} marks the three cells that gate-fail there. ``Reverses'' $=$ the sign of B$-$D differs between the two scorings.}}{14}{table.6}\protected@file@percent }
+\newlabel{tab:heldout_all}{{6}{14}{Every cell, both scorings. Gate and B$-$D are computed on the same test windows; \textsuperscript {f} marks the three cells that gate-fail there. ``Reverses'' $=$ the sign of B$-$D differs between the two scorings}{table.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}The Strict-Freeze Control}{15}{appendix.H}\protected@file@percent }
+\newlabel{app:strictfreeze}{{H}{15}{The Strict-Freeze Control}{appendix.H}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}CKA Pooling Robustness, and the Re-Analysis that Retracts the Probe Axis}{16}{appendix.I}\protected@file@percent }
+\newlabel{app:pooling}{{I}{16}{CKA Pooling Robustness, and the Re-Analysis that Retracts the Probe Axis}{appendix.I}{}}
+\citation{kirkpatrick2017ewc}
+\citation{li2017lwf}
+\citation{hu2022lora}
+\citation{li2018l2sp}
+\citation{luo2023forgetting}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Transparent protocol, Moirai-Small/ETTh2, 10 released checkpoints. Under the published split $T$ \emph  {no probe generalizes} ($R^2(\text  {PT}){<}0$) and every $|\Delta R^2|$ is far below the permuted-target floor. Under $R$, where every probe generalizes, no $|\Delta R^2|$ exceeds $0.011$ and the trained probe \emph  {decreases}.}}{17}{table.7}\protected@file@percent }
+\newlabel{tab:transparent}{{7}{17}{Transparent protocol, Moirai-Small/ETTh2, 10 released checkpoints. Under the published split $T$ \emph {no probe generalizes} ($R^2(\text {PT}){<}0$) and every $|\Delta R^2|$ is far below the permuted-target floor. Under $R$, where every probe generalizes, no $|\Delta R^2|$ exceeds $0.011$ and the trained probe \emph {decreases}}{table.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}Predicting the Reading Without the Frozen Control}{17}{appendix.J}\protected@file@percent }
+\newlabel{app:predictor}{{J}{17}{Predicting the Reading Without the Frozen Control}{appendix.J}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}Related Work}{17}{appendix.K}\protected@file@percent }
+\newlabel{app:related}{{K}{17}{Related Work}{appendix.K}{}}
+\citation{wilinski2025representations}
+\citation{kumar2022finetuning}
+\citation{neyshabur2020transferred}
+\citation{kornblith2019cka}
+\@writefile{toc}{\contentsline {section}{\numberline {L}Moirai-Base Frozen-Encoder Run}{18}{appendix.L}\protected@file@percent }
+\newlabel{app:based}{{L}{18}{Moirai-Base Frozen-Encoder Run}{appendix.L}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Threshold Sensitivity}{19}{appendix.M}\protected@file@percent }
+\newlabel{app:thresholds}{{M}{19}{Threshold Sensitivity}{appendix.M}{}}
+\gdef \@abspage@last{20}

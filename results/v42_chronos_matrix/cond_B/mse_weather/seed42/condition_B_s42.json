@@ -1,0 +1,48 @@
+{
+  "dataset": "Weather",
+  "condition": "B",
+  "seed": 42,
+  "loss_type": "mse_head",
+  "epochs": 30,
+  "best_epoch": 7,
+  "lr": 0.0001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 44.12039766521186,
+  "zs_mse": 1.1937181855633279,
+  "linear_mse": 2.1362324277318137,
+  "best_val_loss": 24.4664035987854,
+  "final_cka": 0.08013300735020377,
+  "weight_drift": 34.71989157912187,
+  "has_drift": true,
+  "linear_probe": {
+    "r2_pt": 0.6508727639315547,
+    "r2_ft": 0.779538549535272,
+    "delta_r2": 0.12866578560371733
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.1905189201211005,
+      "mean": 0.8080668184124886,
+      "var": 0.39970903327284757
+    },
+    "finetuned": {
+      "lag1": 0.2983077782199063,
+      "mean": 0.8048342447962367,
+      "var": 0.2879420072244756
+    },
+    "delta": {
+      "lag1": 0.10778885809880578,
+      "mean": -0.0032325736162519547,
+      "var": -0.11176702604837196
+    }
+  },
+  "probe_asymmetry": false,
+  "dissociation": false,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.1237224578299396,
+  "test_val_loss": 25.085063400268556,
+  "test_mse_per_element": 1.0452109750111898,
+  "test_forgetting_pct": -6.9867325576429415
+}

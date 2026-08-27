@@ -1,0 +1,91 @@
+% ============================================================
+\section{Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+
+\textbf{Why does the C$>$D gap collapse at scale?}
+At 200/5, Gaussian-noise negatives (C) outperform hard negatives (D)
+because ``easy'' off-manifold negatives provide unambiguous gradient signal
+at limited scale.  At 1000/20 with NLL-only ES, the gap collapses to
+near-zero ($p{=}0.39$, n.s.), consistent with easy negatives providing clearer gradient signal when
+training budget is limited, but this advantage becoming unnecessary
+with sufficient data.
+The detailed mechanism (Appendix~\ref{app:gaussian_mechanism}) shows that
+easy negatives degrade \emph{most} at scale ($-$0.043), while hard negatives
+are under-trained at 200/5 and improve at 500/10 ($+$0.068 for D).
+
+\textbf{Catastrophic forgetting of pre-trained features.}
+The 500/10$\to$1000/20 degradation is explained by catastrophic forgetting:
+extended fine-tuning overwrites pre-trained features, collapsing Moirai
+to CNN-level performance.
+Freezing the encoder recovers AUC (frozen B$=$0.606, C$=$0.582, D$=$0.573
+vs.\ unfrozen 0.506--0.521), confirming the mechanism.
+The mechanism is implicit regularisation loss: more synthetic training data drives the encoder further from its pre-trained initialisation, until the resulting features are no better than random initialisation (CNN AUC$=$0.513$\approx$unfrozen Moirai; full analysis in Appendix~\ref{app:forgetting_mechanism}).
+
+\textbf{Does Moirai pre-training help?}
+At 200/5, the from-scratch CNN (AUC$=$0.597) outperforms all Moirai
+conditions.
+At 1000/20, frozen Moirai substantially exceeds both unfrozen Moirai
+and CNN (0.513): pre-trained features \emph{are} useful when preserved.
+\emph{Methodological caveat}: the CNN uses MSE reconstruction loss while
+Moirai uses distributional NLL; the CNN advantage may partly reflect MSE
+being an easier optimisation target, not just the absence of harmful
+pre-training.  A definitive comparison would require training the CNN with a distributional
+NLL head (e.g., Gaussian NLL); this controlled experiment is future work
+(Appendix~\ref{app:cnn_analysis}).
+Moirai's primary contribution to this work is diagnostic: the frozen-encoder
+experiment requires pre-trained features whose destruction can be measured.
+A CNN has no pre-trained features to lose, so it cannot reveal the
+catastrophic forgetting mechanism.
+The backbone-agnostic claim rests on two architectures (Moirai, CNN) and
+one cross-domain validation (N-BaIoT); testing a third backbone
+(e.g., PatchTST as encoder) would further strengthen Contribution~2.
+
+\textbf{Recommended operating point.}
+Default to the 1D-CNN for IoT anomaly detection at small scale
+($\leq$200 samples): it achieves the highest AUC (0.597), lowest variance,
+and has no pre-training dependency, though the MSE-vs-NLL loss confound
+means this advantage is preliminary.
+When pre-trained features are available and training budget exceeds
+200 samples, switch to frozen Moirai (freeze the encoder, train only
+the projection head, use NLL-only early stopping, recalibrate on
+deployment-specific benign traffic).
+\emph{Caveat}: neither configuration achieves operationally useful F1 at
+stealth-95 under calibrated thresholds (best: C F1$=$0.250,
+frozen C F1$=$0.148); the system is a research prototype best suited as
+a high-specificity alerting layer, not a standalone detector.
+LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters} offer
+a principled middle ground between full freezing and full fine-tuning;
+this is future work.
+Frozen-encoder AUC recovery does not translate to F1 recovery under
+calibrated thresholds (frozen C: F1$=$0.148 vs.\ 200/5 C: F1$=$0.250);
+threshold recalibration is needed operationally
+(Appendix~\ref{app:freezing_details}).
+
+\textbf{When to prefer \ours{} vs Ensemble.}
+At stealth-95, the Ensemble (F1$=$0.136, FPR$=$0.042) and condition~D
+(F1$=$0.137, FPR$=$0.040) are effectively tied, while condition~C
+(F1$=$0.250, FPR$=$0.080) outperforms both at higher FPR.
+\ours{} is preferable for
+(1)~\emph{novel attack generalisation} (leave-one-out: mean $+$0.186 F1;
+Table~\ref{tab:loo}) and
+(2)~\emph{adversarial augmentation} without real attack traffic.
+The Ensemble's partial robustness reflects our evaluation construction: its Isolation Forest component detects distributional shifts in the sparse feature subsets perturbed by each archetype, but this signal weakens monotonically with stealth level; real multi-feature attacks may differ (Appendix~\ref{app:ensemble_degradation}).
+
+\textbf{Computational overhead.}
+Hard-negative generation takes $<$2s/sample on CPU.
+Fine-tuning Moirai-Small for 5 epochs takes $\approx$2--4 min on CPU;
+inference is $<$50ms/sample.
+
+\textbf{Limitations.}
+We identify seven limitations (full details in Appendix~\ref{app:limitations}):
+(1)~hand-designed archetypes;
+(2)~three training scales with 5 seeds;
+(3)~fixed 12-dim input, stealth 85--95\%;
+(4)~Diffusion-TS backbone deferred;
+(5)~circular evaluation (addressed by N-BaIoT, \S\ref{sec:experiments:nbaiot});
+(6)~low absolute F1 (best 0.250; system is a high-specificity alerting layer);
+(7)~baselines use published defaults.
+
+\textbf{Responsible disclosure.}
+We release code and data for defensive research, not to enable attacks.

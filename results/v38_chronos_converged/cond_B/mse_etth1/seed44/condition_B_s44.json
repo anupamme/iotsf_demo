@@ -1,0 +1,42 @@
+{
+  "dataset": "ETTh1",
+  "condition": "B",
+  "seed": 44,
+  "loss_type": "mse_head",
+  "epochs": 30,
+  "best_epoch": 1,
+  "lr": 0.0001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 42.77584691649024,
+  "zs_mse": 1.2588448920169832,
+  "linear_mse": 2.199848882306558,
+  "best_val_loss": 36.20480331420899,
+  "final_cka": 0.17077356337718722,
+  "weight_drift": 16.88494049809624,
+  "has_drift": true,
+  "linear_probe": {
+    "r2_pt": 0.5818530459508852,
+    "r2_ft": 0.440043500844501,
+    "delta_r2": -0.14180954510638416
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.4281906015970698,
+      "mean": 0.6926638103719516,
+      "var": 0.3491764076026106
+    },
+    "finetuned": {
+      "lag1": 0.27979662256002036,
+      "mean": 0.4838197157912566,
+      "var": 0.292146414140826
+    },
+    "delta": {
+      "lag1": -0.14839397903704943,
+      "mean": -0.20884409458069497,
+      "var": -0.05702999346178461
+    }
+  },
+  "probe_asymmetry": false,
+  "dissociation": false
+}

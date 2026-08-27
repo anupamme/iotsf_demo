@@ -1,0 +1,55 @@
+{
+  "condition": "G",
+  "condition_name": "EWC",
+  "model_size": "small",
+  "horizon": 96,
+  "seed": 42,
+  "epochs": 1,
+  "max_train_samples": 50,
+  "l2sp_weight": 0.0,
+  "ewc_lambda": 100.0,
+  "lora_rank": 0,
+  "zeroshot_mse": 0.16556578528912688,
+  "zeroshot_mae": 0.25579334523530534,
+  "final_val_mse": 0.12185502786542363,
+  "final_val_mae": 0.22720597937836767,
+  "test_mse": 0.5267410570686194,
+  "test_mae": 0.4814056101281436,
+  "final_cka": 0.9936711192131042,
+  "final_weight_drift": 0.6275559336263793,
+  "forgetting_pct": -26.400839610292266,
+  "history": {
+    "train_nll": [
+      0.0,
+      12.281583468119303
+    ],
+    "train_contrastive": [
+      0.0,
+      0.0
+    ],
+    "train_total": [
+      0.0,
+      142.76886463165283
+    ],
+    "val_mse": [
+      0.16556578528912688,
+      0.12185502786542363
+    ],
+    "val_mae": [
+      0.25579334523530534,
+      0.22720597937836767
+    ],
+    "cka": [
+      1.0,
+      0.9936711192131042
+    ],
+    "weight_drift": [
+      0.0,
+      0.6275559336263793
+    ],
+    "epoch": [
+      0,
+      1
+    ]
+  }
+}

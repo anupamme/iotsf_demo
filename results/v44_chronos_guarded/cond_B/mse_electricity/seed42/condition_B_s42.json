@@ -1,0 +1,48 @@
+{
+  "dataset": "Electricity",
+  "condition": "B",
+  "seed": 42,
+  "loss_type": "mse_head",
+  "epochs": 30,
+  "best_epoch": 1,
+  "lr": 0.0001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 36.03445273313836,
+  "zs_mse": 1.5945845865654695,
+  "linear_mse": 2.4928803937421624,
+  "best_val_loss": 38.46961181640625,
+  "final_cka": 0.24871212827553088,
+  "weight_drift": 18.28118797604012,
+  "has_drift": true,
+  "linear_probe": {
+    "r2_pt": 0.4506166880484583,
+    "r2_ft": 0.4848360382508609,
+    "delta_r2": 0.03421935020240263
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.6059060211632403,
+      "mean": 0.7673635752395658,
+      "var": 0.48104600815863496
+    },
+    "finetuned": {
+      "lag1": 0.666520184859584,
+      "mean": 0.7131646620176288,
+      "var": 0.5139985802561688
+    },
+    "delta": {
+      "lag1": 0.06061416369634365,
+      "mean": -0.05419891322193693,
+      "var": 0.03295257209753388
+    }
+  },
+  "probe_asymmetry": false,
+  "dissociation": false,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.7418032233734437,
+  "test_val_loss": 40.07083740234375,
+  "test_mse_per_element": 1.6696182250976561,
+  "test_forgetting_pct": -4.144268267915078
+}

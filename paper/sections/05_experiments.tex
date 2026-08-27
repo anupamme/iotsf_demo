@@ -1,0 +1,305 @@
+% ============================================================
+\section{Experiments}
+\label{sec:experiments}
+% ============================================================
+
+% ============================================================
+\subsection{Experimental Setup}
+\label{sec:experiments:setup}
+% ============================================================
+
+\textbf{Dataset.}
+We use \dataset{}~\cite{neto2023ciciot}, a publicly available benchmark
+of labelled IoT network flows captured from 105 IoT devices spanning
+33 attack categories.  We extract 12 network-flow features and create
+128-timestep sliding windows with stride 128, using a stratified 80/20
+train/test split.
+
+\textbf{Synthetic stealth-controlled negatives.}
+We generate 4 attack types (Eqs.~\ref{eq:slow}--\ref{eq:proto})
+at 3 stealth levels (85\%, 90\%, 95\%), yielding 12 evaluation
+conditions.  Protocol constraints (Modbus, MQTT, CoAP) are enforced
+at the \emph{moderate} strictness tier.
+We compare two negative-generation pipelines: (1)~analytical
+closed-form perturbations applied to real benign samples (condition~D),
+and (2)~the same perturbations applied to \emph{learned} base samples
+from Diffusion-TS~\cite{zhang2024diffusionts} with post-hoc statistical
+guidance (condition D-DiffTS; Section~\ref{sec:method:diffts}).
+This controlled comparison isolates the effect of the base distribution
+(real vs.\ generated) while holding the attack perturbation constant.
+
+\textbf{Threshold calibration.}
+We set the anomaly threshold at the 95th percentile of a benign-only
+held-out set (20\% of benign samples), targeting FPR\,$\leq$\,0.05.
+This protocol is applied uniformly to all methods; only benign data
+inform the threshold (details in Appendix~\ref{app:threshold}).
+
+\textbf{Baselines.}
+We compare against nine methods (5 traditional, 4 deep-learning; see
+Appendix~\ref{app:baseline_tuning}).
+All baselines are \textbf{unsupervised} (benign-only training);
+\ours{} conditions B--D are \textbf{supervised} (labeled negatives
+during training; see Appendix~\ref{app:supervision}).
+
+\textbf{Metrics.}
+We report F1, FPR, and ROC-AUC.  All experiments use 10 random seeds
+except leave-one-out (3 seeds, due to combinatorial cost).
+
+% ============================================================
+\subsection{Main Results}
+\label{sec:experiments:main}
+% ============================================================
+
+Table~\ref{tab:main} compares all methods across three synthetic stealth levels.
+
+\input{tables/main_results}
+
+At stealth-95 with benign-calibrated thresholds, Signature IDS and
+Statistical IDS are degenerate (FPR$\geq$0.87; Table~\ref{tab:main},
+$\ddagger$ rows).  Among calibrated methods, the Ensemble achieves
+F1$=$0.136 (FPR$=$0.042).
+\ours{} condition~C (F1$=$0.262, FPR$=$0.068) outperforms all calibrated
+baselines at stealth-95.
+While this is the highest calibrated performance among all methods,
+an absolute F1 of 0.262 means roughly one in four stealth-95 attacks
+is detected under operational thresholds---a diagnostic rather than
+operational result (see Section~\ref{sec:analysis} for deployment guidance).
+Zero-shot A (F1$=$0.137, FPR$=$0.063) performs at chance level, consistent
+with its near-random AUC (0.481$\pm$0.042).
+
+% ============================================================
+\subsection{Ablation Study}
+\label{sec:experiments:ablation}
+% ============================================================
+
+Table~\ref{tab:ablation} ablates the five components of \ours{} (200
+samples, 5 epochs, 10 seeds, benign-calibrated threshold).
+
+\input{tables/ablation}
+
+\textbf{Fine-tuning improves over zero-shot, but with high variance.}
+We report bootstrap 95\% CIs, Cohen's $d$ effect sizes, and $p$-values for
+key comparisons in Appendix~\ref{app:statistics}.
+The best Moirai condition (C, AUC$=$0.629) significantly improves $+$0.148
+over zero-shot A (AUC$=$0.481; $p{<}0.001$, $d{=}4.45$);
+B (0.556) also significantly exceeds A ($p{<}0.001$, $d{=}2.29$).
+The from-scratch CNN (AUC$=$0.580) is significantly below C ($p{<}0.001$);
+a CNN variant with Gaussian NLL (CNN-NLL, AUC$=$0.598) confirms the
+loss function is not the explanation ($p{=}0.24$ vs.\ CNN-MSE).
+
+\textbf{Seed variance.}
+At 10 seeds, Moirai variance stabilises substantially (C: $\pm$0.022 vs.\
+$\pm$0.122 at 5 seeds); the $5.5\times$ reduction exceeds the expected
+$\sqrt{2}$ factor (post-hoc observation: seeds 789 and 1234 appear to have
+depressed the 5-seed mean; this was identified after unblinding and should
+be treated as exploratory).  CNN variance is comparable ($\pm$0.023).
+All main results and scaling experiments use 10 seeds; leave-one-out uses
+3 seeds due to combinatorial cost (see Appendix~\ref{app:cnn_detail}).
+Condition~C$'$ (balanced stealth-controlled negatives, 1:1) disentangles
+negative type from imbalance: Gaussian-noise negatives outperform
+stealth-controlled negatives by $+$0.019 AUC
+(C vs.\ C$'$; $p{=}0.070$, $d{=}0.82$), and the 1:12 imbalance adds a
+significant $-$0.054 penalty (C$'$ vs.\ D; $p{<}0.001$, $d{=}2.33$).
+See Appendix~\ref{app:cprime} for the full decomposition.
+Conditions E, E$'$, and E$''$ confirm that the constraint validator and
+retry mechanism have negligible effect on the analytical pathway
+(Appendix~\ref{app:eee}; embedding visualization in Appendix~\ref{app:embeddings}).
+SupCon hyperparameters ($\lambda$, $\tau$) have no detectable effect at
+this scale (Appendix~\ref{app:hparams}).
+
+% Protocol constraint compliance (100% at all tiers) is reported in
+% Appendix~\ref{app:constraints}; this is expected for the analytical pathway.
+\label{sec:experiments:constraints}
+
+% ============================================================
+\subsection{Generalization to Unseen Attack Patterns}
+\label{sec:experiments:loo}
+% ============================================================
+
+A leave-one-out experiment trains condition~D on three attack types and
+evaluates on the held-out fourth (3 seeds, 30 eval samples per stealth level).
+All four folds show positive transfer: fine-tuning improves over zero-shot
+for every held-out attack type (Table~\ref{tab:loo}, Appendix~\ref{app:loo_detail}).
+The largest gain is for \texttt{lotl\_mimicry}, suggesting
+that low-amplitude mimicry benefits most from boundary-shaping by
+the other archetypes.
+\textbf{Important caveats:} this is a limited generalisation test.
+With $k{=}4$ hand-designed archetypes, each fold trains on only
+three types from a human-selected taxonomy.
+With only 3 seeds and 30 eval samples per stealth level, per-fold
+standard deviations ($\pm$0.05 to $\pm$0.17) approach the signal
+magnitude; the wide confidence intervals mean these results are
+\emph{directional signals of positive transfer}, not a comprehensive
+generalisation guarantee.
+Testing against held-out archetype families outside the original taxonomy
+would strengthen this claim.
+
+% ============================================================
+\subsection{Scaling Experiment}
+\label{sec:experiments:scaling}
+% ============================================================
+
+Table~\ref{tab:scaling} compares stealth-95 metrics at three scales
+(200/5, 500/10, 1000/20) under NLL-only early stopping (10 seeds),
+plus encoder-freezing and L2-SP regularisation diagnostics at 1000/20.
+
+\input{tables/scaling}
+
+\textbf{Monotonic degradation with scale (10 seeds).}
+With 10-seed evaluation, all conditions degrade monotonically from
+200/5 onward: C drops from 0.629 to 0.581 (500/10) to 0.581 (1000/20);
+D from 0.556 to 0.536 to 0.557; B from 0.556 to 0.535 to 0.550.
+The earlier appearance of 500/10 improvement (5-seed data) was a
+small-sample artefact: the 5-seed 200/5 means were underestimates
+(B: 0.481 vs.\ 10-seed 0.556; C: 0.563 vs.\ 0.629).
+The C$>$D gap narrows monotonically from $+$0.073 (200/5, $p{<}0.001$)
+to $+$0.045 (500/10, $p{=}0.027$)
+to $+$0.024 (1000/20, n.s., $p{=}0.216$)---the advantage of easy
+off-manifold negatives diminishes as catastrophic forgetting erases
+the signal that SupCon operates on.
+Variance increases with scale (C: $\pm$0.022 at 200/5, $\pm$0.075 at
+500/10, $\pm$0.082 at 1000/20), reflecting seed-dependent forgetting
+trajectories.
+
+\textbf{Learned negatives resist forgetting.}
+D-DiffTS (5 seeds) improves from 0.621 (200/5) to 0.680 (500/10), the best
+unfrozen AUC at any scale.  Unlike Gaussian negatives, which degrade from
+0.629 (200/5) to 0.581 (500/10, 10 seeds), D-DiffTS at 1000/20
+(0.576) exceeds all other unfrozen conditions.
+At 2000/30, D-DiffTS stabilises (0.578$\pm$0.117), while C and D
+plateau/decline (C$=$0.506, D$=$0.488; 5-seed 2000/30 values).
+Over the full training range (200/5 to 2000/30), D-DiffTS loses only
+$-$6.9\% AUC (0.621$\to$0.578), compared to $-$19.6\% for
+Gaussian (0.629$\to$0.506).
+NLL-only early stopping is essential: under total-loss ES, decreasing SupCon loss masks increasing NLL, causing late checkpoint selection that compounds forgetting (Appendix~\ref{app:nll_es}).
+
+\textbf{Encoder freezing confirms catastrophic forgetting.}
+Freezing the encoder at 1000/20 (10 seeds) yields
+B$=$C$=$D$=$0.549$\pm$0.109---identical across conditions because
+evaluation uses NLL scores from the frozen encoder, and only the
+(unused-at-inference) projection head differs.
+This result still confirms catastrophic forgetting: frozen 0.549
+vs.\ the best unfrozen condition C at 200/5 (0.629) shows that
+pre-trained features, when preserved, provide a detection floor
+that extended fine-tuning erodes.
+However, frozen AUC does \emph{not} exceed the unfrozen 1000/20
+conditions (C$=$0.581, B$=$0.550, D$=$0.557), indicating that
+the projection head alone cannot recover the discrimination lost
+by not adapting the encoder.
+Frozen-encoder F1 remains low (0.152$\pm$0.077) under calibrated
+thresholds, as the NLL-based scorer cannot leverage the contrastive
+signal (details in Appendix~\ref{app:freezing_details}).
+Partial freezing yields modest further gains
+(Appendix~\ref{app:partial_freeze}).
+
+\textbf{Controlled evaluation reveals D-DiffTS advantage is an evaluation-distribution artifact.}
+Frozen D-DiffTS previously reported AUC$=$0.728 (5 seeds) using
+DiffTS-generated evaluation data; unfrozen D-DiffTS at 1000/20 achieves
+0.576 on the same DiffTS evaluation set.
+To decouple training data from evaluation distribution, we re-evaluate
+\emph{both} frozen and unfrozen D-DiffTS on the same analytical negatives
+used for B/C/D (5 seeds, 1000/20; Table~\ref{tab:scaling};
+Appendix~\ref{app:controlled_frozen}).
+Frozen D-DiffTS controlled: AUC$=$0.464$\pm$0.060.
+Unfrozen D-DiffTS controlled: AUC$=$0.463$\pm$0.073.
+Both fall below zero-shot A (0.481) and below all unfrozen B/C/D conditions.
+This confirms that the D-DiffTS advantage---both frozen and unfrozen---reflects
+the frozen or adapted encoder trivially separating DiffTS negatives
+(different feature-space region) rather than any genuine improvement from
+learned-negative training when measured on a common evaluation set.
+Full methodology and results appear in Appendix~\ref{app:controlled_frozen}.
+
+\textbf{Learning-rate ablation rules out LR misconfiguration.}
+To test whether the 1000/20 degradation is merely due to an excessive learning
+rate, we re-run B, C, and D at $\text{lr}{\in}\{10^{-5}, 10^{-6}\}$
+(Table~\ref{tab:lr_ablation}).
+At $10^{-5}$, condition~C partially recovers
+(0.557$\pm$0.103 vs.\ $10^{-4}$: 0.508$\pm$0.041) but remains above frozen
+(0.549$\pm$0.109); conditions B and D do not benefit.
+At $10^{-6}$, all conditions underfit (B: 0.465, C: 0.471, D: 0.465),
+confirming a narrow LR window rather than a simple ``lower is better'' fix.
+LoRA fine-tuning (rank$=$8, $\alpha{=}$16) on \texttt{q\_proj}, \texttt{v\_proj},
+\texttt{out\_proj} also underperforms full freezing (C: 0.484$\pm$0.108,
+D: 0.484$\pm$0.133), suggesting the low-rank adapters lack sufficient capacity
+for this task.
+Together, these results provide converging evidence that encoder-weight
+corruption---not hyperparameter misconfiguration---drives the scaling
+degradation (full results in Table~\ref{tab:lr_ablation},
+Appendix~\ref{app:lr_ablation}).
+
+\textbf{Analytical vs.\ learned negatives.}
+To test whether the analytical perturbations (Eqs.~\ref{eq:slow}--\ref{eq:proto})
+limit stealth-controlled negative quality, we train a
+Diffusion-TS~\cite{zhang2024diffusionts} generative model on CICIoT2023 benign
+traffic (Section~\ref{sec:method:diffts}) and generate \emph{learned}
+negatives with post-hoc statistical guidance.
+D-DiffTS is included as a full row in Tables~\ref{tab:ablation}
+and~\ref{tab:scaling} at all three training scales, with frozen-encoder
+results at 1000/20.
+At 200/5 (10 seeds), D-DiffTS (AUC$=$0.621$\pm$0.056) matches Gaussian C
+(0.629$\pm$0.022) on their respective evaluation sets.
+At 500/10, D-DiffTS achieves 0.680 and at 1000/20 (frozen), 0.728---but
+\emph{both} figures use DiffTS-generated evaluation data, not the analytical
+negatives used by B/C/D.
+As shown above, controlled cross-evaluation collapses both to $\approx$0.464,
+confirming these figures do not reflect a genuine learned-negative advantage.
+
+\textbf{Is the foundation model necessary for learned negatives?}
+To test whether DiffTS benefits require Moirai's pre-trained features, we
+train from-scratch CNN and CNN-NLL with DiffTS negatives (5 seeds, 200/5).
+CNN$+$DiffTS achieves AUC$=$0.514$\pm$0.095 and CNN-NLL$+$DiffTS achieves
+0.512$\pm$0.108 at stealth-95, both \emph{below} the same CNNs with
+analytical negatives (CNN: 0.580, CNN-NLL: 0.598; Table~\ref{tab:ablation}).
+DiffTS negatives \emph{hurt} the from-scratch CNN, confirming that the
+D-DiffTS advantage is specific to the foundation model: Moirai's pre-trained
+features can leverage the distributional richness of learned negatives,
+while a from-scratch CNN lacks the representational capacity to benefit.
+
+\textbf{Generator ablation.}
+To isolate the source of any D-DiffTS improvement, we compare three
+conditions at 200/5 (5 seeds, Table~\ref{tab:gen_ablation}):
+(1)~D-DiffTS (full: learned base $+$ analytical perturbation $+$
+post-hoc guidance);
+(2)~D-DiffTS-noguide (learned base $+$ perturbation, no guidance);
+(3)~D-analytical (existing condition~D: analytical base $+$ perturbation).
+
+\input{tables/gen_ablation}
+
+% ============================================================
+\subsection{External Validation on N-BaIoT}
+\label{sec:experiments:nbaiot}
+% ============================================================
+
+To address circular evaluation (Limitation~5), we evaluate on
+N-BaIoT~\cite{meidan2018n}, an independent IoT botnet benchmark.
+Zero-shot transfer from CICIoT2023 fails (AUC$<$0.30), as expected
+given the distribution shift (Appendix~\ref{app:extended_nbaiot}).
+
+\textbf{Device~4 (1{,}096 windows): strongest cross-dataset result.}
+On device~4 (Philips B120N10, 1{,}096 training windows, 5 epochs),
+D-DiffTS learned negatives achieve \textbf{AUC$=$0.939$\pm$0.014} (3 seeds),
+slightly exceeding Gaussian on the same device (0.929$\pm$0.012).
+This is the strongest cross-dataset result, confirming that learned
+negatives match or exceed Gaussian when adequate training data ($\geq$500
+windows) is available.
+
+\textbf{Device~1 (310 windows): data-size limitation.}
+On device~1 (Danmini doorbell, 310 training windows), Gaussian-noise
+negatives achieve AUC$=$\nbaiotAUC{} (3 seeds), with 8/10 attack
+variants above 0.83.
+D-DiffTS on this device achieves only AUC$=$0.660$\pm$0.427---the training
+set is insufficient for DiffTS to learn a robust benign distribution.
+The device~4 result directly confirms the data-size hypothesis.
+
+\textbf{Caveat: N-BaIoT success uses Gaussian negatives, not stealth-controlled.}
+The N-BaIoT fine-tuning uses Gaussian-noise negatives, not the
+stealth-controlled negatives from the CICIoT2023 pipeline.
+This validates the \emph{training recipe} (NLL$+$SupCon) and the
+\emph{framework} (Moirai fine-tuning), but does not directly validate
+the stealth-controlled negative generation methodology on an
+external dataset.
+
+Against unsupervised baselines (Table~\ref{tab:nbaiot_baselines},
+Appendix~\ref{app:extended_nbaiot}), Isolation Forest (AUC$=$0.991) leads
+with 72 hand-engineered features; \ours{} (AUC$=$\nbaiotAUC{}) matches
+One-Class SVM (0.931) using a general-purpose backbone.

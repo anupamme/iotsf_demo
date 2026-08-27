@@ -1,0 +1,178 @@
+% ============================================================
+\section{Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+
+\textbf{Catastrophic forgetting as the dominant failure mode.}
+The central finding of this work is that catastrophic forgetting---not
+hyperparameter misconfiguration or negative-sample design---is the primary
+obstacle to scaling foundation-model fine-tuning for IoT anomaly detection.
+With 10-seed evaluation, all conditions degrade monotonically from 200/5
+onward (Table~\ref{tab:scaling}): C drops from 0.629 to 0.581 (500/10) to
+0.581 (1000/20); B from 0.556 to 0.535 to 0.550.
+The 5-seed appearance of improvement at 500/10 was a small-sample artefact
+(200/5 means were underestimates).
+This degradation is confirmed by four converging lines of evidence:
+(1)~encoder freezing (10 seeds) produces B$=$C$=$D$=$0.549$\pm$0.109---identical
+across conditions because NLL-based evaluation depends only on the frozen
+encoder, not the (differing) projection heads; the frozen AUC of 0.549
+exceeds zero-shot A (0.481) on the same evaluation data, confirming that
+pre-trained features provide a detection floor, but does not exceed the
+best unfrozen condition at 200/5 (C$=$0.629), demonstrating that the
+encoder's pre-trained representations alone are insufficient without
+adaptation;
+(2)~learning-rate ablation ($10^{-4}$ to $10^{-6}$; Table~\ref{tab:lr_ablation})
+shows $10^{-5}$ partially mitigates degradation for C but not B or D, while
+$10^{-6}$ underfits---a narrow LR window rather than a simple ``lower is better'' fix;
+(3)~LoRA (rank$=$8) underperforms full freezing (C: 0.484 vs.\ 0.549);
+(4)~L2-SP regularisation ($\lambda{=}0.01$) produces identical AUC across
+conditions (B$=$C$=$D$=$0.555$\pm$0.141, 5 seeds), confirming weight-drift
+penalty dominates the negative-type signal (Appendix~\ref{app:l2sp}).
+Direct weight-drift measurements (Table~\ref{tab:weight_drift},
+Appendix~\ref{app:weight_drift}) reveal that D-DiffTS drifts \emph{more}
+than C when unfrozen (1000/20: mean cosine distance$=$0.00195 vs.\ C 0.000432,
+$+$352\%) and undergoes the most representational change (linear
+CKA$=$0.183 vs.\ C 0.373).
+On its own DiffTS-generated evaluation set, unfrozen D-DiffTS achieves
+AUC$=$0.576 (5 seeds)---but this comparison uses a different evaluation
+distribution than B/C/D.
+Controlled cross-evaluation (Appendix~\ref{app:controlled_frozen}) resolves
+both apparent advantages: frozen D-DiffTS on analytical negatives yields
+AUC$=$0.464$\pm$0.060, and \emph{unfrozen} D-DiffTS on analytical negatives
+yields AUC$=$0.463$\pm$0.073---both below zero-shot A (0.481) and far below
+frozen B$=$C$=$D$=$0.549 and unfrozen B$=$0.550/C$=$0.581/D$=$0.557.
+The previously-reported 0.728 (frozen) and apparent unfrozen advantage were
+both evaluation-distribution artifacts: the encoder (frozen or adapted)
+trivially separates DiffTS negatives (a different feature-space region)
+rather than demonstrating any genuine detection benefit from D-DiffTS training
+(see Section~\ref{sec:experiments:scaling} and Appendix~\ref{app:controlled_frozen}).
+
+\textbf{Negative-type-dependent forgetting severity.}
+Forgetting severity varies with negative quality within the same evaluation
+distribution.
+At 200/5, Gaussian-noise negatives (C, AUC$=$0.629) outperform analytical
+stealth-controlled negatives (D, 0.556) because off-manifold negatives provide
+unambiguous gradient signal at limited scale.
+The C$>$D gap narrows monotonically:
+$+$0.073 (200/5, $p{<}0.001$), $+$0.045 (500/10, $p{=}0.027$),
+$+$0.024 (1000/20, n.s., $p{=}0.216$)---the advantage of easy off-manifold
+negatives diminishes as forgetting erases the signal that SupCon operates on.
+Learned negatives appear to close the gap: D-DiffTS (5 seeds) achieves 0.621
+at 200/5 and 0.576 at 1000/20 when evaluated on \emph{its own DiffTS-generated
+negatives}.
+However, the controlled cross-evaluation (Appendix~\ref{app:controlled_frozen})
+shows that unfrozen D-DiffTS evaluated on the \emph{same analytical negatives}
+as B/C/D yields AUC$=$0.463$\pm$0.073 at stealth-95 (5 seeds)---below
+zero-shot A (0.481) and below all unfrozen Moirai conditions.
+This indicates that the apparent D-DiffTS advantage over B and D at larger
+scales is also an evaluation-distribution artifact: learned negatives lie
+in a different feature-space region, so the encoder trained on them cannot
+generalise to detecting analytical perturbations.
+The within-distribution resistance to forgetting (D-DiffTS losing only $-$6.9\%
+vs.\ $-$19.6\% for Gaussian, each on its own eval set) reflects this same
+distribution gap rather than a genuine generalisation advantage.
+A generator ablation (Table~\ref{tab:gen_ablation}) confirms that the learned
+base distribution is essential: removing post-hoc guidance degrades
+within-distribution performance.
+
+\textbf{What does labeled attack data actually buy? Supervised baselines.}
+To isolate the \emph{labeled-data} effect from the \emph{temporal-modeling}
+effect, we train Logistic Regression, XGBoost, and a 2-layer MLP on the
+same 72-dim statistical features (12 features $\times$ 6 statistics) and the
+same labeled stealth-controlled negatives used by condition~D
+(10 seeds, 80/20 held-out split; Appendix~\ref{app:supervised_baselines}).
+LogReg achieves AUC$=$0.630$\pm$0.082 at stealth-95---matching
+HNIDS~C (0.629$\pm$0.022).
+XGBoost achieves 0.570$\pm$0.107 (between B and C);
+MLP underperforms (0.453$\pm$0.110).
+These results indicate that labeled attack data---not temporal modeling
+or pre-trained features---drives the AUC improvement over zero-shot A (0.481).
+HNIDS's marginal value over LogReg is the lower FPR achievable under
+calibrated thresholds (C: 0.068 vs.\ LogReg: 0.087), the calibrated F1
+(C: 0.262 vs.\ LogReg: 0.312 at higher FPR), and the sequential structure
+that enables the frozen-encoder forgetting diagnosis.
+
+\textbf{Foundation model vs.\ from-scratch CNN.}
+At 200/5, the from-scratch CNN (AUC$=$0.580) is outperformed by C (0.629)
+but exceeds all other Moirai conditions.
+At 1000/20, unfrozen Moirai (10 seeds: B$=$0.550, C$=$0.581, D$=$0.557)
+exceeds CNN (0.513, 5 seeds) but only modestly.
+To control for the loss-function confound (CNN uses MSE while Moirai uses
+distributional NLL), we train CNN-NLL (AUC$=$0.598$\pm$0.041 vs.\ CNN-MSE
+0.580$\pm$0.023; $p{=}0.24$); the loss function is not the explanation.
+We note that architecture, parameter count, and pre-training distribution
+are confounded: Moirai (13.8M parameters, pre-trained on LOTSA) differs
+from the CNN (0.3M parameters, no pre-training) in all three dimensions.
+Moirai's primary contribution to this work is diagnostic: the frozen-encoder
+experiment requires pre-trained features whose destruction can be measured.
+A CNN has no pre-trained features to lose, so it cannot reveal the
+catastrophic forgetting mechanism.
+
+\textbf{Absolute detection performance.}
+Detection degrades sharply with stealth level:
+condition~C achieves F1$=$0.354 at stealth-85, F1$=$0.316 at stealth-90,
+and F1$=$0.262 at stealth-95 (AUC: 0.697$\to$0.694$\to$0.563).
+Even the best absolute F1 at stealth-95 (0.262, condition~C) means three
+in four attacks go undetected.
+No method---including all nine baselines---achieves operationally useful
+detection at this stealth level.
+The system is a \emph{research diagnostic} best suited as a
+high-specificity alerting tier within a multi-layered SOC pipeline,
+not a standalone IDS.
+
+\textbf{Recommended operating point.}
+At small scale ($\leq$200 samples), condition~C with Gaussian-noise
+negatives achieves the best unfrozen AUC (0.629$\pm$0.022, 10 seeds).
+Without pre-training dependency, the 1D-CNN (AUC$=$0.580--0.598, lowest
+variance) is a practical default.
+When pre-trained features are available, freezing the encoder provides a
+stable detection floor (0.549).
+Learned negatives from Diffusion-TS show lower degradation within their
+own evaluation distribution---but controlled cross-evaluation
+(Appendix~\ref{app:controlled_frozen}) shows this does not transfer to the
+analytical-negative detection task, so learned negatives are not recommended
+without a matched evaluation set.
+\emph{Caveat}: no configuration achieves operationally useful F1 at
+stealth-95 under calibrated thresholds (best: C F1$=$0.262); the system
+is a research prototype best suited as a high-specificity alerting layer,
+not a standalone detector.
+
+\textbf{Deployment decision tree.}
+In summary:
+(1)~If training data is limited ($\leq$200 samples), use Moirai with
+NLL$+$SupCon and Gaussian-noise negatives for the best small-scale
+detection, or a from-scratch CNN for lowest variance.
+(2)~If a pre-trained model is available and extended training risks
+forgetting, freeze the encoder and train only the projection head
+with NLL-only early stopping; consider L2-SP regularisation if partial
+fine-tuning is desired.
+(3)~Ensure training and evaluation negatives share the same distribution;
+cross-condition AUC comparisons with different negative types are unreliable.
+(4)~In all cases, recalibrate thresholds on deployment-specific benign traffic.
+(5)~No configuration achieves operationally useful standalone detection
+at stealth-95; deploy as a high-specificity alerting tier within a
+multi-layered IDS.
+
+\textbf{Computational overhead.}
+Stealth-controlled negative generation takes $<$2s/sample on CPU.
+Fine-tuning Moirai-Small for 5 epochs takes $\approx$2--4 min on CPU;
+inference is $<$50ms/sample.
+
+\textbf{Limitations.}
+We identify eight limitations (full details in Appendix~\ref{app:limitations}):
+(1)~hand-designed archetypes;
+(2)~three training scales with 10 seeds;
+(3)~fixed 12-dim input, stealth 85--95\%;
+(4)~Diffusion-TS learned negatives require $\approx$12 hours of
+generative model training on CICIoT2023 benign traffic;
+(5)~circular evaluation (addressed by N-BaIoT, \S\ref{sec:experiments:nbaiot});
+(6)~low absolute F1 (best 0.262; system is a high-specificity alerting layer);
+(7)~architecture, parameter count, and pre-training data are confounded
+in the Moirai vs.\ CNN comparison;
+(8)~frozen-encoder comparisons across negative types use different evaluation
+distributions (each condition's eval set is drawn from its own synthetic
+negatives), limiting the interpretability of cross-condition frozen AUC
+differences.
+
+\textbf{Responsible disclosure.}
+We release code and data for defensive research, not to enable attacks.

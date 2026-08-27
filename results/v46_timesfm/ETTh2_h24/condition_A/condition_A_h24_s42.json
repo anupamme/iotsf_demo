@@ -1,0 +1,15 @@
+{
+  "backbone": "timesfm",
+  "model_id": "google/timesfm-2.5-200m-pytorch",
+  "dataset": "ETTh2",
+  "horizon": 24,
+  "lookback": 96,
+  "condition": "A",
+  "seed": 42,
+  "test_seed": 0,
+  "loss_type": "native_point_head",
+  "n_test_windows": 200,
+  "n_val_windows": 200,
+  "zeroshot_mse": 1.0033770495687329,
+  "zeroshot_test_mse": 0.9852591103317004
+}

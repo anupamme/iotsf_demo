@@ -1,0 +1,125 @@
+% ============================================================
+\section{Cross-Domain Analysis and Discussion}
+\label{sec:analysis}
+% ============================================================
+
+\textbf{Task forgetting is protocol-dependent.}
+Forgetting is non-monotonic in $n$ ($+$14\% at 500, $-$2.9\% at 2k,
+$-$5.3$\pm$6.2\% at 10k ES, 7/10 negative) with protocol-dependent sign
+(final-epoch $+$7.5$\pm$8.2\%): of 10 CUDA seeds at $n{=}10$k, 7 converge
+monotonically (best epochs 3--5) and 3 overshoot late (epochs 12--18),
+the source of the sign difference (Appendix~\ref{app:n5k_trajectories}).
+We therefore report the sign of forgetting at this cell as protocol-dependent
+rather than settled, and do not lead on it.
+
+\textbf{Second cell: ETTm2 $n{=}10$k drifts with the \emph{opposite} task outcome.}
+ETTm2 ($h{=}96$, $n{=}10$k, CUDA $k{=}10$) drifts substantially yet
+forgetting is $-29.2{\pm}2.1\%$---a large improvement---in a cell that
+\emph{fails} the gate. Drift there overwrites features that were not
+outperforming Linear, so the same magnitude of representational change is
+benign. Together with ETTh2, this is the dissociation in its clearest form:
+comparable drift, opposite consequence, and the gate---not the drift
+reading---is what separates them.
+
+\textbf{ETTh1 $n{=}10$k: boundary case.}
+On ETTh1 ($h{=}96$, $n{=}10$k, $k{=}10$), forgetting resolves
+($-6.1{\pm}3.6$\%) while CKA falls to $0.727$: another cell where
+substantial drift accompanies improvement rather than harm.
+
+\textbf{Cross-domain envelope.}
+Table~\ref{tab:cross_domain} summarises all settings tested; drift
+occurs throughout but consequences depend on pre-training value.
+
+\begin{table}[t]
+\centering
+\caption{Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95.
+The Asym.\ column recorded the probe-sign asymmetry, which is
+\textbf{retracted} (\S\ref{sec:retraction}); it is retained only as a record
+of the withdrawn computation and carries no claim. All Moirai-Small unless
+noted. Full numerics in text.}
+\label{tab:cross_domain}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccll}
+\toprule
+Setting & Gate\% & Drift? & \sout{Asym.?} & Effect & Interpretation \\
+\midrule
+ETTh2-S low-$n$ & 28 & mild & 10/10 & Degrades & Restructuring harms (data-poor) \\
+ETTh2-S high-$n$ & 28 & yes & 10/10 & Mixed$^*$ & Resolves with sufficient $n$ \\
+ETTh2-B (Base) & 31 & strong & 9/10 & Improves & Capacity buffers drift \\
+ILI & 57 & yes & 10/10 & Improves & Restructuring toward task \\
+Chronos/M4 & 84.5 & no & --- & Stable & Encoder preserved (strong gate) \\
+\midrule
+ETTm2 (gate-fail) & $<$0 & yes & 10/10 & Improves & No features to preserve \\
+IoT (gate-fail) & $<$0 & strong & --- & Improves & Replacement, not forgetting \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize $^*$Protocol-dependent: $-5.3$\% early-stopped, $+7.5$\% final-epoch. Gate-pass $= 1{-}\text{MSE}_\text{ZS}/\text{MSE}_\text{Linear}$.}
+\end{table}
+
+\textbf{Capacity sensitivity: Moirai-Base as second gate-passing cell.}
+Moirai-Base (91M) gate-passes ETTh2 ($R^2_{\text{task}}(\text{PT}){=}{+}0.31$)
+but behaves qualitatively differently from Small: task \emph{improvement} at
+both $n$ (forg.\ $-56.9$\% at 500, $-54.2$\% at 10k; 10/10 negative) despite
+\emph{aggressive} drift (CKA $0.25$--$0.33$): the most heavily drifted cell
+in the study is also one that improves.
+Base is protocol-robust and improves even at low $n$ where Small degrades.
+Moirai-Large (311M) mirrors Small at $n{=}500$ ($+$10.5\%); LoRA-Large is
+rescued by $10\times$ LR reduction (Appendix~\ref{app:lora_rank}).
+\textbf{Step-size falsification:} Base at $10{\times}$ LR restructures more
+aggressively than Small at default LR (CKA$=$0.135 vs.\ 0.937) yet
+\emph{still improves} ($-58.2$\%, 10/10 positive), while Small at
+$0.1{\times}$ LR merely near-freezes (CKA$=$0.987). Thus
+capacity is an independent buffer against destructive drift, not merely a
+lower effective step size (Appendix~\ref{app:step_size}).
+
+\textbf{IoT negative control.}
+Moirai ZS AUC$=$0.481 (sub-random); drift (CKA 0.31--0.45) is benign
+because from-scratch CNN matches fine-tuned Moirai; the value-gate
+correctly screens out this cell (Appendix~\ref{app:cnn_detail}).
+
+% ============================================================
+\subsection{Non-Moirai Backbones: All Nine Cells Gate-Fail}
+\label{sec:forecasting:nonmoirai}
+% ============================================================
+
+Matched-protocol ZS across nine non-Moirai backbone${\times}$ETT cells
+(Chronos, TimesFM-2.5, MOMENT $\times$ ETT) all gate-fail ($-$14\% to
+$-$148\% vs.\ Linear; Appendix~\ref{app:limitations}).
+Corpus composition is the most parsimonious account:
+\textbf{Chronos-T5-Small gate-passes on M4-Monthly} (84.5\%, in its training
+corpus) while gate-failing on ETT ($-$43\%)---same architecture, opposite
+gate outcome; and Moirai-Small itself gate-fails on Traffic/Exchange/
+Electricity, so \emph{pre-training emphasis} rather than mere corpus
+inclusion determines gate-pass.
+On M4-Monthly, full diagnostics (10 seeds, conditions B/D) give
+CKA${\approx}$0.98--0.999 and no distinguishable forgetting
+($+0.5$\% at $n{=}10$k): strong gate-pass coincides with encoder stability,
+consistent with the value-gate as a regime indicator
+(Appendix~\ref{app:chronos_detail}).
+
+\textbf{ILI: third gate-passing cell (10 seeds).}
+\label{sec:analysis:ili}
+Moirai-Small on ILI (weekly influenza, $h{=}24$, gate-pass${=}$57\%,
+conditions B/D) yields CKA$=$0.478${\pm}$0.022 (restructuring) with large
+task improvement (forgetting$={-}80.7$\%, 10/10 negative).
+\textbf{Correction.} We previously reported that the frozen-encoder control
+(D) gives \emph{zero} improvement in all 10 seeds, and concluded that the
+encoder is the sole locus of adaptation (B$-$D${=}{-}80.7$~pp). That is
+withdrawn. The script short-circuited condition~D: it assigned the zero-shot
+MSE as the fine-tuned MSE and wrote a forgetting of exactly $0.0$, so no
+frozen-encoder model was ever trained and the ``$0.0\%$ in all 10 seeds''
+was a single constant, not a measurement. Re-running condition~D so that it
+trains --- encoder frozen, the remaining parameters updated, as in the Moirai
+cells of \S\ref{sec:forecasting} --- gives B$-$D${=}{-}62.6{\pm}4.6$ (10/10
+seeds), not $-80.7$: the frozen encoder recovers a large share of the gain
+rather than none of it. Its CKA is $0.76$--$0.90$, not the asserted $1.000$,
+because the projections feeding the encoder remain trainable. Condition~B is
+unaffected and reproduces ($-80.0{\pm}2.0$ against the published
+$-80.7{\pm}0.9$; CKA $0.456$ against $0.478$), so the entire discrepancy was
+the untrained control. Per-seed values accompany the released code.
+The pre-registered CKA-intermediate prediction (0.90--0.95) is
+\textbf{falsified}---actual CKA is 0.478. This revises the spectrum
+hypothesis: restructuring extends from 28\% through 57\% gate-pass, with
+stability beginning above ${\approx}$80\% (Chronos/M4).

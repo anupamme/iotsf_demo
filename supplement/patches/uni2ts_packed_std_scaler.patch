@@ -1,0 +1,14 @@
+--- a/uni2ts/module/packed_scaler.py
++++ b/uni2ts/module/packed_scaler.py
+@@ -48,8 +48,9 @@ class PackedStdScaler(nn.Module):
+         var = safe_div(var, (tobs - self.correction))
+         scale = torch.sqrt(var + self.minimum_scale)
+
+-        loc[sample_id == 0] = 0
+-        scale[sample_id == 0] = 1
++        sample_id_mask = (sample_id == 0).unsqueeze(-1)
++        loc = torch.where(sample_id_mask, torch.zeros_like(loc), loc)
++        scale = torch.where(sample_id_mask, torch.ones_like(scale), scale)
+
+         return loc, scale
+

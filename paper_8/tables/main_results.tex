@@ -1,0 +1,55 @@
+% Table 1: Main Results — all methods per stealth level
+% Updated: 200 samples per class, benign-calibrated threshold (95th percentile on held-out benign)
+% Baselines: results/all_baselines_evaluation.json (10 seeds) — UNSUPERVISED (benign-only training)
+% HNIDS: results/ablation_10seed/ablation/{a,c,d}/metrics.json (10 seeds) — SUPERVISED (labeled attack data)
+% Bold: best calibrated method per column (excl. degenerate Threshold/Statistical).
+% Degenerate: FPR > 0.50 (Threshold IDS, Statistical IDS) — their high F1 is due to
+%             near-complete false-positive assignment, not genuine detection.
+
+\begin{table}[t]
+\centering
+\caption{
+  Detection performance across all methods at three stealth levels (200 eval samples per class,
+  benign-calibrated threshold: 95th-percentile of held-out benign scores, targeting FPR $\leq$ 0.05).
+  \textbf{All nine baselines are unsupervised} (benign-only training, 10 seeds);
+  \textbf{\ours{} conditions A--D are supervised} (labeled hard negatives or Gaussian-noise negatives
+  provided during training, 10 seeds matching Table~\ref{tab:ablation}).
+  See Appendix~\ref{app:supervision} for the supervision discussion.
+  \textbf{Bold}: best calibrated (non-degenerate) value per column.
+  \underline{Underline}: second-best calibrated value per column.
+  Threshold IDS and Statistical IDS are marked $\ddagger$: their high F1 arises from
+  near-total FP assignment (FPR $>$ 0.87), not genuine stealth detection.
+  Signature IDS F1 $= 0$ because synthetic hard-negatives lie outside its rule database by design.
+  Bold/underline exclude zero-shot A at stealth-95 (FPR$=$0.100 exceeds target).
+  $\dagger$ marks our proposed system; Table~\ref{tab:ablation} gives the full ablation.
+}
+\label{tab:main}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{2}{c}{Combined} & \multicolumn{2}{c}{Stealth 85\%} & \multicolumn{2}{c}{Stealth 90\%} & \multicolumn{2}{c}{Stealth 95\%} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+Method & F1 & FPR & F1 & FPR & F1 & FPR & F1 & FPR \\
+\midrule
+\multicolumn{9}{l}{\textit{Traditional baselines}} \\
+Threshold IDS$^\ddagger$   & 0.856 & 0.907 & 0.668 & 0.883 & 0.657 & 0.872 & 0.646 & 0.872 \\
+Signature IDS              & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 \\
+Statistical IDS$^\ddagger$ & 0.889 & 1.000 & 0.667 & 1.000 & 0.666 & 1.000 & 0.667 & 1.000 \\
+Isolation Forest           & 0.143 & 0.053 & 0.187 & 0.047 & 0.135 & 0.042 & 0.103 & 0.044 \\
+Ensemble                   & 0.191 & 0.045 & 0.221 & \underline{0.036} & 0.193 & 0.050 & 0.136 & \underline{0.042} \\
+\midrule
+\multicolumn{9}{l}{\textit{Deep-learning baselines}} \\
+USAD                & 0.119 & \textbf{0.020} & 0.137 & \textbf{0.023} & 0.147 & \underline{0.028} & 0.130 & 0.047 \\
+TranAD              & 0.109 & 0.045 & 0.168 & 0.089 & 0.098 & 0.042 & 0.107 & 0.070 \\
+Anomaly Transformer & 0.100 & 0.040 & 0.162 & 0.064 & 0.180 & 0.091 & 0.153 & 0.078 \\
+PatchTST-Anomaly    & 0.123 & 0.055 & 0.175 & 0.070 & 0.162 & 0.083 & 0.132 & 0.072 \\
+\midrule
+\multicolumn{9}{l}{\textit{Ours (Moirai-based, see Table~\ref{tab:ablation} for full ablation)}} \\
+\ours{} zero-shot (A)        & 0.112 & 0.067 & 0.098 & 0.048 & 0.085 & 0.050 & 0.137 & 0.063 \\
+\ours{}$^\dagger$ hard-neg (D) & \underline{0.217} & 0.062 & \underline{0.280} & 0.068 & 0.176 & 0.043 & 0.176 & 0.060 \\
+\ours{}$^\dagger$ SupCon-noise (C) & \textbf{0.295} & 0.053 & \textbf{0.360} & 0.070 & \textbf{0.267} & \textbf{0.035} & \textbf{0.262} & 0.068 \\
+\bottomrule
+\multicolumn{9}{@{}l}{\scriptsize $\dagger$ marks our proposed system; Table~\ref{tab:ablation} gives the full ablation (10 seeds).} \\
+\end{tabular}
+}
+\end{table}

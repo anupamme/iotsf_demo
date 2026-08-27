@@ -1,0 +1,97 @@
+{
+ "written_utc": "2026-08-26T08:22:01+00:00",
+ "git_head": "ed36ec8aafeb7b5c0be1912a5f90cff9e84bca00",
+ "gate_threshold": 0.2,
+ "degradation_datasets": [
+  "ETTh1",
+  "Weather"
+ ],
+ "rules": {
+  "gate_rule": "gate_val >= 0.20 -> at risk of degradation (pre-specified, Section 2)",
+  "dataset_rule": "dataset in {ETTh1, Weather} -> degradation (POST HOC pattern from the original 13 Moirai cells, registered as a competitor)"
+ },
+ "outcome_definition": "gate-passing AND forg_B > 0 in every seed AND forg_D < 0 in every seed, exactly as scripts/cell_matrix.py degradation_cells() applies it to the published cells",
+ "note": "Predictions are a function of the training/validation splits and the dataset name only. The outcome requires condition B and D runs, which do not exist at the time this file is committed.",
+ "cells": [
+  {
+   "cell": "base_Weather_h96",
+   "size": "base",
+   "dataset": "Weather",
+   "horizon": 96,
+   "zeroshot_val_mse": 0.48436755080901633,
+   "gate_val": 0.4056237873208335,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": true
+  },
+  {
+   "cell": "base_Weather_h192",
+   "size": "base",
+   "dataset": "Weather",
+   "horizon": 192,
+   "zeroshot_val_mse": 0.5403206608376345,
+   "gate_val": 0.5929236514550607,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": true
+  },
+  {
+   "cell": "base_ETTm2_h96",
+   "size": "base",
+   "dataset": "ETTm2",
+   "horizon": 96,
+   "zeroshot_val_mse": 0.18895964016787326,
+   "gate_val": 0.29947746574767686,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "base_ETTm2_h192",
+   "size": "base",
+   "dataset": "ETTm2",
+   "horizon": 192,
+   "zeroshot_val_mse": 0.4757770124975252,
+   "gate_val": 0.26038558044199034,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "small_Electricity7_h96",
+   "size": "small",
+   "dataset": "Electricity7",
+   "horizon": 96,
+   "zeroshot_val_mse": 0.21214485523882623,
+   "gate_val": 0.7119346479823707,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "small_Electricity7_h192",
+   "size": "small",
+   "dataset": "Electricity7",
+   "horizon": 192,
+   "zeroshot_val_mse": 0.2263159776035044,
+   "gate_val": 0.7637118627982588,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "large_ETTh1_h96",
+   "size": "large",
+   "dataset": "ETTh1",
+   "horizon": 96,
+   "zeroshot_val_mse": 0.7195451177080479,
+   "gate_val": 0.35086959205394275,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": true
+  },
+  {
+   "cell": "large_Weather_h96",
+   "size": "large",
+   "dataset": "Weather",
+   "horizon": 96,
+   "zeroshot_val_mse": 0.43517967130510615,
+   "gate_val": 0.4659831270008381,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": true
+  }
+ ]
+}

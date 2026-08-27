@@ -1,0 +1,10 @@
+{
+  "condition": "A",
+  "zeroshot_mse": 0.48436755080901633,
+  "zeroshot_mae": 0.47898588318202806,
+  "zeroshot_test_mse": 1.3068752766626954,
+  "zeroshot_test_mae": 0.8192646554960672,
+  "n_test_eval": 300,
+  "horizon": 96,
+  "seed": 42
+}

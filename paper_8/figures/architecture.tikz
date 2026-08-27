@@ -1,0 +1,59 @@
+% TikZ System Architecture Diagram for Figure 1
+% Compile within paper/main.tex (requires tikz, arrows.meta, positioning, shapes)
+
+\begin{tikzpicture}[
+  node distance=0.6cm and 1.1cm,
+  box/.style={draw, rounded corners=3pt, minimum width=2.0cm, minimum height=0.7cm,
+              align=center, font=\small},
+  stage/.style={draw, dashed, rounded corners=5pt, inner sep=6pt, fill=gray!5},
+  arrow/.style={-{Stealth[length=3pt]}, thick},
+  label/.style={font=\footnotesize\itshape},
+]
+
+%% ---- Stage 1: Hard-Negative Generation ----
+\node[box, fill=green!15] (ciciot)    {CICIoT2023};
+\node[box, fill=green!15, right=of ciciot] (benign)   {Benign $\mathbf{X}_b$};
+\node[box, fill=orange!20, right=1.4cm of benign] (diffts) {Archetype\\Perturbation\\$P_k(\mathbf{X}_b,s)$};
+\node[box, fill=orange!20, below=0.5cm of diffts] (constraint) {Protocol\\Constraint\\$\mathcal{C}_\pi$};
+\node[box, fill=orange!20, right=1.2cm of diffts] (hardneg) {Hard-Negative\\$\mathbf{X}_a$};
+
+\draw[arrow] (ciciot) -- (benign);
+\draw[arrow] (benign) -- (diffts);
+\draw[arrow] (diffts) -- (hardneg);
+\draw[arrow] (diffts) -- (constraint);
+\draw[arrow] (constraint.east) to[bend right=30] node[label,right]{retry if fail} (diffts.south);
+
+%% ---- Data Mixture ----
+\node[box, fill=yellow!15, right=1.2cm of hardneg] (mix) {50/50\\Data Mix};
+
+\draw[arrow] (hardneg) -- (mix) node[midway,above,label]{50\%};
+\draw[arrow] (benign.north) to[bend left=45] (mix) node[near start,label]{50\%};
+
+%% ---- Stage 2: Fine-Tuning ----
+\node[box, fill=blue!15, right=1.2cm of mix] (moirai) {Moirai\\(fine-tuned)};
+\node[box, fill=blue!10, above=0.45cm of moirai] (projhead) {Projection\\Head $h_\phi$};
+\node[box, fill=blue!10, below=0.45cm of moirai] (nll)    {$\mathcal{L}_\text{NLL}$};
+\node[box, fill=blue!10, right=1.2cm of projhead] (supcon) {$\mathcal{L}_\text{SupCon}$};
+\node[box, fill=blue!20, right=1.2cm of nll]     (combined) {$\mathcal{L}=\mathcal{L}_\text{NLL}$\\$+\lambda\mathcal{L}_\text{SupCon}$};
+
+\draw[arrow] (mix) -- (moirai);
+\draw[arrow] (moirai) -- (projhead);
+\draw[arrow] (moirai) -- (nll);
+\draw[arrow] (projhead) -- (supcon);
+\draw[arrow] (supcon) -- (combined);
+\draw[arrow] (nll) -- (combined);
+
+%% ---- Inference ----
+\node[box, fill=purple!15, right=1.2cm of combined] (detect) {Anomaly\\Score $\hat{s}$};
+\node[box, fill=purple!20, right=1.1cm of detect]  (output) {Attack / Benign};
+
+\draw[arrow] (combined) -- (detect) node[midway,above,label]{CI scoring};
+\draw[arrow] (detect) -- (output) node[midway,above,label]{$\hat{s} > \delta$};
+
+%% ---- Stage bounding boxes ----
+\begin{scope}[on background layer]
+  \node[stage, fit=(diffts)(constraint)(hardneg), label=above:{\textbf{Stage 1: Generation}}] {};
+  \node[stage, fit=(moirai)(projhead)(nll)(supcon)(combined), label=above:{\textbf{Stage 2: Fine-Tuning}}] {};
+\end{scope}
+
+\end{tikzpicture}

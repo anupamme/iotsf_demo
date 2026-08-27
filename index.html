@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnosing Representation Drift in Time-Series Foundation Model Fine-Tuning</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #f8f7f4;
+      color: #1a1a1a;
+      line-height: 1.7;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 3rem 1.5rem 2.5rem;
+      text-align: center;
+    }
+
+    header .venue {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a0aec0;
+      margin-bottom: 1rem;
+    }
+
+    header h1 {
+      font-size: clamp(1.2rem, 3vw, 1.75rem);
+      font-weight: normal;
+      max-width: 860px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.4;
+    }
+
+    .authors {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.95rem;
+      color: #cbd5e0;
+    }
+
+    .authors a {
+      color: #90cdf4;
+      text-decoration: none;
+    }
+
+    .authors a:hover { text-decoration: underline; }
+
+    .affiliation {
+      font-size: 0.82rem;
+      color: #718096;
+      margin-top: 0.3rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 2rem 1.5rem;
+      background: #f0ede8;
+      border-bottom: 1px solid #ddd8cf;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: 6px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+
+    .btn-primary {
+      background: #2b6cb0;
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #2b6cb0;
+      border: 1.5px solid #2b6cb0;
+    }
+
+    main {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    section { margin-bottom: 2.5rem; }
+
+    h2 {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #718096;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid #e2ddd6;
+    }
+
+    .abstract {
+      font-size: 0.97rem;
+      color: #2d3748;
+      text-align: justify;
+      hyphens: auto;
+    }
+
+    .abstract strong {
+      color: #1a1a1a;
+    }
+
+    .pdf-embed {
+      width: 100%;
+      height: 80vh;
+      min-height: 500px;
+      border: 1px solid #ddd8cf;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .pdf-fallback {
+      display: none;
+      padding: 2rem;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #ddd8cf;
+      border-radius: 6px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.9rem;
+      color: #4a5568;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-size: 0.78rem;
+      color: #a0aec0;
+      border-top: 1px solid #e2ddd6;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="venue">Preprint &mdash; 2026</p>
+  <h1>Diagnosing Representation Drift in Time-Series Foundation Model Fine-Tuning: A Moirai Case Study</h1>
+  <div class="authors">
+    <a href="mailto:mediratta@gmail.com">Anupam Mediratta</a>
+    <div class="affiliation">Orbis AI &nbsp;&middot;&nbsp; mediratta@gmail.com</div>
+  </div>
+</header>
+
+<div class="actions">
+  <a class="btn btn-primary" href="paper_8/main.pdf" target="_blank">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    View PDF
+  </a>
+  <a class="btn btn-secondary" href="paper_8/main.pdf" download="representation_drift_moirai_mediratta_2026.pdf">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download PDF
+  </a>
+</div>
+
+<main>
+
+  <section>
+    <h2>Abstract</h2>
+    <p class="abstract">
+      We propose a <strong>diagnostic protocol</strong> for representation drift during fine-tuning of time-series foundation models. The protocol first tests whether zero-shot features are valuable relative to a linear baseline (value-gate), then uses controlled encoder comparisons and task-orthogonal probes to distinguish harmful forgetting from useful restructuring. In a Moirai case study spanning three model sizes and multiple datasets, fine-tuning often restructures representations toward the downstream objective, but the utility consequence depends on sample size and model capacity: Moirai-Small degrades in low-data ETTh2, while Moirai-Base and ILI fine-tuning improve despite substantial drift. Cross-backbone experiments (Chronos-T5-Small on M4-Monthly) confirm that the value-gate serves as a screening heuristic for when preservation-focused drift diagnosis is warranted. These results suggest that drift alone is insufficient evidence of harm; practitioners should first establish pre-training value, then assess whether drift affects task-relevant structure.
+    </p>
+  </section>
+
+  <section>
+    <h2>Paper</h2>
+    <iframe class="pdf-embed" src="paper_8/main.pdf"
+            title="Paper PDF"
+            onerror="this.style.display='none'; document.querySelector('.pdf-fallback').style.display='block'">
+    </iframe>
+    <div class="pdf-fallback">
+      Your browser does not support inline PDF viewing.
+      <a href="paper_8/main.pdf">Click here to open the PDF.</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2026 Anupam Mediratta &nbsp;&middot;&nbsp; Orbis AI
+</footer>
+
+</body>
+</html>

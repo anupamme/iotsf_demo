@@ -1,0 +1,134 @@
+% ============================================================
+% Preprint
+% "Fighting AI-Powered Threats with AI-Generated Defense"
+% ============================================================
+% Use neurips_2025.sty until neurips_2026.sty is released.
+% Download from: https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
+% Place as paper/neurips_2025.sty
+% ============================================================
+
+\documentclass{article}
+
+% ---- NeurIPS style ----
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+% \usepackage{neurips_2026}
+\usepackage[preprint]{neurips_2026}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2026}
+% 3. "eandd" option is used for the Evaluations & Datasets Track
+ % \usepackage[eandd]{neurips_2026}
+ % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
+ %\usepackage[eandd, nonanonymous]{neurips_2026}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2026}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2026}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2026}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2026}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2026}
+% 3. Evaluations & Datasets Track
+ % \usepackage[eandd, final]{neurips_2026}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2026}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2026}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2026}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2026}
+
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{neurips_2026}
+
+% ---- Core packages ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{url}
+\usepackage{booktabs}         % professional tables
+% natbib loaded by neurips_2026.sty
+\usepackage{amsmath, amssymb}
+\usepackage{mathtools}          % provides \coloneqq and extends amsmath
+\usepackage{graphicx}
+\usepackage{subcaption}       % subfigures
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% hyperref must load after most other packages
+\usepackage[hidelinks]{hyperref}
+
+% ---- Macros ----
+\newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
+\newcommand{\dataset}{CICIoT2023}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
+
+\title{Diagnosing Representation Drift in Time-Series Foundation Model Fine-Tuning:\\
+       A Moirai Case Study}
+
+\author{
+  Anupam ~Mediratta \\
+  % Principal Researcher\\
+  Orbis AI \\
+  \texttt{mediratta@gmail.com} \\
+}
+
+\usepackage[normalem]{ulem}  % strike-through for the retracted table column
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\begin{abstract}
+We propose a \textbf{diagnostic protocol} for representation drift during
+fine-tuning of time-series foundation models.
+The protocol first tests whether zero-shot features are valuable relative
+to a linear baseline (value-gate), then uses controlled encoder comparisons
+--- full fine-tuning against a frozen encoder --- to ask whether encoder
+adaptation carries the downstream gain.
+In a Moirai case study spanning three model sizes and multiple datasets,
+fine-tuning often restructures representations toward the downstream
+objective, but the utility consequence depends on sample size and model
+capacity: Moirai-Small degrades in low-data ETTh2, while Moirai-Base and
+ILI fine-tuning improve despite substantial drift.
+Cross-backbone experiments (Chronos-T5-Small on M4-Monthly) confirm that
+the value-gate serves as a screening heuristic for when preservation-focused
+drift diagnosis is warranted.
+These results suggest that drift alone is insufficient evidence of harm;
+practitioners should first establish pre-training value, then assess
+whether drift affects task-relevant structure.
+\end{abstract}
+
+% ============================================================
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/04_methodology}
+\input{sections/05_forecasting}
+\input{sections/07_analysis}
+\input{sections/076_retraction}
+\input{sections/075_limitations}
+\input{sections/08_conclusion}
+
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{bibliography}
+\input{sections/appendix}
+\newpage
+% \input{checklist}
+\end{document}

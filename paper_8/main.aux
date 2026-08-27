@@ -1,0 +1,154 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{kirkpatrick2017ewc}
+\citation{woo2024moirai}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{ansari2024chronos}
+\citation{das2024timeseries}
+\citation{goswami2024moment}
+\citation{kirkpatrick2017ewc,li2017lwf}
+\citation{luo2023forgetting}
+\citation{kirkpatrick2017ewc,li2017lwf}
+\citation{luo2023forgetting}
+\citation{kumar2022finetuning}
+\citation{andreassen2023evolution}
+\citation{rasul2024lagllama}
+\citation{liu2024timer}
+\citation{jin2024timellm}
+\citation{zhou2023onefitsall}
+\citation{wilinski2025representations}
+\citation{kornblith2019cka}
+\citation{hewitt2019structural,pimentel2020information}
+\citation{zeng2023transformers}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{3}{section.2}\protected@file@percent }
+\newlabel{sec:background}{{2}{3}{Background and Related Work}{section.2}{}}
+\citation{woo2024moirai}
+\citation{khosla2020supcon}
+\citation{kornblith2019cka}
+\citation{zhou2021informer}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Fine-Tuning Protocol}{4}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{3}{4}{Fine-Tuning Protocol}{section.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Notation summary for probe-related quantities.}}{4}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:notation}{{1}{4}{Notation summary for probe-related quantities}{table.caption.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Experimental conditions and the question each isolates.}}{5}{table.caption.3}\protected@file@percent }
+\newlabel{tab:conditions}{{2}{5}{Experimental conditions and the question each isolates}{table.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Representation Drift Diagnosis: ETT Forecasting}{5}{section.4}\protected@file@percent }
+\newlabel{sec:forecasting}{{4}{5}{Representation Drift Diagnosis: ETT Forecasting}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Experimental Setup and Value Gate}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:forecasting:setup}{{4.1}{5}{Experimental Setup and Value Gate}{subsection.4.1}{}}
+\newlabel{sec:forecasting:gate}{{4.1}{5}{Experimental Setup and Value Gate}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Representation Drift Degrades High-Value Features}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:forecasting:results}{{4.2}{5}{Representation Drift Degrades High-Value Features}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Mitigation Spectrum}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:forecasting:mitigation}{{4.3}{5}{Mitigation Spectrum}{subsection.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Sample-size sweep on ETTh2 ($h{=}96$, condition~B). Drift grows monotonically (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph  {non-monotonic}: severe at $n{\le }1{,}000$, resolved at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped, $7/10$ negative forgetting. \textbf  {The two $\Delta R^2$ columns are retracted} (\S  \ref {sec:retraction}) and are reproduced only as a record of the withdrawn computation: absolute $R^2(\text  {FT})$ is negative throughout ($R^2_{\text  {ZS}}{=}{-}6.90$), i.e.\ the probe never decodes the target, and the effect vanishes once the probe does. Read the MSE, Forg.\% and CKA columns only.}}{6}{table.caption.4}\protected@file@percent }
+\newlabel{tab:sample_sweep}{{3}{6}{Sample-size sweep on ETTh2 ($h{=}96$, condition~B). Drift grows monotonically (CKA$\downarrow $ as $n\uparrow $); forgetting is \emph {non-monotonic}: severe at $n{\le }1{,}000$, resolved at $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime). At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped, $7/10$ negative forgetting. \textbf {The two $\Delta R^2$ columns are retracted} (\S \ref {sec:retraction}) and are reproduced only as a record of the withdrawn computation: absolute $R^2(\text {FT})$ is negative throughout ($R^2_{\text {ZS}}{=}{-}6.90$), i.e.\^^Mthe probe never decodes the target, and the effect vanishes once the probe does. Read the MSE, Forg.\% and CKA columns only}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Sample-Size Sweep: Drift--Forgetting Dynamics}{6}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:forecasting:replication}{{4.4}{6}{Sample-Size Sweep: Drift--Forgetting Dynamics}{subsection.4.4}{}}
+\newlabel{sec:forecasting:probehead}{{4.4}{6}{Sample-Size Sweep: Drift--Forgetting Dynamics}{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Cost--benefit dynamics on Moirai-Small/ETTh2 (condition B, $h{=}96$). (a)~CKA decays monotonically with $n$ (final-epoch vs.\ early-stopped markers); (d)~forgetting is non-monotonic and protocol-dependent. Panels~(b) and~(c) plot the linear-probe $\Delta R^2$ statistic and its sign asymmetry, both \textbf  {retracted} (\S  \ref {sec:retraction}); they are reproduced unaltered as a record of the withdrawn analysis and support no claim here. The dissociation this figure is cited for is the contrast between (a) and (d): drift monotone in $n$, outcome not.}}{7}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:dissociation}{{1}{7}{Cost--benefit dynamics on Moirai-Small/ETTh2 (condition B, $h{=}96$). (a)~CKA decays monotonically with $n$ (final-epoch vs.\ early-stopped markers); (d)~forgetting is non-monotonic and protocol-dependent. Panels~(b) and~(c) plot the linear-probe $\Delta R^2$ statistic and its sign asymmetry, both \textbf {retracted} (\S \ref {sec:retraction}); they are reproduced unaltered as a record of the withdrawn analysis and support no claim here. The dissociation this figure is cited for is the contrast between (a) and (d): drift monotone in $n$, outcome not}{figure.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Task-native score $R^2_{\text  {task}}$ at key $(n, h)$ operating points. \textbf  {Not a linear probe}: this is a ratio of forecast MSEs computed through Moirai's own forecasting head, and is unaffected by the retraction of the linear-probe $\Delta R^2$ axis (\S  \ref {sec:retraction}). (condition B, mean over available seeds). $R^2_{\text  {task}}(\text  {PT}) {=} 1 {-} \text  {MSE}_{\text  {ZS}}/\text  {MSE}_{\text  {Linear}}$ uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192, linear baseline lookback$=$96, train-normalised). $\Delta R^2_{\text  {task}} {=} {-}(1{-}R^2_{\text  {task}}(\text  {PT})) {\times } \mathrm  {Forg\%}/100$ (sign is scale-independent; see \S  \ref {sec:forecasting:probehead}). The $n{=}10$k rows use early-stopped (ES) forgetting. ETTh2 is the \textbf  {gate-pass} anchor ($R^2_{\text  {task}}(\text  {PT}){>}0.2$); ETTm2 and ETTh1 are \textbf  {cross-domain comparisons} that gate-fail and are included to show drift behaviour outside the gate-pass regime.}}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:r2task}{{4}{7}{Task-native score $R^2_{\text {task}}$ at key $(n, h)$ operating points. \textbf {Not a linear probe}: this is a ratio of forecast MSEs computed through Moirai's own forecasting head, and is unaffected by the retraction of the linear-probe $\Delta R^2$ axis (\S \ref {sec:retraction}). (condition B, mean over available seeds). $R^2_{\text {task}}(\text {PT}) {=} 1 {-} \text {MSE}_{\text {ZS}}/\text {MSE}_{\text {Linear}}$ uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192, linear baseline lookback$=$96, train-normalised). $\Delta R^2_{\text {task}} {=} {-}(1{-}R^2_{\text {task}}(\text {PT})) {\times } \mathrm {Forg\%}/100$ (sign is scale-independent; see \S \ref {sec:forecasting:probehead}). The $n{=}10$k rows use early-stopped (ES) forgetting. ETTh2 is the \textbf {gate-pass} anchor ($R^2_{\text {task}}(\text {PT}){>}0.2$); ETTm2 and ETTh1 are \textbf {cross-domain comparisons} that gate-fail and are included to show drift behaviour outside the gate-pass regime}{table.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95. The Asym.\ column recorded the probe-sign asymmetry, which is \textbf  {retracted} (\S  \ref {sec:retraction}); it is retained only as a record of the withdrawn computation and carries no claim. All Moirai-Small unless noted. Full numerics in text.}}{8}{table.caption.7}\protected@file@percent }
+\newlabel{tab:cross_domain}{{5}{8}{Diagnostic summary. Gate$=$gate-pass\%; Drift$=$CKA${<}$0.95. The Asym.\ column recorded the probe-sign asymmetry, which is \textbf {retracted} (\S \ref {sec:retraction}); it is retained only as a record of the withdrawn computation and carries no claim. All Moirai-Small unless noted. Full numerics in text}{table.caption.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Cross-Domain Analysis and Discussion}{8}{section.5}\protected@file@percent }
+\newlabel{sec:analysis}{{5}{8}{Cross-Domain Analysis and Discussion}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Non-Moirai Backbones: All Nine Cells Gate-Fail}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:forecasting:nonmoirai}{{5.1}{8}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
+\newlabel{sec:analysis:ili}{{5.1}{9}{Non-Moirai Backbones: All Nine Cells Gate-Fail}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Retraction: The Probe-Sign Asymmetry Axis}{9}{section.6}\protected@file@percent }
+\newlabel{sec:retraction}{{6}{9}{Retraction: The Probe-Sign Asymmetry Axis}{section.6}{}}
+\bibstyle{plainnat}
+\bibdata{bibliography}
+\bibcite{andreassen2023evolution}{{1}{2023}{{Andreassen et~al.}}{{Andreassen, Bahri, Neyshabur, and Roelofs}}}
+\bibcite{ansari2024chronos}{{2}{2024}{{Ansari et~al.}}{{}}}
+\bibcite{das2024timeseries}{{3}{2024}{{Das et~al.}}{{}}}
+\bibcite{goswami2024moment}{{4}{2024}{{Goswami et~al.}}{{}}}
+\bibcite{hewitt2019structural}{{5}{2019}{{Hewitt and Manning}}{{}}}
+\bibcite{jin2024timellm}{{6}{2024}{{Jin et~al.}}{{Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan, and Wen}}}
+\bibcite{khosla2020supcon}{{7}{2020}{{Khosla et~al.}}{{}}}
+\bibcite{kirkpatrick2017ewc}{{8}{2017}{{Kirkpatrick et~al.}}{{Kirkpatrick, Pascanu, Rabinowitz, et~al.}}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Limitations and Broader Impact}{10}{section.7}\protected@file@percent }
+\newlabel{sec:limitations}{{7}{10}{Limitations and Broader Impact}{section.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{10}{section.8}\protected@file@percent }
+\newlabel{sec:conclusion}{{8}{10}{Conclusion}{section.8}{}}
+\bibcite{kornblith2019cka}{{9}{2019}{{Kornblith et~al.}}{{Kornblith, Norouzi, Lee, and Hinton}}}
+\bibcite{kumar2022finetuning}{{10}{2022}{{Kumar et~al.}}{{Kumar, Raghunathan, Jones, Ma, and Liang}}}
+\bibcite{li2017lwf}{{11}{2018}{{Li and Hoiem}}{{}}}
+\bibcite{liu2024timer}{{12}{2024}{{Liu et~al.}}{{Liu, Zhang, Li, Huang, Wang, and Long}}}
+\bibcite{luo2023forgetting}{{13}{2023}{{Luo et~al.}}{{Luo, Yang, Meng, Li, Zhou, and Zhang}}}
+\bibcite{neto2023ciciot}{{14}{2023}{{Neto et~al.}}{{}}}
+\bibcite{pimentel2020information}{{15}{2020}{{Pimentel et~al.}}{{Pimentel, Valvoda, Maudslay, Zmigrod, Williams, and Cotterell}}}
+\bibcite{rasul2024lagllama}{{16}{2024}{{Rasul et~al.}}{{Rasul, Ashok, Williams, Khorasani, Adamopoulos, Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri, and Heinecke}}}
+\bibcite{wilinski2025representations}{{17}{2025}{{Wili{\'n}ski et~al.}}{{Wili{\'n}ski, Goswami, Potosnak, {\.Z}ukowska, and Dubrawski}}}
+\bibcite{woo2024moirai}{{18}{2024}{{Woo et~al.}}{{}}}
+\bibcite{zeng2023transformers}{{19}{2023}{{Zeng et~al.}}{{Zeng, Chen, Zhang, and Xu}}}
+\bibcite{zhou2021informer}{{20}{2021}{{Zhou et~al.}}{{Zhou, Zhang, Peng, Zhang, Li, Xiong, and Zhang}}}
+\bibcite{zhou2023onefitsall}{{21}{2023}{{Zhou et~al.}}{{Zhou, Niu, Wang, Sun, and Jin}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Extended Limitations and Future Work}{12}{appendix.A}\protected@file@percent }
+\newlabel{app:limitations}{{A}{12}{Extended Limitations and Future Work}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}uni2ts PackedStdScaler Patch Details}{12}{appendix.B}\protected@file@percent }
+\newlabel{app:scaler_patch}{{B}{12}{uni2ts PackedStdScaler Patch Details}{appendix.B}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift.}}{13}{table.caption.9}\protected@file@percent }
+\newlabel{tab:forecasting_forgetting}{{6}{13}{Representation drift diagnosis on ETTh2 forecasting (mean $\pm $ std across 10 seeds). Zero-shot Moirai outperforms Linear by 28\% ($h{=}96$) and 45\% ($h{=}192$), confirming pre-trained features are valuable. Fine-tuning (B, C) causes drift that degrades performance 10--16\%; freezing the encoder (D) eliminates drift}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Moirai Median Forecast Selection}{13}{appendix.C}\protected@file@percent }
+\newlabel{app:moirai_median}{{C}{13}{Moirai Median Forecast Selection}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}ETTh2 Forecasting Details}{13}{appendix.D}\protected@file@percent }
+\newlabel{app:etth2_details}{{D}{13}{ETTh2 Forecasting Details}{appendix.D}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{13}{appendix.E}\protected@file@percent }
+\newlabel{app:full_tables}{{E}{13}{ETTh2 Drift Diagnosis and Mitigation (Full Tables)}{appendix.E}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph  {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100. \textbf  {Two caveats on comparability, added in revision.} Forgetting\% divides by the single shared zero-shot printed in each horizon header, not by each run's own zero-shot; the anchoring and LoRA runs measure their own at $0.127$--$0.131$, so their figures here are inflated by $1.2$--$3.4$~pp. And the rows are not matched on training-set size: B and C use $n{=}500$ training samples while L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). Matched at $n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP $\lambda {=}0.01$ $.939$/$+16.0$, L2-SP $\lambda {=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA $.979$/$-9.2$. On that comparison L2-SP $\lambda {=}0.1$ ties full fine-tuning rather than losing to it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not predicting utility---is unaffected.}}{14}{table.caption.10}\protected@file@percent }
+\newlabel{tab:mitigation_spectrum}{{7}{14}{Mitigation spectrum on ETTh2 forecasting. Methods ordered by representation preservation (CKA, $h{=}96$). LoRA preserves representations (CKA$\approx $0.98) while \emph {improving} over zero-shot. Mean $\pm $ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times $ 100. \textbf {Two caveats on comparability, added in revision.} Forgetting\% divides by the single shared zero-shot printed in each horizon header, not by each run's own zero-shot; the anchoring and LoRA runs measure their own at $0.127$--$0.131$, so their figures here are inflated by $1.2$--$3.4$~pp. And the rows are not matched on training-set size: B and C use $n{=}500$ training samples while L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). Matched at $n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP $\lambda {=}0.01$ $.939$/$+16.0$, L2-SP $\lambda {=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA $.979$/$-9.2$. On that comparison L2-SP $\lambda {=}0.1$ ties full fine-tuning rather than losing to it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not predicting utility---is unaffected}{table.caption.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}LoRA Rank and Hyperparameter Sensitivity}{14}{appendix.F}\protected@file@percent }
+\newlabel{app:lora_rank}{{F}{14}{LoRA Rank and Hyperparameter Sensitivity}{appendix.F}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only), 3 seeds for $r{=}8$.}}{14}{table.caption.11}\protected@file@percent }
+\newlabel{tab:lora_rank}{{8}{14}{LoRA rank sensitivity on ETTh2 (condition E, 500 training samples). Moirai-Small: all ranks achieve near-identical MSE and CKA$\geq $0.979. Moirai-Large: all ranks forget $+$19 to $+$30\%, with no rank recovering Moirai-Small's negative forgetting. Mean $\pm $ std across 3 seeds (5 for $r{=}8$ Small); Moirai-Large single-seed ($s{=}42$) for $r \in \{16, 32, 64\}$ (std not reported; point estimates only), 3 seeds for $r{=}8$}{table.caption.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail.}}{15}{table.caption.12}\protected@file@percent }
+\newlabel{tab:lora_large_hp}{{9}{15}{LoRA-Large HP ablation (ETTh2, $r{=}8$, $n{=}500$, $h{=}96$). Baseline (default LR$=$1e-4, $\alpha {=}16$, modules $=$ q,v,out) forg.$=+22.5\%$, seed 42. Only LR$=$1e-5 rescues LoRA-Large (5~seeds); all other axes fail}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Step-Size Falsification: Base at $10{\times }$ LR}{15}{appendix.G}\protected@file@percent }
+\newlabel{app:step_size}{{G}{15}{Step-Size Falsification: Base at $10{\times }$ LR}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves; capacity buffers against destruction.}}{15}{table.caption.13}\protected@file@percent }
+\newlabel{tab:step_size}{{10}{15}{Step-size falsification: Moirai-Base on ETTh2 ($h{=}96$, $n{=}10$k, condition~B, early-stopped). Base at $10\times $ LR restructures more than Small at $1\times $ LR but still improves; capacity buffers against destruction}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {H}CKA Calibration: Random-Initialisation Baseline}{15}{appendix.H}\protected@file@percent }
+\newlabel{app:cka_calibration}{{H}{15}{CKA Calibration: Random-Initialisation Baseline}{appendix.H}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure.}}{16}{table.caption.14}\protected@file@percent }
+\newlabel{tab:cka_calibration}{{11}{16}{CKA calibration. Random-init CKA ($0.000 \pm 0.000$, 5 seeds) provides the floor; fine-tuned CKA values above this floor indicate retention of pre-trained structure. IoT fine-tuning (CKA 0.31--0.45) retains meaningful structure despite aggressive drift. ETT fine-tuning (CKA 0.81--0.94) preserves most pre-trained structure}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Linear Probing: Functional Representation Diagnostic}{16}{appendix.I}\protected@file@percent }
+\newlabel{app:probing}{{I}{16}{Linear Probing: Functional Representation Diagnostic}{appendix.I}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective.}}{17}{table.caption.15}\protected@file@percent }
+\newlabel{tab:probe_horizon}{{12}{17}{Ridge $\Delta R^2$ by probe head on early-stopped encoders ($n{=}10$k, seeds \{303, 777, 888, 999\}). ``Forecast96'' is the trained head; ``Forecast48'' and ``Delta1'' are untrained. The gain is head-specific to the trained objective}{table.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.1}$n{=}5{,}000$ per-epoch trajectory analysis}{18}{subsection.I.1}\protected@file@percent }
+\newlabel{app:n5k_trajectories}{{I.1}{18}{$n{=}5{,}000$ per-epoch trajectory analysis}{subsection.I.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {J}ETTh1 Spectral Pilot}{18}{appendix.J}\protected@file@percent }
+\newlabel{app:etth1_extended}{{J}{18}{ETTh1 Spectral Pilot}{appendix.J}{}}
+\citation{neto2023ciciot}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive.}}{19}{table.caption.16}\protected@file@percent }
+\newlabel{tab:n5k_seeds}{{13}{19}{Per-seed results at $n{=}5{,}000$ (ETTh2, $h{=}96$, condition B, 20 epochs). Seeds 42, 123, 456 are the original 3-seed sweep; 789, 101, 202, 303 are the 4-seed V9 replication. Forgetting is bimodal; $\Delta R^2$ is uniformly positive}{table.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt  {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes.}}{19}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:n5k_trajectories}{{2}{19}{Per-epoch val MSE (left) and weight drift (right) for the seven $n{=}5{,}000$ seeds; both panels carry per-seed labels (\texttt {sXXX (forg.\%)}) so each trajectory is individually identifiable. Blue: low-forgetting mode (forg.~$\le $~5\%); red: high-forgetting mode (forg.~$>$~5\%). Grey dashed line: zero-shot MSE. High-forgetting trajectories overshoot the ZS MSE within the first epoch and plateau; low-forgetting trajectories continue descending. Mid-training weight drift (epochs 5--10) does not separate the modes}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {K}IoT Negative-Control Details}{19}{appendix.K}\protected@file@percent }
+\newlabel{app:cnn_detail}{{K}{19}{IoT Negative-Control Details}{appendix.K}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {K.1}Task-orthogonal probes}{20}{subsection.K.1}\protected@file@percent }
+\newlabel{app:orthogonal}{{K.1}{20}{Task-orthogonal probes}{subsection.K.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {L}Probe Noise-Floor Analysis}{20}{appendix.L}\protected@file@percent }
+\newlabel{app:noisefloor}{{L}{20}{Probe Noise-Floor Analysis}{appendix.L}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces $\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$.}}{21}{table.caption.18}\protected@file@percent }
+\newlabel{tab:noisefloor}{{14}{21}{$\Delta R^2$ under probe-design perturbations (ETTh2 96-step, ZS vs.\ FT seed~42). All $\Delta R^2 > 0$}{table.caption.18}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {M}Random-Initialisation Negative Control}{21}{appendix.M}\protected@file@percent }
+\newlabel{app:randominit}{{M}{21}{Random-Initialisation Negative Control}{appendix.M}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {N}Layer-Wise Unfreeze Localization}{22}{appendix.N}\protected@file@percent }
+\newlabel{app:layerunfreeze}{{N}{22}{Layer-Wise Unfreeze Localization}{appendix.N}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$/$N{=}3$/$N{=}6$: 10 CUDA seeds (42/101/123/202/303/456/777/789/888/999); $N{=}4$/$N{=}5$: seed~42 only. Early-stopped checkpointing.}}{22}{table.caption.19}\protected@file@percent }
+\newlabel{tab:layerunfreeze}{{15}{22}{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm $std over seeds). $N$ = number of top transformer layers unfrozen (Moirai-Small has 6 layers). $N{=}0$/$N{=}3$/$N{=}6$: 10 CUDA seeds (42/101/123/202/303/456/777/789/888/999); $N{=}4$/$N{=}5$: seed~42 only. Early-stopped checkpointing}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {O}Chronos-T5-Small on M4-Monthly: Full Diagnostic Results}{23}{appendix.O}\protected@file@percent }
+\newlabel{app:chronos_detail}{{O}{23}{Chronos-T5-Small on M4-Monthly: Full Diagnostic Results}{appendix.O}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {O.1}ILI Gate Check}{24}{subsection.O.1}\protected@file@percent }
+\newlabel{app:ili_gate}{{O.1}{24}{ILI Gate Check}{subsection.O.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces ILI per-seed results (condition B, Moirai-Small, $h{=}24$, lookback$=$104). Aggregate $\Delta R^2$ is the mean across 7 univariate features.}}{25}{table.caption.20}\protected@file@percent }
+\newlabel{tab:ili_perseed}{{16}{25}{ILI per-seed results (condition B, Moirai-Small, $h{=}24$, lookback$=$104). Aggregate $\Delta R^2$ is the mean across 7 univariate features}{table.caption.20}{}}
+\gdef \@abspage@last{25}

@@ -1,0 +1,36 @@
+{
+  "eval_key": "stealth_95",
+  "n_boot": 10000,
+  "condition_aucs": {
+    "c": [
+      0.5948226548628335,
+      0.569347504680274,
+      0.6456763506149279,
+      0.5927645562628497,
+      0.5294736972741989
+    ],
+    "d": [
+      0.5850082426104772,
+      0.5599727878384452,
+      0.6349842149155919,
+      0.5829856663333195,
+      0.5207871934552992
+    ]
+  },
+  "pairwise_comparisons": [
+    {
+      "comparison": "c_vs_d",
+      "cond_a": "c",
+      "cond_b": "d",
+      "mean_a": 0.5864169527390167,
+      "mean_b": 0.5767476210306266,
+      "observed_diff": 0.009669331708390128,
+      "ci_lo": -0.03623746939206769,
+      "ci_hi": 0.05616527500582613,
+      "p_value_approx": 0.3514,
+      "cohens_d": 0.2305807761729289,
+      "significance": "n.s."
+    }
+  ],
+  "note": "Bootstrap CIs use percentile method with 10,000 replicates. p_value_approx = fraction of bootstrap diffs with opposite sign to observed diff. Cohen's d = (mean_A - mean_B) / pooled_std."
+}

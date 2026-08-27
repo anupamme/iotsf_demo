@@ -1,0 +1,31 @@
+{
+  "encoder_dir": "results/v17r2_etth2_n10k_es_mlp/seed777",
+  "zero_shot": false,
+  "data_path": "data/forecasting/ETTh2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "ridge"
+  ],
+  "head_types": [
+    "forecast48",
+    "forecast96",
+    "delta1"
+  ],
+  "mlp_layers": [
+    1
+  ],
+  "results": {
+    "forecast48": {
+      "ridge": -7.1665737365621025
+    },
+    "forecast96": {
+      "ridge": -6.9914720615705575
+    },
+    "delta1": {
+      "ridge": -1.5217107371356995
+    }
+  }
+}

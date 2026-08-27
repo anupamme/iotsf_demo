@@ -1,0 +1,32 @@
+{
+  "backbone": "timesfm",
+  "model_id": "google/timesfm-2.5-200m-pytorch",
+  "dataset": "Weather",
+  "horizon": 24,
+  "lookback": 96,
+  "condition": "D",
+  "seed": 42,
+  "test_seed": 0,
+  "loss_type": "native_point_head",
+  "n_test_windows": 200,
+  "n_val_windows": 200,
+  "zeroshot_mse": 1.158615323794264,
+  "zeroshot_test_mse": 1.0880194524484539,
+  "final_val_mse": 1.0791134879340272,
+  "test_mse": 1.013236210234338,
+  "best_epoch": 2,
+  "epochs": 20,
+  "lr": 0.0001,
+  "batch_size": 16,
+  "max_train_samples": 1000,
+  "n_trainable": 34574080,
+  "n_params": 231289280,
+  "frozen_modules": [
+    "stacked_xf"
+  ],
+  "final_cka": 0.6224517720028606,
+  "final_weight_drift": 0.0,
+  "has_drift": true,
+  "forgetting_pct_test": -6.873336873327535,
+  "forgetting_pct_val": -6.86179737377218
+}

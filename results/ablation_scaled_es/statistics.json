@@ -1,0 +1,115 @@
+{
+  "eval_key": "stealth_95",
+  "n_boot": 10000,
+  "condition_aucs": {
+    "b": [
+      0.5235681899006298,
+      0.5173787849910508,
+      0.5359235288055103,
+      0.5230681573007099,
+      0.5076911035621214
+    ],
+    "c": [
+      0.5135407595805327,
+      0.5029985990027388,
+      0.5345851036864951,
+      0.5126890744767952,
+      0.4864979669157629
+    ],
+    "cprime": [
+      0.5108133243874954,
+      0.5044288270949112,
+      0.5235581082462936,
+      0.5102975305709603,
+      0.4944357862843651
+    ],
+    "d": [
+      0.5099276928438568,
+      0.5024371121430753,
+      0.5248804491273047,
+      0.5093225402326702,
+      0.4907128251385928
+    ]
+  },
+  "pairwise_comparisons": [
+    {
+      "comparison": "b_vs_c",
+      "cond_a": "b",
+      "cond_b": "c",
+      "mean_a": 0.5215259529120044,
+      "mean_b": 0.510062300732465,
+      "observed_diff": 0.011463652179539485,
+      "ci_lo": -0.004271517012383785,
+      "ci_hi": 0.027191361434767032,
+      "p_value_approx": 0.0795,
+      "cohens_d": 0.798714716239074,
+      "significance": "*"
+    },
+    {
+      "comparison": "b_vs_cprime",
+      "cond_a": "b",
+      "cond_b": "cprime",
+      "mean_a": 0.5215259529120044,
+      "mean_b": 0.508706715316805,
+      "observed_diff": 0.012819237595199429,
+      "ci_lo": 0.0013482881541360097,
+      "ci_hi": 0.02444129644093616,
+      "p_value_approx": 0.013,
+      "cohens_d": 1.2279070985031955,
+      "significance": "**"
+    },
+    {
+      "comparison": "b_vs_d",
+      "cond_a": "b",
+      "cond_b": "d",
+      "mean_a": 0.5215259529120044,
+      "mean_b": 0.5074561238970999,
+      "observed_diff": 0.0140698290149045,
+      "ci_lo": 0.0015587893008266796,
+      "ci_hi": 0.026716164537964406,
+      "p_value_approx": 0.0129,
+      "cohens_d": 1.2333125739283555,
+      "significance": "**"
+    },
+    {
+      "comparison": "c_vs_cprime",
+      "cond_a": "c",
+      "cond_b": "cprime",
+      "mean_a": 0.510062300732465,
+      "mean_b": 0.508706715316805,
+      "observed_diff": 0.0013555854156599434,
+      "ci_lo": -0.014649634189299396,
+      "ci_hi": 0.01753845975125379,
+      "p_value_approx": 0.4374,
+      "cohens_d": 0.0936828636097754,
+      "significance": "n.s."
+    },
+    {
+      "comparison": "c_vs_d",
+      "cond_a": "c",
+      "cond_b": "d",
+      "mean_a": 0.510062300732465,
+      "mean_b": 0.5074561238970999,
+      "observed_diff": 0.002606176835365015,
+      "ci_lo": -0.01423692652349268,
+      "ci_hi": 0.019599976110911358,
+      "p_value_approx": 0.385,
+      "cohens_d": 0.17164720661528426,
+      "significance": "n.s."
+    },
+    {
+      "comparison": "cprime_vs_d",
+      "cond_a": "cprime",
+      "cond_b": "d",
+      "mean_a": 0.508706715316805,
+      "mean_b": 0.5074561238970999,
+      "observed_diff": 0.0012505914197050716,
+      "ci_lo": -0.011407444508957218,
+      "ci_hi": 0.014112679980696211,
+      "p_value_approx": 0.4249,
+      "cohens_d": 0.10822562470970312,
+      "significance": "n.s."
+    }
+  ],
+  "note": "Bootstrap CIs use percentile method with 10,000 replicates. p_value_approx = fraction of bootstrap diffs with opposite sign to observed diff. Cohen's d = (mean_A - mean_B) / pooled_std."
+}

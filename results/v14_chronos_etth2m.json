@@ -1,0 +1,13 @@
+{
+  "model_id": "amazon/chronos-t5-small",
+  "horizon": 96,
+  "lookback": 192,
+  "seed": 42,
+  "n_test_windows": 300,
+  "chronos_zs_mse": 0.18754182755947113,
+  "linear_mse": 0.11016275733709335,
+  "repeat_last_mse": 0.2926288843154907,
+  "moirai_zs_mse_paper": 0.126,
+  "chronos_advantage_over_linear_pct": -70.24068032865328,
+  "chronos_zs_ridge_r2": -2.177931308746338
+}

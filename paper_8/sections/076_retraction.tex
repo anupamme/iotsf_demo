@@ -1,0 +1,58 @@
+% ============================================================
+\section{Retraction: The Probe-Sign Asymmetry Axis}
+\label{sec:retraction}
+% ============================================================
+
+An earlier version of this work reported a second diagnostic axis alongside
+CKA drift: a \emph{probe-sign asymmetry}, in which fine-tuning raised linear
+decodability of the trained objective ($\Delta R^2 {>} 0$) while leaving
+task-orthogonal probes flat or lower. We reported it as replicating across
+every gate-passing cell. \textbf{We retract it.} It does not survive a
+protocol with every choice fixed in advance, and nothing in this paper's
+remaining claims depends on it.
+
+\textbf{What fails.} The statistic reproduces numerically---the headline
+$\Delta R^2{=}{+}0.67{\pm}0.23$ on Moirai-Small/ETTh2 at $n{=}10$k is
+recoverable to four significant figures---but only in a regime where the
+probe does not generalise. Under a temporal split the pre-trained probe
+scores $R^2(\text{PT})$ between $-2.7$ and $-164.1$: it is not decoding the
+target at all, so $\Delta R^2$ measures relative movement between two failed
+fits. Re-running the identical probes, encoders and windows under a
+randomised split, where all seven probes generalise
+($R^2(\text{PT}) \in [0.678, 0.994]$), no $|\Delta R^2|$ exceeds $0.010$.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Split & $R^2(\text{PT})$ range & $\max |\Delta R^2|$ \\
+\midrule
+Temporal (as originally reported) & $-164.1$ to $-2.7$ & $21.4$ \\
+Randomised, same windows          & $+0.678$ to $+0.994$ & $\mathbf{0.010}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The effect is therefore an artifact of probe failure, not evidence about the
+encoder. It also fails our own published criterion for discarding a probe: we
+stated that a probe with negative $R^2$ should not be read as evidence, and
+then read one.
+
+\textbf{What this costs, and what it does not.} Every claim resting on probe
+asymmetry is withdrawn: the ``dissociation'' bullet in
+\S\ref{sec:intro}, criterion~(i) of \S\ref{sec:background}, and the
+per-cell $\Delta R^2$ readings in \S\ref{sec:analysis} and the appendix
+tables, which we retain only as a record of the retracted computation. The
+$\Delta R^2$ columns of Table~\ref{tab:sample_sweep} should be read as
+retracted.
+
+The paper's other findings are untouched, because they share no machinery
+with the probes. The value-gate is a downstream MSE comparison. CKA drift is
+computed from encoder representations directly. The frozen-encoder
+comparison is read in forecast MSE. The drift--utility dissociation---large
+CKA drop with improved forecasting, and a monotone drift curve alongside a
+non-monotone outcome curve---rests entirely on those measurements.
+
+\textbf{Why we report this.} A negative result about one's own tooling is
+cheap to bury and expensive to discover downstream. The re-analysis code and
+both split protocols are released with the paper.

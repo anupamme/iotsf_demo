@@ -1,0 +1,45 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+We investigated the failure modes that arise when fine-tuning foundation
+models for IoT anomaly detection, using stealth-controlled synthetic
+negatives as diagnostic probes.  Three key findings emerge.
+
+First, \textbf{catastrophic forgetting is the dominant failure mode}:
+with 10-seed evaluation, all conditions degrade monotonically from 200/5
+onward, and the 5-seed appearance of 500/10 improvement was a small-sample
+artefact.
+Freezing the encoder (10 seeds) yields identical AUC across conditions
+(B$=$C$=$D$=$0.549), confirming that NLL-based evaluation depends on
+the frozen encoder alone; converging evidence from learning-rate ablation
+($10^{-4}$ to $10^{-6}$), LoRA, and L2-SP regularisation rules out
+hyperparameter misconfiguration.
+
+Second, \textbf{cross-condition AUC comparisons require distribution control}:
+D-DiffTS appears to close the C$>$D gap and retain better detection at
+larger scales---but this is an evaluation-distribution artifact.
+Controlled cross-evaluation (frozen D-DiffTS on analytical negatives: 0.464;
+unfrozen D-DiffTS on analytical negatives: 0.463) confirms that learned
+negatives neither preserve nor destroy pre-trained features any differently
+than analytical negatives when measured on a common evaluation set.
+The Gaussian-noise advantage at small scale (C$>$D: $+$0.073 at 200/5)
+narrows monotonically and collapses at 1000/20 ($+$0.024, $p{=}0.216$, n.s.),
+a genuine within-distribution result.
+
+Third, \textbf{no configuration achieves operational detection}:
+frozen-encoder F1 remains low (0.152) under calibrated thresholds,
+and the best unfrozen F1 at stealth-95 is 0.262.
+The system is a diagnostic framework for understanding detection failure
+modes, not a production-ready IDS.
+
+The practical implication: when fine-tuning foundation models for
+anomaly detection, protect pre-trained features (freeze encoder or
+apply L2-SP regularisation), invest in generative-model-quality training
+negatives when feasible, and always recalibrate thresholds on
+deployment-specific benign traffic.
+Cross-dataset validation on N-BaIoT (Gaussian AUC$=$0.928;
+learned AUC$=$0.939 with $\geq$500 windows) confirms recipe
+generalisation.
+We release all code, datasets, and calibration scripts.

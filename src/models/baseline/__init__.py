@@ -18,6 +18,10 @@ from .statistical import StatisticalIDS
 from .signature import SignatureIDS
 from .ml_based import MLBasedIDS
 from .combined import CombinedBaselineIDS
+from .usad import USADIDS
+from .tranad import TranADIDS
+from .anomaly_transformer import AnomalyTransformerIDS
+from .patchtst_anomaly import PatchTSTAnomalyIDS
 
 __all__ = [
     'BaseIDS',
@@ -35,5 +39,9 @@ __all__ = [
     'StatisticalIDS',
     'SignatureIDS',
     'MLBasedIDS',
-    'CombinedBaselineIDS'
+    'CombinedBaselineIDS',
+    'USADIDS',
+    'TranADIDS',
+    'AnomalyTransformerIDS',
+    'PatchTSTAnomalyIDS',
 ]

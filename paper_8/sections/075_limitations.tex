@@ -1,0 +1,40 @@
+% ============================================================
+\section{Limitations and Broader Impact}
+\label{sec:limitations}
+% ============================================================
+
+\textbf{Limitations.}
+We summarise the main threats here and give full detail (including the
+nine-cell non-Moirai gate-fail table) in Appendix~\ref{app:limitations}.
+(1)~\emph{Single-backbone dissociation.}  The dissociation is established on
+the Moirai family; the three additional backbones (Chronos, TimesFM-2.5,
+MOMENT) gate-fail on all nine ETT cells, so they confirm the value-gate
+screen but do not exercise the dissociation on a second architecture---the
+\emph{protocol} is backbone-agnostic but the \emph{empirical} dissociation is
+a Moirai case study, and a gate-passing second backbone is our
+highest-priority replication.
+(2)~\emph{Heuristic gate threshold.}  The $20\%$ cutoff is a practical
+screen, not a phase boundary; we report $R^2_{\text{task}}(\text{PT})$ as a
+continuous variable so readers can apply alternative thresholds
+(Table~\ref{tab:r2task}).
+(3)~\emph{A retracted axis.}  The linear-probe $\Delta R^2$ diagnostic
+reported in an earlier version is withdrawn: absolute probe $R^2$ is deeply
+negative on Moirai's mixture-distribution head, and the effect disappears
+once the probe generalises (\S\ref{sec:retraction}).  We therefore no longer
+offer any account of \emph{what} the encoder restructured---only whether the
+restructuring was necessary, which the frozen-encoder comparison answers.
+(4)~\emph{Protocol-dependent forgetting sign} at $n{=}10$k, which we report
+as unsettled rather than resolving in either direction;
+(5)~\emph{CKA is a drift indicator, not a causal mechanism};
+(6)~\emph{small ILI sample} ($\approx$450 windows). Two pre-registered
+predictions failed---one falsified outright, one partially---and are reported
+as such (\S\ref{sec:analysis:ili}, Appendix~\ref{app:step_size}).
+
+\textbf{Broader impact.}
+This is a diagnostic study on public forecasting benchmarks with no direct
+negative societal impact. The intended effect is positive: the value-gate
+saves practitioners from deploying preservation machinery (LoRA/EWC) where
+it yields no benefit, and flags when fine-tuning silently degrades a
+distribution the model previously handled well---relevant when fine-tuned
+forecasts drive downstream decisions. As with any diagnostic, the
+heuristics are validated only on the cells tested here.

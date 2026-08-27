@@ -1,0 +1,114 @@
+\begin{thebibliography}{14}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ansari et~al.(2024)Ansari, Stella, Turkmen, Zhang, Mercado, Shen,
+  Shchur, Rangapuram, Arango, Kapoor, Zschiegner, Maddix, Wang, Mahoney,
+  Torkkola, Wilson, Bohlke-Schneider, and Wang]{ansari2024chronos}
+Abdul~Fatir Ansari, Lorenzo Stella, Caner Turkmen, Xiyuan Zhang, Pedro Mercado,
+  Huibin Shen, Oleksandr Shchur, Syama~Sundar Rangapuram, Sebastian~Pineda
+  Arango, Shubham Kapoor, Jasper Zschiegner, Danielle~C. Maddix, Hao Wang,
+  Michael~W. Mahoney, Kari Torkkola, Andrew~Gordon Wilson, Michael
+  Bohlke-Schneider, and Yuyang Wang.
+\newblock Chronos: Learning the language of time series.
+\newblock \emph{Transactions on Machine Learning Research}, 2024.
+
+\bibitem[Das et~al.(2024)Das, Kong, Sen, and Zhou]{das2024timeseries}
+Abhimanyu Das, Weihao Kong, Rajat Sen, and Yichen Zhou.
+\newblock A decoder-only foundation model for time-series forecasting.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Goswami et~al.(2024)Goswami, Szafer, Choudhry, Cai, Li, and
+  Dubrawski]{goswami2024moment}
+Mononito Goswami, Konrad Szafer, Arjun Choudhry, Yifu Cai, Shuo Li, and Artur
+  Dubrawski.
+\newblock {MOMENT}: A family of open time-series foundation models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Hu et~al.(2022)Hu, Shen, Wallis, Allen-Zhu, Li, Wang, Wang, and
+  Chen]{hu2022lora}
+Edward~J Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean
+  Wang, Lu~Wang, and Weizhu Chen.
+\newblock {LoRA}: Low-rank adaptation of large language models.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+
+\bibitem[Kirkpatrick et~al.(2017)Kirkpatrick, Pascanu, Rabinowitz, Veness,
+  Desjardins, Rusu, Milan, Quan, Ramalho, Grabska-Barwinska, Hassabis, Clopath,
+  Kumaran, and Hadsell]{kirkpatrick2017ewc}
+James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume
+  Desjardins, Andrei~A. Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka
+  Grabska-Barwinska, Demis Hassabis, Claudia Clopath, Dharshan Kumaran, and
+  Raia Hadsell.
+\newblock Overcoming catastrophic forgetting in neural networks.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 114\penalty0
+  (13):\penalty0 3521--3526, 2017.
+
+\bibitem[Kornblith et~al.(2019)Kornblith, Norouzi, Lee, and
+  Hinton]{kornblith2019cka}
+Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey Hinton.
+\newblock Similarity of neural network representations revisited.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+  3519--3529, 2019.
+
+\bibitem[Kumar et~al.(2022)Kumar, Raghunathan, Jones, Ma, and
+  Liang]{kumar2022finetuning}
+Ananya Kumar, Aditi Raghunathan, Robbie Jones, Tengyu Ma, and Percy Liang.
+\newblock Fine-tuning can distort pretrained features and underperform
+  out-of-distribution.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2022.
+
+\bibitem[Li et~al.(2018)Li, Grandvalet, and Davoine]{li2018l2sp}
+Xuhong Li, Yves Grandvalet, and Franck Davoine.
+\newblock Explicit inductive bias for transfer learning with convolutional
+  networks.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2018.
+
+\bibitem[Li and Hoiem(2018)]{li2017lwf}
+Zhizhong Li and Derek Hoiem.
+\newblock Learning without forgetting.
+\newblock \emph{IEEE Transactions on Pattern Analysis and Machine
+  Intelligence}, 40\penalty0 (12):\penalty0 2935--2947, 2018.
+
+\bibitem[Luo et~al.(2023)Luo, Yang, Meng, Li, Zhou, and
+  Zhang]{luo2023forgetting}
+Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
+\newblock An empirical study of catastrophic forgetting in large language
+  models during continual fine-tuning.
+\newblock \emph{arXiv preprint arXiv:2308.08747}, 2023.
+
+\bibitem[Neyshabur et~al.(2020)Neyshabur, Sedghi, and
+  Zhang]{neyshabur2020transferred}
+Behnam Neyshabur, Hanie Sedghi, and Chiyuan Zhang.
+\newblock What is being transferred in transfer learning?
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2020.
+
+\bibitem[Wili{\'n}ski et~al.(2025)Wili{\'n}ski, Goswami, Potosnak,
+  {\.Z}ukowska, and Dubrawski]{wilinski2025representations}
+Micha{\l} Wili{\'n}ski, Mononito Goswami, Willa Potosnak, Nina {\.Z}ukowska,
+  and Artur Dubrawski.
+\newblock Exploring representations and interventions in time series foundation
+  models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2025.
+
+\bibitem[Woo et~al.(2024)Woo, Liu, Kumar, Xiong, Savarese, and
+  Sahoo]{woo2024moirai}
+Gerald Woo, Chenghao Liu, Akshat Kumar, Caiming Xiong, Silvio Savarese, and
+  Doyen Sahoo.
+\newblock Unified training of universal time series forecasting transformers.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
+  Zhang]{zhou2021informer}
+Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong,
+  and Wancai Zhang.
+\newblock Informer: Beyond efficient transformer for long sequence time-series
+  forecasting.
+\newblock In \emph{AAAI Conference on Artificial Intelligence}, 2021.
+
+\end{thebibliography}

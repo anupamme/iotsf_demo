@@ -1,0 +1,55 @@
+{
+  "condition": "E",
+  "condition_name": "LoRA",
+  "model_size": "small",
+  "horizon": 96,
+  "seed": 42,
+  "epochs": 1,
+  "max_train_samples": 50,
+  "l2sp_weight": 0.0,
+  "ewc_lambda": 0.0,
+  "lora_rank": 8,
+  "zeroshot_mse": 0.16798250442750084,
+  "zeroshot_mae": 0.259303251543873,
+  "final_val_mse": 0.16082352126727115,
+  "final_val_mae": 0.2535102535325353,
+  "test_mse": 0.6666275923236922,
+  "test_mae": 0.5583835801822135,
+  "final_cka": 0.9999934434890747,
+  "final_weight_drift": 0.0,
+  "forgetting_pct": -4.261743319417783,
+  "history": {
+    "train_nll": [
+      0.0,
+      10.616801261901855
+    ],
+    "train_contrastive": [
+      0.0,
+      0.0
+    ],
+    "train_total": [
+      0.0,
+      10.616801261901855
+    ],
+    "val_mse": [
+      0.16798250442750084,
+      0.16082352126727115
+    ],
+    "val_mae": [
+      0.259303251543873,
+      0.2535102535325353
+    ],
+    "cka": [
+      1.0,
+      0.9999934434890747
+    ],
+    "weight_drift": [
+      0.0,
+      0.0
+    ],
+    "epoch": [
+      0,
+      1
+    ]
+  }
+}

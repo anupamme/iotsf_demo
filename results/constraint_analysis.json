@@ -1,0 +1,286 @@
+{
+  "slow_exfiltration": {
+    "modbus": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "mqtt": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "coap": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    }
+  },
+  "lotl_mimicry": {
+    "modbus": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "mqtt": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "coap": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    }
+  },
+  "beacon": {
+    "modbus": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "mqtt": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "coap": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    }
+  },
+  "protocol_anomaly": {
+    "modbus": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "mqtt": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    },
+    "coap": {
+      "strict": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "moderate": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      },
+      "permissive": {
+        "n_total": 100,
+        "n_pass": 100,
+        "n_fail": 0,
+        "pass_rate": 1.0,
+        "top_violations": {}
+      }
+    }
+  }
+}

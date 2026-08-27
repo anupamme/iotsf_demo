@@ -1,0 +1,26 @@
+{
+  "encoder_dir": null,
+  "zero_shot": true,
+  "data_path": "data/forecasting/ETTm2.csv",
+  "horizon": 96,
+  "features": "M",
+  "n_probe_train": 300,
+  "n_probe_val": 200,
+  "probe_types": [
+    "gbm"
+  ],
+  "head_types": [
+    "delta1"
+  ],
+  "mlp_layers": [
+    1,
+    2,
+    5
+  ],
+  "gbm_depth": 6,
+  "results": {
+    "delta1": {
+      "gbm_d6": -0.02980308115077701
+    }
+  }
+}

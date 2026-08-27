@@ -1,0 +1,77 @@
+% ============================================================
+\section{Related Work}
+\label{sec:related}
+% ============================================================
+
+\textbf{Traditional IoT IDS.}
+Statistical methods (Z-score, IQR) and Isolation
+Forest~\cite{liu2012isolation} flag individual flow features deviating
+from learned normals; ensemble approaches~\cite{garcia2014empirical}
+improve precision.  All share a weakness: calibration on known,
+high-magnitude attacks and failure on stealthy perturbations.
+We use the \dataset{} dataset~\cite{neto2023ciciot} throughout.
+
+\textbf{Deep-learning anomaly detection.}
+USAD~\cite{audibert2020usad} uses adversarially trained dual-autoencoders.
+TranAD~\cite{tuli2022tranad} applies context-aware Transformers.
+The Anomaly Transformer~\cite{xu2022anomaly} introduces association
+discrepancy for anomalous timestep detection.
+PatchTST~\cite{nie2023patchtst} captures long-range dependencies via
+patch-based Transformers.
+We include all four as baselines.
+
+\textbf{Generative augmentation for security.}
+GANs~\cite{lin2018idsgan} suffer mode collapse; TimeGAN~\cite{yoon2019timegan}
+improves temporal fidelity; Diffusion-TS~\cite{zhang2024diffusionts}
+achieves state-of-the-art quality for time-series generation.
+We use Diffusion-TS as a backbone for generating \emph{learned}
+negatives: we train a Diffusion-TS model on benign IoT traffic, then
+apply the same analytical perturbation pipeline to generate
+protocol-constrained stealth-controlled negatives.
+This provides a controlled comparison between analytical (closed-form)
+and learned (generative-model) negatives, revealing that negative
+quality mediates catastrophic forgetting at scale.
+
+\textbf{Adversarial training.}
+FGSM~\cite{goodfellow2015adversarial} and PGD~\cite{madry2018pgd} generate
+adversarial perturbations at test time.  We generate adversarial
+\emph{training data} via closed-form perturbations targeting the
+traffic-generation threat model, with protocol constraints ensuring
+domain validity.
+
+\textbf{Time-series foundation models.}
+Moirai~\cite{woo2024moirai}, trained on 27B+ time points, supports
+probabilistic multivariate forecasting.
+Its confidence-interval output maps naturally to anomaly scoring.
+MOMENT~\cite{goswami2024moment} and TimesFM~\cite{das2024timeseries}
+offer complementary architectures.
+
+\textbf{Catastrophic forgetting and continual learning.}
+Catastrophic forgetting---the phenomenon where fine-tuning overwrites
+previously learned representations---is well-studied in continual
+learning.  EWC~\cite{kirkpatrick2017ewc} penalises changes to important
+weights; PackNet~\cite{mallya2018packnet} prunes and freezes network
+subsets; Progressive Neural Networks~\cite{rusu2016progressive} add
+lateral connections to frozen columns.  In the foundation-model era,
+LoRA~\cite{hu2022lora} and adapters~\cite{houlsby2019adapters} avoid
+forgetting by training low-rank or bottleneck modules while freezing
+the base model.  We do not compare against EWC or PackNet empirically; our encoder-freezing
+and LoRA experiments (Section~\ref{sec:experiments:scaling}) are diagnostic
+tools to confirm the forgetting mechanism, not proposed mitigations.
+
+\textbf{Contrastive learning for anomaly detection.}
+CSI~\cite{tack2020csi} uses contrastive learning with distributional
+shift detection for out-of-distribution samples.
+NeuTraL-AD~\cite{qiu2021neutral} learns neural transformations for
+anomaly scoring via contrastive objectives.
+SSD~\cite{sehwag2021ssd} combines self-supervised representations with
+Mahalanobis-distance outlier detection.
+These methods operate in the image domain; our work extends the
+contrastive anomaly detection principle to multivariate time series
+with domain-specific (IoT protocol) constraints.
+Supervised contrastive learning~\cite{khosla2020supcon} has been applied
+to tabular~\cite{sohn2020fixmatch} and time-series~\cite{eldele2021ts2vec}
+anomaly detection.  Our CombinedLoss adapts~\cite{reiss2021panda}'s
+reconstruction$+$contrastive principle to IoT time series.
+Our stealth-controlled negatives are analytically specified near the benign boundary,
+preventing the SupCon collapse observed with high-magnitude attacks.
