@@ -1,0 +1,15 @@
+{
+  "test_seed": 0,
+  "rng_seed": 0,
+  "num_samples": 100,
+  "datasets": {
+    "ETTh1": {
+      "zs_mse_test": 1.332974413949717,
+      "n_windows": 200
+    },
+    "ETTh2": {
+      "zs_mse_test": 1.0239590279608275,
+      "n_windows": 200
+    }
+  }
+}

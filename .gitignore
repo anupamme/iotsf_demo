@@ -94,3 +94,18 @@ dmypy.json
 # External dependencies (cloned during setup)
 Diffusion-TS/
 lib/Diffusion-TS/
+
+# Model checkpoints and representation caches produced by the experiment scripts.
+# ~5.3 GB across ~112 files; the JSON run records next to them are what the paper
+# actually reads (scripts/cell_matrix.py globs *.json), so those ARE tracked.
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+results/**/reps_cache.npz
+
+# Peer-review correspondence: reviewer comments, meta-reviews and our responses.
+# This repository is public; review material is confidential to the venue.
+paper_8/official_comment_*.md
+paper_8/response_reviewer*.md
+paper_8/rebuttal_round*.md

@@ -252,6 +252,23 @@ class ElectricityLoader(ETTh1Loader):
         return super().get_splits(train_ratio, val_ratio, test_ratio)
 
 
+class Electricity7Loader(ElectricityLoader):
+    """Electricity restricted to 7 of its 370 series, to match ETT/Weather dimensionality.
+
+    WHY THIS EXISTS: the Moirai arm runs multivariate (features='M'), so cost scales with the
+    number of series. Full Electricity is 370 columns against 7-14 for the ETT/Weather cells, which
+    at protocol parity costs ~25-50x per run. Restricting to six MT series plus OT -- the canonical
+    LTSF target, and the same series the Chronos arm forecasts -- keeps the cell affordable and
+    feature-matched to the rest of the matrix.
+
+    This is a DELIBERATE PROTOCOL DEVIATION and the paper says so: numbers here are comparable to
+    the other Moirai cells in dimensionality and cost, not to published full-Electricity results.
+    Split ratios stay at Electricity's own 0.7/0.1/0.2, inherited from ElectricityLoader.
+    """
+
+    FEATURE_COLUMNS = [f"MT_{i:03d}" for i in range(1, 7)] + ['OT']
+
+
 class TrafficLoader(ETTh1Loader):
     """
     Loader for the LTSF-Linear Traffic benchmark (PEMS-BAY, 862 sensors).
@@ -303,6 +320,8 @@ def get_forecasting_loader(data_path: str, **kwargs):
     stem = Path(data_path).stem.lower()
     if stem.startswith('weather'):
         return WeatherLoader(data_path, **kwargs)
+    if stem.startswith('electricity7'):     # must precede the generic electricity check
+        return Electricity7Loader(data_path, **kwargs)
     if stem.startswith('electricity'):
         return ElectricityLoader(data_path, **kwargs)
     if stem.startswith('traffic'):

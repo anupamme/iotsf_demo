@@ -88,6 +88,8 @@
   \texttt{mediratta@gmail.com} \\
 }
 
+\usepackage[normalem]{ulem}  % strike-through for the retracted table column
+
 \begin{document}
 
 \maketitle
@@ -98,8 +100,8 @@ We propose a \textbf{diagnostic protocol} for representation drift during
 fine-tuning of time-series foundation models.
 The protocol first tests whether zero-shot features are valuable relative
 to a linear baseline (value-gate), then uses controlled encoder comparisons
-and task-orthogonal probes to distinguish harmful forgetting from useful
-restructuring.
+--- full fine-tuning against a frozen encoder --- to ask whether encoder
+adaptation carries the downstream gain.
 In a Moirai case study spanning three model sizes and multiple datasets,
 fine-tuning often restructures representations toward the downstream
 objective, but the utility consequence depends on sample size and model
@@ -119,6 +121,8 @@ whether drift affects task-relevant structure.
 \input{sections/04_methodology}
 \input{sections/05_forecasting}
 \input{sections/07_analysis}
+\input{sections/076_retraction}
+\input{sections/075_limitations}
 \input{sections/08_conclusion}
 
 % ============================================================

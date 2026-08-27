@@ -1,4 +1,4 @@
-\begin{thebibliography}{18}
+\begin{thebibliography}{21}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -29,6 +29,13 @@ Abhimanyu Das et~al.
 Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+
+\bibitem[Hewitt and Manning(2019)]{hewitt2019structural}
+John Hewitt and Christopher~D. Manning.
+\newblock A structural probe for finding syntax in word representations.
+\newblock In \emph{Proceedings of the 2019 Conference of the North American
+  Chapter of the Association for Computational Linguistics: Human Language
+  Technologies (NAACL-HLT)}, pages 4129--4138, 2019.
 
 \bibitem[Jin et~al.(2024)Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan,
   and Wen]{jin2024timellm}
@@ -95,6 +102,14 @@ Euclides Carlos~Pinto Neto et~al.
   attacks in iot environment.
 \newblock \emph{Sensors}, 23\penalty0 (13), 2023.
 
+\bibitem[Pimentel et~al.(2020)Pimentel, Valvoda, Maudslay, Zmigrod, Williams,
+  and Cotterell]{pimentel2020information}
+Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
+  Williams, and Ryan Cotterell.
+\newblock Information-theoretic probing for linguistic structure.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, pages 4609--4622, 2020.
+
 \bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Khorasani, Adamopoulos,
   Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri,
   and Heinecke]{rasul2024lagllama}
@@ -106,6 +121,14 @@ Kashif Rasul, Arjun Ashok, Andrew~Robert Williams, Arian Khorasani, George
   forecasting.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, 2024.
+
+\bibitem[Wili{\'n}ski et~al.(2025)Wili{\'n}ski, Goswami, Potosnak,
+  {\.Z}ukowska, and Dubrawski]{wilinski2025representations}
+Micha{\l} Wili{\'n}ski, Mononito Goswami, Willa Potosnak, Nina {\.Z}ukowska,
+  and Artur Dubrawski.
+\newblock Exploring representations and interventions in time series foundation
+  models.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2025.
 
 \bibitem[Woo et~al.(2024)]{woo2024moirai}
 Gerald Woo et~al.

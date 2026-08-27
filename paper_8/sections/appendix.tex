@@ -5,8 +5,9 @@
 \appendix
 
 % ============================================================
-\section{Limitations and Future Work}
+\section{Extended Limitations and Future Work}
 \label{app:limitations}
+% (Summary in main body, \S\ref{sec:limitations}.)
 % ============================================================
 
 \textbf{(1) Single-backbone scope of the dissociation claim.}
@@ -351,6 +352,13 @@ in our setting.
 % ============================================================
 \section{Linear Probing: Functional Representation Diagnostic}
 \label{app:probing}
+
+\noindent\fbox{\parbox{0.97\linewidth}{\textbf{Retracted.} The analyses in this
+appendix rest on the linear-probe $\Delta R^2$ statistic, which is retracted
+(\S\ref{sec:retraction}): it is non-zero only where the probe fails to
+generalise. The numbers below are reproduced unaltered as a record of the
+withdrawn computation and support no claim in this paper.}}
+\vspace{1em}
 % ============================================================
 
 CKA measures geometric representational similarity but not functional
@@ -753,6 +761,13 @@ The sign unanimity matches ETTh2 (10/10) exactly.
 % ============================================================
 \section{Probe Noise-Floor Analysis}
 \label{app:noisefloor}
+
+\noindent\fbox{\parbox{0.97\linewidth}{\textbf{Retracted.} The analyses in this
+appendix rest on the linear-probe $\Delta R^2$ statistic, which is retracted
+(\S\ref{sec:retraction}): it is non-zero only where the probe fails to
+generalise. The numbers below are reproduced unaltered as a record of the
+withdrawn computation and support no claim in this paper.}}
+\vspace{1em}
 % ============================================================
 
 The $\Delta R^2$ signal on the trained 96-step head operates in a
@@ -1184,11 +1199,13 @@ consistent with the task-specificity interpretation: features less aligned
 with the forecasting objective show reduced or negative decodability shift.
 
 \textbf{Interpretation.}
-The pre-registered prediction (CKA 0.90--0.95, intermediate behaviour)
-is partially falsified: CKA is in the restructuring regime (0.478),
-not intermediate.
-The probe-asymmetry prediction (${\geq}$7/10 seeds $\Delta R^2{>}0$)
-is confirmed (10/10).
+The pre-registered prediction had two components, and neither now supports
+the hypothesis. The CKA component (0.90--0.95, intermediate behaviour) is
+\textbf{falsified}: CKA is in the restructuring regime (0.478), not
+intermediate. The probe-asymmetry component (${\geq}$7/10 seeds
+$\Delta R^2{>}0$) was reported as confirmed, but rests on the statistic we
+retract (\S\ref{sec:retraction}) and is therefore \textbf{withdrawn} rather
+than confirmed. The prediction as a whole is falsified, not partially so.
 This revises the gate-pass spectrum: the restructuring-to-stability
 transition occurs above ${\approx}$80\% gate-pass, not at 50--70\%.
 ILI's low CKA reflects the small dataset (966 timesteps, ${\approx}$450

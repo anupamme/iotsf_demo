@@ -4,7 +4,17 @@
 Methods ordered by representation preservation (CKA, $h{=}96$).
 LoRA preserves representations (CKA$\approx$0.98) while \emph{improving}
 over zero-shot.
-Mean $\pm$ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times$ 100.}
+Mean $\pm$ std; Forgetting\% = (fine-tuned MSE $-$ zero-shot MSE) / zero-shot MSE $\times$ 100.
+\textbf{Two caveats on comparability, added in revision.} Forgetting\% divides by the single shared
+zero-shot printed in each horizon header, not by each run's own zero-shot; the anchoring and LoRA
+runs measure their own at $0.127$--$0.131$, so their figures here are inflated by $1.2$--$3.4$~pp.
+And the rows are not matched on training-set size: B and C use $n{=}500$ training samples while
+L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). Matched at
+$n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP
+$\lambda{=}0.01$ $.939$/$+16.0$, L2-SP $\lambda{=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA
+$.979$/$-9.2$. On that comparison L2-SP $\lambda{=}0.1$ ties full fine-tuning rather than losing to
+it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not
+predicting utility---is unaffected.}
 \label{tab:mitigation_spectrum}
 \small
 \resizebox{\textwidth}{!}{%

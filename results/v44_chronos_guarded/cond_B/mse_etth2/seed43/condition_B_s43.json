@@ -1,0 +1,48 @@
+{
+  "dataset": "ETTh2",
+  "condition": "B",
+  "seed": 43,
+  "loss_type": "mse_head",
+  "epochs": 30,
+  "best_epoch": 2,
+  "lr": 0.0001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 55.72245429238265,
+  "zs_mse": 0.8972013318272566,
+  "linear_mse": 2.0263122480903575,
+  "best_val_loss": 20.212781524658205,
+  "final_cka": 0.10171987427221742,
+  "weight_drift": 26.40177046065859,
+  "has_drift": true,
+  "linear_probe": {
+    "r2_pt": 0.6476910299279389,
+    "r2_ft": 0.6190396277819392,
+    "delta_r2": -0.028651402145999705
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.16328565892368574,
+      "mean": 0.7796914274642932,
+      "var": 0.45101488718255134
+    },
+    "finetuned": {
+      "lag1": 0.19639064521869232,
+      "mean": 0.5965353501529582,
+      "var": 0.30849291160466574
+    },
+    "delta": {
+      "lag1": 0.03310498629500658,
+      "mean": -0.18315607731133499,
+      "var": -0.1425219755778856
+    }
+  },
+  "probe_asymmetry": false,
+  "dissociation": false,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.0324115194618158,
+  "test_val_loss": 24.020969314575197,
+  "test_mse_per_element": 1.0008737214406331,
+  "test_forgetting_pct": -3.0547700627771865
+}

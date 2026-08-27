@@ -135,8 +135,8 @@
 
 \item {\bf Broader impacts}
     \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
-    \item[] Answer: \answerNA{}
-    \item[] Justification: This paper contributes a diagnostic methodology for understanding representation drift in time-series foundation models. It does not introduce new capabilities, models, or datasets that could be misused. The methodology helps practitioners avoid deploying degraded models, which is a net positive with no foreseeable negative societal impact.
+    \item[] Answer: \answerYes{}
+    \item[] Justification: A Broader Impact paragraph in the main body (\S\ref{sec:limitations}) discusses societal impact. The work is a diagnostic methodology on public forecasting benchmarks; it introduces no new capabilities, models, or datasets that could be misused. Positive impacts: avoiding wasted compute on unnecessary preservation machinery, and flagging silent fine-tuning degradation before deployment. We note the heuristics are validated only on the cells tested and should not be treated as guarantees on unseen backbones or domains.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that there is no societal impact of the work performed.

@@ -5,12 +5,12 @@ Drift grows monotonically (CKA$\downarrow$ as $n\uparrow$);
 forgetting is \emph{non-monotonic}: severe at $n{\le}1{,}000$, resolved at
 $n{=}2{,}000$, with elevated variance at $n{=}5{,}000$ (crossover regime).
 At $n{=}10{,}000$: CUDA 10-seed deterministic early-stopped,
-$7/10$ negative forgetting; \textbf{10/10} $\Delta R^2{>}0$ (per-seed values
-in Appendix~\ref{app:probing}).
-$\Delta R^2$ is a \emph{relative} signal: absolute $R^2(\text{FT})$ remains
-negative ($R^2_{\text{ZS}}{=}{-}6.90$ for all rows).
-Ridge $\Delta R^2$ at $n{=}500$ ($k{=}2$) and $n{=}1{,}000$ ($k{=}1$):
-point values only.}
+$7/10$ negative forgetting.
+\textbf{The two $\Delta R^2$ columns are retracted} (\S\ref{sec:retraction})
+and are reproduced only as a record of the withdrawn computation: absolute
+$R^2(\text{FT})$ is negative throughout ($R^2_{\text{ZS}}{=}{-}6.90$), i.e.\
+the probe never decodes the target, and the effect vanishes once the probe
+does. Read the MSE, Forg.\% and CKA columns only.}
 \label{tab:sample_sweep}
 \small
 \begin{tabular}{r cccccc}
@@ -29,7 +29,6 @@ Samples & MSE & Forg.\% & CKA & R$^2$(FT) & $\Delta R^2$ (Ridge) & $\Delta R^2$ 
 {\footnotesize
 $^{\mathrm{cuda}}$ CUDA 10-seed deterministic (A10G); all completed, mean best epoch
 $4.2{\pm}1.4$ (Appendix~\ref{app:probing} for per-seed values and protocol comparison).
-$^\dagger$\textbf{10/10} positive; 95\% Wilson CI [0.72,\,1.00]. Forgetting sign: 7/10 negative
-(95\% Wilson CI [0.40,\,0.89]; protocol-dependent---see \S\ref{sec:analysis}).
-$\Delta R^2{>}0$ is the robust signal.}
+$^\dagger$Retracted (\S\ref{sec:retraction}). Forgetting sign: 7/10 negative
+(95\% Wilson CI [0.40,\,0.89]; protocol-dependent---see \S\ref{sec:analysis}).}
 \end{table}

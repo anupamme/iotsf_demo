@@ -1,0 +1,80 @@
+{
+  "dataset": "Electricity",
+  "condition": "D",
+  "seed": 42,
+  "loss_type": "mse_head",
+  "protocol": "frozen_cached_features_converged",
+  "max_epochs": 3000,
+  "patience": 200,
+  "epochs_run": 249,
+  "best_epoch": 49,
+  "converged": true,
+  "lr": 0.001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 36.03445273313836,
+  "zs_mse": 1.5945845865654695,
+  "linear_mse": 2.4928803937421624,
+  "best_val_loss": 45.764296875,
+  "val_mse_per_element": 1.906845703125,
+  "forgetting_pct": 19.582599705927215,
+  "ridge_optimum": {
+    "alpha": 0.001,
+    "best_val_loss": 16962896.0,
+    "interior": true,
+    "grid": {
+      "0.0001": 17615058.0,
+      "0.001": 16962896.0,
+      "0.01": 20775620.0,
+      "0.03": 26165382.0,
+      "0.1": 37446992.0,
+      "0.3": 49270092.0,
+      "1.0": 58799056.0,
+      "2.0": 60358224.0,
+      "3.0": 60333512.0,
+      "5.0": 61630232.0,
+      "10.0": 75666024.0,
+      "30.0": 255837984.0,
+      "100.0": 2126932480.0,
+      "1000.0": 38334476288.0,
+      "10000.0": 80045039616.0,
+      "100000.0": 87608729600.0
+    },
+    "test_loss": 26152286.0
+  },
+  "best_val_loss_ols": 16962896.0,
+  "val_mse_per_element_ols": 706787.3333333334,
+  "forgetting_pct_ols": 44324129.601119034,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.7325046590142954,
+  "test_loss_ols": 26152286.0,
+  "test_mse_per_element_ols": 1089678.5833333333,
+  "test_forgetting_pct_ols": 62896041.58690363,
+  "test_loss_adamw": 42.7023828125,
+  "test_mse_per_element_adamw": 1.7792659505208333,
+  "test_forgetting_pct_adamw": 2.6990571865557107,
+  "final_cka": 1.0000000004419645,
+  "linear_probe": {
+    "r2_pt": 0.926437381492463,
+    "r2_ft": 0.926437381492463,
+    "delta_r2": 0.0
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.9622238638908376,
+      "mean": 0.9742180335582882,
+      "var": 0.5872809591719894
+    },
+    "finetuned": {
+      "lag1": 0.9622238638908376,
+      "mean": 0.9742180335582882,
+      "var": 0.5872809591719894
+    },
+    "delta": {
+      "lag1": 0.0,
+      "mean": 0.0,
+      "var": 0.0
+    }
+  }
+}

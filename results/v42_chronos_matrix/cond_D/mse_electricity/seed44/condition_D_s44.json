@@ -1,0 +1,80 @@
+{
+  "dataset": "Electricity",
+  "condition": "D",
+  "seed": 44,
+  "loss_type": "mse_head",
+  "protocol": "frozen_cached_features_converged",
+  "max_epochs": 3000,
+  "patience": 200,
+  "epochs_run": 234,
+  "best_epoch": 34,
+  "converged": true,
+  "lr": 0.001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 25.75513410195737,
+  "zs_mse": 1.9602517153270265,
+  "linear_mse": 2.6402522135590605,
+  "best_val_loss": 47.7152783203125,
+  "val_mse_per_element": 1.9881365966796876,
+  "forgetting_pct": 1.422515339975565,
+  "ridge_optimum": {
+    "alpha": 0.01,
+    "best_val_loss": 49357696.0,
+    "interior": true,
+    "grid": {
+      "0.0001": 52606228.0,
+      "0.001": 49815732.0,
+      "0.01": 49357696.0,
+      "0.03": 51999780.0,
+      "0.1": 68253192.0,
+      "0.3": 92394896.0,
+      "1.0": 118167672.0,
+      "2.0": 125292352.0,
+      "3.0": 126287800.0,
+      "5.0": 128108072.0,
+      "10.0": 149551408.0,
+      "30.0": 450466944.0,
+      "100.0": 3667900416.0,
+      "1000.0": 66742861824.0,
+      "10000.0": 139519852544.0,
+      "100000.0": 152717180928.0
+    },
+    "test_loss": 72589976.0
+  },
+  "best_val_loss_ols": 49357696.0,
+  "val_mse_per_element_ols": 2056570.6666666667,
+  "forgetting_pct_ols": 104913501.17614138,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.7294658543993509,
+  "test_loss_ols": 72589976.0,
+  "test_mse_per_element_ols": 3024582.3333333335,
+  "test_forgetting_pct_ols": 174885245.41688195,
+  "test_loss_adamw": 42.8906201171875,
+  "test_mse_per_element_adamw": 1.7871091715494793,
+  "test_forgetting_pct_adamw": 3.3330127335846247,
+  "final_cka": 1.0000000333267585,
+  "linear_probe": {
+    "r2_pt": 0.9115314285098775,
+    "r2_ft": 0.9115314285098775,
+    "delta_r2": 0.0
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.9755040927304731,
+      "mean": 0.9794180726231454,
+      "var": 0.5772085732436947
+    },
+    "finetuned": {
+      "lag1": 0.9755040927304731,
+      "mean": 0.9794180726231454,
+      "var": 0.5772085732436947
+    },
+    "delta": {
+      "lag1": 0.0,
+      "mean": 0.0,
+      "var": 0.0
+    }
+  }
+}

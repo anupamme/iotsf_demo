@@ -300,6 +300,17 @@ def run_single_feature(model, pretrained_params, pretrained_state, feature_idx, 
 
     val_eval_tensor = torch.from_numpy(X_val_eval).float()
 
+    # Held-out test windows, built exactly like the validation ones. Early stopping and every
+    # reported diagnostic below select on validation; these windows are scored once, after
+    # training, and never participate in any choice.
+    X_test_eval, y_test_eval = [], []
+    for i in range(len(test_feat) - LOOKBACK - HORIZON + 1):
+        X_test_eval.append(test_feat[i:i + LOOKBACK])
+        y_test_eval.append(test_feat[i + LOOKBACK:i + LOOKBACK + HORIZON])
+    X_test_eval = np.array(X_test_eval) if X_test_eval else np.zeros((0, LOOKBACK, 1))
+    y_test_eval = np.array(y_test_eval) if y_test_eval else np.zeros((0, HORIZON, 1))
+    test_eval_tensor = torch.from_numpy(X_test_eval).float()
+
     # Zero-shot baseline
     zs_mse = evaluate_forecasting_mse(model, val_eval_tensor, y_val_eval, device)
     print(f"    ZS MSE: {zs_mse:.4f}")
@@ -323,27 +334,36 @@ def run_single_feature(model, pretrained_params, pretrained_state, feature_idx, 
         X_train.squeeze(-1), X_val.squeeze(-1)
     )
 
-    if args.condition == 'D':
-        # Frozen encoder: only head trains (no encoder weight changes)
-        # CKA = 1.0 by definition, delta_r2 ~ 0
-        result = {
-            "feature": feature_name,
-            "zs_mse": zs_mse,
-            "ft_mse": zs_mse,
-            "forgetting_pct": 0.0,
-            "cka": 1.0,
-            "weight_drift": 0.0,
-            "r2_pt": r2_pt,
-            "r2_ft": r2_pt,
-            "delta_r2": 0.0,
-            "orthogonal_probes_pt": ortho_pt,
-            "orthogonal_probes_ft": ortho_pt,
-        }
-        return result
+    # Condition D: freeze the ENCODER and train everything outside it (the distribution head
+    # and projections), exactly as scripts/finetune_forecasting.py does for the Moirai cells.
+    #
+    # An earlier version short-circuited here and wrote ft_mse = zs_mse with forgetting_pct
+    # hardcoded to 0.0 -- no model was trained at all, so the "frozen control gives exactly 0.0%
+    # in all 10 seeds" that this cell was cited for was one literal repeated ten times, and the
+    # resulting B-D was just forgetting_B restated. It now trains.
+    #
+    # Condition H is the strict version: in_proj and mask_encoding are frozen too, so the encoder's
+    # output is a fixed function of the input by construction (CKA exactly 1.0) and only the
+    # distribution head trains. This cell is the one where D drifts most (CKA 0.76-0.90), so it is
+    # where B-D and B-H are most likely to disagree.
+    if args.condition in ('D', 'H'):
+        encoder = model.module.encoder
+        for param in encoder.parameters():
+            param.requires_grad = False
+        n_frozen = sum(p.numel() for p in encoder.parameters())
+        if args.condition == 'H':
+            for mod_name in ('in_proj', 'mask_encoding'):
+                mod = getattr(model.module, mod_name)
+                for param in mod.parameters():
+                    param.requires_grad = False
+                n_frozen += sum(p.numel() for p in mod.parameters())
+        n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        label = "Encoder+input projections frozen" if args.condition == 'H' else "Encoder frozen"
+        print(f"    {label} ({n_frozen:,} params); {n_train:,} trainable outside it")
 
     # Condition B: NLL fine-tuning
     # Freeze encoder check
-    freeze_encoder = (args.condition == 'D')
+    freeze_encoder = args.condition in ('D', 'H')
 
     # Setup training
     train_dataset = TensorDataset(
@@ -395,6 +415,23 @@ def run_single_feature(model, pretrained_params, pretrained_state, feature_idx, 
     ft_mse = evaluate_forecasting_mse(model, val_eval_tensor, y_val_eval, device)
     forgetting_pct = (ft_mse - zs_mse) / abs(zs_mse) * 100 if abs(zs_mse) > 1e-8 else 0.0
 
+    # Held-out side. Both measurements happen HERE, after training: evaluate_forecasting_mse draws
+    # samples from the global torch RNG, so measuring up front would change the training
+    # trajectory. The zero-shot reference needs the PRETRAINED weights, so swap them in and put the
+    # fine-tuned ones back for the CKA/probe diagnostics that follow.
+    ft_mse_test = zs_mse_test = float('nan')
+    test_forgetting_pct = float('nan')
+    if len(X_test_eval) > 0:
+        ft_mse_test = evaluate_forecasting_mse(model, test_eval_tensor, y_test_eval, device)
+        ft_state = copy.deepcopy(model.state_dict())
+        model.load_state_dict(pretrained_state)
+        zs_mse_test = evaluate_forecasting_mse(model, test_eval_tensor, y_test_eval, device)
+        model.load_state_dict(ft_state)
+        if abs(zs_mse_test) > 1e-8:
+            test_forgetting_pct = (ft_mse_test - zs_mse_test) / abs(zs_mse_test) * 100
+        print(f"    HELD-OUT: ZS {zs_mse_test:.4f}, FT {ft_mse_test:.4f} "
+              f"(forg: {test_forgetting_pct:+.1f}%) over {len(X_test_eval)} windows")
+
     # CKA
     ft_reps_train = extract_representations(model, train_ctx_tensor, train_tgt_tensor, device)
     ft_reps_val = extract_representations(model, val_ctx_tensor, val_tgt_tensor, device)
@@ -423,6 +460,10 @@ def run_single_feature(model, pretrained_params, pretrained_state, feature_idx, 
         "zs_mse": zs_mse,
         "ft_mse": ft_mse,
         "forgetting_pct": forgetting_pct,
+        "n_test_windows": int(len(X_test_eval)),
+        "zs_mse_test": zs_mse_test,
+        "ft_mse_test": ft_mse_test,
+        "test_forgetting_pct": test_forgetting_pct,
         "cka": cka,
         "weight_drift": drift,
         "r2_pt": r2_pt,
@@ -438,7 +479,9 @@ def run_single_feature(model, pretrained_params, pretrained_state, feature_idx, 
 def main():
     parser = argparse.ArgumentParser(description="ILI full diagnostic probes")
     parser.add_argument('--data-path', default='data/national_illness.csv')
-    parser.add_argument('--condition', required=True, choices=['B', 'D'])
+    parser.add_argument('--condition', required=True, choices=['B', 'D', 'H'],
+                        help="B=NLL fine-tuning, D=frozen encoder, "
+                             "H=strict frozen encoder (input projections frozen too)")
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=16)
@@ -515,6 +558,10 @@ def main():
     avg_cka = np.mean([r['cka'] for r in all_results])
     avg_delta_r2 = np.mean([r['delta_r2'] for r in all_results])
     avg_forgetting = np.mean([r['forgetting_pct'] for r in all_results])
+    test_forg = [r['test_forgetting_pct'] for r in all_results
+                 if isinstance(r.get('test_forgetting_pct'), float)
+                 and r['test_forgetting_pct'] == r['test_forgetting_pct']]  # present and not NaN
+    avg_forgetting_test = float(np.mean(test_forg)) if test_forg else float('nan')
     avg_drift = np.mean([r['weight_drift'] for r in all_results])
     n_positive_dr2 = sum(1 for r in all_results if r['delta_r2'] > 0)
 
@@ -523,7 +570,7 @@ def main():
     print(f"AGGREGATE RESULTS (seed={args.seed}, condition={args.condition})")
     print(f"  Avg CKA:        {avg_cka:.4f}")
     print(f"  Avg Delta-R2:   {avg_delta_r2:+.4f} ({n_positive_dr2}/{len(all_results)} positive)")
-    print(f"  Avg Forgetting:  {avg_forgetting:+.1f}%")
+    print(f"  Avg Forgetting:  {avg_forgetting:+.1f}%  (held-out: {avg_forgetting_test:+.1f}%)")
     print(f"  Avg Weight Drift: {avg_drift:.4f}")
     print(sep)
 
@@ -542,6 +589,8 @@ def main():
             "cka": avg_cka,
             "delta_r2": avg_delta_r2,
             "forgetting_pct": avg_forgetting,
+            "forgetting_pct_test": avg_forgetting_test,
+            "n_features_with_test": len(test_forg),
             "weight_drift": avg_drift,
             "n_positive_delta_r2": n_positive_dr2,
             "n_features": len(all_results),

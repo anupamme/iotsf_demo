@@ -608,8 +608,9 @@ def main():
     parser = argparse.ArgumentParser(description="Contrastive fine-tuning + forgetting diagnosis")
     parser.add_argument('--data-path', default='data/forecasting/ETTh2.csv')
     parser.add_argument('--horizon', type=int, default=96)
-    parser.add_argument('--condition', required=True, choices=['A', 'B', 'C', 'D', 'E', 'F', 'G'],
-                        help="A=zero-shot, B=NLL-only, C=NLL+SupCon, D=frozen encoder, E=LoRA, F=L2-SP, G=EWC")
+    parser.add_argument('--condition', required=True, choices=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+                        help="A=zero-shot, B=NLL-only, C=NLL+SupCon, D=frozen encoder, E=LoRA, "
+                             "F=L2-SP, G=EWC, H=strict frozen encoder (input projections frozen too)")
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--lr', type=float, default=1e-4)
@@ -681,7 +682,8 @@ def main():
 
     condition_names = {
         'A': 'Zero-shot', 'B': 'NLL-only', 'C': 'NLL+SupCon',
-        'D': 'Frozen encoder', 'E': 'LoRA', 'F': 'L2-SP', 'G': 'EWC'
+        'D': 'Frozen encoder', 'E': 'LoRA', 'F': 'L2-SP', 'G': 'EWC',
+        'H': 'Strict frozen encoder (input projections frozen too)',
     }
     logger.info(f"Condition {args.condition}: {condition_names[args.condition]}")
 
@@ -777,10 +779,22 @@ def main():
 
     # Condition A: just return zero-shot results
     if args.condition == 'A':
+        # Zero-shot on the held-out test windows as well. Every B/D run already stores `test_mse`,
+        # but no zero-shot TEST reference was ever recorded, so test-side forgetting and B-D had no
+        # denominator on the published scale. Same evaluator, same normalization, test windows.
+        X_test_eval_t = torch.from_numpy(X_test_eval[:eval_limit]).float()
+        zeroshot_test_metrics = evaluate_forecasting(
+            model, X_test_eval_t, y_test_eval_raw[:eval_limit], train_mean, train_std,
+            horizon, device=args.device
+        )
+        logger.info(f"Zero-shot (held-out test): MSE={zeroshot_test_metrics['mse']:.6f}")
         results = {
             'condition': 'A',
             'zeroshot_mse': zeroshot_metrics['mse'],
             'zeroshot_mae': zeroshot_metrics['mae'],
+            'zeroshot_test_mse': zeroshot_test_metrics['mse'],
+            'zeroshot_test_mae': zeroshot_test_metrics['mae'],
+            'n_test_eval': int(len(X_test_eval_t)),
             'horizon': horizon,
             'seed': args.seed,
         }
@@ -807,7 +821,7 @@ def main():
     )
 
     # Setup optimizer
-    freeze_encoder = (args.condition == 'D')
+    freeze_encoder = args.condition in ('D', 'H')
     use_contrastive = (args.condition == 'C')
     use_l2sp = (args.condition == 'F' and args.l2sp_weight > 0)
     use_ewc = (args.condition == 'G' and args.ewc_lambda > 0)
@@ -839,6 +853,27 @@ def main():
             for param in encoder.parameters():
                 param.requires_grad = False
             logger.info("Encoder frozen — only head parameters will be updated")
+
+        if args.condition == 'H':
+            # Condition D freezes the encoder's own weights but leaves in_proj and mask_encoding
+            # trainable, so what the encoder RECEIVES keeps changing and its output is not a fixed
+            # function of the input -- which is why D's CKA lands at 0.76-0.90 on ILI rather than
+            # 1.0. Condition H is the strict control: everything upstream of the encoder is frozen
+            # too, so the encoder's output is pinned by construction and only the distribution head
+            # (param_proj) trains. B-H is then a clean read of what allowing ANY encoder-side
+            # change was worth, and B-D vs B-H separates encoder adaptation from input re-fitting.
+            base = model.module if not hasattr(model.module, 'base_model') \
+                else model.module.base_model.model
+            for mod_name in ('in_proj', 'mask_encoding'):
+                mod = getattr(base, mod_name, None)
+                if mod is None:
+                    raise RuntimeError(f"condition H: {mod_name} not found on {type(base).__name__}")
+                for param in mod.parameters():
+                    param.requires_grad = False
+            n_up = sum(p.numel() for n in ('in_proj', 'mask_encoding')
+                       for p in getattr(base, n).parameters())
+            logger.info(f"Strict freeze: in_proj + mask_encoding also frozen ({n_up:,} params); "
+                        "only param_proj trains")
 
     trainable_params = [p for p in model.parameters() if p.requires_grad]
     logger.info(f"Trainable parameters: {sum(p.numel() for p in trainable_params):,}")

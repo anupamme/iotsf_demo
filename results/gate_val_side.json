@@ -1,0 +1,254 @@
+{
+ "base_ETTh1_h192": {
+  "arm": "moirai",
+  "linear_test": 2.6176398789402606,
+  "n_windows": 300,
+  "r2_task": 0.4885513355489972,
+  "split": "val",
+  "zs_test": 1.338788420097681
+ },
+ "base_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.1084754448413423,
+  "n_windows": 300,
+  "r2_task": 0.3177766942366358,
+  "split": "val",
+  "zs_test": 0.7562277823371762
+ },
+ "base_ETTh2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.5074480545100263,
+  "n_windows": 300,
+  "r2_task": 0.6586814163406053,
+  "split": "val",
+  "zs_test": 0.1732014512460775
+ },
+ "base_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.3129369125702317,
+  "n_windows": 300,
+  "r2_task": 0.2797622986635413,
+  "split": "val",
+  "zs_test": 0.22538896257291205
+ },
+ "base_ETTm2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.6432770913009612,
+  "n_windows": 300,
+  "r2_task": 0.26038558044199034,
+  "split": "val",
+  "zs_test": 0.4757770124975252
+ },
+ "base_ETTm2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.2697409875180566,
+  "n_windows": 300,
+  "r2_task": 0.29947746574767686,
+  "split": "val",
+  "zs_test": 0.18895964016787326
+ },
+ "base_Weather_h192": {
+  "arm": "moirai",
+  "linear_test": 1.3273202011587408,
+  "n_windows": 300,
+  "r2_task": 0.5929236514550607,
+  "split": "val",
+  "zs_test": 0.5403206608376345
+ },
+ "base_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 0.8149174554373849,
+  "n_windows": 300,
+  "r2_task": 0.4056237873208335,
+  "split": "val",
+  "zs_test": 0.48436755080901633
+ },
+ "chronos_electricity": {
+  "arm": "chronos",
+  "linear_test": 2.559257229959951,
+  "n_windows": 200,
+  "r2_task": 0.2969679922988997,
+  "split": "val",
+  "zs_test": 1.799239748602301
+ },
+ "chronos_etth1": {
+  "arm": "chronos",
+  "linear_test": 2.403283282766703,
+  "n_windows": 200,
+  "r2_task": 0.4346910084170371,
+  "split": "val",
+  "zs_test": 1.3585976490690375
+ },
+ "chronos_etth2": {
+  "arm": "chronos",
+  "linear_test": 2.06000125151021,
+  "n_windows": 200,
+  "r2_task": 0.5522480697309173,
+  "split": "val",
+  "zs_test": 0.9223695367204225
+ },
+ "chronos_ettm2": {
+  "arm": "chronos",
+  "linear_test": 4.236242012434231,
+  "n_windows": 200,
+  "r2_task": 0.662871717918293,
+  "split": "val",
+  "zs_test": 1.4281569921343056
+ },
+ "chronos_weather": {
+  "arm": "chronos",
+  "linear_test": 2.0229447032460843,
+  "n_windows": 200,
+  "r2_task": 0.44322058588776936,
+  "split": "val",
+  "zs_test": 1.1263339666547951
+ },
+ "ili": {
+  "arm": "ili",
+  "linear_test": 2.2062052404690045,
+  "n_features": 7,
+  "r2_task": 0.1391470276491123,
+  "split": "val",
+  "zs_test": 1.8931173411153612
+ },
+ "large_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.1084754448413423,
+  "n_windows": 300,
+  "r2_task": 0.35086959205394275,
+  "split": "val",
+  "zs_test": 0.7195451177080479
+ },
+ "large_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.3129369125702317,
+  "n_windows": 300,
+  "r2_task": 0.5962783413968729,
+  "split": "val",
+  "zs_test": 0.12633940938099572
+ },
+ "large_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 0.8149174554373849,
+  "n_windows": 300,
+  "r2_task": 0.4659831270008381,
+  "split": "val",
+  "zs_test": 0.43517967130510615
+ },
+ "small_ETTh1_h192": {
+  "arm": "moirai",
+  "linear_test": 2.6176398789402606,
+  "n_windows": 300,
+  "r2_task": 0.5695860923749232,
+  "split": "val",
+  "zs_test": 1.1266686090499107
+ },
+ "small_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.1084754448413423,
+  "n_windows": 300,
+  "r2_task": 0.387758526785998,
+  "split": "val",
+  "zs_test": 0.6786546393712096
+ },
+ "small_ETTh2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.5074480545100263,
+  "n_windows": 300,
+  "r2_task": 0.6904047335036028,
+  "split": "val",
+  "zs_test": 0.15710351566910988
+ },
+ "small_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.3129369125702317,
+  "n_windows": 300,
+  "r2_task": 0.591445641810139,
+  "split": "val",
+  "zs_test": 0.12785173946904763
+ },
+ "small_ETTm2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.6432770913009612,
+  "n_windows": 300,
+  "r2_task": 0.39284665230990967,
+  "split": "val",
+  "zs_test": 0.3905678394757225
+ },
+ "small_ETTm2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.2697409875180566,
+  "n_windows": 300,
+  "r2_task": 0.3513095280068276,
+  "split": "val",
+  "zs_test": 0.17497840850899254
+ },
+ "small_Electricity7_h192": {
+  "arm": "moirai",
+  "linear_test": 0.957796613421508,
+  "n_windows": 300,
+  "r2_task": 0.7637118627982588,
+  "split": "val",
+  "zs_test": 0.2263159776035044
+ },
+ "small_Electricity7_h96": {
+  "arm": "moirai",
+  "linear_test": 0.7364469685540078,
+  "n_windows": 300,
+  "r2_task": 0.7119346479823707,
+  "split": "val",
+  "zs_test": 0.21214485523882623
+ },
+ "small_Weather_h192": {
+  "arm": "moirai",
+  "linear_test": 1.3273202011587408,
+  "n_windows": 300,
+  "r2_task": 0.6246056019724031,
+  "split": "val",
+  "zs_test": 0.4982685679038544
+ },
+ "small_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 0.8149174554373849,
+  "n_windows": 300,
+  "r2_task": 0.49578538776515835,
+  "split": "val",
+  "zs_test": 0.4108932887967649
+ },
+ "timesfm_etth1": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.56515177398483,
+  "n_windows": 200,
+  "r2_task": 0.41478045939425223,
+  "split": "val",
+  "zs_test": 1.5011769427554211
+ },
+ "timesfm_etth2": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.086416220017671,
+  "n_windows": 200,
+  "r2_task": 0.5628594302238337,
+  "split": "val",
+  "zs_test": 0.9120571752087601
+ },
+ "timesfm_ettm2": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 7.914987089660603,
+  "n_windows": 200,
+  "r2_task": 0.3502980038814941,
+  "split": "val",
+  "zs_test": 5.142382911404697
+ },
+ "timesfm_weather": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.018951301902276,
+  "n_windows": 200,
+  "r2_task": 0.5031225489167284,
+  "split": "val",
+  "zs_test": 1.0031713767504558
+ }
+}

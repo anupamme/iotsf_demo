@@ -1,0 +1,82 @@
+{
+  "dataset": "ETTm2",
+  "condition": "D",
+  "seed": 42,
+  "ridge_sane": true,
+  "val_prefers": "ridge",
+  "loss_type": "mse_head",
+  "protocol": "frozen_cached_features_converged",
+  "max_epochs": 3000,
+  "patience": 200,
+  "epochs_run": 1927,
+  "best_epoch": 1727,
+  "converged": true,
+  "lr": 0.001,
+  "max_train_samples": 8000,
+  "d_model": 512,
+  "gate_improvement_pct": 69.5527903695322,
+  "zs_mse": 1.258590756169947,
+  "linear_mse": 4.133681777230927,
+  "best_val_loss": 26.97784423828125,
+  "val_mse_per_element": 1.1240768432617188,
+  "forgetting_pct": -10.687660961182594,
+  "ridge_optimum": {
+    "alpha": 0.03,
+    "best_val_loss": 25.791345596313477,
+    "interior": true,
+    "grid": {
+      "0.0001": 33.54221725463867,
+      "0.001": 30.136960983276367,
+      "0.01": 26.311044692993164,
+      "0.03": 25.791345596313477,
+      "0.1": 26.215469360351562,
+      "0.3": 27.420576095581055,
+      "1.0": 29.887182235717773,
+      "2.0": 32.59364700317383,
+      "3.0": 34.829734802246094,
+      "5.0": 38.307918548583984,
+      "10.0": 43.727867126464844,
+      "30.0": 51.685874938964844,
+      "100.0": 57.01447296142578,
+      "1000.0": 59.927791595458984,
+      "10000.0": 60.259246826171875,
+      "100000.0": 60.2928581237793
+    },
+    "test_loss": 29.126211166381836
+  },
+  "best_val_loss_ols": 25.791345596313477,
+  "val_mse_per_element_ols": 1.0746393998463948,
+  "forgetting_pct_ols": -14.615660843032071,
+  "test_seed": 0,
+  "n_test_windows": 200,
+  "zs_mse_test": 1.4308723524061286,
+  "test_loss_ols": 29.126211166381836,
+  "test_mse_per_element_ols": 1.2135921319325764,
+  "test_forgetting_pct_ols": -15.18515750955547,
+  "test_loss_adamw": 29.8054052734375,
+  "test_mse_per_element_adamw": 1.2418918863932291,
+  "test_forgetting_pct_adamw": -13.20736022994039,
+  "final_cka": 0.9999999659732934,
+  "linear_probe": {
+    "r2_pt": 0.7251351000565706,
+    "r2_ft": 0.7251351000565706,
+    "delta_r2": 0.0
+  },
+  "orthogonal_probes": {
+    "pretrained": {
+      "lag1": 0.4079639366784277,
+      "mean": 0.7903660315583668,
+      "var": 0.6797883271268215
+    },
+    "finetuned": {
+      "lag1": 0.4079639366784277,
+      "mean": 0.7903660315583668,
+      "var": 0.6797883271268215
+    },
+    "delta": {
+      "lag1": 0.0,
+      "mean": 0.0,
+      "var": 0.0
+    }
+  }
+}

@@ -1,6 +1,9 @@
 \begin{table}[t]
 \centering
-\caption{Task-native probe $R^2_{\text{task}}$ at key $(n, h)$ operating points
+\caption{Task-native score $R^2_{\text{task}}$ at key $(n, h)$ operating points.
+\textbf{Not a linear probe}: this is a ratio of forecast MSEs computed through Moirai's own
+forecasting head, and is unaffected by the retraction of the linear-probe $\Delta R^2$ axis
+(\S\ref{sec:retraction}).
 (condition B, mean over available seeds).
 $R^2_{\text{task}}(\text{PT}) {=} 1 {-} \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$
 uses the gate-pass evaluation scale (median Moirai prediction, lookback$=$192,

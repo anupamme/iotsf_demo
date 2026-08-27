@@ -1,5 +1,5 @@
 % ============================================================
-\section{Background and Problem Setup}
+\section{Background and Related Work}
 \label{sec:background}
 % ============================================================
 
@@ -27,22 +27,44 @@ happens to pre-trained representations during any such adaptation,
 applicable when the practitioner needs to decide whether drift is
 harmful or benign.
 
+\textbf{Analysing time-series foundation model representations.}
+A parallel line of work probes the internal structure of TSFMs directly.
+Wili{\'n}ski et al.~\cite{wilinski2025representations} characterise and
+\emph{steer} representations of \emph{frozen} TSFMs, uncovering
+block-like redundancy and interpretable concepts (periodicity, trend)
+that can be added by latent-space intervention.  Our study is
+complementary along the time axis: rather than intervening on a fixed
+model, we ask how those representations \emph{change under fine-tuning}
+and whether the change is harmful.  Our diagnostics build on
+representation-similarity (CKA~\cite{kornblith2019cka}) and probing
+methodology~\cite{hewitt2019structural, pimentel2020information}, applied
+here to the pre-trained-vs-fine-tuned encoder pair rather than to a
+single frozen model.
+
 \textbf{Setting.}
 Given a pre-trained time-series foundation model with encoder
 $f_\theta: \R^{T \times F} \to \R^d$ and downstream dataset
 $\mathcal{D}$ of size $n$, fine-tuning produces updated parameters
 $\theta'$ by minimising a task loss (NLL for forecasting).  We measure
-encoder changes using three diagnostics (\S\ref{sec:method}):
-(1)~CKA between $f_\theta$ and $f_{\theta'}$ (geometric similarity),
-(2)~linear probe $R^2$ onto the downstream target
-($\Delta R^2 {=} R^2(\text{FT}){-}R^2(\text{ZS})$), and
-(3)~weight drift $\|\theta' - \theta\|_2$.
+encoder changes using two diagnostics (\S\ref{sec:method}):
+(1)~CKA between $f_\theta$ and $f_{\theta'}$ (geometric similarity) and
+(2)~weight drift $\|\theta' - \theta\|_2$.  A linear-probe
+$\Delta R^2$ diagnostic used in an earlier version is retracted
+(\S\ref{sec:retraction}).
 
 \textbf{Pre-training value gate.}
 Studying whether fine-tuning destroys valuable features requires a domain
 where such features are demonstrably present.  We set the gate at zero-shot
 MSE 20\% below a Linear baseline; ETTh2 at $h{=}96$ passes with
 Moirai-Small ($R^2_{\text{task}}(\text{PT}){=}{+}0.279$).
+The gate is deliberately cheap and \emph{downstream-only}: the
+practitioner---defined here as someone adapting a \emph{released}
+foundation-model checkpoint to a small target dataset---runs the frozen
+model zero-shot on the target set and compares to a lookback-96 linear
+regression fit on that same set.  Neither pre-training data nor
+pre-training compute is required, so the screen is available exactly in
+the small-sample adaptation regime where fine-tuning is normally
+performed.
 ETTh1 and ETTm2 gate-fail at the standard evaluation protocol
 ($R^2_{\text{task}}(\text{PT}){=}{-}0.41$ and ${-}0.56$ respectively;
 Table~\ref{tab:r2task}); they are included as cross-domain comparisons
@@ -63,3 +85,24 @@ $\text{forg.\%} = 100 \cdot (M_{\text{FT}} - M_{\text{ZS}}) /
 |M_{\text{ZS}}|$ (MSE for forecasting, so positive = worse).
 Forg.$>0$ indicates catastrophic forgetting (degraded performance vs.\
 pre-training baseline).
+
+\textbf{Decoupling harmful forgetting from benign specialisation.}
+A reviewer-critical distinction: representational change that redirects
+features toward the target (\emph{benign specialisation}) must be
+separated from change that destroys generally useful structure
+(\emph{harmful forgetting}).  An earlier version of this work operationalised the distinction with a
+\emph{probe-sign asymmetry} criterion---trained-objective decodability up,
+task-orthogonal decodability flat or down.  That criterion is retracted
+(\S\ref{sec:retraction}): the asymmetry appears only where the probes fail
+to generalise and vanishes once they do, so it cannot separate benign
+specialisation from harmful forgetting.
+What remains is \emph{value-gate conditioning}.  Representational change is
+harmful only when the structure it discards was valuable, i.e.\ in a
+gate-pass cell ($R^2_{\text{task}}(\text{PT}){>}0$, ZS beats Linear); in a
+gate-fail cell the same change is benign because no valuable features
+existed to forget.  Thus forgetting$>0$ \emph{in a gate-pass cell} is the
+operational definition of harm, and the question of whether the encoder's
+change \emph{carried} the gain is answered by intervention---comparing full
+fine-tuning against a frozen encoder---not by observing the representation.  This is the mechanism the diagnostics in
+\S\ref{sec:method} (notation in Table~\ref{tab:notation}) are designed to
+resolve.

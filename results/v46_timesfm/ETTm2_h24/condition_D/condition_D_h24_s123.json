@@ -1,0 +1,32 @@
+{
+  "backbone": "timesfm",
+  "model_id": "google/timesfm-2.5-200m-pytorch",
+  "dataset": "ETTm2",
+  "horizon": 24,
+  "lookback": 96,
+  "condition": "D",
+  "seed": 123,
+  "test_seed": 0,
+  "loss_type": "native_point_head",
+  "n_test_windows": 200,
+  "n_val_windows": 200,
+  "zeroshot_mse": 12.091195733402667,
+  "zeroshot_test_mse": 1.29457754506283,
+  "final_val_mse": 11.733605208297206,
+  "test_mse": 0.7612249114667058,
+  "best_epoch": 10,
+  "epochs": 20,
+  "lr": 0.0001,
+  "batch_size": 16,
+  "max_train_samples": 1000,
+  "n_trainable": 34574080,
+  "n_params": 231289280,
+  "frozen_modules": [
+    "stacked_xf"
+  ],
+  "final_cka": 0.5459028382554844,
+  "final_weight_drift": 0.0,
+  "has_drift": true,
+  "forgetting_pct_test": -41.198971481483476,
+  "forgetting_pct_val": -2.9574455082022677
+}
