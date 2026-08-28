@@ -432,12 +432,24 @@ def emit_strictfreeze_latex(rows, path=ROOT / "paper_8/tables/strictfreeze.tex")
     print(f"wrote {path.relative_to(ROOT)}  ({len(have)} cells)")
 
 
+MIN_SEEDS = 3     # see build_rows()
+
+
 def build_rows(verbose=False):
     """Every intervention cell as a dict, with gate and strict-freeze fields attached.
 
     Split out of main() so figure scripts consume the same rows the tables and statistics do --
     fig1_diagnostic_flow.py previously hard-coded its bar values, which is how an earlier version
     came to plot 15 bars that silently omitted a cell.
+
+    UNDER-SEEDED CELLS ARE DROPPED. Every cell the paper reports has 3-10 seeds. A cell that is
+    still being produced has fewer, and one seed is not a measurement: its SEM is 0.00 by
+    construction, so the "every seed agrees" clause of degradation_cells() passes trivially and
+    |forg_B|/SEM is infinite. Scoring a half-finished cell alongside finished ones therefore
+    manufactures a degradation cell out of a single run and shifts every rank statistic. This was
+    not hypothetical -- it happened while results/v47_prospective was mid-flight, adding a
+    1-seed cell to the degradation list. Cells below MIN_SEEDS are excluded and named, not
+    silently skipped.
     """
     refs = _zs_test_refs()
     if verbose:
@@ -488,7 +500,12 @@ def build_rows(verbose=False):
         r["cka_h"] = sf.get(r["ref"], {}).get("cka_h")
         for k in ("bd_same", "bd_same_sd", "forg_h", "forg_h_sd", "forg_h_pos"):
             r[k] = sf.get(r["ref"], {}).get(k)
-    return rows
+
+    partial = [r for r in rows if r["seeds"] < MIN_SEEDS]
+    if partial and verbose:
+        for r in partial:
+            print(f"  EXCLUDED (only {r['seeds']} seed(s), needs {MIN_SEEDS}): {r['cell']}")
+    return [r for r in rows if r["seeds"] >= MIN_SEEDS]
 
 
 def main():

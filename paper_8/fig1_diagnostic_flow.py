@@ -51,7 +51,7 @@ plt.rcParams.update({
 # ================================================================ data
 with contextlib.redirect_stdout(io.StringIO()):
     ROWS = [r for r in cell_matrix.build_rows() if r["bd_test"] is not None and r["cka"] is not None]
-assert len(ROWS) == 23, f"expected 23 intervention cells, got {len(ROWS)}"
+assert len(ROWS) == 30, f"expected 30 intervention cells, got {len(ROWS)}"
 
 
 def is_degradation(r):
@@ -61,7 +61,7 @@ def is_degradation(r):
             and r["forg_b_pos"] == r["seeds"] and r["forg_d_neg"] == r["seeds"])
 
 
-assert sum(is_degradation(r) for r in ROWS) == 6, "the six degradation cells must be the six"
+assert sum(is_degradation(r) for r in ROWS) == 7, "the seven degradation cells must be the seven"
 
 
 def backbone(r):
@@ -71,7 +71,7 @@ def backbone(r):
 
 MARKER = {"Moirai": "o", "Chronos": "s", "TimesFM": "^"}
 
-fig = plt.figure(figsize=(5.5, 1.78), dpi=150)
+fig = plt.figure(figsize=(5.5, 1.62), dpi=150)
 fig.patch.set_facecolor(SURFACE)
 gs = GridSpec(1, 2, width_ratios=[0.86, 1.14], left=0.005, right=0.985,
               top=0.99, bottom=0.005, wspace=0.30)
@@ -147,7 +147,7 @@ axr.tick_params(labelsize=5.4, colors=INK_SECONDARY, length=2, width=0.6, pad=1.
 
 axr.text(-0.10, 1.03, "(b) the least-drifted cells are the harmed ones",
          transform=axr.transAxes, fontsize=6.4, color=INK_PRIMARY, fontweight="bold", va="bottom")
-axr.text(0.30, 52, "freezing better\n6 degradation cells,\nand the LEAST drifted",
+axr.text(0.28, 52, "freezing better\n7 degradation cells,\nmostly the LEAST drifted",
          fontsize=5.1, color=DAMAGE, ha="left", va="center")
 axr.text(0.62, -35, "adaptation helps", fontsize=5.3, color=ADAPT, ha="left", va="bottom")
 
