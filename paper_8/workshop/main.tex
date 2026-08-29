@@ -32,7 +32,7 @@
 
 \begin{abstract}
 Continual- and transfer-learning practice reads the large representational change that fine-tuning a time-series foundation model (TSFM) induces as forgetting or damage. We show this reflex is misleading, and that the distinction it elides is our thesis: \textbf{drift is observed; whether encoder adaptation \emph{contributed} must be intervened upon}.
-We ask what drift cannot answer---did \emph{allowing} encoder adaptation contribute to the gain?---with a \textbf{frozen-encoder intervention} (B$-$D) behind a downstream-only \textbf{pretrained-capability inclusion criterion}. \textbf{Our headline finding is methodological: B$-$D must be scored on \emph{held-out} windows.} Read on the windows model selection already uses---the natural protocol, and the one we previously reported---it systematically flatters the frozen encoder. Re-scored on a disjoint test split, three of the \textbf{19 cells} we previously reported \textbf{reverse sign} (e.g.\ Chronos/ETTh1 $+6.8 \to -39.2$~pp), the criterion reclassifies two others, and a third backbone added here reverses a fourth---all four the same way. Across 30 cells B$-$D spans $-39$ to $+62$~pp. Second, across four TSFMs (Moirai, Chronos, TimesFM, MOMENT), drift \emph{magnitude} (CKA) does not reliably determine the \emph{direction} of that effect---not even after backbone identity is absorbed as a fixed effect rather than by subsetting (App.~\ref{app:crosscell}). Third, the intervention exposes a reproducible regime \textbf{within Moirai} that we name \textbf{pretrained-capability degradation}: in seven cells meeting the criterion ($R^2_\text{task}$ $0.50$--$0.83$) full fine-tuning leaves the model \textbf{worse than not fine-tuning at all} ($+8.7\%$ to $+46.1\%$ above zero-shot, in every seed) while a frozen encoder \emph{improves} it ($-3.5\%$ to $-16.0\%$); \textbf{but the criterion does not predict where}: pre-registered on seven new cells it flagged all seven and only one degraded (precision $0.14$ at recall $1.00$). Six of the seven are among the \textbf{least}-drifted we measure (CKA $0.67$--$0.89$) while the cells adaptation helps most sit at $0.09$--$0.63$; the seventh lands at $0.36$, \emph{inside} that band, so drift does not separate the two regimes at all. We establish this regime's \textbf{existence, not its prevalence}---the third backbone contains no such cell. Two analyses from an earlier version are withdrawn and support no claim here (\S\ref{sec:discussion}).
+We ask what drift cannot answer---did \emph{allowing} encoder adaptation contribute to the gain?---with a \textbf{frozen-encoder intervention} (B$-$D) behind a downstream-only \textbf{pretrained-capability inclusion criterion}. \textbf{Our headline finding is methodological: B$-$D must be scored on \emph{held-out} windows.} Read on the windows model selection already uses---the natural protocol, and the one we previously reported---it systematically flatters the frozen encoder. Re-scored on a disjoint test split, three of the \textbf{19 cells} we previously reported \textbf{reverse sign} (e.g.\ Chronos/ETTh1 $+6.8 \to -39.2$~pp), the criterion reclassifies two others, and a third backbone added here reverses a fourth---all four the same way. Across 31 cells B$-$D spans $-39$ to $+62$~pp. Second, across four TSFMs (Moirai, Chronos, TimesFM, MOMENT), drift \emph{magnitude} (CKA) does not reliably determine the \emph{direction} of that effect---not even after backbone identity is absorbed as a fixed effect rather than by subsetting (App.~\ref{app:crosscell}). Third, the intervention exposes a reproducible regime \textbf{within Moirai} that we name \textbf{pretrained-capability degradation}: in eight cells meeting the criterion ($R^2_\text{task}$ $0.50$--$0.83$) full fine-tuning leaves the model \textbf{worse than not fine-tuning at all} ($+7.9\%$ to $+46.1\%$ above zero-shot, in every seed) while a frozen encoder \emph{improves} it ($-3.5\%$ to $-16.0\%$); \textbf{but the criterion does not predict where}: pre-registered on eight new cells it flagged all eight and two degraded (precision $0.25$ at recall $1.00$). Six of the eight are among the \textbf{least}-drifted we measure (CKA $0.67$--$0.89$) while the cells adaptation helps most sit at $0.09$--$0.63$; the other two land \emph{inside} that band, and two Moirai-Large $h{=}96$ cells $0.004$ apart in CKA differ by $33$~pp in B$-$D, so drift does not separate the two regimes at all. We establish this regime's \textbf{existence, not its prevalence}---the third backbone contains no such cell. Two analyses from an earlier version are withdrawn and support no claim here (\S\ref{sec:discussion}).
 \end{abstract}
 
 %% ============================================================
@@ -46,7 +46,7 @@ If drift were a proxy for damage, this should not happen.
 Practitioners who fine-tune released TSFM checkpoints inherit a reflex from continual learning: measure drift, read large drift as catastrophic forgetting, and reach for preservation methods (LoRA, EWC, L2-SP)~\citep{kirkpatrick2017ewc,hu2022lora,li2018l2sp}.
 This bundles three implicit claims---drift implies forgetting, forgetting implies harm, drift should be minimized---and the bundle comes apart on TSFMs. Our ``$\neq$'' is insufficiency, not independence: drift does not \emph{reliably imply} harm, because \textbf{downstream utility depends on the functional role of the changed representation}---not \emph{how much} a backbone drifts but \emph{what kind} of change it is, which one scalar cannot distinguish.
 
-We contribute a within-model dissociation (Fig.~\ref{fig:dissociation}), a capability check over four architecturally distinct TSFMs with controlled encoder interventions on the cells that pass it, and a diagnostic chain needing only released weights and target data (Fig.~\ref{fig:chain}). On scope: the check spans four backbones, the 30 intervention cells come from Moirai, Chronos and TimesFM, and MOMENT supports no claim here. Three hypotheses, separated throughout. \textbf{H1} does drift predict utility? \textbf{H2} does drift predict how much \emph{allowing} encoder adaptation contributes? \textbf{H3} does fine-tuning actually destroy a demonstrated pretrained capability? We give evidence against reliable monotonicity for H1 and H2; H3 yields \textbf{pretrained-capability degradation}, a reproducible regime \emph{within Moirai}. Ordering these needs one prior result---\emph{where} the intervention is scored---which is why that comes first below.
+We contribute a within-model dissociation (Fig.~\ref{fig:dissociation}), a capability check over four architecturally distinct TSFMs with controlled encoder interventions on the cells that pass it, and a diagnostic chain needing only released weights and target data (Fig.~\ref{fig:chain}). On scope: the check spans four backbones, the 31 intervention cells come from Moirai, Chronos and TimesFM, and MOMENT supports no claim here. Three hypotheses, separated throughout. \textbf{H1} does drift predict utility? \textbf{H2} does drift predict how much \emph{allowing} encoder adaptation contributes? \textbf{H3} does fine-tuning actually destroy a demonstrated pretrained capability? We give evidence against reliable monotonicity for H1 and H2; H3 yields \textbf{pretrained-capability degradation}, a reproducible regime \emph{within Moirai}. Ordering these needs one prior result---\emph{where} the intervention is scored---which is why that comes first below.
 
 Our claims, strongest evidence first. \textbf{(1) B$-$D must be scored out-of-sample}---read on the windows model selection uses, it flatters the frozen encoder, four cells reverse sign, and the gate licensing them is vulnerable the same way. \textbf{(2) CKA drift does not reliably determine the direction of the encoder-adaptation contribution} under our evaluated protocols. \textbf{(3) A downstream-only inclusion criterion} marks where pretrained capability is demonstrated; it is not a validated detector, and we show what it would have selected prospectively. \textbf{(4) The reading is predictable without the frozen control} within Moirai, from condition~B's own held-out forgetting---a partly algebraic rule that does not transfer (\S\ref{sec:discussion}).
 
@@ -57,7 +57,7 @@ Our claims, strongest evidence first. \textbf{(1) B$-$D must be scored out-of-sa
 
 We study four TSFMs: \textbf{Moirai}~\citep{woo2024moirai} (encoder-only, MoE), \textbf{Chronos-T5}~\citep{ansari2024chronos} (encoder--decoder), \textbf{TimesFM}~\citep{das2024timeseries} (decoder-only, $d_\text{model}{=}1280$), and \textbf{MOMENT}~\citep{goswami2024moment} (encoder-only).
 Data is univariate ETT~\citep{zhou2021informer}/M4 (lookback 96; $h{=}24$ cross-backbone, $h{=}96/192$ Moirai sweep), plus ILI (weekly influenza, 7 features, lookback 104, $h{=}24$) and Electricity. \emph{Electricity is restricted to 7 of its 370 series} so its feature dimensionality---and hence the cost of a multivariate Moirai run---matches the ETT cells; this is a deliberate deviation and its numbers are not comparable to published full-Electricity results.
-\textbf{Each arm trains through its own objective and head.} The 21 Moirai cells---which include all seven degradation cells---and ILI train with Moirai's \emph{own} NLL objective through its \emph{own} distribution head (\texttt{param\_proj}) and are scored through its native sampling path (median of 20 samples); no regression head is attached, and the same holds for the 4 TimesFM cells, which train and are scored through TimesFM's \emph{own} point/quantile head (App.~\ref{app:crossbackbone}). Only the 5 Chronos cells attach a common MSE head to encoder states, because its generative decoder admits no matched frozen-versus-adapted comparison otherwise---hence limitation~(iii). What departs from the released recipes is the \emph{data} pipeline (one dataset at a time, fixed lookback, no LOTSA packing), not the objective, head or inference path; the cost is that MSE magnitudes are \emph{not} comparable across arms, so B$-$D too is read within a backbone.
+\textbf{Each arm trains through its own objective and head.} The 22 Moirai cells---which include all eight degradation cells---and ILI train with Moirai's \emph{own} NLL objective through its \emph{own} distribution head (\texttt{param\_proj}) and are scored through its native sampling path (median of 20 samples); no regression head is attached, and the same holds for the 4 TimesFM cells, which train and are scored through TimesFM's \emph{own} point/quantile head (App.~\ref{app:crossbackbone}). Only the 5 Chronos cells attach a common MSE head to encoder states, because its generative decoder admits no matched frozen-versus-adapted comparison otherwise---hence limitation~(iii). What departs from the released recipes is the \emph{data} pipeline (one dataset at a time, fixed lookback, no LOTSA packing), not the objective, head or inference path; the cost is that MSE magnitudes are \emph{not} comparable across arms, so B$-$D too is read within a backbone.
 Two conditions run throughout: \textbf{B}~(full fine-tuning) and \textbf{D}~(frozen encoder, head-only). Forgetting\% $= 100 (\text{MSE}_\text{FT} - \text{MSE}_\text{ZS}) / \text{MSE}_\text{ZS}$; negative means improvement over zero-shot.
 
 Three quantities must not be conflated: \textbf{representation drift} (CKA), \textbf{adaptation contribution} (B$-$D) and \textbf{downstream utility} (forecast MSE)---CKA measures the first, B$-$D the second, neither is the third. One inclusion criterion, one detector, one intervention:
@@ -79,12 +79,13 @@ Condition D measures how much encoder adaptation \emph{contributes} beyond head-
 \includegraphics[width=\linewidth]{../fig1_diagnostic_flow.pdf}
 \vspace{-6mm}
 \caption{\textbf{The chain, and why drift cannot stand in for the intervention.}
-\textbf{(a)}~The three quantities the chain keeps apart. \textbf{(b)}~All 30 cells; red marks the seven
+\textbf{(a)}~The three quantities the chain keeps apart. \textbf{(b)}~All 31 cells; red marks the eight
 \textbf{pretrained-capability degradation} cells. Six are among the \emph{least}-drifted cells we
-measure (CKA $0.67$--$0.89$) while adaptation helps most at $0.09$--$0.63$; the seventh sits at $0.36$,
-inside that band, so no CKA cut separates the two regimes. The $x$-axis is not a decision boundary: CKA is comparable only
+measure (CKA $0.67$--$0.89$) while adaptation helps most at $0.09$--$0.63$; the other two sit at
+$0.36$ and $0.62$, inside that band---and the two Moirai-Large $h{=}96$ cells at $0.622$ and $0.626$
+fall on opposite sides of the regime---so no CKA cut separates them. The $x$-axis is not a decision boundary: CKA is comparable only
 \emph{within} a backbone, and within Moirai it does not reliably order the column
-($\rho{=}{+}0.181$, CI includes $0$; App.~\ref{app:crosscell}).}
+($\rho{=}{+}0.168$, CI includes $0$; App.~\ref{app:crosscell}).}
 \label{fig:chain}
 \end{figure}
 
@@ -98,69 +99,68 @@ Table~\ref{tab:regimes} summarizes the cross-backbone results, ordered by B$-$D.
 \begin{table}[t]
 \centering
 \caption{\textbf{The intervention spans 101~pp; drift does not order it.}
-Held-out B$-$D (pp): negative $=$ adaptation helps, \textbf{positive $=$ freezing is better}. 30
-cells, three backbones, 3--10 seeds; gate and B$-$D both on the test split.
+Held-out B$-$D (pp): ${<}0$ adaptation helps, $\mathbf{>0}$ \textbf{freezing is better}. 31 cells,
+three backbones, 3--10 seeds; gate and B$-$D both on test.
 $^{\text{f}}$gate-fails there despite passing on the selection windows; $^{*}$directional
 ($|$mean$|<2$\,SEM); $^{\ddagger}$B$-$D only (limitation~iii); $^{\text{p}}$pre-registered
 prospective cell. \textbf{degradation} $=$ pretrained-capability degradation
-(\S\ref{sec:results}); Fig.~\ref{fig:chain}b plots all 30. Per-cell values
-App.~\ref{app:heldout}, statistics in App.~\ref{app:crosscell}.}
+(\S\ref{sec:results}); Fig.~\ref{fig:chain}b plots all 31; per cell App.~\ref{app:heldout}, statistics App.~\ref{app:crosscell}.}
 \label{tab:regimes}
+\vspace{-1.5mm}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}llccl@{}}
 \toprule
 Backbone & Data ($h$), gate $R^2_\text{task}$ & CKA & B$-$D held-out & Reading \\
 \midrule
-Chronos$^{\ddagger}$  & ETTh1 / ETTm2 / Weather (24), $.39$--$.65$ & 0.09--0.17 & $-39.2$ / $-29.5$ / $-21.5$ & adapt \\
-Chronos$^{\ddagger}$  & ETTh2 $.46$ / Electricity $.14^{\text{f}}$ (24) & 0.09--0.23 & $-13.0$ / $-2.7^{*}$ & adapt \\
+Chronos$^{\ddagger}$  & ETTh1, ETTm2, Weather, ETTh2 $.39$--$.65$; Elec.\ $.14^{\text{f}}$ (24) & 0.09--0.23 & $-39.2$ to $-2.7^{*}$ & adapt/dir. \\
 Moirai-S & ILI (24), $-.03^{\text{f}}$ & 0.455 & $-38.6$ & adapt \\
 Moirai-B & ETTh2 (96 / 192), $.29$ / $.55$ & 0.40--0.46 & $-22.3$ / $-20.2$ & adapt \\
 Moirai-L & ETTh2 (96), $.13^{\text{f}}$ & 0.626 & $-20.8$ & adapt \\
-TimesFM  & ETTm2 / ETTh2 (24), $.70$ / $.47$ & 0.25--0.36 & $-7.7$ / $-7.1$ & adapt \\
-TimesFM  & Weather $.51$ / ETTh1 $.40$ (24) & 0.34--0.56 & $-1.6^{*}$ / $-1.4^{*}$ & directional \\
+TimesFM  & ETTm2, ETTh2, Weather, ETTh1 (24), $.40$--$.70$ & 0.25--0.56 & $-7.7$ to $-1.4^{*}$ & adapt/dir. \\
 Moirai-S$^{\text{p}}$ & Electricity (96 / 192), $.54$ / $.65$ & 0.94--0.95 & $-3.2$ / $-2.6^{*}$ & adapt \\
 Moirai-S & ETTh2, ETTm2 (96 / 192), $.33$--$.72$ & 0.85--0.97 & $+2.6$ to $+6.2^{*}$ & directional \\
 Moirai-B$^{\text{p}}$ & ETTm2, Weather (96 / 192), $.48$--$.75$ & 0.49--0.57 & $+1.3^{*}$ to $+12.5^{*}$ & preserve \\
+Moirai-L$^{\text{p}}$ & Weather (96), $.59$ & 0.622 & $\mathbf{+12.0}^{*}$ & \textbf{degradation} \\
 Moirai-S, L$^{\text{p}}$ & ETTh1 (96 / 192), $.51$--$.72$ & 0.36--0.84 & $\mathbf{+13.5}$ to $\mathbf{+28.2}$ & \textbf{degradation} \\
 Moirai-B & ETTh1 (96 / 192), $.50$ / $.68$ & 0.67--0.76 & $\mathbf{+37.5}$ / $\mathbf{+47.0}$ & \textbf{degradation} \\
 Moirai-S & Weather (96 / 192), $.53$ / $.83$ & 0.88--0.89 & $\mathbf{+53.1}$ / $\mathbf{+62.1}$ & \textbf{degradation} \\
 \bottomrule
 \end{tabular}
-\vspace{-2mm}
+\vspace{-4mm}
 \end{table}
 
 \textbf{Detection: where B$-$D is scored decides its sign.}
-B$-$D compares two trained models and inherits their model selection: B early-stops on the evaluation windows and a frozen head's regularizer is tuned there, so scoring B$-$D on those windows---the natural protocol, and the one we previously reported---is no generalization estimate. We re-scored all 19 cells on a chronologically disjoint test split, fitting and selecting no model on it (App.~\ref{app:heldout}; dispersions are ${\pm}1$~SEM unless a table states \emph{std}). Three cells \emph{reverse sign}---Chronos/ETTh1 $+6.8{\pm}2.9 \to -39.2{\pm}13.9$, and both Moirai/ETTh2 cells ($+3.8, +7.2 \to -22.3, -20.8$)---while others merely soften. The error runs one way: read on its selection windows, B$-$D \emph{flatters the frozen encoder}. TimesFM's four cells, never re-scored, reverse a fourth the same way: four of 30, all one direction.
-\textbf{And so does the gate}, which also makes the seven below \emph{retrospectively} identified. So we \textbf{pre-registered} the criterion on seven new cells---new sizes, a new dataset, no part in defining the regime---freezing each prediction from validation windows alone and committing it before any run existed. It \textbf{flagged all seven; one degraded}---precision $0.14$ at recall $1.00$, a base-rate predictor. It is an inclusion rule, not a detector, and we show that rather than assert it (App.~\ref{app:heldout}).
+B$-$D compares two trained models and inherits their model selection: B early-stops on the evaluation windows and a frozen head's regularizer is tuned there, so scoring B$-$D on those windows---the natural protocol, and the one we previously reported---is no generalization estimate. We re-scored all 19 cells on a chronologically disjoint test split, fitting and selecting no model on it (App.~\ref{app:heldout}; dispersions are ${\pm}1$~SEM unless a table states \emph{std}). Three cells \emph{reverse sign}---Chronos/ETTh1 $+6.8{\pm}2.9 \to -39.2{\pm}13.9$, and both Moirai/ETTh2 cells ($+3.8, +7.2 \to -22.3, -20.8$)---while others merely soften. The error runs one way: read on its selection windows, B$-$D \emph{flatters the frozen encoder}. TimesFM's four cells, never re-scored, reverse a fourth the same way: four of 31, all one direction.
+\textbf{And so does the gate}, which also makes the eight below \emph{retrospectively} identified. So we \textbf{pre-registered} the criterion on eight new cells---new sizes, a new dataset, no part in defining the regime---freezing each prediction from validation windows alone and committing it before any run existed. It \textbf{flagged all eight; two degraded}---precision $0.25$ at recall $1.00$, a base-rate predictor. It is an inclusion rule, not a detector, and we show that rather than assert it (App.~\ref{app:heldout}).
 \textbf{Intervention: pretrained-capability degradation (H3).}
 Our headline empirical finding is a reproducible regime \emph{within Moirai} in which full encoder
 fine-tuning \emph{destroys} the pretrained advantage the criterion demonstrated while a
 frozen-encoder control preserves it. Three clauses must hold, the last two in \emph{every} seed: the
 cell gate-passes, B ends up worse than the un-tuned model, and D improves on it.
-Seven cells qualify. Moirai-Small/Weather is clearest---B lands $+37.3\%$/$+46.1\%$ \emph{above}
-zero-shot error while D reaches $-15.8\%$/$-16.0\%$. \textbf{On ETTh1 the regime holds at all three released sizes}, Large added
-prospectively ($+14.1\%$ under B against $-14.1\%$ under D, 3/3 seeds)---but it is not a dataset
-property: Moirai-Base on Weather, run in the same batch, shows none. It tracks dataset \emph{crossed with} size.
+Eight cells qualify. Moirai-Small/Weather is clearest---B lands $+37.3\%$/$+46.1\%$ \emph{above}
+zero-shot error while D reaches $-15.8\%$/$-16.0\%$. \textbf{On ETTh1 it holds at all three released sizes} (Large added prospectively, $+14.1\%$ under B
+against $-14.1\%$ under D, 3/3); on Weather it is not even monotone in size---present at Small and
+again at Large ($+7.9\%$ vs $-4.1\%$), absent at Base. Neither dataset nor size predicts it alone.
 
-\textbf{Robustness.} Freezing the input projections too (condition~H, CKA exactly $1.0$) keeps the sign
-on all six cells it was run on, moving the magnitude by at most $5.8$~pp---``freezing wins'' is
-not the input projection re-fitting---though only \textbf{5/6} beat zero-shot under the stricter
-H (App.~\ref{app:strictfreeze}). Chronos/M4 (gate $84.5\%$) anchors the stable end (App.~\ref{app:based}).
+\textbf{Robustness.} Freezing the input projections too (condition~H, CKA exactly $1.0$) keeps B$-$D's sign
+on all six cells run, magnitude moving at most $5.8$~pp---so ``freezing wins'' is not input
+re-fitting---though only \textbf{5/6} beat zero-shot under H (App.~\ref{app:strictfreeze}). Chronos/M4 (gate $84.5\%$) anchors the stable end (App.~\ref{app:based}).
 \textbf{A third backbone.} TimesFM-2.5 under its \emph{own} recipe---no head attached, so both
-forgetting terms are clean---gate-passes on four datasets, and \textbf{none is a degradation cell}: B
-improves on zero-shot in all four, B$-$D runs $-7.7$ to $-1.4$. The regime is Moirai's, at horizons where TimesFM
-gate-\emph{fails}: scope, not generality. It also gives the measurement claim its sharpest form: condition~D's
-transformer stack is \textbf{bit-identical} after training ($\ell_2$ drift exactly $0.00$) and still
-reads CKA $0.38$--$0.89$---all of it the input tokenizer---so low CKA cannot by itself mean a damaged
-encoder (App.~\ref{app:crossbackbone}).
+forgetting terms are clean---gate-passes on four datasets and \textbf{none is a degradation cell}: B
+improves on zero-shot in all four, B$-$D runs $-7.7$ to $-1.4$---scope, not generality. It also gives the
+measurement claim its sharpest form: condition~D's transformer stack is \textbf{bit-identical} after
+training ($\ell_2$ drift exactly $0.00$) yet reads CKA $0.38$--$0.89$, all of it the input tokenizer, so
+low CKA cannot by itself mean a damaged encoder (App.~\ref{app:crossbackbone}).
 
 \textbf{Scope: drift does not flag the degradation cells.}
-Six of the seven sit at CKA $0.67$--$0.89$ while the cells adaptation helps most sit at $0.17$ and
-$0.46$---the reflex would have cleared the damaging cells and flagged the safe ones---and the
-seventh sits at $0.36$, among them: no CKA cut separates the regimes. Nor does it order the held-out column \emph{within} a
-backbone---$\rho{=}+0.181$ over 21 Moirai cells, and the slope stays unpinned when backbone identity
-is absorbed as a fixed effect instead ($n{=}30$, App.~\ref{app:crosscell}). Within one model they come apart directly (Fig.~\ref{fig:dissociation},
+Six of the eight sit at CKA $0.67$--$0.89$ while the cells adaptation helps most sit at $0.17$ and
+$0.46$---the reflex would have cleared the damaging cells and flagged the safe ones---and the other two
+sit at $0.36$ and $0.62$, among them. Sharpest is a near-tie: two Moirai-\emph{Large} $h{=}96$ cells at
+CKA $0.622$/$0.626$ sit at B$-$D ${+}12.0$/${-}20.8$~pp---same backbone, size and horizon, $33$~pp
+apart. No cut separates them; nor does CKA order the held-out column \emph{within} a
+backbone---$\rho{=}+0.168$ over 22 Moirai cells, and the slope stays unpinned when backbone identity
+is absorbed as a fixed effect instead ($n{=}31$, App.~\ref{app:crosscell}). Within one model they come apart directly (Fig.~\ref{fig:dissociation},
 App.~\ref{app:sweep}).
 
 %% ============================================================
@@ -168,21 +168,19 @@ App.~\ref{app:sweep}).
 \label{sec:discussion}
 %% ============================================================
 
-\textbf{What this is and is not.} The sign reversals are a generalization result---no model is
-fitted or selected on test. The degradation regime is \emph{identified} using test data, so it
-establishes existence, not prevalence; the pre-registered arm is what bounds its detection
-accuracy (App.~\ref{app:heldout}). Runs were not blinded and two pre-specified predictions were
-falsified.
+\textbf{What this is and is not.} The sign reversals are a generalization result---no model is fitted
+or selected on test. The degradation regime is \emph{identified} using test data, so it establishes
+existence, not prevalence; the pre-registered arm bounds its detection accuracy
+(App.~\ref{app:heldout}). Runs were not blinded and two pre-specified predictions were falsified.
 
 \textbf{A cheaper proxy, where it holds.} Since Moirai's frozen arm barely moves, condition~B's own
-forgetting agrees in sign with B$-$D in 15 of 21 cells ($\rho{=}{+}0.897$)---one run, no control, but
-partly algebraic and it does not transfer (App.~\ref{app:predictor}).
+forgetting agrees in sign with B$-$D in 16 of 22 cells ($\rho{=}{+}0.894$)---one run, no control, but partly
+algebraic and it does not transfer (App.~\ref{app:predictor}).
 
-\textbf{What follows for practice.} Check the checkpoint beats a trivial baseline before worrying
-about preserving it; do not read drift as damage; and score frozen-versus-adapted on \emph{held-out}
-windows---on selection windows it favours freezing.
+\textbf{What follows for practice.} Check the checkpoint beats a trivial baseline before worrying about
+preserving it; do not read drift as damage; score frozen-versus-adapted on \emph{held-out} windows.
 
-\textbf{Limitations} (related work: App.~\ref{app:related}). \emph{(i)} Two analyses from an earlier version are \textbf{withdrawn}; B$-$D shares no machinery with either (App.~\ref{app:probes},~\ref{app:pooling}). \emph{(ii)} Cells are unequally powered (3--10 seeds) and \textbf{not independent}---datasets, horizons and sizes recur---so cross-cell statistics are descriptive. \emph{(iii)} Chronos carries no per-condition forgetting ($\ddagger$, Table~\ref{tab:regimes}), and the seven degradation cells are Moirai-only on two datasets. \emph{(iv)} Condition~D leaves input projections trainable (App.~\ref{app:strictfreeze}).
+\textbf{Limitations} (related work: App.~\ref{app:related}). \emph{(i)} Two analyses from an earlier version are \textbf{withdrawn}; B$-$D shares no machinery with either (App.~\ref{app:probes},~\ref{app:pooling}). \emph{(ii)} Cells are unequally powered (3--10 seeds) and \textbf{not independent}---datasets, horizons and sizes recur---so cross-cell statistics are descriptive. \emph{(iii)} Chronos carries no per-condition forgetting ($\ddagger$, Table~\ref{tab:regimes}), and the eight degradation cells are Moirai-only on two datasets. \emph{(iv)} Condition~D leaves input projections trainable (App.~\ref{app:strictfreeze}).
 
 \bibliographystyle{plainnat}
 \bibliography{workshop_refs}
@@ -554,7 +552,7 @@ ETTh1 & $+0.401$ & $0.44$--$0.64$ & $0.80$--$0.89$ & $-3.0{\pm}2.5$ & $-1.6{\pm}
 splits from the same runs---nothing was re-scored after the fact---and TimesFM/ETTh2 \emph{reverses
 sign}, $+0.2$ on validation against $-7.1$ held out. It reverses in the \emph{same} direction as the
 three Moirai/Chronos reversals: validation favoured the frozen encoder, held-out data does not. Four
-of our 30 cells reverse and all four reverse that way, which is the paper's central methodological
+of our 31 cells reverse and all four reverse that way, which is the paper's central methodological
 claim (\S\ref{sec:results}) reproduced on a backbone it was not derived from.
 
 \textbf{(b) A stack that is provably unchanged can read CKA $0.38$.} Condition~D's $\ell_2$ weight
@@ -572,7 +570,7 @@ CKA $0.22$--$0.28$) is among the two where adaptation helps most. Because no hea
 forg$_\text{B}$ is a clean measurement here, so this arm also re-tests the \S\ref{sec:discussion}
 rule: its \emph{sign} transfers---forg$_\text{B}{<}0$ and B$-$D${<}0$ in 4 of 4 cells---but its
 stated mechanism does not, since forg$_\text{D}$ varies here almost as much as forg$_\text{B}$
-(SD $19.2$ against $22.0$, versus $8.0$ against $26.8$ on Moirai). The rule is an empirical property
+(SD $19.2$ against $22.0$, versus $8.1$ against $26.2$ on Moirai). The rule is an empirical property
 of a nearly-constant frozen arm, and that property is Moirai's, not a general one.
 
 We do not re-screen MOMENT: its $h{=}96$ margin is $-147.8\%$, and its released checkpoint has no
@@ -585,7 +583,7 @@ therefore supports no claim in this paper.
 \label{app:crosscell}
 %% ============================================================
 
-Across the 30 cells of Table~\ref{tab:regimes} we ask whether either observational diagnostic
+Across the 31 cells of Table~\ref{tab:regimes} we ask whether either observational diagnostic
 orders the held-out intervention. Spearman $\rho$ with a 10{,}000-sample bootstrap CI over cells:
 
 \begin{center}
@@ -594,18 +592,18 @@ orders the held-out intervention. Spearman $\rho$ with a 10{,}000-sample bootstr
 \toprule
 Grouping & $n$ & CKA range & $\rho$ & 95\% CI \\
 \midrule
-Pooled across backbones & 30 & 0.09--0.97 & $+0.576$ & $[+0.281, +0.759]$ \\
+Pooled across backbones & 31 & 0.09--0.97 & $+0.567$ & $[+0.265, +0.759]$ \\
 \midrule
-Moirai only  & 21 & 0.36--0.97 & $+0.181$ & $[-0.321, +0.610]$ \\
+Moirai only  & 22 & 0.36--0.97 & $+0.168$ & $[-0.325, +0.595]$ \\
 Chronos only & 5  & 0.09--0.23 & $+0.100$ & $[-1.000, +1.000]$ \\
 TimesFM only & 4  & 0.25--0.56 & $+0.400$ & $[-0.778, +1.000]$ \\
 \midrule
-$\ell_2$ weight drift (pooled) & 24 & --- & $+0.075$ & $[-0.348, +0.512]$ \\
+$\ell_2$ weight drift (pooled) & 25 & --- & $+0.118$ & $[-0.304, +0.522]$ \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\noindent The $\ell_2$ row covers 24 cells rather than 30 because the Chronos runs did not retain a
+\noindent The $\ell_2$ row covers 25 cells rather than 31 because the Chronos runs did not retain a
 weight-drift measurement. \textbf{A correction to an earlier version:} that row previously read
 $n{=}19$, $\rho{=}+0.044$, which was in fact the Moirai-only figure ($n{=}13$, CI $[-0.545,
 +0.651]$) carrying a ``pooled'' label. The pooled value is $-0.301$; both include zero, so the
@@ -623,9 +621,9 @@ subsetting, and CKA entering as a continuous regressor
 \toprule
 Model for held-out B$-$D & $n$ & $b_1$ (pp per unit CKA) & 95\% CI \\
 \midrule
-$b_0 + b_1\,$CKA \quad (no backbone term) & 30 & $+47.6$ & --- \\
-$b_0 + b_1\,$CKA $+$ backbone FE & 30 & $+39.5$ & $[-14.7, +98.3]$ \\
-\quad $+$ CKA\,$\times$\,backbone & 30 & $+40.4$ & $[-18.6, +106.7]$ \\
+$b_0 + b_1\,$CKA \quad (no backbone term) & 31 & $+47.7$ & --- \\
+$b_0 + b_1\,$CKA $+$ backbone FE & 31 & $+39.1$ & $[-14.4, +98.5]$ \\
+\quad $+$ CKA\,$\times$\,backbone & 31 & $+39.9$ & $[-17.9, +104.9]$ \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -636,7 +634,7 @@ unclustered interval would be far too narrow; draws that leave a backbone unrepr
 discarded and the retained count is printed by the script. \textbf{Both adjusted intervals include
 zero.} The pooled rank correlation therefore does not survive absorbing backbone identity, and it
 is not the within-backbone restriction that removes it---the same conclusion follows from a model
-fitted on all 30 cells at once. What the data cannot do is pin the within-backbone slope down; that
+fitted on all 31 cells at once. What the data cannot do is pin the within-backbone slope down; that
 is weaker than, and must not be read as, a claim that CKA carries no information.
 
 \textbf{The pooled row is not a licensed analysis, and it points the other way.} Pooled, CKA
@@ -657,7 +655,7 @@ Neither observation licenses reading the pooled row as evidence; both are why we
 We report it anyway because a reader can compute it in a minute, and because the honest position is
 that our central claim survives on a protocol restriction rather than because no correlation can be
 found in the numbers. Within Moirai, the only group with enough cells and enough CKA range to test,
-$\rho{=}+0.181$ with a CI that includes zero---but this is a small sample, and we do not
+$\rho{=}+0.168$ with a CI that includes zero---but this is a small sample, and we do not
 claim CKA is uninformative, only that it does not reliably order the intervention at this
 resolution. Within TimesFM, the one other backbone with a clean forgetting measurement, $\rho$ is
 $+0.400$ on 4 cells with a CI spanning almost the whole range---too few cells to test anything, and
@@ -681,7 +679,7 @@ already carves a chronologically disjoint test split and then discards it; here 
 the paper does not conflate them. \emph{(A)~The protocol finding is genuinely out of sample.} No
 model is fitted or selected on the test split, so the sign reversals in \S\ref{sec:results} are a
 generalization result. \emph{(B)~The degradation regime is a retrospective discovery.} Its
-definition includes a gate that we \emph{recompute} on the test split, so the seven cells are
+definition includes a gate that we \emph{recompute} on the test split, so the eight cells are
 identified using data we have already looked at. That establishes existence; it is not a prospective
 validation of the criterion, and it says nothing about how often the regime occurs or how well the
 criterion would detect it in advance.
@@ -707,20 +705,20 @@ prediction comes from train/validation only. Two rules were registered:
 
 \input{tables/prospective}
 
-\noindent \textbf{The criterion is a base-rate predictor.} It flagged all seven scored cells; one
-degraded. That is \textbf{precision $0.14$ at recall $1.00$}---no false negatives, six false
-positives. The dataset rule scores $5/7$, better but not a rule either: it is correct wherever it
+\noindent \textbf{The criterion is a base-rate predictor.} It flagged all eight cells; two
+degraded. That is \textbf{precision $0.25$ at recall $1.00$}---no false negatives, six false
+positives. The dataset rule scores $6/8$, better but not a rule either: it is correct wherever it
 predicted \emph{no} degradation and wrong on both Moirai-Base/Weather cells. Taken with the
-published cells, degradation appears on ETTh1 at Small, Base \emph{and} Large, but on Weather only
-at Small---so it tracks dataset crossed with model size, and \textbf{we do not offer a prospective
-rule}. This is the clearest support we have for \S\ref{sec:method}'s ``inclusion, not prescription'':
+published cells, degradation appears on ETTh1 at Small, Base \emph{and} Large, but on Weather at
+Small and Large while \emph{skipping} Base---not even monotone in model size, so \textbf{we do not
+offer a prospective rule}. This is the clearest support we have for \S\ref{sec:method}'s ``inclusion, not prescription'':
 the criterion says where an intervention is \emph{interpretable}, not where fine-tuning will hurt.
 
 \noindent Two further observations. The highest validation gates in the entire matrix
 ($0.712$, $0.764$, Moirai-Small/Electricity7) belong to cells where adaptation \emph{helps} or the
 comparison is directional---if the gate carried risk signal, those are where it should have
-appeared. And forg$_\text{B}$ is negative in six of the seven new cells with \emph{zero} positive
-seeds anywhere, so the regime is rarer than seven-of-30 makes it sound.
+appeared. And forg$_\text{B}$ is negative in six of the eight new cells with \emph{zero} positive
+seeds anywhere, so the regime is rarer than eight-of-31 makes it sound.
 
 \textbf{A correction to the gate itself.} Auditing the above surfaced a window mismatch in the
 Moirai arm of \texttt{gate\_all\_cells.py}: the linear denominator was built with an extended
@@ -742,7 +740,7 @@ $0.008$--$0.039\%$ (MPS run-to-run float noise), and all six frozen-encoder ridg
 exactly and remain interior.
 
 \textbf{Which cells count as degradation.} The definition---gate-passing, forg$_\text{B}>0$ in
-every seed, forg$_\text{D}<0$ in every seed---selects exactly seven of the 30 cells, and
+every seed, forg$_\text{D}<0$ in every seed---selects exactly eight of the 31 cells, and
 \texttt{cell\_matrix.py} applies it programmatically so the list cannot be curated by hand. The four
 TimesFM cells are put through the same test and none passes it. One
 further cell (Moirai-Small/ETTh2, $h{=}192$) meets the inequalities on \emph{means} but its harm
@@ -823,7 +821,9 @@ input re-fitting. We fixed the reading rule before running: the claim is that th
 B$-$D survive strict freezing, so B$-$H is reported beside B$-$D on every cell, and divergence on any
 cell is reported as that cell's gap being partly input re-fitting rather than being buried.
 
-\textbf{Result.} All six degradation cells known at the time, plus ILI, were run; nothing was dropped. Measured CKA is
+\textbf{Result.} All six degradation cells known at the time, plus ILI, were run; nothing was dropped.
+The two the prospective arm later added (Moirai-Large on ETTh1 and on Weather) postdate this control
+and carry no H run, so the strict-freeze evidence covers six of the eight. Measured CKA is
 $1.0000$ everywhere, confirming the construction. \textbf{The reading survives on every cell}: B$-$H
 keeps B$-$D's sign in all seven, and the magnitude changes by $-5.8$ to $+0.5$~pp---so at most
 $5.8$~pp of a gap as large as $62$~pp is input-projection re-fitting. On ILI, where adaptation helps,
@@ -992,14 +992,14 @@ It is where the paper's weight now rests, and the two inversions it supports
 %% ============================================================
 
 An earlier version listed this as open; within Moirai it is not. Condition~B's \emph{own} held-out
-forgetting agrees in sign with B$-$D in 15 of the 21 Moirai cells, and
+forgetting agrees in sign with B$-$D in 16 of the 22 Moirai cells, and
 the matched within-checkpoint contrast is sharper: Moirai-Base forgets under B on ETTh1 at both
 horizons ($+22.8\%$, $+39.5\%$) and favours freezing, while the \emph{same} checkpoint on ETTh2
 improves under B ($-31.4\%$) and strongly favours adaptation. One fine-tuning run therefore
-distinguishes regimes CKA does not ($\rho{=}{+}0.897$ vs CKA's $+0.181$, $n{=}21$).
+distinguishes regimes CKA does not ($\rho{=}{+}0.894$ vs CKA's $+0.168$, $n{=}22$).
 
 We state the coupling rather than bank it. B$-$D $\equiv$ forg$_\text{B}-$forg$_\text{D}$
-identically, and forg$_\text{D}$ barely moves (SD $8.0$ against forg$_\text{B}$'s $26.8$), so the
+identically, and forg$_\text{D}$ barely moves (SD $8.1$ against forg$_\text{B}$'s $26.2$), so the
 rule works because the frozen arm is nearly constant---an empirical fact about Moirai, not a theorem.
 It fails on Chronos ($\rho{=}{-}0.100$, limitation~iii), and on TimesFM, the other arm where
 forg$_\text{B}$ is a clean measurement, the sign agrees 4 of 4 while forg$_\text{D}$ varies nearly
@@ -1132,7 +1132,7 @@ Both thresholds are operational decision boundaries for this study, not universa
 \textbf{Preservation-priority gate (20\%), and a margin claim we withdraw.}
 Earlier versions reported the observed gate values as bimodal with a wide margin---``no cell falls in
 $[0,28)\%$, so any threshold in $10$--$30\%$ produces identical assignments''. That was read on the
-windows model selection uses. Recomputed on the test windows for all 30 cells from one code path
+windows model selection uses. Recomputed on the test windows for all 31 cells from one code path
 (\texttt{scripts/gate\_all\_cells.py}, \S\ref{sec:results}), the values are
 $-3.3$, $12.9$, $13.8$, $28.7$, $33.1$, $38.9$, $40.1$, $45.6$, $47.2$, $49.4$, $50.5$, $50.6$,
 $52.6$, $55.4$, $56.8$, $57.8$, $65.1$, $67.0$, $68.2$, $70.3$, $71.9$, $72.2$, $82.5\%$

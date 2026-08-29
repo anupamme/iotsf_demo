@@ -5,11 +5,16 @@ Fig. 1 (workshop version) -- the diagnostic chain, and the scatter that motivate
 (a) The chain, which exists to keep three quantities apart: CKA drift is OBSERVATIONAL, B-D is
     INTERVENTIONAL, forecast error is the OUTCOME. Conflating them is the reflex the paper argues
     against.
-(b) Every intervention cell as (CKA, held-out B-D). The message is the DIRECTION, not the spread:
-    the six pretrained-capability-degradation cells sit at the HIGH-CKA (LEAST-drifted) end while
-    the cells adaptation helps most sit at the low end. The reflex -- large drift means damage --
-    predicts the opposite. Note the axis is not a licensed decision boundary: CKA is only
-    comparable within a backbone, so cutting across marker shapes is exactly what S2 forbids.
+(b) Every intervention cell as (CKA, held-out B-D). The message is that NO CUT ON THIS AXIS
+    separates the two regimes: the eight pretrained-capability-degradation cells span CKA
+    0.36-0.89, and the two most-preserved cells in the whole matrix (Electricity7, CKA 0.94/0.95)
+    are cells where adaptation HELPS. The reflex -- large drift means damage -- is not merely
+    inverted here, it is unordered. Note the axis is not a licensed decision boundary either: CKA
+    is only comparable within a backbone, so cutting across marker shapes is what S2 forbids.
+
+    The earlier "degradation cells are the least drifted" reading held at 23 cells and broke when
+    the prospective arm added large/ETTh1 (CKA 0.36) and large/Weather (CKA 0.62) to the
+    degradation set. The weaker per-cell claim is the stronger thesis, and the one the title makes.
 
 An earlier version of this figure was a 15-bar chart with hand-typed values, which is how it came
 to silently drop a cell and aggregate four others without saying so. Every point below is read from
@@ -51,7 +56,7 @@ plt.rcParams.update({
 # ================================================================ data
 with contextlib.redirect_stdout(io.StringIO()):
     ROWS = [r for r in cell_matrix.build_rows() if r["bd_test"] is not None and r["cka"] is not None]
-assert len(ROWS) == 30, f"expected 30 intervention cells, got {len(ROWS)}"
+assert len(ROWS) == 31, f"expected 31 intervention cells, got {len(ROWS)}"
 
 
 def is_degradation(r):
@@ -61,7 +66,7 @@ def is_degradation(r):
             and r["forg_b_pos"] == r["seeds"] and r["forg_d_neg"] == r["seeds"])
 
 
-assert sum(is_degradation(r) for r in ROWS) == 7, "the seven degradation cells must be the seven"
+assert sum(is_degradation(r) for r in ROWS) == 8, "the eight degradation cells must be the eight"
 
 
 def backbone(r):
@@ -145,11 +150,27 @@ axr.set_xlabel("CKA drift  (1.0 = unchanged representation)", fontsize=5.9, colo
 axr.set_ylabel("held-out B$-$D (pp)", fontsize=5.9, color=INK_SECONDARY, labelpad=1.5)
 axr.tick_params(labelsize=5.4, colors=INK_SECONDARY, length=2, width=0.6, pad=1.2)
 
-axr.text(-0.10, 1.03, "(b) the least-drifted cells are the harmed ones",
+axr.text(-0.10, 1.03, "(b) no cut on CKA separates the two regimes",
          transform=axr.transAxes, fontsize=6.4, color=INK_PRIMARY, fontweight="bold", va="bottom")
-axr.text(0.28, 52, "freezing better\n7 degradation cells,\nmostly the LEAST drifted",
+axr.text(0.28, 52, "freezing better\n8 degradation cells,\nspanning CKA 0.36$-$0.89",
          fontsize=5.1, color=DAMAGE, ha="left", va="center")
 axr.text(0.62, -35, "adaptation helps", fontsize=5.3, color=ADAPT, ha="left", va="bottom")
+
+# The near-tie, drawn because it is the whole argument in two points: same backbone (Moirai-Large),
+# same horizon (h=96), CKA 0.004 apart, opposite sides of the regime. Coordinates are asserted
+# against the rows rather than typed, so the annotation cannot drift from the data.
+_tie = {r["cell"]: r for r in ROWS
+        if r["cell"] in ("Moirai-large_Weather_h96", "Moirai-large/ETTh2 h96 n500")}
+assert len(_tie) == 2, f"near-tie cells not found: {sorted(_tie)}"
+_hi, _lo = _tie["Moirai-large_Weather_h96"], _tie["Moirai-large/ETTh2 h96 n500"]
+assert abs(_hi["cka"] - _lo["cka"]) < 0.01, "the near-tie is no longer near"
+_x = (_hi["cka"] + _lo["cka"]) / 2
+axr.annotate("", xy=(_x, _hi["bd_test"]), xytext=(_x, _lo["bd_test"]),
+             arrowprops=dict(arrowstyle="<->", color=INK_SECONDARY, lw=0.6,
+                             shrinkA=2.5, shrinkB=2.5), zorder=3)
+axr.text(_x + 0.022, (_hi["bd_test"] + _lo["bd_test"]) / 2,
+         f"{abs(_hi['bd_test'] - _lo['bd_test']):.0f} pp apart\nat equal CKA",
+         fontsize=4.8, color=INK_SECONDARY, ha="left", va="center", linespacing=1.15)
 
 handles = [plt.Line2D([], [], marker=m, linestyle="none", markersize=3.6,
                       markerfacecolor="none", markeredgecolor=INK_SECONDARY,
