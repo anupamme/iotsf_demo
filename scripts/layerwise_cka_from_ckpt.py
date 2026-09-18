@@ -1,18 +1,27 @@
 #!/usr/bin/env python3
-"""W4 Part A: per-layer CKA from the converged v19 ES checkpoints (no retraining).
+"""Per-layer CKA from converged early-stopped checkpoints (no retraining).
 
-Reconciles with paper Appendix N (app:layerunfreeze), which reports monotone
-bottom->top per-layer CKA (layer1 0.441 ... layer6 0.718; global 0.518) on
-Moirai-Small/ETTh2 n=10k. Computes per-layer CKA BOTH mean-pooled and
-token-flattened to diagnose which matches the paper scale.
+Computes per-layer CKA BOTH mean-pooled and token-flattened, since the two
+scales differ and the paper must name which one it reports.
+
+Configure with the environment:
+  CKA_DEV    torch device (default cuda; use mps on Apple silicon)
+  CKA_CKPTS  glob for the fine-tuned encoder checkpoints
+  CKA_OUT    path to write the per-layer results as JSON
+
+CKA_OUT matters: earlier invocations of this script printed to stdout only, so
+the per-layer numbers that reached the paper had no surviving run record and
+could not be re-checked. Always pass it.
 """
-import sys, os, glob, re, numpy as np, torch
+import sys, os, glob, re, json, numpy as np, torch
 sys.path.insert(0, ".")
 from src.data.forecasting_loader import get_forecasting_loader
 from src.models.moirai_detector import MoiraiAnomalyDetector, _apply_uni2ts_gradient_patch
 
 DEV, LB, H = os.environ.get("CKA_DEV", "cuda"), 96, 96
-CKPTS = sorted(glob.glob("results/v19_cuda_etth2_n10k/seed*/best_encoder.pt"))
+CKPT_GLOB = os.environ.get("CKA_CKPTS", "results/v19_cuda_etth2_n10k/seed*/best_encoder.pt")
+CKPTS = sorted(glob.glob(CKPT_GLOB))
+assert CKPTS, f"no checkpoints matched {CKPT_GLOB}"
 
 def linear_CKA(X, Y):
     X = X - X.mean(0); Y = Y - Y.mean(0)
@@ -22,6 +31,12 @@ def linear_CKA(X, Y):
 
 torch.manual_seed(0); np.random.seed(0)
 _apply_uni2ts_gradient_patch()
+if DEV == "mps":
+    # Same patch finetune_forecasting.py applies: PackedStdScaler casts to
+    # float64, which MPS cannot represent, so every forward pass raises and the
+    # representation buffers come back empty.
+    from scripts.finetune_forecasting import _patch_packed_scaler_for_mps
+    _patch_packed_scaler_for_mps()
 
 loader = get_forecasting_loader("data/forecasting/ETTh2.csv", lookback_window=LB,
                                 forecast_horizon=H, features="M")
@@ -77,6 +92,11 @@ for ck in CKPTS:
     seed = re.search(r"seed(\d+)", ck).group(1)
     sd = torch.load(ck, map_location=DEV, weights_only=False)
     missing, unexpected = model.load_state_dict(sd, strict=False)
+    # strict=False silently loads nothing when the key namespaces disagree, which
+    # would return CKA ~= 1.0 at every layer and look like "no drift".
+    assert not missing and not unexpected, (
+        f"{ck}: {len(missing)} missing / {len(unexpected)} unexpected keys; "
+        f"first missing={missing[:2]} first unexpected={unexpected[:2]}")
     reps_ft = per_layer_reps(Xval)
     line = []
     for i in range(nL):
@@ -96,4 +116,18 @@ bf = np.mean([np.mean(flat_all[i]) for i in range(3)]); tf = np.mean([np.mean(fl
 print(f"\nbottom-3 vs top-3 : pooled {bp:.3f}/{tp:.3f}   flat {bf:.3f}/{tf:.3f}")
 print(f"global (mean over layers): pooled {np.mean([np.mean(pooled_all[i]) for i in range(nL)]):.3f}  "
       f"flat {np.mean([np.mean(flat_all[i]) for i in range(nL)]):.3f}")
-print("paper Appendix N: bottom-3=0.476 top-3=0.649 global=0.518 (monotone bottom<top)")
+
+out_path = os.environ.get("CKA_OUT")
+if out_path:
+    payload = {
+        "device": DEV, "ckpt_glob": CKPT_GLOB, "n_ckpts": len(CKPTS),
+        "seeds": [re.search(r"seed(\d+)", c).group(1) for c in CKPTS],
+        "n_val_windows": int(len(Xval)), "lookback": LB, "horizon": H,
+        "per_layer_pooled": {str(i): pooled_all[i] for i in range(nL)},
+        "per_layer_flat": {str(i): flat_all[i] for i in range(nL)},
+    }
+    with open(out_path, "w") as fh:
+        json.dump(payload, fh, indent=2)
+    print(f"wrote {out_path}")
+else:
+    print("WARNING: CKA_OUT unset -- these numbers leave no run record.")

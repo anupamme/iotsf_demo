@@ -4,125 +4,96 @@
 % ============================================================
 
 Fine-tuning a time-series foundation model reshapes its internal
-representations.  It is common knowledge that this reshaping moves
-features \emph{toward} the downstream objective; the question we ask is
-different and, we argue, under-appreciated: \textbf{does the amount of
-representational change tell you whether fine-tuning helped or hurt?}
-Our central finding is that it does \emph{not}.  The same large drift
-degrades one model, improves another, and is irrelevant to a third; the
-outcome is governed by whether the pre-trained features were valuable to
-begin with and by model capacity, not by how much the encoder moved.
-We call this the \emph{drift--utility dissociation}, and we contribute a
-diagnostic protocol that separates harmful forgetting from benign,
-task-directed specialisation.
+representations, and a large literature treats that reshaping as damage to be
+prevented---by freezing the encoder, by regularising toward the pre-trained
+weights, by confining updates to low-rank adapters.  Every one of those
+prescriptions presupposes that the pre-trained representation was worth
+preserving \emph{on the target task}.  \textbf{We test that presupposition on
+the benchmarks the field actually uses, and it mostly fails.}
 
-\textbf{Terminology.}  We write \emph{zero-shot} (ZS) for the frozen
-pre-trained model evaluated without fine-tuning, and measure
-representational change with two diagnostics defined in
-\S\ref{sec:method}: \emph{centred kernel alignment} (CKA, geometric
-similarity between pre-trained and fine-tuned encoders; CKA${=}1$ means
-no change) and \emph{weight drift} ($\ell_2$ parameter distance).
-A third, linear-probe $\Delta R^2$, appeared in an earlier version of this
-work and is \textbf{retracted} here (\S\ref{sec:retraction}).
-We abbreviate learning rate as LR, sample size as $n$, and refer to the
-influenza-like-illness benchmark as ILI.  Standard weight-anchoring
-baselines from continual learning---elastic weight consolidation
-(EWC~\cite{kirkpatrick2017ewc}), L2-SP, and the parameter-efficient
-adapter LoRA---appear as mitigation conditions (\S\ref{sec:method}).
+Our test is deliberately weak.  We ask only whether the pre-trained model,
+zero-shot (ZS), beats a lookback-96 linear regression \emph{fit on the
+practitioner's own target data}: not a tuned supervised forecaster, not an
+ensemble---a single ridge-OLS map estimated once on the training split and
+applied unchanged.  We write the margin as
+$R^2_{\text{task}}(\text{PT}) = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$
+and screen \textbf{32 held-out cells} spanning three backbones---Moirai
+(Small 13.8M, Base 91M, Large 311M), Chronos-T5~\cite{ansari2024chronos} and
+TimesFM-2.5~\cite{das2024timeseries}, with
+MOMENT~\cite{goswami2024moment} screened and excluded---six datasets and two
+forecast horizons (\S\ref{sec:forecasting}).  \textbf{Five cells clear it},
+and all five are the same dataset on the same backbone family: ETTh2 on
+Moirai.  On the five that do clear it, full fine-tuning \emph{improves} MSE by 31--42\% in
+three; the two whose mean shows harm carry only 4/10 and 5/10 seeds agreeing
+on the sign.
 
-Moirai~\cite{woo2024moirai} is a foundation time-series model trained
-on billions of time points that achieves strong zero-shot performance
-on forecasting benchmarks.  A natural next step is to fine-tune it on
-domain-specific tasks, but when should a practitioner worry about
-overwriting the representations that made zero-shot work?
-\emph{Counterfactual:} Chronos-T5-Small on ETTh2 gives ZS MSE$=$0.304
-vs.\ a linear baseline of 0.213 (ZS \emph{underperforms} by 43\%).
-A practitioner who skipped screening would fine-tune Chronos, observe
-CKA dropping, and apply LoRA/EWC to preserve features that had
-\emph{no advantage over Linear} (wasted effort).
-Our \emph{value-gate} prevents this: preservation-focused drift diagnosis is
-most meaningful when pre-trained features demonstrably outperform a
-trivial baseline.  Crucially, the gate is a \emph{downstream-only} check
-(zero-shot evaluation vs.\ a linear regression on the practitioner's own
-target data); it requires the released checkpoint and target set, never
-access to pre-training data or resources.
+\textbf{Terminology.}  \emph{Zero-shot} (ZS) is the frozen pre-trained model
+evaluated without fine-tuning; condition~B is full fine-tuning and
+condition~D a frozen encoder trained on the same data for the same epochs, so
+$\text{B}{-}\text{D}$ is the incremental value of allowing encoder-side
+adaptation. We measure representational change with \emph{centred kernel
+alignment} (CKA, geometric similarity between pre-trained and fine-tuned
+encoders; CKA${=}1$ means no change) and \emph{weight drift} ($\ell_2$
+parameter distance), both defined in \S\ref{sec:method}. EWC~\cite{kirkpatrick2017ewc},
+L2-SP and LoRA appear as mitigation conditions; LR is learning rate, $n$
+sample size, ILI the influenza-like-illness benchmark.
 
-\textbf{Representation drift during fine-tuning.}
-We contribute a systematic \emph{diagnostic methodology} for characterising
-representation drift (progressive overwriting of pre-trained features) during
-fine-tuning, and demonstrate it on Moirai (Small 13.8M, Base 91M, Large
-311M)---the single backbone family whose features pass our value-gate on ETT.
-Three other backbones (Chronos~\cite{ansari2024chronos},
-TimesFM-2.5~\cite{das2024timeseries}, MOMENT~\cite{goswami2024moment})
-gate-fail on all nine ETT cells, the expected behaviour of a well-calibrated
-screen; Chronos gate-\emph{passes} M4-Monthly (in its corpus) at 84.5\%,
-confirming the gate identifies applicable cells across backbones
-(\S\ref{sec:forecasting:nonmoirai}).
-Catastrophic forgetting during fine-tuning is well-studied in continual
-learning~\cite{kirkpatrick2017ewc, li2017lwf} and
-NLP~\cite{luo2023forgetting}; we use the term for degraded performance on
-distributions the model originally handled well (the ``previous task''
-being the pre-training objective), and our contribution is reusable
-diagnostic methodology demonstrated on a controlled Moirai case study.
-Drift is distinguished from overfitting by the frozen-encoder control
-(CKA$=$1.000, same data/epochs): it isolates encoder weight updates as the
-cause, since freezing eliminates the degradation.
-Concretely, on ETTh2 (gate-pass, $R^2_{\text{task}}(\text{PT}){=}{+}0.279$)
-fine-tuning degrades MSE by 10--16\% at $n{=}500$ and resolves by
-$n{=}2{,}000$; on IoT (sub-random ZS) drift is large but irrelevant---no
-valuable features existed to forget.
-When harmful, such drift degrades the distributional predictions used for
-anomaly scoring and probabilistic forecasting.
-
-\textbf{Scope.}
-The empirical case study spans three Moirai gate-pass dissociation cells
-(ETTh2-Small, ETTh2-Base, ILI) plus a cross-backbone stability cell
-(Chronos-T5-Small/M4-Monthly, gate-pass 84.5\%).
-The central finding is \textbf{non-monotone capacity dependence}: Base
-(91M) improves protocol-robustly at all $n$, Small (13.8M) degrades at low
-$n$, and Large (311M) degrades at default LR but is rescued by a
-$10{\times}$ LR reduction; a step-size falsification confirms capacity is an
-independent buffer against destructive drift (\S\ref{sec:analysis}).
-We do not claim the dissociation is universal---the protocol applies to any
-gate-passing backbone but the numeric findings require broader replication.
-Two pre-registered predictions failed. The intermediate-CKA prediction for
-ILI is falsified outright (\S\ref{sec:analysis:ili}): its CKA component was
-wrong, and the probe component that had been reported as confirming it is
-withdrawn with the retracted axis (\S\ref{sec:retraction}). The step-size
-hypothesis is partially falsified (Appendix~\ref{app:step_size}). Both are
-reported as such.
-
-\textbf{What is new here.}
-That fine-tuning restructures representations toward the downstream
-objective is well established and is \emph{not} our claim.  Our
-contribution is that this restructuring is \emph{dissociated} from task
-utility---large drift can be harmful, beneficial, or irrelevant---and a
-protocol that predicts \emph{which} regime a given (backbone, dataset,
-capacity, $n$) cell is in \emph{before} committing to a mitigation
-strategy.
+\textbf{The definition no cell meets.}
+We fixed, in advance, what it would take for a cell to count as damage to a
+demonstrated pre-trained capability: the cell must clear the gate, full
+fine-tuning must end worse than not fine-tuning at all in \emph{every} seed,
+and the frozen encoder must end better in \emph{every} seed.  \textbf{No cell
+in the matrix satisfies it} (\S\ref{sec:analysis:degradation}).  The single
+candidate, Moirai-Small on ETTh2 at $h{=}192$, splits 5/10 on the sign of the
+harm.  The prospective test
+we pre-registered therefore has no positive instance to predict: scored on
+eight held-out cells the gate returns TP~0, FP~8, and precision $0.00$ at
+every threshold from $0.10$ to $0.60$.  Within Moirai it is worse than
+uninformative---higher pre-trained value predicts encoder adaptation helping
+\emph{more} (Spearman $\rho{=}{-}0.518$ over 22 cells from six series).
 
 \textbf{Contributions.}
 
-\begin{enumerate}
-  \item \textbf{Diagnostic protocol (design is backbone-agnostic;
-    empirically instantiated on Moirai).}
-    Value-gate screening (ZS ${>}$20\% vs.\ Linear; the threshold is a
-    practical heuristic; gate-pass is reported as a continuous variable
-    throughout and we do not claim universality of this cutoff),
-    and controlled-comparison design (frozen-encoder, random-init,
-    layer-wise unfreeze).  The protocol applies
-    to any backbone; the drift--utility dissociation it reveals is
-    established here on the Moirai family, with Chronos/M4 confirming the
-    value-gate screen on a second backbone (\S\ref{sec:forecasting:nonmoirai}).
-    A reproducibility bundle (configs, seed lists, metric
-    scripts, uni2ts patch, expected outputs) accompanies this paper.
+\begin{enumerate}\itemsep1pt
+  \item \textbf{A negative result on the premise of forgetting mitigation.}
+    Screened against a linear regression fit on the target data, only 5 of 32
+    held-out cells show a pre-trained advantage to preserve, and all five are
+    ETTh2 on Moirai; three of those five are \emph{improved} 31--42\% by full
+    fine-tuning (\S\ref{sec:forecasting}).
 
-  \item \textbf{Empirical validation: dissociation and stability regimes.}
-    \emph{Dissociation:} on Moirai/ETTh2 the encoder drifts far below the
-    $0.95$ flag while forecasting improves, and across the sample-size sweep
-    drift moves monotonically while the task outcome does not.
-    \emph{Stability control:} Chronos/M4 (gate-pass 84.5\%,
-    CKA${\geq}$0.95; \S\ref{sec:forecasting:nonmoirai}): no restructuring,
-    and the frozen encoder matches full fine-tuning.
+  \item \textbf{Zero cells meet a pre-registered definition of degradation},
+    so the value-gate we proposed has no positive instance: TP~0, FP~8,
+    precision $0.00$ at every threshold in $[0.10,0.60]$, and
+    $\rho{=}{-}0.518$ against the intervention outcome within Moirai---a
+    direction, not an interval claim (\S\ref{sec:analysis:degradation},
+    \S\ref{sec:analysis:prospective}).
+
+  \item \textbf{Two measurement preconditions for getting this right.}
+    Held-out scoring of the frozen-encoder comparison (4 of 31 cells reverse
+    sign, all one-directional), and a fitted rather than per-window linear
+    baseline (17 cells change gate status). Both corrections move results
+    against the conclusion we originally drew
+    (\S\ref{sec:analysis:heldout}, Appendix~\ref{app:gatecorrection}).
+
+  \item \textbf{The drift--utility dissociation, on three backbones.}
+    Outcomes from $-51.8\%$ to $+46.1\%$ with no reliable drift signature
+    (within-backbone $\rho{=}{+}0.168$, CI $[-0.325,{+}0.595]$); four of
+    Chronos-T5's five cells sit at CKA${\in}[0.092,0.169]$---indistinguishable
+    drift---and the outcome across all five spans 62 points, from $-41.4\%$ to
+    $+20.6\%$ (\S\ref{sec:forecasting:nonmoirai}). A reproducibility bundle (configs,
+    seed lists, metric scripts, uni2ts patch, both linear baselines)
+    accompanies this paper.
 \end{enumerate}
 
+\textbf{What is a claim here, and what is a control.}  Those four are the
+paper's claims, argued in \S\ref{sec:forecasting} and \S\ref{sec:analysis}; we
+do not claim that foundation models are useless for forecasting, nor that
+fine-tuning is safe.  Everything else is a control or a boundary case, labelled
+as such where it
+appears: ILI and an IoT anomaly detector are external cells that gate-fail,
+reported as case studies rather than evidence (\S\ref{sec:analysis:ili}); the
+mitigation spectrum, a strict-freeze condition and the LoRA sweeps ask only
+whether the frozen-encoder comparison depends on how it is implemented
+(Appendices~\ref{app:full_tables},~\ref{app:strictfreeze},~\ref{app:lora_rank});
+and a linear-probe $\Delta R^2$ axis from an earlier version is retracted
+outright (Appendix~\ref{sec:retraction}).  No claim above rests on any of them.

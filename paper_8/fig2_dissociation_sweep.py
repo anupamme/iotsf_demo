@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fig. 2 (workshop version) — the drift-utility dissociation, within a single model.
+Fig. 2 (workshop version): the drift-utility dissociation, within a single model.
 
 Two stacked panels sharing the x-axis (number of fine-tuning samples):
   (top)    encoder drift: CKA falls MONOTONICALLY, with tight error bars, as more
@@ -27,8 +27,8 @@ INK_MUTED     = "#898781"
 GRID          = "#e1e0d9"
 BASELINE      = "#c3c2b7"
 SURFACE       = "#fcfcfb"
-BLUE          = "#2a78d6"   # slot 1 — drift
-ORANGE        = "#eb6834"   # slot 6 — outcome
+BLUE          = "#2a78d6"   # slot 1, drift
+ORANGE        = "#eb6834"   # slot 6, outcome
 
 # ---- paper Table tab:sample_sweep (ETTh2, h=96, cond B, Moirai-Small) ----
 n       = np.array([500, 1000, 2000, 5000, 10000])
@@ -85,7 +85,7 @@ axB.text(430, 22.5, "worse  (forgetting)", fontsize=8, color=INK_MUTED, va="cent
 axB.text(430, -10.5, "better  (improved)", fontsize=8, color=INK_MUTED, va="center", ha="left")
 # Two lines, not three: at three the block overflows the axes and touches the x tick labels.
 # The dropped line ("not determined by the drift curve") is already made in the caption.
-axB.annotate("outcome sign flips (+14, -3, +7, -5) —\nat maximum drift it still improves",
+axB.annotate("outcome sign flips (+14, -3, +7, -5):\nat maximum drift it still improves",
              (10000, -5.3), (1150, -9.6), fontsize=8.5, color=INK_PRIMARY,
              ha="left", va="center", fontweight="bold", linespacing=1.1,
              arrowprops=dict(arrowstyle="->", color=INK_PRIMARY, lw=0.9))

@@ -613,20 +613,17 @@ def predicts_bd(rows, n_boot=10000, seed=0):
     Chronos is reported separately and never pooled: its per-condition forgetting is confounded by
     the head/decoder mismatch (limitation iv), so its forg_B is not a forgetting measurement. It is
     exactly where the rule fails, which is the scope limit, not a footnote.
+
+    INTERVALS ARE CLUSTERED AND P-VALUES ARE GONE. Within a group these cells still reuse series
+    across sizes and horizons, so the interval is taken over (backbone, dataset) clusters as well as
+    over cells; both are printed. The gate-vs-B-D correlation reported in the body comes from here,
+    and it previously carried a cell-level p-value, which over-states the evidence because it assumes
+    31 independent draws where there are roughly 10 independent series-backbone combinations.
     """
     import numpy as np
-    from scipy import stats
-    rng = np.random.default_rng(seed)
 
-    def boot(x, y):
-        rho, p = stats.spearmanr(x, y)
-        b = []
-        for _ in range(n_boot):
-            i = rng.integers(0, len(x), len(x))
-            if len(set(x[i])) > 2:
-                b.append(stats.spearmanr(x[i], y[i]).statistic)
-        lo, hi = np.nanpercentile(b, [2.5, 97.5])
-        return rho, p, lo, hi
+    import cluster_keys as ck
+    rng = np.random.default_rng(seed)
 
     print(f"\n{'='*96}\nCAN THE READING BE PREDICTED WITHOUT CONDITION D?")
     groups = [("Moirai only (forg_B is a clean measurement)",
@@ -642,7 +639,8 @@ def predicts_bd(rows, n_boot=10000, seed=0):
             print(f"  {name:44s} n={len(g):2d}  too few cells")
             continue
         y = np.array([r["bd_test"] for r in g])
-        print(f"  {name}  n={len(g)}")
+        cl = ck.clusters_for([r["cell"] for r in g])
+        print(f"  {name}  n={len(g)}  clusters={len(set(cl))}")
         for key, label in (("forg_b", "forg_B (cond. B only)"), ("forg_d", "forg_D"),
                            ("gate", "gate R2_task"), ("cka", "CKA"), ("drift", "l2 drift")):
             x = np.array([r[key] if r[key] is not None else np.nan for r in g], dtype=float)
@@ -650,10 +648,16 @@ def predicts_bd(rows, n_boot=10000, seed=0):
             if ok.sum() < 4:
                 print(f"    {label:24s} n={ok.sum()}  too few")
                 continue
-            rho, p, lo, hi = boot(x[ok], y[ok])
+            rho, lo, hi, _ = ck.cell_bootstrap_spearman(
+                x[ok], y[ok], n_boot=n_boot, rng=np.random.default_rng(seed))
+            _, clo, chi, ckept, ncl = ck.cluster_bootstrap_spearman(
+                x[ok], y[ok], cl[ok], n_boot=n_boot, rng=rng)
             excl = "EXCLUDES 0" if (lo > 0 or hi < 0) else "includes 0"
-            print(f"    {label:24s} n={ok.sum():2d}  rho={rho:+.3f}  p={p:.2e}  "
-                  f"CI[{lo:+.3f},{hi:+.3f}]  {excl}")
+            cexcl = "EXCLUDES 0" if (clo > 0 or chi < 0) else "includes 0"
+            print(f"    {label:24s} n={ok.sum():2d}  rho={rho:+.3f}  "
+                  f"cells CI[{lo:+.3f},{hi:+.3f}] {excl:10s}  "
+                  f"clusters CI[{clo:+.3f},{chi:+.3f}] {cexcl:10s} "
+                  f"({ncl} cl, kept {ckept}/{n_boot})")
         fb = np.array([r["forg_b"] for r in g]); fd = np.array([r["forg_d"] for r in g])
         dev = float(np.max(np.abs((fb - fd) - y)))
         print(f"    identity check: max|(forg_B - forg_D) - (B-D)| = {dev:.3f}  "
@@ -699,32 +703,27 @@ def within_backbone(rows):
     within-backbone figures side by side so the difference is visible rather than assumed.
     """
     import numpy as np
-    from scipy import stats
-    rng = np.random.default_rng(0)
 
-    def boot(x, y):
-        rho, p = stats.spearmanr(x, y)
-        b = []
-        for _ in range(10000):
-            i = rng.integers(0, len(x), len(x))
-            if len(set(x[i])) > 2:
-                b.append(stats.spearmanr(x[i], y[i]).statistic)
-        lo, hi = np.nanpercentile(b, [2.5, 97.5])
-        return rho, p, lo, hi
+    import cluster_keys as ck
 
     groups = [("POOLED (violates the within-backbone rule of §2)", rows),
               ("Moirai only", [r for r in rows if r["cell"].startswith("Moirai")]),
               ("Chronos only", [r for r in rows if r["cell"].startswith("Chronos")]),
               ("TimesFM only", [r for r in rows if r["cell"].startswith("TimesFM")])]
     print(f"\n{'='*96}\nIS THE CKA CORRELATION A BACKBONE ARTIFACT?")
+    print("Intervals over (backbone, dataset) clusters; descriptive, no p-values.")
     for name, g in groups:
         if len(g) < 4:
             print(f"  {name:48s} n={len(g):2d}  too few cells"); continue
         x = np.array([r["cka"] for r in g]); y = np.array([r["bd_test"] for r in g])
-        rho, p, lo, hi = boot(x, y)
-        verdict = "EXCLUDES 0" if (lo > 0 or hi < 0) else "includes 0"
-        print(f"  {name:48s} n={len(g):2d}  CKA {min(x):.2f}-{max(x):.2f}  "
-              f"rho={rho:+.3f} p={p:.4f} CI[{lo:+.3f},{hi:+.3f}]  {verdict}")
+        cl = ck.clusters_for([r["cell"] for r in g])
+        rho, lo, hi, _ = ck.cell_bootstrap_spearman(x, y, rng=np.random.default_rng(0))
+        _, clo, chi, kept, ncl = ck.cluster_bootstrap_spearman(
+            x, y, cl, rng=np.random.default_rng(0))
+        verdict = "EXCLUDES 0" if (clo > 0 or chi < 0) else "includes 0"
+        print(f"  {name:48s} n={len(g):2d}  CKA {min(x):.2f}-{max(x):.2f}  rho={rho:+.3f}  "
+              f"cells CI[{lo:+.3f},{hi:+.3f}]  clusters CI[{clo:+.3f},{chi:+.3f}] {verdict}  "
+              f"({ncl} cl, kept {kept}/10000)")
 
 
 def cross_cell_stats(rows, n_boot=10000, seed=0):
@@ -736,31 +735,44 @@ def cross_cell_stats(rows, n_boot=10000, seed=0):
     the claim is about observational measures in general rather than about CKA specifically -- a
     materially stronger and more useful statement. If l2 succeeds where CKA fails, the honest
     conclusion is the narrower one, that CKA is the wrong summary. Reported either way.
+
+    TWO INTERVALS, NOT ONE. The cell-level bootstrap resamples cells as if they were independent,
+    which they are not: these cells reuse 3 backbones and 7 series, so runs sharing a series share
+    its split, its normalisation constants and its checkpoint. The clustered interval resamples
+    (backbone, dataset) pairs instead, which is the level the dependence lives at. Both are printed
+    because the gap between them is the evidence that the cell-level one was too narrow. No p-value
+    is printed for either: a p-value from a resampling scheme that mis-states the dependence is not
+    conventional inferential evidence, and the paper's own framing of this analysis is descriptive.
     """
     import numpy as np
-    from scipy import stats
+    from scipy import stats  # noqa: F401  (used via cluster_keys)
+
+    import cluster_keys as ck
     rng = np.random.default_rng(seed)
     y = np.array([r["bd_test"] for r in rows])
+    cl = ck.clusters_for([r["cell"] for r in rows])
     print(f"\n{'='*96}\nDO OBSERVATIONAL DIAGNOSTICS ORDER THE INTERVENTION?  (n={len(rows)} cells)")
-    print("Spearman rho of predictor vs held-out B-D, with a bootstrap CI over cells.")
+    print("Spearman rho of predictor vs held-out B-D. Descriptive: no p-values, two intervals --")
+    print("over cells (too narrow, shown for contrast) and over (backbone, dataset) clusters.")
     for name in ("cka", "drift"):
         x = np.array([r[name] for r in rows])
         ok = ~(np.isnan(x) | np.isnan(y))
         if ok.sum() < 4:
             continue
-        rho, p = stats.spearmanr(x[ok], y[ok])
-        boots = []
-        for _ in range(n_boot):
-            idx = rng.integers(0, ok.sum(), ok.sum())
-            if len(set(x[ok][idx])) < 3:
-                continue
-            boots.append(stats.spearmanr(x[ok][idx], y[ok][idx]).statistic)
-        lo, hi = np.nanpercentile(boots, [2.5, 97.5])
-        crosses = "includes 0" if lo <= 0 <= hi else "EXCLUDES 0"
+        rho, lo, hi, kept = ck.cell_bootstrap_spearman(
+            x[ok], y[ok], n_boot=n_boot, rng=np.random.default_rng(seed))
+        crho, clo, chi, ckept, ncl = ck.cluster_bootstrap_spearman(
+            x[ok], y[ok], cl[ok], n_boot=n_boot, rng=rng)
+        assert abs(crho - rho) < 1e-12, "the two bootstraps must share one point estimate"
         label = "CKA" if name == "cka" else "l2 weight drift"
-        print(f"  {label:16s} rho={rho:+.3f}  p={p:.3f}  95% CI [{lo:+.3f}, {hi:+.3f}]  {crosses}")
-    print("  (a CI that includes 0 means the diagnostic does not order the intervention here;\n"
-          "   at these cell counts this is a statement about our cells, not a population claim)")
+        print(f"  {label:16s} rho={rho:+.3f}")
+        print(f"    {'over cells':22s} 95% CI [{lo:+.3f}, {hi:+.3f}]  "
+              f"{'includes 0' if lo <= 0 <= hi else 'EXCLUDES 0'}  (kept {kept}/{n_boot})")
+        print(f"    {'over clusters':22s} 95% CI [{clo:+.3f}, {chi:+.3f}]  "
+              f"{'includes 0' if clo <= 0 <= chi else 'EXCLUDES 0'}  "
+              f"(kept {ckept}/{n_boot}, {ncl} clusters)")
+    print("  (a CI that includes 0 means these cells cannot pin the sign down -- not that the\n"
+          "   diagnostic is uninformative, and not a population claim)")
 
 
 if __name__ == "__main__":

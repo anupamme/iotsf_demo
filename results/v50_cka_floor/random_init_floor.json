@@ -1,0 +1,32 @@
+{
+  "device": "mps",
+  "seeds": [
+    42,
+    123,
+    456,
+    789,
+    999
+  ],
+  "n_val_windows": 200,
+  "lookback": 96,
+  "horizon": 96,
+  "init": "xavier_uniform_weights_zero_bias",
+  "cka_values": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "cka_mean": 0.0,
+  "cka_std_ddof1": 0.0,
+  "rep_variance_per_seed": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "round_trip_cka": 1.0,
+  "rep_dim": 384
+}

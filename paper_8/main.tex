@@ -1,61 +1,14 @@
-% ============================================================
-% Preprint
-% "Fighting AI-Powered Threats with AI-Generated Defense"
-% ============================================================
-% Use neurips_2025.sty until neurips_2026.sty is released.
-% Download from: https://neurips.cc/Conferences/2025/PaperInformation/StyleFiles
-% Place as paper/neurips_2025.sty
-% ============================================================
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2027_conference,times}
 
-\documentclass{article}
-
-% ---- NeurIPS style ----
-% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
-% 1. "main" option is used for the Main Track
-% \usepackage{neurips_2026}
-\usepackage[preprint]{neurips_2026}
-% 2. "position" option is used for the Position Paper Track
-%  \usepackage[position]{neurips_2026}
-% 3. "eandd" option is used for the Evaluations & Datasets Track
- % \usepackage[eandd]{neurips_2026}
- % if you want to opt-in for a de-anomymized submission (not recommended, but OK):
- %\usepackage[eandd, nonanonymous]{neurips_2026}
-% 4. "creativeai" option is used for the Creative AI Track
-%  \usepackage[creativeai]{neurips_2026}
-% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
- % \usepackage[sglblindworkshop]{neurips_2026}
-% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
-%  \usepackage[dblblindworkshop]{neurips_2026}
-
-% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
-% 1. Main Track
- % \usepackage[main, final]{neurips_2026}
-% 2. Position Paper Track
-%  \usepackage[position, final]{neurips_2026}
-% 3. Evaluations & Datasets Track
- % \usepackage[eandd, final]{neurips_2026}
-% 4. Creative AI Track
-%  \usepackage[creativeai, final]{neurips_2026}
-% 5. Workshop with single-blind reviewing
-%  \usepackage[sglblindworkshop, final]{neurips_2026}
-% 6. Workshop with double-blind reviewing
-%  \usepackage[dblblindworkshop, final]{neurips_2026}
-% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
-% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
-% \workshoptitle{WORKSHOP TITLE}
-
-% "preprint" option is used for arXiv or other preprint submissions
- % \usepackage[preprint]{neurips_2026}
-
-% to avoid loading the natbib package, add option nonatbib:
-% \usepackage[nonatbib]{neurips_2026}
+% NOTE: iclr2027_conference.sty already \RequirePackage{natbib} and {fancyhdr}.
+% Do not load natbib again here.
 
 % ---- Core packages ----
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{url}
 \usepackage{booktabs}         % professional tables
-% natbib loaded by neurips_2026.sty
 \usepackage{amsmath, amssymb}
 \usepackage{mathtools}          % provides \coloneqq and extends amsmath
 \usepackage{graphicx}
@@ -64,31 +17,30 @@
 \usepackage{algpseudocode}
 \usepackage{xcolor}
 \usepackage{multirow}
+\usepackage{makecell}          % stacked header cells in the wide appendix tables
+\usepackage{microtype}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepackage[normalem]{ulem}  % strike-through for the retracted table column
 
 % hyperref must load after most other packages
 \usepackage[hidelinks]{hyperref}
 
 % ---- Macros ----
-\newcommand{\ours}{\textsc{HNIDS}}     % Hard-Negative IDS (analytical pipeline)
-\newcommand{\dataset}{CICIoT2023}
 \newcommand{\R}{\mathbb{R}}
-\newcommand{\nbaiotAUC}{0.928}         % N-BaIoT fine-tuned AUC (3-seed mean)
 
-\title{Diagnosing Representation Drift in Time-Series Foundation Model Fine-Tuning:\\
-       A Moirai Case Study}
+\title{Representation Drift Is Not Forgetting:\\
+       Diagnosing Fine-Tuning Damage in Time-Series Foundation Models}
 
-\author{
-  Anupam ~Mediratta \\
-  % Principal Researcher\\
-  Orbis AI \\
-  \texttt{mediratta@gmail.com} \\
-}
+% ICLR submissions are DOUBLE-BLIND. Authors must not appear in the submitted
+% version; non-anonymous submissions are rejected without review. Uncomment
+% \iclrfinalcopy below (and restore the real author block) only for camera-ready.
+\author{Anonymous authors\\
+Paper under double-blind review}
 
-\usepackage[normalem]{ulem}  % strike-through for the retracted table column
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
 
 \begin{document}
 
@@ -96,23 +48,34 @@
 
 % ============================================================
 \begin{abstract}
-We propose a \textbf{diagnostic protocol} for representation drift during
-fine-tuning of time-series foundation models.
-The protocol first tests whether zero-shot features are valuable relative
-to a linear baseline (value-gate), then uses controlled encoder comparisons
---- full fine-tuning against a frozen encoder --- to ask whether encoder
-adaptation carries the downstream gain.
-In a Moirai case study spanning three model sizes and multiple datasets,
-fine-tuning often restructures representations toward the downstream
-objective, but the utility consequence depends on sample size and model
-capacity: Moirai-Small degrades in low-data ETTh2, while Moirai-Base and
-ILI fine-tuning improve despite substantial drift.
-Cross-backbone experiments (Chronos-T5-Small on M4-Monthly) confirm that
-the value-gate serves as a screening heuristic for when preservation-focused
-drift diagnosis is warranted.
-These results suggest that drift alone is insufficient evidence of harm;
-practitioners should first establish pre-training value, then assess
-whether drift affects task-relevant structure.
+Fine-tuning a time-series foundation model reshapes its internal
+representations, and that reshaping is routinely read as catastrophic
+forgetting to be prevented.  Preventing it presupposes something worth
+preserving.  \textbf{We test that presupposition, and on the standard
+benchmarks it mostly fails.}  Screening \textbf{32 held-out cells} across three
+backbones (Moirai-S/B/L, Chronos-T5, TimesFM-2.5) and six datasets against a
+lookback-96 linear regression \emph{fit on the target data}, only
+\textbf{five} show the pre-trained model beating that baseline, and all five
+are ETTh2; all three backbones lose to it on ETTh1, ETTm2, Weather and
+Electricity, as does Moirai on ILI.  On the five that pass, fine-tuning
+\emph{improves} MSE by 31--42\% in three, and the two with mean harm carry
+4/10 and 5/10 seed agreement.  \textbf{No cell meets our own definition of
+damaging a demonstrated pre-trained capability}, so the value-gate we
+pre-registered has no positive instance to predict: TP~0, FP~8, and precision
+$0.00$ at every threshold from $0.10$ to $0.60$.
+Two measurement findings show how easily this is missed.  First, the
+frozen-encoder comparison must be scored on held-out windows---4 of 31 cells
+otherwise reverse sign, every one of them flattering the frozen encoder.
+Second, an earlier version of this work drew the opposite conclusion because
+its linear baseline was an unfitted per-window trend extrapolation that a
+constant predictor beats; correcting the estimator moves 16 of 21 Moirai cells
+from gate-pass to gate-fail.
+Across the 31 intervention cells the outcome still spans $-51.8\%$ to
+$+46.1\%$ against zero-shot with no reliable signature in geometric drift
+(within-backbone Spearman $\rho{=}{+}0.168$, 95\% CI $[-0.325,{+}0.595]$), so
+how far the encoder moved remains uninformative about whether fine-tuning
+helped.  We additionally retract a probe-based diagnostic reported in an
+earlier version.
 \end{abstract}
 
 % ============================================================
@@ -121,14 +84,21 @@ whether drift affects task-relevant structure.
 \input{sections/04_methodology}
 \input{sections/05_forecasting}
 \input{sections/07_analysis}
-\input{sections/076_retraction}
 \input{sections/075_limitations}
 \input{sections/08_conclusion}
 
+% Ethics and Reproducibility statements. ICLR excludes both from the 9-page
+% main-text limit, so these must stay AFTER the conclusion -- the body ends
+% flush with the bottom of page 9 and has no slack.
+\input{sections/09_statements}
+
 % ============================================================
-\bibliographystyle{plainnat}
+\bibliographystyle{iclr2027_conference}
 \bibliography{bibliography}
 \input{sections/appendix}
-\newpage
-% \input{checklist}
+% Demoted from the body to the appendix: the retraction is a record of a
+% withdrawn computation, not a result of this paper. Body pointers are
+% Appendix~\ref{sec:retraction}.
+\input{sections/076_retraction}
+
 \end{document}

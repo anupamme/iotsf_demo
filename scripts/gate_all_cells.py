@@ -100,7 +100,7 @@ def _zs_val_refs():
 # Moirai forecasting arm
 # ---------------------------------------------------------------------------
 
-def moirai_gates(refs, split="test", lookback=96, max_eval=300):
+def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted"):
     """R2_task per Moirai cell on `split`.
 
     The extended lookback MUST be the one finetune_forecasting.py evaluates with
@@ -109,9 +109,18 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300):
     measured over a DIFFERENT set of target windows -- the numerator and denominator of R2_task
     stop describing the same forecasting problem. An earlier revision of this file used
     lookback*2 throughout; see the `gate` column note in the paper's threshold appendix.
+
+    `baseline` selects the denominator's estimator: "fitted" is the lookback-96 regression the
+    paper defines, trained on this cell's TRAIN windows; "trend" is the per-window extrapolation
+    used through 26 Aug 2026, kept so the correction can be reported. They disagree by a factor of
+    ~3 on ETTh1 and ~9 on Weather -- see gate_linear_baseline.fit_linear_map.
+
+    Note the asymmetry the paper's definition imposes: Moirai sees `lookback + h` steps of context
+    while the linear baseline sees `lookback`. That is what "lookback-96 linear baseline" means
+    here, and it favours Moirai; the gate is a lower bound on the linear model's strength.
     """
     from src.data.forecasting_loader import get_forecasting_loader
-    from gate_linear_baseline import linear_forecast
+    from gate_linear_baseline import apply_linear_map, fit_linear_map, linear_forecast
 
     out = {}
     linear_cache = {}
@@ -129,16 +138,40 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300):
             tr = train_df[cols].values
             mu, sd = tr.mean(axis=0), tr.std(axis=0) + 1e-8
             ext_lb = lookback + h                     # matches finetune_forecasting.py:709
-            vals = (val_df if split == "val" else test_df)[cols].values
             total = ext_lb + h
-            X = np.array([vals[i:i + ext_lb] for i in range(len(vals) - total + 1)])[:max_eval]
-            y = np.array([vals[i + ext_lb:i + total] for i in range(len(vals) - total + 1)])[:max_eval]
-            pred = linear_forecast(X, h, lookback)
-            linear_cache[(ds, h)] = (float(np.mean(((pred - mu) / sd - (y - mu) / sd) ** 2)), len(X))
-        lin, n_win = linear_cache[(ds, h)]
+
+            def windows(vals, cap=None):
+                X = np.array([vals[i:i + ext_lb] for i in range(len(vals) - total + 1)])
+                y = np.array([vals[i + ext_lb:i + total] for i in range(len(vals) - total + 1)])
+                return (X, y) if cap is None else (X[:cap], y[:cap])
+
+            X, y = windows((val_df if split == "val" else test_df)[cols].values, max_eval)
+            binfo = {}
+            if baseline == "fitted":
+                # Fit on the TRAIN split only, on the same train-normalised scale the stored
+                # zeroshot_mse is measured on, so numerator and denominator stay comparable.
+                Xtr, ytr = windows(train_df[cols].values)
+                coef = fit_linear_map((Xtr - mu) / sd, (ytr - mu) / sd, lookback)
+                pred_n = apply_linear_map(coef, (X - mu) / sd, lookback, h)
+            elif baseline == "trend":
+                pred_n = (linear_forecast(X, h, lookback) - mu) / sd
+            else:
+                # Alternative baseline families (seasonal naive, per-feature AR, tuned ridge,
+                # gradient-boosted trees). Everything is handed over already train-normalised, so
+                # the denominator stays on the same scale as the stored zero-shot numerator.
+                import gate_baselines
+                Xtr, ytr = windows(train_df[cols].values)
+                pred_n, binfo = gate_baselines.predict(
+                    baseline, (X - mu) / sd, lookback, h,
+                    train=((Xtr - mu) / sd, (ytr - mu) / sd), dataset=ds)
+            lin = float(np.mean((pred_n - (y - mu) / sd) ** 2))
+            linear_cache[(ds, h)] = (lin, len(X), binfo)
+        lin, n_win, binfo = linear_cache[(ds, h)]
         out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
-                        n_windows=n_win, split=split, arm="moirai")
-        print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}")
+                        n_windows=n_win, split=split, arm="moirai", baseline=baseline,
+                        **({"baseline_info": binfo} if binfo else {}))
+        print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}"
+              f"  {'PASS' if 1 - zs / lin >= GATE_THRESHOLD else 'fail'}")
     return out
 
 
@@ -146,11 +179,49 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300):
 # Chronos arm
 # ---------------------------------------------------------------------------
 
-def _window_linear_mse(ctx, tgt, lookback, horizon):
-    """Lookback-`lookback` linear extrapolation, per-window z-scored -- the baseline the Chronos
-    arm's own gate uses (chronos_mse_finetune.py:438). Shared so the Chronos and TimesFM arms
-    cannot drift apart.
+def _zscore_windows(ctx, tgt):
+    """Per-window z-score by the context's own mean/sd -- the scale the Chronos/TimesFM arms score
+    on. Returns (ctx_n, tgt_n) as (N, T, 1) so the shared linear-map helpers apply unchanged.
     """
+    c = np.asarray(ctx, dtype=np.float64).reshape(len(ctx), -1)
+    t = np.asarray(tgt, dtype=np.float64).reshape(len(tgt), -1)
+    mu = c.mean(axis=1, keepdims=True)
+    sd = c.std(axis=1, keepdims=True) + 1e-8
+    return ((c - mu) / sd)[:, :, None], ((t - mu) / sd)[:, :, None]
+
+
+def _window_linear_mse(ctx, tgt, lookback, horizon, train=None, baseline="fitted",
+                       dataset=None, info_out=None):
+    """Lookback-`lookback` linear baseline on the per-window z-scored scale, shared by the Chronos
+    and TimesFM arms so they cannot drift apart.
+
+    baseline="fitted" is the regression the paper defines: one ridge-OLS map estimated on `train`
+    (a (ctx, tgt) window pair from the TRAIN series) and applied unchanged here.
+    baseline="trend" is the per-window extrapolation used through 26 Aug 2026
+    (chronos_mse_finetune.py:438), retained so the correction can be reported.
+    Any other name is one of the alternative families in gate_baselines.py; `dataset` is needed
+    there only to look up the seasonal period, and `info_out`, if given, is updated with whatever
+    that baseline needs disclosed (a selected penalty, a row cap).
+    """
+    c_n, t_n = _zscore_windows(ctx, tgt)
+    if baseline == "fitted":
+        if train is None:
+            raise ValueError("baseline='fitted' needs train windows; pass train=(ctx_tr, tgt_tr)")
+        from gate_linear_baseline import apply_linear_map, fit_linear_map
+        ctr_n, ttr_n = _zscore_windows(*train)
+        coef = fit_linear_map(ctr_n, ttr_n, lookback)
+        pred = apply_linear_map(coef, c_n, lookback, horizon)
+        return float(np.mean((pred - t_n) ** 2))
+
+    if baseline != "trend":
+        import gate_baselines
+        tr_n = _zscore_windows(*train) if train is not None else None
+        pred, info = gate_baselines.predict(baseline, c_n, lookback, horizon,
+                                            train=tr_n, dataset=dataset)
+        if info_out is not None:
+            info_out.update(info)
+        return float(np.mean((pred - t_n) ** 2))
+
     from sklearn.linear_model import LinearRegression
     t_in = np.arange(lookback).reshape(-1, 1)
     t_out = np.arange(lookback, lookback + horizon).reshape(-1, 1)
@@ -162,7 +233,8 @@ def _window_linear_mse(ctx, tgt, lookback, horizon):
     return float(np.mean(errs))
 
 
-def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, split="test"):
+def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, split="test",
+                  baseline="fitted"):
     """R2_task per Chronos cell.
 
     On the validation side both terms are already stored per run: chronos_mse_finetune.py measures
@@ -185,7 +257,22 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
                 print(f"  {key:24s} SKIPPED -- no stored zs_mse/linear_mse")
                 continue
             zs = st.mean(r["zs_mse"] for r in runs)
-            lin = st.mean(r["linear_mse"] for r in runs)
+            if baseline == "fitted":
+                # The stored `linear_mse` is the trend baseline, so it cannot be reused here.
+                # Validation windows are drawn with seed=args.seed, so rebuild them per seed.
+                train_s, val_s, _ = load_series(ds_cfg)
+                tr_w = build_windows(train_s, lookback, horizon)
+                by_seed = {}
+                for r in runs:
+                    sd_ = r["seed"]
+                    if sd_ not in by_seed:
+                        c, t = build_windows(val_s, lookback, horizon, max_windows=200, seed=sd_)
+                        by_seed[sd_] = _window_linear_mse(c, t, lookback, horizon,
+                                                         train=tr_w, baseline=baseline,
+                                                         dataset=ds_dir)
+                lin = st.mean(by_seed[r["seed"]] for r in runs)
+            else:
+                lin = st.mean(r["linear_mse"] for r in runs)
             n_win = 200
         else:
             runs = [r for r in runs if "zs_mse_test" in r]
@@ -194,12 +281,14 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
                 continue
             zs = st.mean(r["zs_mse_test"] for r in runs)
             test_seed = runs[0].get("test_seed", 0)
-            _, _, test_s = load_series(ds_cfg)
+            train_s, _, test_s = load_series(ds_cfg)
             ctx, tgt = build_windows(test_s, lookback, horizon, max_windows=200, seed=test_seed)
-            lin = _window_linear_mse(ctx, tgt, lookback, horizon)
+            tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
+            lin = _window_linear_mse(ctx, tgt, lookback, horizon, train=tr_w, baseline=baseline,
+                                     dataset=ds_dir)
             n_win = int(len(ctx))
         out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
-                        n_windows=n_win, split=split, arm="chronos")
+                        n_windows=n_win, split=split, arm="chronos", baseline=baseline)
         print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}")
     return out
 
@@ -211,7 +300,8 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
 TIMESFM_DATASETS = ["ETTh1", "ETTh2", "ETTm2", "Weather", "Electricity"]
 
 
-def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="test"):
+def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="test",
+                  baseline="fitted"):
     """Screen TimesFM 2.5 at h=24 on the SAME window set the Chronos arm uses.
 
     This runs BEFORE any TimesFM training, and it decides whether training is licensed at all:
@@ -238,18 +328,20 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
             if not runs:
                 print(f"  {key:24s} SKIPPED -- no stored zeroshot_mse")
                 continue
-            _, val_s, _ = load_series(ds)
+            train_s, val_s, _ = load_series(ds)
+            tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
             zs_by_seed, lin_by_seed = {}, {}
             for d, _f in runs:
                 sd_ = d["seed"]
                 zs_by_seed[sd_] = d["zeroshot_mse"]
                 if sd_ not in lin_by_seed:
                     c, t = build_windows(val_s, lookback, horizon, max_windows=200, seed=sd_)
-                    lin_by_seed[sd_] = _window_linear_mse(c, t, lookback, horizon)
+                    lin_by_seed[sd_] = _window_linear_mse(c, t, lookback, horizon, dataset=ds,
+                                                          train=tr_w, baseline=baseline)
             zs = st.mean(zs_by_seed.values())
             lin = st.mean(lin_by_seed[s_] for s_ in zs_by_seed)
-            out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
-                            n_windows=200, split="val", arm="timesfm", horizon=horizon)
+            out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin, n_windows=200,
+                            split="val", arm="timesfm", horizon=horizon, baseline=baseline)
             print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}"
                   f"  {'PASS' if 1 - zs / lin >= GATE_THRESHOLD else 'fail'}")
         return out
@@ -261,17 +353,20 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
     assert_no_ar(model)
 
     for ds in (datasets or TIMESFM_DATASETS):
-        _, _, test_s = load_series(ds)
+        train_s, _, test_s = load_series(ds)
         # Same univariate-OT series, lookback, horizon and 200-window seed-0 subsample as the
         # Chronos arm, so the zero-shot reference, the gate and (later) B-D share one window set.
         ctx, tgt = build_windows(test_s, lookback, horizon, max_windows=200, seed=0)
         if ds == (datasets or TIMESFM_DATASETS)[0]:
             verify_native_path(model, ctx, horizon, device)
         zs = batched_point_mse(model, ctx, tgt, horizon, device)
-        lin = _window_linear_mse(ctx, tgt, lookback, horizon)
+        tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
+        lin = _window_linear_mse(ctx, tgt, lookback, horizon, train=tr_w, baseline=baseline,
+                                 dataset=ds)
         key = f"timesfm_{ds.lower()}"
         out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
-                        n_windows=int(len(ctx)), split="test", arm="timesfm", horizon=horizon)
+                        n_windows=int(len(ctx)), split="test", arm="timesfm", horizon=horizon,
+                        baseline=baseline)
         print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}"
               f"  {'PASS' if 1 - zs / lin >= GATE_THRESHOLD else 'fail'}")
     return out
@@ -281,8 +376,8 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
 # ILI arm
 # ---------------------------------------------------------------------------
 
-def ili_gate(lookback=104, horizon=24, data_path="data/national_illness.csv", split="test"):
-    from sklearn.linear_model import LinearRegression
+def ili_gate(lookback=104, horizon=24, data_path="data/national_illness.csv", split="test",
+             baseline="fitted"):
     from finetune_ili import load_ili_data
 
     runs = [json.load(open(f)) for f in
@@ -290,11 +385,15 @@ def ili_gate(lookback=104, horizon=24, data_path="data/national_illness.csv", sp
     if not runs:
         print("  ili                      SKIPPED -- no condition B runs")
         return {}
-    _, val, test, columns = load_ili_data(str(ROOT / data_path))
+    train, val, test, columns = load_ili_data(str(ROOT / data_path))
     series = val if split == "val" else test
     zs_key = "zs_mse" if split == "val" else "zs_mse_test"
-    t_in = np.arange(lookback).reshape(-1, 1)
-    t_out = np.arange(lookback, lookback + horizon).reshape(-1, 1)
+
+    def slide(col):
+        n = len(col) - lookback - horizon + 1
+        c = np.array([col[i:i + lookback] for i in range(n)])
+        t = np.array([col[i + lookback:i + lookback + horizon] for i in range(n)])
+        return c, t
 
     # finetune_ili averages PERCENTAGES across features, so the gate must too.
     per_feature = {}
@@ -304,21 +403,18 @@ def ili_gate(lookback=104, horizon=24, data_path="data/national_illness.csv", sp
                 per_feature.setdefault(feat["feature"], []).append(feat[zs_key])
     r2s, zs_all, lin_all = [], [], []
     for name, zs_vals in per_feature.items():
-        col = series[:, columns.index(name)].astype(np.float64)
-        errs = []
-        for i in range(len(col) - lookback - horizon + 1):
-            ctx, tgt = col[i:i + lookback], col[i + lookback:i + lookback + horizon]
-            mu, sd = ctx.mean(), ctx.std() + 1e-8
-            pred = LinearRegression().fit(t_in, ctx).predict(t_out)
-            errs.append(np.mean(((pred - mu) / sd - (tgt - mu) / sd) ** 2))
-        lin = float(np.mean(errs))
+        j = columns.index(name)
+        c, t = slide(series[:, j].astype(np.float64))
+        tr_w = slide(train[:, j].astype(np.float64)) if baseline not in ("trend", "seasonal_naive") else None
+        lin = _window_linear_mse(c, t, lookback, horizon, train=tr_w, baseline=baseline,
+                                 dataset="ILI")
         zs = st.mean(zs_vals)
         r2s.append(1 - zs / lin)
         zs_all.append(zs)
         lin_all.append(lin)
     out = {"ili": dict(r2_task=float(np.mean(r2s)), zs_test=float(np.mean(zs_all)),
                        linear_test=float(np.mean(lin_all)), n_features=len(r2s),
-                       split=split, arm="ili")}
+                       split=split, arm="ili", baseline=baseline)}
     print(f"  {'ili':24s} ZS {np.mean(zs_all):.4f}  linear {np.mean(lin_all):.4f}  "
           f"R2_task {np.mean(r2s):+.3f}  (mean over {len(r2s)} features)")
     return out
@@ -330,26 +426,30 @@ def main():
     ap.add_argument("--split", default="test", choices=["test", "val"],
                     help="test = the gate as reported; val = what a PROSPECTIVE gate, fixed before "
                          "any test window was consulted, would have said")
+    ap.add_argument("--baseline", default="fitted", choices=["fitted", "trend"],
+                    help="fitted = the lookback-96 regression trained on the train split, which is "
+                         "the baseline the paper DEFINES; trend = the per-window extrapolation used "
+                         "through 26 Aug 2026, retained only to report the correction")
     ap.add_argument("--dry-run", action="store_true", help="print, do not touch the cache")
     a = ap.parse_args()
 
-    out_path = ROOT / (f"results/gate_{a.split}_side.json" if a.split == "val" else
-                       "results/gate_test_side.json")
+    suffix = "" if a.baseline == "fitted" else "_trend"
+    out_path = ROOT / f"results/gate_{a.split}_side{suffix}.json"
     print("=" * 84)
     print(f"PRESERVATION-PRIORITY GATE ON {a.split.upper()} WINDOWS   "
           f"R2_task = 1 - MSE_ZS / MSE_Linear")
-    print(f"gate-pass threshold {GATE_THRESHOLD}")
+    print(f"baseline: {a.baseline}   gate-pass threshold {GATE_THRESHOLD}")
     print("=" * 84)
     gates = {}
     if a.arm in ("all", "moirai"):
         gates.update(moirai_gates(_zs_val_refs() if a.split == "val" else _zs_test_refs(),
-                                  split=a.split))
+                                  split=a.split, baseline=a.baseline))
     if a.arm in ("all", "chronos"):
-        gates.update(chronos_gates(split=a.split))
+        gates.update(chronos_gates(split=a.split, baseline=a.baseline))
     if a.arm in ("all", "ili"):
-        gates.update(ili_gate(split=a.split))
+        gates.update(ili_gate(split=a.split, baseline=a.baseline))
     if a.arm in ("all", "timesfm"):
-        gates.update(timesfm_gates(split=a.split))
+        gates.update(timesfm_gates(split=a.split, baseline=a.baseline))
 
     if gates and not a.dry_run:
         # Merge rather than overwrite, so re-running one arm cannot silently drop the others'
@@ -359,6 +459,11 @@ def main():
         out_path.write_text(json.dumps(merged, indent=1, sort_keys=True) + "\n")
         print(f"\nwrote {out_path.relative_to(ROOT)}  "
               f"({len(gates)} cells updated, {len(merged)} total)")
+        # A merged cache that mixes estimators would put two different quantities in one column.
+        stale = sorted(k for k, v in merged.items() if v.get("baseline", "trend") != a.baseline)
+        if stale:
+            print(f"\n!! {len(stale)} cell(s) in this cache still carry a different baseline and "
+                  f"must be re-run before the file is used:\n   {', '.join(stale)}")
     n_pass = sum(1 for g in gates.values() if g["r2_task"] >= GATE_THRESHOLD)
     print(f"gate-pass: {n_pass}/{len(gates)} cells")
 

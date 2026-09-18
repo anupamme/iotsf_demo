@@ -1,0 +1,263 @@
+{
+ "base_ETTh1_h192": {
+  "arm": "moirai",
+  "linear_test": 2.182882398919656,
+  "n_windows": 300,
+  "r2_task": 0.682499119274557,
+  "split": "test",
+  "zs_test": 0.6930670841770586
+ },
+ "base_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.2206605790074634,
+  "n_windows": 300,
+  "r2_task": 0.5048402378649266,
+  "split": "test",
+  "zs_test": 0.6044220019489965
+ },
+ "base_ETTh2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.9670626983936997,
+  "n_windows": 300,
+  "r2_task": 0.553689464635036,
+  "split": "test",
+  "zs_test": 0.43161027065157886
+ },
+ "base_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.7358282803327073,
+  "n_windows": 300,
+  "r2_task": 0.28688881149668033,
+  "split": "test",
+  "zs_test": 0.5247273795224108
+ },
+ "base_ETTm2_h192": {
+  "arm": "moirai",
+  "linear_test": 2.8867547865936003,
+  "n_windows": 300,
+  "r2_task": 0.7140854962905058,
+  "split": "test",
+  "zs_test": 0.8253650621399161
+ },
+ "base_ETTm2_h96": {
+  "arm": "moirai",
+  "linear_test": 1.143798700624239,
+  "n_windows": 300,
+  "r2_task": 0.5882847018539434,
+  "split": "test",
+  "zs_test": 0.4709194230465807
+ },
+ "base_Weather_h192": {
+  "arm": "moirai",
+  "linear_test": 5.070684165379661,
+  "n_windows": 300,
+  "r2_task": 0.7524256848342658,
+  "split": "test",
+  "zs_test": 1.2553711596656023
+ },
+ "base_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 2.5353369751960035,
+  "n_windows": 300,
+  "r2_task": 0.48453586665273063,
+  "split": "test",
+  "zs_test": 1.3068752766626954
+ },
+ "chronos_electricity": {
+  "arm": "chronos",
+  "linear_test": 2.0228710762760342,
+  "n_windows": 200,
+  "r2_task": 0.13824087000569296,
+  "split": "test",
+  "zs_test": 1.7432276187822828
+ },
+ "chronos_etth1": {
+  "arm": "chronos",
+  "linear_test": 2.1753160366534514,
+  "n_windows": 200,
+  "r2_task": 0.3893213157667067,
+  "split": "test",
+  "zs_test": 1.3284191350551122
+ },
+ "chronos_etth2": {
+  "arm": "chronos",
+  "linear_test": 1.8652797479392398,
+  "n_windows": 200,
+  "r2_task": 0.45643363955477656,
+  "split": "test",
+  "zs_test": 1.0139033237995163
+ },
+ "chronos_ettm2": {
+  "arm": "chronos",
+  "linear_test": 4.351915847832143,
+  "n_windows": 200,
+  "r2_task": 0.6512186311919057,
+  "split": "test",
+  "zs_test": 1.5178671663445331
+ },
+ "chronos_weather": {
+  "arm": "chronos",
+  "linear_test": 2.200922135182944,
+  "n_windows": 200,
+  "r2_task": 0.49369352802739597,
+  "split": "test",
+  "zs_test": 1.1143411213508871
+ },
+ "ili": {
+  "arm": "ili",
+  "linear_test": 2.6636943596460965,
+  "n_features": 7,
+  "r2_task": -0.0332699734956292,
+  "split": "test",
+  "zs_test": 2.4787049246971797
+ },
+ "large_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.2206605790074634,
+  "n_windows": 300,
+  "r2_task": 0.5062830313676323,
+  "split": "test",
+  "zs_test": 0.6026608407965957
+ },
+ "large_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.7358282803327073,
+  "n_windows": 300,
+  "r2_task": 0.12870955357028768,
+  "split": "test",
+  "zs_test": 0.641120150866692
+ },
+ "large_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 2.5353369751960035,
+  "n_windows": 300,
+  "r2_task": 0.5881026547404575,
+  "split": "test",
+  "zs_test": 1.0442985694215925
+ },
+ "small_ETTh1_h192": {
+  "arm": "moirai",
+  "linear_test": 2.182882398919656,
+  "n_windows": 300,
+  "r2_task": 0.7185053095290912,
+  "split": "test",
+  "zs_test": 0.6144698052182835
+ },
+ "small_ETTh1_h96": {
+  "arm": "moirai",
+  "linear_test": 1.2206605790074634,
+  "n_windows": 300,
+  "r2_task": 0.5779814572378708,
+  "split": "test",
+  "zs_test": 0.5151413987599067
+ },
+ "small_ETTh2_h192": {
+  "arm": "moirai",
+  "linear_test": 0.9670626983936997,
+  "n_windows": 300,
+  "r2_task": 0.6699425333632458,
+  "split": "test",
+  "zs_test": 0.31918626431072805
+ },
+ "small_ETTh2_h96": {
+  "arm": "moirai",
+  "linear_test": 0.7358282803327073,
+  "n_windows": 300,
+  "r2_task": 0.3310240519596861,
+  "split": "test",
+  "zs_test": 0.49225142143044676
+ },
+ "small_ETTm2_h192": {
+  "arm": "moirai",
+  "linear_test": 2.8867547865936003,
+  "n_windows": 300,
+  "r2_task": 0.7218528059042257,
+  "split": "test",
+  "zs_test": 0.8029427439335555
+ },
+ "small_ETTm2_h96": {
+  "arm": "moirai",
+  "linear_test": 1.143798700624239,
+  "n_windows": 300,
+  "r2_task": 0.5677783777055218,
+  "split": "test",
+  "zs_test": 0.4943745299621248
+ },
+ "small_Electricity7_h192": {
+  "arm": "moirai",
+  "linear_test": 0.6260068868038932,
+  "n_windows": 300,
+  "r2_task": 0.6503661815510475,
+  "split": "test",
+  "zs_test": 0.2188731782085863
+ },
+ "small_Electricity7_h96": {
+  "arm": "moirai",
+  "linear_test": 0.4314681212815909,
+  "n_windows": 300,
+  "r2_task": 0.5350988849643008,
+  "split": "test",
+  "zs_test": 0.20059001068616994
+ },
+ "small_Weather_h192": {
+  "arm": "moirai",
+  "linear_test": 5.070684165379661,
+  "n_windows": 300,
+  "r2_task": 0.825394549508867,
+  "split": "test",
+  "zs_test": 0.8853690929943704
+ },
+ "small_Weather_h96": {
+  "arm": "moirai",
+  "linear_test": 2.5353369751960035,
+  "n_windows": 300,
+  "r2_task": 0.5256924407783652,
+  "split": "test",
+  "zs_test": 1.202529492509579
+ },
+ "timesfm_electricity": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.0228710762760342,
+  "n_windows": 200,
+  "r2_task": 0.2141755832099811,
+  "split": "test",
+  "zs_test": 1.5896214837560125
+ },
+ "timesfm_etth1": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.1753160366534514,
+  "n_windows": 200,
+  "r2_task": 0.4009863125228288,
+  "split": "test",
+  "zs_test": 1.3030440805440093
+ },
+ "timesfm_etth2": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 1.8652797479392398,
+  "n_windows": 200,
+  "r2_task": 0.47179017450378313,
+  "split": "test",
+  "zs_test": 0.9852590901606132
+ },
+ "timesfm_ettm2": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 4.351915847832143,
+  "n_windows": 200,
+  "r2_task": 0.7025269986789915,
+  "split": "test",
+  "zs_test": 1.294577468751089
+ },
+ "timesfm_weather": {
+  "arm": "timesfm",
+  "horizon": 24,
+  "linear_test": 2.200922135182944,
+  "n_windows": 200,
+  "r2_task": 0.5056528435690122,
+  "split": "test",
+  "zs_test": 1.0880195990537067
+ }
+}

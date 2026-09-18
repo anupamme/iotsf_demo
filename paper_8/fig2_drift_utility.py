@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Fig. 2 (workshop version) — the drift-utility dissociation.
+Fig. 2 (workshop version): the drift-utility dissociation.
 
 Scatter of encoder representational drift (CKA, post- vs pre-fine-tuning) against
 task improvement after fine-tuning, across four time-series foundation models,
@@ -106,7 +106,7 @@ for text, txy, key, col, bold in LABELS:
 # axes
 ax.set_xlim(0.18, 1.04)
 ax.set_ylim(-8, 62)
-ax.set_xlabel("Encoder representational drift  —  CKA (1.0 = unchanged, lower = more drift)",
+ax.set_xlabel("Encoder representational drift: CKA (1.0 = unchanged, lower = more drift)",
               fontsize=9.5, color=INK_SECONDARY)
 ax.set_ylabel("Task improvement after fine-tuning (%)",
               fontsize=9.5, color=INK_SECONDARY)

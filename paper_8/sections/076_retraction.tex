@@ -11,9 +11,9 @@ every gate-passing cell. \textbf{We retract it.} It does not survive a
 protocol with every choice fixed in advance, and nothing in this paper's
 remaining claims depends on it.
 
-\textbf{What fails.} The statistic reproduces numerically---the headline
-$\Delta R^2{=}{+}0.67{\pm}0.23$ on Moirai-Small/ETTh2 at $n{=}10$k is
-recoverable to four significant figures---but only in a regime where the
+\textbf{What fails.} The statistic reproduces numerically: the headline
+$\Delta R^2{=}{+}0.67{\pm}0.24$ on Moirai-Small/ETTh2 at $n{=}10$k is
+recoverable to four significant figures, but only in a regime where the
 probe does not generalise. Under a temporal split the pre-trained probe
 scores $R^2(\text{PT})$ between $-2.7$ and $-164.1$: it is not decoding the
 target at all, so $\Delta R^2$ measures relative movement between two failed
@@ -46,12 +46,15 @@ tables, which we retain only as a record of the retracted computation. The
 $\Delta R^2$ columns of Table~\ref{tab:sample_sweep} should be read as
 retracted.
 
-The paper's other findings are untouched, because they share no machinery
-with the probes. The value-gate is a downstream MSE comparison. CKA drift is
-computed from encoder representations directly. The frozen-encoder
-comparison is read in forecast MSE. The drift--utility dissociation---large
-CKA drop with improved forecasting, and a monotone drift curve alongside a
-non-monotone outcome curve---rests entirely on those measurements.
+The paper's other findings share no machinery with the probes: the value gate
+is a downstream MSE comparison, CKA drift is computed from encoder
+representations directly, and the frozen-encoder comparison is read in
+forecast MSE.  The value gate was nonetheless found to have a defect of its
+own, independently of this retraction and by a different route---its linear
+denominator was not the estimator the gate is defined as---and that correction
+is documented separately in Appendix~\ref{app:gatecorrection}.  The two are
+unrelated: neither the probe re-analysis nor the gate re-computation used any
+result from the other.
 
 \textbf{Why we report this.} A negative result about one's own tooling is
 cheap to bury and expensive to discover downstream. The re-analysis code and

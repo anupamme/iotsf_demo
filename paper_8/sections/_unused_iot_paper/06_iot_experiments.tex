@@ -10,7 +10,7 @@ features to forget: drift occurs aggressively (CKA 0.31--0.45, 10 seeds,
 far below ETT's 0.94) but its \emph{consequences} are irrelevant
 because the ZS features have no task value to preserve.  A from-scratch
 CNN-NLL (F1$=$0.288, AUC$=$0.598) matches fine-tuned Moirai at this
-data scale --- the expected outcome of the null case: when ZS provides
+data scale, the expected outcome of the null case: when ZS provides
 no initialisation advantage, from-scratch $\approx$ fine-tuned.
 This is not a second domain where the dissociation holds; it is the
 null case that validates the value-gate design.
@@ -62,7 +62,7 @@ training budgets; off-manifold diversity, not boundary-proximity, is
 what drives adaptation in this regime (Appendix~\ref{app:gaussian_mechanism}).
 
 LoRA ($r{=}8$, 3 seeds) achieves all-stealth AUC$=$0.656$\pm$0.040 but
-stealth-95 AUC$=$0.430$\pm$0.135---\emph{below} zero-shot (0.481).
+stealth-95 AUC$=$0.430$\pm$0.135, \emph{below} zero-shot (0.481).
 LoRA restricts adaptation too aggressively where pre-trained features
 are marginal, contrasting sharply with forecasting where LoRA
 \emph{improves} over zero-shot (Table~\ref{tab:mitigation_spectrum}).

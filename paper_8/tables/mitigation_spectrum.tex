@@ -13,8 +13,12 @@ L2-SP, EWC and LoRA use $n{=}1000$ (the $n$ column counts seeds, not samples). M
 $n{=}1000$, $h{=}96$, each against its own zero-shot: full fine-tuning $.936$/$+13.4$, L2-SP
 $\lambda{=}0.01$ $.939$/$+16.0$, L2-SP $\lambda{=}0.1$ $.965$/$+13.4$, EWC $.972$/$+14.9$, LoRA
 $.979$/$-9.2$. On that comparison L2-SP $\lambda{=}0.1$ ties full fine-tuning rather than losing to
-it, so anchoring is not uniformly harmful; the dissociation the table is cited for---CKA not
-predicting utility---is unaffected.}
+it, so anchoring is not uniformly harmful; the dissociation the table is cited for (CKA not
+predicting utility) is unaffected.
+Condition~D reads CKA $0.99996$ rather than $1$: it leaves \texttt{in\_proj} and
+\texttt{mask\_encoding} trainable, so it is a frozen-\emph{encoder} control and not a strict
+freeze. Only condition~H (Appendix~\ref{app:strictfreeze}) is $1.0000$ by construction. Earlier
+versions of this table printed D as $1.000$, which rounded that distinction away.}
 \label{tab:mitigation_spectrum}
 \small
 \resizebox{\textwidth}{!}{%
@@ -38,8 +42,8 @@ G: EWC ($\lambda{=}1000$) & .149{\tiny$\pm$.015} & +18.3 & .972{\tiny$\pm$.004} 
 E: LoRA ($r{=}8$)\textsuperscript{$\dagger$}  & \textbf{.116}{\tiny$\pm$.001} & \textbf{$-$7.9} & .979{\tiny$\pm$.006} & \textbf{0.00}{\tiny$\pm$.00}
                           & \textbf{.157}{\tiny$\pm$.002} & \textbf{$-$0.6} & .986{\tiny$\pm$.005} & \textbf{0.00}{\tiny$\pm$.00} & 5 \\
 \midrule
-D: Frozen encoder  & .126{\tiny$\pm$.006} & +0.5  & \textbf{1.000}{\tiny$\pm$.000} & 1.11{\tiny$\pm$.15}
-                    & .155{\tiny$\pm$.002} & $-$1.7 & \textbf{1.000}{\tiny$\pm$.000} & 1.30{\tiny$\pm$.18} & 10 \\
+D: Frozen encoder  & .126{\tiny$\pm$.006} & +0.5  & .99996{\tiny$\pm$.00001} & 1.11{\tiny$\pm$.15}
+                    & .155{\tiny$\pm$.002} & $-$1.7 & .99995{\tiny$\pm$.00002} & 1.30{\tiny$\pm$.18} & 10 \\
 \bottomrule
 \end{tabular}%
 }

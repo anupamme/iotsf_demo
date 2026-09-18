@@ -58,7 +58,7 @@ F1$=$0.136 (FPR$=$0.042).
 baselines at stealth-95.
 Condition~D (F1$=$0.137, FPR$=$0.040) outperforms all deep-learning baselines.
 Zero-shot A achieves higher F1 (0.183) than D at stealth-95; however,
-A's FPR$=$0.100 is 2.5$\times$ D's FPR$=$0.040---A flags more aggressively,
+A's FPR$=$0.100 is 2.5$\times$ D's FPR$=$0.040: A flags more aggressively,
 capturing more true positives at the cost of substantially more false positives.
 D is the better-calibrated detector when operational FPR matters.
 A's stealth-95 F1 (0.183) exceeding its stealth-85 F1 (0.123) reflects
@@ -128,12 +128,12 @@ At 500/10, all conditions improve over 200/5
 (C: $+$0.029, D: $+$0.068, B: $+$0.057),
 suggesting 200/5 is under-trained.
 D's improvement ($+$0.068) is the largest of any condition, suggesting
-hard negatives specifically benefit from moderate additional training---their
+hard negatives specifically benefit from moderate additional training: their
 near-boundary placement requires more gradient steps to establish a reliable
 decision surface.
 At 1000/20, performance drops back, reflecting catastrophic forgetting.
 The C$>$D gap narrows from $+$0.084 (200/5) to $+$0.045 (500/10) to
-$+$0.003 (1000/20, n.s., $p{=}0.39$)---the advantage of easy off-manifold negatives diminishes with sufficient training data.
+$+$0.003 (1000/20, n.s., $p{=}0.39$): the advantage of easy off-manifold negatives diminishes with sufficient training data.
 NLL-only early stopping is essential: under total-loss ES, decreasing SupCon loss masks increasing NLL, causing late checkpoint selection that compounds forgetting (Appendix~\ref{app:nll_es}).
 
 \textbf{Encoder freezing confirms catastrophic forgetting.}

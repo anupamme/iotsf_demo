@@ -3,38 +3,48 @@
 \label{sec:limitations}
 % ============================================================
 
-\textbf{Limitations.}
-We summarise the main threats here and give full detail (including the
-nine-cell non-Moirai gate-fail table) in Appendix~\ref{app:limitations}.
-(1)~\emph{Single-backbone dissociation.}  The dissociation is established on
-the Moirai family; the three additional backbones (Chronos, TimesFM-2.5,
-MOMENT) gate-fail on all nine ETT cells, so they confirm the value-gate
-screen but do not exercise the dissociation on a second architecture---the
-\emph{protocol} is backbone-agnostic but the \emph{empirical} dissociation is
-a Moirai case study, and a gate-passing second backbone is our
-highest-priority replication.
-(2)~\emph{Heuristic gate threshold.}  The $20\%$ cutoff is a practical
-screen, not a phase boundary; we report $R^2_{\text{task}}(\text{PT})$ as a
-continuous variable so readers can apply alternative thresholds
-(Table~\ref{tab:r2task}).
-(3)~\emph{A retracted axis.}  The linear-probe $\Delta R^2$ diagnostic
-reported in an earlier version is withdrawn: absolute probe $R^2$ is deeply
-negative on Moirai's mixture-distribution head, and the effect disappears
-once the probe generalises (\S\ref{sec:retraction}).  We therefore no longer
-offer any account of \emph{what} the encoder restructured---only whether the
-restructuring was necessary, which the frozen-encoder comparison answers.
-(4)~\emph{Protocol-dependent forgetting sign} at $n{=}10$k, which we report
-as unsettled rather than resolving in either direction;
-(5)~\emph{CKA is a drift indicator, not a causal mechanism};
-(6)~\emph{small ILI sample} ($\approx$450 windows). Two pre-registered
-predictions failed---one falsified outright, one partially---and are reported
-as such (\S\ref{sec:analysis:ili}, Appendix~\ref{app:step_size}).
+Full detail is in Appendix~\ref{app:limitations}.
+(1)~\emph{A null result is not a proof of absence.} We report that no cell in
+our matrix meets the degradation definition, not that degradation does not
+occur.  What would settle it is a cell with a \emph{large} pre-trained margin
+over a fitted baseline, and that is the combination our benchmarks do not
+supply: on 27 of 32 cells the margin is negative, and on the five that pass
+the largest is $R^2_\text{task}(\text{PT}){=}{+}0.464$.
+(2)~\emph{The screen may be too weak in the other direction.} A lookback-96
+ridge map is a low bar, and a cell that fails it may still hold capability a
+stronger baseline would not capture.
+(3)~\emph{Condition~D is a control on encoder weight updates, not on
+representations.} It leaves the input projection and mask encoding trainable,
+so its CKA is $0.969$--$0.9999$ on Moirai and as low as $0.38$ on TimesFM.
+Condition~H (strict freeze, CKA exactly $1.0000$) closes that gap, but it was
+run on 7 cells and \textbf{none of them is one of the five gate-passing ETTh2
+cells}, so the survivors of \S\ref{sec:forecasting:results} rest on condition~D
+alone.
+(4)~\emph{Seed counts are small.} Cells carry 3 to 10 seeds, and the unanimity
+requirement in clauses~(ii) and~(iii) is doing real work at those counts: the
+closest candidate is excluded on a 5/10 split.
+(5)~\emph{Horizon confounds the cross-backbone comparison.} The non-Moirai arm
+runs at $h{=}24$ and the Moirai arm at $h{\in}\{96,192\}$, on different
+normalisations; we report them separately and never pool them.
+(6)~\emph{A retracted axis.} The linear-probe $\Delta R^2$ diagnostic is
+withdrawn (Appendix~\ref{sec:retraction}), so we offer no account of \emph{what} the
+encoder restructured---only whether the restructuring was necessary, which the
+frozen-encoder comparison answers.
+(7)~\emph{Similarity is not mechanism.} A representation can drift far and still
+carry the task information in a transformed basis, and a small drift can destroy
+one critical direction; our negative claim is about \emph{identifying} damage
+from similarity alone, not about CKA's validity as a measure of similarity.
+(8)~\emph{Also unsettled:} the forgetting sign at $n{=}10$k is
+protocol-dependent; the ILI cell is small (${\approx}450$ windows); and two
+pre-registered predictions failed (\S\ref{sec:analysis:prospective},
+\S\ref{sec:analysis:ili}).
 
-\textbf{Broader impact.}
-This is a diagnostic study on public forecasting benchmarks with no direct
-negative societal impact. The intended effect is positive: the value-gate
-saves practitioners from deploying preservation machinery (LoRA/EWC) where
-it yields no benefit, and flags when fine-tuning silently degrades a
-distribution the model previously handled well---relevant when fine-tuned
-forecasts drive downstream decisions. As with any diagnostic, the
-heuristics are validated only on the cells tested here.
+\textbf{Broader impact.} A diagnostic study on public forecasting benchmarks.
+The intended effect is to
+raise the bar for claims about forgetting in time-series foundation models: a
+paper reporting that fine-tuning damaged pre-trained features should say what
+baseline established that the features were valuable, and how that baseline
+was fit.  The risk of a null result is that it is over-read as licence to
+fine-tune carelessly; \S\ref{sec:analysis:degradation} says only that the harm
+cannot be demonstrated on these benchmarks, and the controlled comparison
+remains the way to answer the question for any particular cell.

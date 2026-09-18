@@ -36,7 +36,6 @@ Run:  python3 scripts/cka_fixed_effects.py
 import argparse
 import contextlib
 import io
-import re
 import sys
 from pathlib import Path
 
@@ -45,21 +44,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 import cell_matrix  # noqa: E402
-
-
-def backbone_of(cell):
-    if cell.startswith("TimesFM"):
-        return "TimesFM"
-    if cell.startswith("Chronos"):
-        return "Chronos"
-    return "Moirai"
-
-
-def dataset_of(cell):
-    """Cluster key: the series a cell is fitted on, however the cell is spelled."""
-    m = re.search(r"(ETTh1|ETTh2|ETTm2|Weather|Electricity7|Electricity|ILI|M4)", cell,
-                  re.IGNORECASE)
-    return m.group(1).lower() if m else "other"
+# The cluster definition is shared with cell_matrix's rank correlations. Keeping one definition is
+# what lets both analyses claim to cluster at "(backbone, dataset)" and mean the same thing.
+from cluster_keys import backbone_of, cluster_of, dataset_of  # noqa: E402,F401
 
 
 def load():
@@ -69,7 +56,7 @@ def load():
     y = np.array([r["bd_test"] for r in rows], float)
     x = np.array([r["cka"] for r in rows], float)
     bb = np.array([backbone_of(r["cell"]) for r in rows])
-    cl = np.array([f"{backbone_of(r['cell'])}|{dataset_of(r['cell'])}" for r in rows])
+    cl = np.array([cluster_of(r["cell"]) for r in rows])
     return rows, y, x, bb, cl
 
 
@@ -129,7 +116,6 @@ def main():
 
     # unadjusted slope, for contrast with the pooled rank statistic the paper already prints
     b_un = fit(np.column_stack([np.ones_like(x), x]), y)[1]
-    ci_un = cluster_bootstrap(y, x, bb, cl, ["_all"], False, a.boot, rng) if False else None
     print(f"\n  unadjusted slope (no backbone term)      b1 = {b_un:+8.2f} pp per unit CKA")
 
     for interaction in (False, True):

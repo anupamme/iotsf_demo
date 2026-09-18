@@ -1,4 +1,4 @@
-\begin{thebibliography}{21}
+\begin{thebibliography}{20}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -30,12 +30,12 @@ Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
 
-\bibitem[Hewitt and Manning(2019)]{hewitt2019structural}
+\bibitem[Hewitt \& Manning(2019)Hewitt and Manning]{hewitt2019structural}
 John Hewitt and Christopher~D. Manning.
 \newblock A structural probe for finding syntax in word representations.
 \newblock In \emph{Proceedings of the 2019 Conference of the North American
   Chapter of the Association for Computational Linguistics: Human Language
-  Technologies (NAACL-HLT)}, pages 4129--4138, 2019.
+  Technologies (NAACL-HLT)}, pp.\  4129--4138, 2019.
 
 \bibitem[Jin et~al.(2024)Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan,
   and Wen]{jin2024timellm}
@@ -64,7 +64,7 @@ James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, et~al.
   Hinton]{kornblith2019cka}
 Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey Hinton.
 \newblock Similarity of neural network representations revisited.
-\newblock In \emph{International Conference on Machine Learning (ICML)}, pages
+\newblock In \emph{International Conference on Machine Learning (ICML)}, pp.\
   3519--3529, 2019.
 
 \bibitem[Kumar et~al.(2022)Kumar, Raghunathan, Jones, Ma, and
@@ -76,7 +76,7 @@ Ananya Kumar, Aditi Raghunathan, Robbie Jones, Tengyu Ma, and Percy Liang.
   (ICLR)}, 2022.
 \newblock URL \url{https://arxiv.org/abs/2202.10054}.
 
-\bibitem[Li and Hoiem(2018)]{li2017lwf}
+\bibitem[Li \& Hoiem(2018)Li and Hoiem]{li2017lwf}
 Zhizhong Li and Derek Hoiem.
 \newblock Learning without forgetting.
 \newblock \emph{IEEE Transactions on Pattern Analysis and Machine
@@ -108,7 +108,7 @@ Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
   Williams, and Ryan Cotterell.
 \newblock Information-theoretic probing for linguistic structure.
 \newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
-  for Computational Linguistics (ACL)}, pages 4609--4622, 2020.
+  for Computational Linguistics (ACL)}, pp.\  4609--4622, 2020.
 
 \bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Khorasani, Adamopoulos,
   Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri,
@@ -140,15 +140,7 @@ Gerald Woo et~al.
 Ailing Zeng, Muxi Chen, Lei Zhang, and Qiang Xu.
 \newblock Are transformers effective for time series forecasting?
 \newblock In \emph{Proceedings of the AAAI Conference on Artificial
-  Intelligence}, volume~37, pages 11121--11128, 2023.
-
-\bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
-  Zhang]{zhou2021informer}
-Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong,
-  and Wancai Zhang.
-\newblock Informer: Beyond efficient transformer for long sequence time-series
-  forecasting.
-\newblock In \emph{AAAI Conference on Artificial Intelligence}, 2021.
+  Intelligence}, volume~37, pp.\  11121--11128, 2023.
 
 \bibitem[Zhou et~al.(2023)Zhou, Niu, Wang, Sun, and Jin]{zhou2023onefitsall}
 Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, and Rong Jin.

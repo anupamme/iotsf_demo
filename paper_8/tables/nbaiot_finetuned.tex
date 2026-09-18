@@ -13,8 +13,8 @@
   $\sigma{=}0.3$).
   Fine-tuning on target-domain benign data recovers ranking ability
   (overall AUC$=$\nbaiotAUC{}), but the uniform FPR$=$0.98 indicates
-  \emph{degenerate threshold calibration} from only 77 benign windows
-  --- the model essentially flags all traffic.
+  \emph{degenerate threshold calibration} from only 77 benign windows:
+  the model essentially flags all traffic.
   AUC (threshold-free) is the appropriate metric here; it reflects
   that fine-tuned anomaly scores successfully separate attack from
   benign traffic \emph{in ranking}, even though the calibrated threshold

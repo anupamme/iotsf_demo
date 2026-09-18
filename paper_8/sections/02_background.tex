@@ -3,106 +3,75 @@
 \label{sec:background}
 % ============================================================
 
-\textbf{Catastrophic forgetting in fine-tuning.}
-Catastrophic forgetting during fine-tuning is extensively studied in continual
-learning~\cite{kirkpatrick2017ewc, li2017lwf} and
-NLP~\cite{luo2023forgetting}. Kumar et al.~\cite{kumar2022finetuning} show
-full fine-tuning can distort pre-trained features relative to linear probing;
-Andreassen et al.~\cite{andreassen2023evolution} characterize OOD robustness
-decay throughout fine-tuning. Our contribution is a systematic
-\emph{characterization} for time-series foundation models: CKA, linear
-probing, weight drift, and frozen-encoder controls across domains with
-contrasting pre-training value.
-
-\textbf{Time-series foundation model adaptation.}
-Recent work on adapting pre-trained time-series models includes
-probabilistic fine-tuning (Lag-Llama~\cite{rasul2024lagllama}),
-generative pre-training with task-specific heads
-(Timer~\cite{liu2024timer}), LLM reprogramming
-(Time-LLM~\cite{jin2024timellm}), and cross-task transfer
-(One Fits All~\cite{zhou2023onefitsall}).
-These works develop \emph{adaptation recipes}; our contribution is
-orthogonal: a \emph{diagnostic methodology} for characterising what
-happens to pre-trained representations during any such adaptation,
-applicable when the practitioner needs to decide whether drift is
-harmful or benign.
-
-\textbf{Analysing time-series foundation model representations.}
-A parallel line of work probes the internal structure of TSFMs directly.
-Wili{\'n}ski et al.~\cite{wilinski2025representations} characterise and
-\emph{steer} representations of \emph{frozen} TSFMs, uncovering
-block-like redundancy and interpretable concepts (periodicity, trend)
-that can be added by latent-space intervention.  Our study is
-complementary along the time axis: rather than intervening on a fixed
-model, we ask how those representations \emph{change under fine-tuning}
-and whether the change is harmful.  Our diagnostics build on
-representation-similarity (CKA~\cite{kornblith2019cka}) and probing
-methodology~\cite{hewitt2019structural, pimentel2020information}, applied
-here to the pre-trained-vs-fine-tuned encoder pair rather than to a
-single frozen model.
-
-\textbf{Setting.}
-Given a pre-trained time-series foundation model with encoder
-$f_\theta: \R^{T \times F} \to \R^d$ and downstream dataset
-$\mathcal{D}$ of size $n$, fine-tuning produces updated parameters
-$\theta'$ by minimising a task loss (NLL for forecasting).  We measure
-encoder changes using two diagnostics (\S\ref{sec:method}):
-(1)~CKA between $f_\theta$ and $f_{\theta'}$ (geometric similarity) and
-(2)~weight drift $\|\theta' - \theta\|_2$.  A linear-probe
-$\Delta R^2$ diagnostic used in an earlier version is retracted
-(\S\ref{sec:retraction}).
+\textbf{Related work: three lines, and the gap between them.}
+\emph{(i)~Forgetting} is studied in continual learning, NLP and fine-tuning
+dynamics~\cite{kirkpatrick2017ewc, li2017lwf, luo2023forgetting,
+kumar2022finetuning, andreassen2023evolution}, and supplies the prescriptions
+we test; we use ``forgetting'' throughout in the narrower task-level sense of
+degradation relative to zero-shot, not the continual-learning sense of loss on
+a prior task.  \emph{(ii)~TSFM adaptation} recipes span probabilistic
+fine-tuning, generative pre-training, LLM reprogramming and cross-task
+transfer~\cite{rasul2024lagllama, liu2024timer, jin2024timellm,
+zhou2023onefitsall}, and are evaluated on target-task accuracy.
+\emph{(iii)~Representation analysis} supplies the measurement---representation
+similarity and probing~\cite{kornblith2019cka, hewitt2019structural,
+pimentel2020information}---including work probing frozen TSFM internals
+directly~\cite{wilinski2025representations}, where we instead track how
+representations \emph{change under fine-tuning}.  \textbf{None of the three
+establishes that the pre-trained representation was worth preserving on the
+target task}, which is the premise (i)'s prescriptions rest on and what this
+paper measures.
 
 \textbf{Pre-training value gate.}
-Studying whether fine-tuning destroys valuable features requires a domain
-where such features are demonstrably present.  We set the gate at zero-shot
-MSE 20\% below a Linear baseline; ETTh2 at $h{=}96$ passes with
-Moirai-Small ($R^2_{\text{task}}(\text{PT}){=}{+}0.279$).
-The gate is deliberately cheap and \emph{downstream-only}: the
-practitioner---defined here as someone adapting a \emph{released}
-foundation-model checkpoint to a small target dataset---runs the frozen
-model zero-shot on the target set and compares to a lookback-96 linear
-regression fit on that same set.  Neither pre-training data nor
-pre-training compute is required, so the screen is available exactly in
-the small-sample adaptation regime where fine-tuning is normally
-performed.
-ETTh1 and ETTm2 gate-fail at the standard evaluation protocol
-($R^2_{\text{task}}(\text{PT}){=}{-}0.41$ and ${-}0.56$ respectively;
-Table~\ref{tab:r2task}); they are included as cross-domain comparisons
-to characterise drift behaviour outside the gate-pass regime.
-Domains that gate-fail serve as negative controls.
-The 20\% threshold is calibrated to ETT short-horizon benchmarks where
-linear baselines are surprisingly competitive~\cite{zeng2023transformers}:
-a model must substantially outperform a lookback-96 linear regression before
-drift can be \emph{harmful} (rather than irrelevant).
-The threshold is a practical screen, not a universal constant;
-we report $R^2_{\text{task}}(\text{PT})$ values for each cell
-(Table~\ref{tab:r2task}) so readers can apply alternative thresholds.
+The gate is deliberately cheap and \emph{downstream-only}: the practitioner
+runs the frozen model zero-shot on the target set and compares against a
+lookback-96 linear regression \emph{fit on that same dataset}---one ridge-OLS
+map $\R^{96 \times F} \to \R^{h \times F}$ estimated on the training split and
+applied unchanged to the evaluation windows. Neither pre-training data nor
+pre-training compute is required.
+We report $R^2_{\text{task}}(\text{PT}) = 1 - \text{MSE}_{\text{ZS}} /
+\text{MSE}_{\text{Linear}}$ as a continuous quantity for every cell
+(Table~\ref{tab:r2task}) and mark $0.20$ only as an operating point, so
+readers can apply alternative thresholds; \S\ref{sec:analysis:prospective}
+shows the choice makes no difference to the outcome here.
+The threshold is calibrated to ETT short-horizon benchmarks, where linear
+baselines are famously competitive with deep
+forecasters~\cite{zeng2023transformers}.  That competitiveness is the whole
+reason the gate has teeth: \textbf{5 of our 32 screened cells clear it}, all
+of them ETTh2 on Moirai, and the remaining 27 are cells in which the
+pre-trained model has no measured advantage for fine-tuning to destroy.
+Substituting a per-window trend extrapolation---a linear fit to
+each evaluation window's own last 96 steps, using no training data---inflates
+the denominator enough that a constant predictor beats it on ETTh1 and
+Weather, and moves 17 cells across the threshold. An earlier version of this
+work used that estimator; Appendix~\ref{app:gatecorrection} documents the
+correction and its consequences in full.
 
 \textbf{Task-level consequence: forgetting.}
 We define forgetting as signed relative change in zero-shot-canonical
 task metric on held-out test:
 $\text{forg.\%} = 100 \cdot (M_{\text{FT}} - M_{\text{ZS}}) /
 |M_{\text{ZS}}|$ (MSE for forecasting, so positive = worse).
-Forg.$>0$ indicates catastrophic forgetting (degraded performance vs.\
-pre-training baseline).
+Forg.$>0$ indicates \emph{task-level forgetting}: degraded performance
+against the zero-shot baseline.
 
 \textbf{Decoupling harmful forgetting from benign specialisation.}
 A reviewer-critical distinction: representational change that redirects
 features toward the target (\emph{benign specialisation}) must be
-separated from change that destroys generally useful structure
+separated from change that discards generally useful structure
 (\emph{harmful forgetting}).  An earlier version of this work operationalised the distinction with a
-\emph{probe-sign asymmetry} criterion---trained-objective decodability up,
+\emph{probe-sign asymmetry} criterion: trained-objective decodability up,
 task-orthogonal decodability flat or down.  That criterion is retracted
-(\S\ref{sec:retraction}): the asymmetry appears only where the probes fail
-to generalise and vanishes once they do, so it cannot separate benign
-specialisation from harmful forgetting.
-What remains is \emph{value-gate conditioning}.  Representational change is
-harmful only when the structure it discards was valuable, i.e.\ in a
-gate-pass cell ($R^2_{\text{task}}(\text{PT}){>}0$, ZS beats Linear); in a
-gate-fail cell the same change is benign because no valuable features
-existed to forget.  Thus forgetting$>0$ \emph{in a gate-pass cell} is the
-operational definition of harm, and the question of whether the encoder's
-change \emph{carried} the gain is answered by intervention---comparing full
-fine-tuning against a frozen encoder---not by observing the representation.  This is the mechanism the diagnostics in
-\S\ref{sec:method} (notation in Table~\ref{tab:notation}) are designed to
-resolve.
+(Appendix~\ref{sec:retraction}).
+What remains is \emph{value-gate conditioning}.  Representational change can be
+harmful only where the structure it discards was valuable, i.e.\ in a gate-pass
+cell; in a gate-fail cell the same change is benign by construction, because no
+demonstrated advantage existed to lose.  Gate-passing plus forgetting${>}0$ is
+therefore necessary for harm but not sufficient: the question of whether the
+encoder's \emph{change} carried the loss is answered by intervention---comparing
+full fine-tuning against a frozen encoder on the same data for the same
+epochs---and not by observing the representation.  \S\ref{sec:method} states the
+resulting three-clause definition, and \S\ref{sec:analysis:degradation} reports
+that no cell we screened satisfies it.  We stress that this is a statement about
+what these benchmarks can evidence, not a proof that harmful forgetting never
+occurs; \S\ref{sec:limitations} sets out what would be needed to exhibit it.
