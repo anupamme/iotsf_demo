@@ -105,10 +105,17 @@ def strict_freeze_cells():
     """
     out = {}
     refs = _zs_test_refs()
-    for d in sorted(glob.glob(str(ROOT / "results/v45_strict_freeze/*"))):
+    # v45 covers ETTh1/Weather/ILI; v51 adds the five gate-passing ETTh2 cells, which had no H arm
+    # until a reviewer asked for one. Two directories, one reading rule. The cell-name spaces are
+    # disjoint by dataset, and the assert keeps them that way: a collision would silently overwrite
+    # one arm's numbers with the other's rather than fail.
+    sf_dirs = (sorted(glob.glob(str(ROOT / "results/v45_strict_freeze/*")))
+               + sorted(glob.glob(str(ROOT / "results/v51_strictfreeze_etth2/*"))))
+    for d in sf_dirs:
         name = Path(d).name
         if name == "ili":
             continue
+        assert name not in out, f"strict-freeze cell {name} appears in two result directories"
         H = {json.load(open(f))["seed"]: json.load(open(f))
              for f in glob.glob(d + "/condition_H/*.json")}
         B, zs_t = _b_arm_for(name, refs)

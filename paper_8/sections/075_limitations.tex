@@ -16,10 +16,9 @@ stronger baseline would not capture.
 (3)~\emph{Condition~D is a control on encoder weight updates, not on
 representations.} It leaves the input projection and mask encoding trainable,
 so its CKA is $0.969$--$0.9999$ on Moirai and as low as $0.38$ on TimesFM.
-Condition~H (strict freeze, CKA exactly $1.0000$) closes that gap, but it was
-run on 7 cells and \textbf{none of them is one of the five gate-passing ETTh2
-cells}, so the survivors of \S\ref{sec:forecasting:results} rest on condition~D
-alone.
+Condition~H (strict freeze, CKA exactly $1.0000$) closes that gap on 12 of the
+31 cells, including all five survivors, whose readings it confirms; the other
+19 rest on condition~D alone (Appendix~\ref{app:strictfreeze}).
 (4)~\emph{Seed counts are small.} Cells carry 3 to 10 seeds, and the unanimity
 requirement in clauses~(ii) and~(iii) is doing real work at those counts: the
 closest candidate is excluded on a 5/10 split.
