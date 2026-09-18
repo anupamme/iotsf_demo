@@ -295,10 +295,12 @@ zero-shot at $h{=}96$ at CKA $0.979$, but is not uniformly safe: on
 Moirai-Large it fails at the default learning rate ($+25.7\%$) and only a
 $10\times$ LR reduction rescues it ($-8.5\%$, CKA $0.989$), so tune the
 learning rate before the rank (Appendix~\ref{app:lora_rank}). \textbf{EWC and
-L2-SP} reduce drift without buying utility: matched at $n{=}1{,}000$, $h{=}96$,
-each scored against its own zero-shot, they land at $+13.4$ to $+16.0\%$
-against full fine-tuning's $+13.4\%$, so anchoring is uninformative here rather
-than harmful. \textbf{Freezing} eliminates drift but cannot adapt, and the
+L2-SP} reduce drift without buying utility: at $n{=}1{,}000$, $h{=}96$, each
+scored against its own zero-shot, they land at $+13.4$ to $+16.0\%$, against the
+$+11.1\%$ full fine-tuning reaches at $n{=}500$.  Those two figures are not
+matched on training-set size---no full-fine-tuning arm at $n{=}1{,}000$ on this
+cell has more than a single seed---so what we read off them is that anchoring
+buys no utility, not an ordering between anchoring and full fine-tuning. \textbf{Freezing} eliminates drift but cannot adapt, and the
 strict freeze of Appendix~\ref{app:strictfreeze} shows that even the residual
 adaptation condition~D permits is doing work. The screen is what makes this
 spectrum hard to act on: none of these methods has a demonstrated advantage to
