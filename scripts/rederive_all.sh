@@ -13,6 +13,11 @@
 #           the ones we used before anything in this tier runs; a hash mismatch is a hard stop,
 #           because a differently-parsed ETTh1 changes every window and hence every MSE while
 #           producing plausible-looking output.
+#   TIER D  needs NETWORK, so it is opt-in and never part of the clean-clone claim: the bibliography
+#           round-trip (scripts/verify_bib.py) resolves every cited entry by DOI or arXiv ID and
+#           re-fetches it by that identifier. It is a pre-submission gate, not a re-derivation --
+#           an offline clone cannot run it, and wiring it into the default sweep would make a
+#           flaky network read as a dirty paper, which is how a checker stops being read.
 #   TIER C  needs fine-tuned CHECKPOINTS, which are gitignored (*.pt, *.safetensors, reps_cache.npz)
 #           and are too large to commit. NOT re-derivable here at any effort, and the script says so
 #           rather than skipping it silently. The affected artifact is the drift-metric battery's
@@ -30,6 +35,8 @@
 #
 # Usage:  bash scripts/rederive_all.sh              # TIER A only (clean-clone reproducible)
 #         bash scripts/rederive_all.sh --with-data  # TIER A + TIER B (needs the CSVs)
+#         bash scripts/rederive_all.sh --with-bib   # TIER A + TIER D (needs the network)
+#         the two flags compose, in any order.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 ROOT=$PWD
@@ -37,7 +44,16 @@ ROOT=$PWD
 PY=${PY:-.venv12/bin/python}          # analysis: numpy/scipy/sklearn, no torch, no matplotlib
 PYFIG=${PYFIG:-/opt/homebrew/bin/python3}   # figures: matplotlib (neither venv has it)
 WITH_DATA=0
-[ "${1:-}" = "--with-data" ] && WITH_DATA=1
+WITH_BIB=0
+# A loop, not `[ "$1" = ... ]`: with a positional test the second flag is silently ignored, so
+# `--with-data --with-bib` would run TIER B and report clean without ever touching the bibliography.
+for arg in "$@"; do
+  case "$arg" in
+    --with-data) WITH_DATA=1 ;;
+    --with-bib)  WITH_BIB=1 ;;
+    *) echo "unknown flag: $arg (expected --with-data and/or --with-bib)"; exit 2 ;;
+  esac
+done
 
 fail=0
 run() {  # run <label> <command...>
@@ -143,6 +159,26 @@ else
   echo "-- TIER B: skipped (pass --with-data to run it) -----------------------------"
 fi
 
+if [ "$WITH_BIB" = 1 ]; then
+  echo
+  echo "-- TIER D: the BIBLIOGRAPHY, by identifier (needs the network) ---------------"
+  # Every cited entry resolved to a DOI or arXiv ID and then re-fetched BY that identifier, with the
+  # title required to match exactly after TeX normalisation. Never on search rank: asked for
+  # "Overcoming catastrophic forgetting in neural networks", Crossref returns a different paper first
+  # and says nothing about it, which is how one entry here once shipped with a venue it never had.
+  if bib=$("$PY" "$ROOT/scripts/verify_bib.py" 2>&1); then
+    echo "$bib" | tail -n 1 | sed 's/^/  /'
+  else
+    echo "$bib" | tail -n 30 | sed 's/^/  /'
+    echo "  A CITED ENTRY DID NOT ROUND-TRIP (see above). A network failure looks the same as a"
+    echo "  bad entry here -- read the per-entry block before changing the .bib."
+    fail=$((fail + 1))
+  fi
+else
+  echo
+  echo "-- TIER D: skipped (pass --with-bib to round-trip the references) ------------"
+fi
+
 echo
 echo "-- TIER C: NOT re-derivable here --------------------------------------------"
 echo "  drift_metric_battery --compute   needs the 59 fine-tuned encoders (*.pt, gitignored)."
@@ -184,7 +220,7 @@ fi
 
 echo
 if [ "$fail" = 0 ]; then
-  echo "RE-DERIVATION CLEAN (tier A$([ "$WITH_DATA" = 1 ] && echo '+B'))."
+  echo "RE-DERIVATION CLEAN (tier A$([ "$WITH_DATA" = 1 ] && echo '+B')$([ "$WITH_BIB" = 1 ] && echo '+D'))."
 else
   echo "RE-DERIVATION INCOMPLETE OR DIRTY: $fail item(s) need attention (see above)."
 fi
