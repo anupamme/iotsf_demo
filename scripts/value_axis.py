@@ -2,8 +2,8 @@
 """Does the drift-to-outcome relation depend on how much pre-trained value a cell has?
 
 THE QUESTION, AND WHY IT IS NEW HERE. The paper has treated pre-trained value as a BINARY screen:
-a cell either clears R2_task = 0.20 against one fitted ridge map or it does not, and only the five
-that clear it carry the degradation test. A fair objection is that this throws away the only
+a cell either clears R2_task = 0.20 against one fitted ridge map or it does not, and only the seven
+of 31 that clear it carry the degradation test. A fair objection is that this throws away the only
 interesting covariate. Cells do not divide into "has value" and "has none"; they differ in how far up
 a ladder of baselines their advantage survives. Turning that into a continuous score lets us ask the
 question the binary screen cannot: IS THE DISSOCIATION AN ARTEFACT OF LOOKING AT WORTHLESS CELLS?
@@ -43,7 +43,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import cell_matrix  # noqa: E402
 import cluster_keys  # noqa: E402
 
-GATE_JSON = ROOT / "results/gate_baselines.json"
+# The SELECTION-split ladder: the value axis has to be measured on windows disjoint from the held-out
+# ones `bd_test` is scored on, or the x axis and the y axis share a split and the whole question is
+# circular. The test-side ladder is still reachable with --gate, as the retrospective variant.
+GATE_JSON = ROOT / "results/gate_baselines_val.json"
 OUT_JSON = ROOT / "results/value_axis.json"
 OUT_TEX = ROOT / "paper_8/tables/value_axis.tex"
 
@@ -53,18 +56,24 @@ OUT_TEX = ROOT / "paper_8/tables/value_axis.tex"
 TEX_BOOT, TEX_SEED = 10_000, 0
 
 
-def load():
+def load(gate_json=GATE_JSON):
     """Rows joined to their stored graded value score, keyed on `ref`.
 
     A cell with no graded score is dropped and counted, never silently treated as zero value: a
     missing denominator and a denominator of zero are different facts, and the second would place the
     cell at the origin of the very axis this script is about.
+
+    `gate_json` selects WHICH SPLIT the value axis is measured on. It defaults to the test-side
+    ladder, so every existing invocation is unchanged; pass results/gate_baselines_val.json for the
+    selection-split ladder the paper now scopes its analyses by. The outcome column (`bd_test`) is
+    held-out on both paths -- only the admission axis moves.
     """
-    if not GATE_JSON.exists():
-        sys.exit(f"{GATE_JSON.relative_to(ROOT)} not found; run gate_baseline_sensitivity.py first")
-    gb = json.load(open(GATE_JSON))
+    gate_json = Path(gate_json)
+    if not gate_json.exists():
+        sys.exit(f"{gate_json} not found; run gate_baseline_sensitivity.py first")
+    gb = json.load(open(gate_json))
     if "graded" not in gb:
-        sys.exit("results/gate_baselines.json has no `graded` block; re-run "
+        sys.exit(f"{gate_json.name} has no `graded` block; re-run "
                  "gate_baseline_sensitivity.py (--from-json is enough) to add it")
     graded = gb["graded"]["cells"]
     with contextlib.redirect_stdout(io.StringIO()):
@@ -132,12 +141,12 @@ TEX_ROWS = [
     ("cka_vs_denc_lowvalue",   r"CKA vs $\denc$, cells with no admissible value"),
     ("cka_vs_denc_moirai",     r"CKA vs $\denc$, within Moirai"),
     ("cka_vs_denc_all",        r"CKA vs $\denc$, pooled (not a licensed reading)"),
-    ("value_vs_denc_valuecells", r"$R^2_\text{task}$(best) vs $\denc$, the value-cells"),
-    ("value_vs_denc_all",      r"$R^2_\text{task}$(best) vs $\denc$, all cells"),
+    ("value_vs_denc_valuecells", r"$\Vbest$ vs $\denc$, the value-cells"),
+    ("value_vs_denc_all",      r"$\Vbest$ vs $\denc$, all cells"),
 ]
 
 
-def emit_latex(out, fit, n_scored, n_value):
+def emit_latex(out, fit, n_scored, n_value, out_tex=OUT_TEX):
     def ci(lo, hi, dp=3):
         # dp differs by block: a rank correlation lives in [-1, 1] and wants three decimals, a slope
         # in percentage points wants one. Printing a pp interval to three decimals implies a
@@ -164,8 +173,9 @@ def emit_latex(out, fit, n_scored, n_value):
         L.append(f"{label} & {f['n']} & {f['clusters']} & ${f['b']:+.1f}$ & "
                  f"{ci(f['lo'], f['hi'], dp=1)} \\\\")
     L += ["\\bottomrule", "\\end{tabular}"]
-    OUT_TEX.write_text("\n".join(L) + "\n")
-    print(f"\nwrote {OUT_TEX.relative_to(ROOT)}  ({n_scored} cells, {n_value} value-cells, "
+    out_tex = Path(out_tex)
+    out_tex.write_text("\n".join(L) + "\n")
+    print(f"\nwrote {out_tex}  ({n_scored} cells, {n_value} value-cells, "
           f"{TEX_BOOT} cluster-bootstrap draws, seed {TEX_SEED})")
 
 
@@ -173,10 +183,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true", help=f"write {OUT_JSON.name}")
     ap.add_argument("--latex", action="store_true", help=f"write {OUT_TEX.name}")
+    ap.add_argument("--gate", default=str(GATE_JSON),
+                    help="Ladder file supplying the value axis. Default is the test-side ladder; "
+                         "results/gate_baselines_val.json is the selection-split one.")
+    ap.add_argument("--out-json", default=str(OUT_JSON),
+                    help="Where --json writes. Point this elsewhere when --gate is not the default, "
+                         "so the two splits cannot overwrite each other's record.")
+    ap.add_argument("--out-tex", default=str(OUT_TEX), help="Where --latex writes.")
     a = ap.parse_args()
 
-    rows, dropped, gb = load()
+    rows, dropped, gb = load(a.gate)
     val = [r for r in rows if r["_clears_any"]]
+    print(f"  value axis from {Path(a.gate).name} (split={gb.get('split', 'test')})")
 
     print("=" * 104)
     print("THE GRADED VALUE AXIS: does pre-trained value modify the drift-to-outcome relation?")
@@ -239,10 +257,11 @@ def main():
           "  zero, so these cells cannot separate that reading from no dependence at all.")
 
     if a.latex:
-        emit_latex(out, fit, len(rows), len(val))
+        emit_latex(out, fit, len(rows), len(val), a.out_tex)
 
     if a.json:
-        OUT_JSON.write_text(json.dumps(dict(
+        out_json = Path(a.out_json)
+        out_json.write_text(json.dumps(dict(
             correlations=out, interaction=fit,
             n_scored=len(rows), n_value_cells=len(val),
             n_clearing_all=sum(r["_clears_all"] for r in rows),
@@ -253,7 +272,7 @@ def main():
                                   d_enc=r["bd_test"], clears_any=r["_clears_any"],
                                   clears_all=r["_clears_all"]) for r in rows},
         ), indent=2))
-        print(f"\nwrote {OUT_JSON.relative_to(ROOT)}")
+        print(f"\nwrote {out_json}")
 
 
 if __name__ == "__main__":

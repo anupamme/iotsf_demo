@@ -1,0 +1,145 @@
+{
+ "n_cells": 31,
+ "n_folds": 15,
+ "preregistration": "results/preregister_loco.json",
+ "models": {
+  "M0": "intercept only",
+  "M1": "backbone FE",
+  "M2": "backbone FE + horizon + log n",
+  "M3": "M2 + CKA",
+  "M4": "M2 + CKA x backbone"
+ },
+ "r2_loco": {
+  "M0": 2.220446049250313e-16,
+  "M1": 0.1373020562239602,
+  "M2": 0.20078418647825413,
+  "M3": 0.1759831495782206,
+  "M4": 0.01852179642556795
+ },
+ "mae_loco": {
+  "M0": 20.048188498633028,
+  "M1": 18.76713517168687,
+  "M2": 18.77582309656779,
+  "M3": 19.36854335779655,
+  "M4": 20.776660815794536
+ },
+ "per_fold_mae": {
+  "M0": {
+   "Chronos|electricity": 5.788273149670317,
+   "Chronos|etth1": 43.51017488240317,
+   "Chronos|etth2": 16.38680924944775,
+   "Chronos|ettm2": 33.49742174116361,
+   "Chronos|weather": 25.28055509408938,
+   "Moirai|electricity7": 6.252096061620023,
+   "Moirai|etth1": 31.878699337254226,
+   "Moirai|etth2": 16.6796675094536,
+   "Moirai|ettm2": 1.9596300589969309,
+   "Moirai|ili": 42.879137279574216,
+   "Moirai|weather": 32.089957645183574,
+   "TimesFM|etth1": 4.502264939670581,
+   "TimesFM|etth2": 10.393173214873553,
+   "TimesFM|ettm2": 10.96836926376484,
+   "TimesFM|weather": 4.703329824281579
+  },
+  "M1": {
+   "Chronos|electricity": 23.11012944397322,
+   "Chronos|etth1": 22.52120329723587,
+   "Chronos|etth2": 10.289319645855347,
+   "Chronos|ettm2": 10.409001916704156,
+   "Chronos|weather": 0.46924387588854444,
+   "Moirai|electricity7": 13.935078109829862,
+   "Moirai|etth1": 25.775531081837716,
+   "Moirai|etth2": 26.675106112164848,
+   "Moirai|ettm2": 7.133380087329448,
+   "Moirai|ili": 50.616193157142746,
+   "Moirai|weather": 26.004828524220233,
+   "TimesFM|etth1": 4.0509927367445755,
+   "TimesFM|etth2": 3.5501792312592597,
+   "TimesFM|ettm2": 4.29236768144156,
+   "TimesFM|weather": 3.7915541759561893
+  },
+  "M2": {
+   "Chronos|electricity": 23.11012944396914,
+   "Chronos|etth1": 22.52120329723964,
+   "Chronos|etth2": 10.289319645851315,
+   "Chronos|ettm2": 10.409001916707911,
+   "Chronos|weather": 0.46924387589257677,
+   "Moirai|electricity7": 20.409421382810216,
+   "Moirai|etth1": 21.0441175985509,
+   "Moirai|etth2": 32.00984547403116,
+   "Moirai|ettm2": 14.622459653935659,
+   "Moirai|ili": 29.678113597142588,
+   "Moirai|weather": 21.061982729424663,
+   "TimesFM|etth1": 4.050992736748816,
+   "TimesFM|etth2": 3.550179231255072,
+   "TimesFM|ettm2": 4.2923676814372005,
+   "TimesFM|weather": 3.791554175960464
+  },
+  "M3": {
+   "Chronos|electricity": 18.375749910379643,
+   "Chronos|etth1": 24.098757322410687,
+   "Chronos|etth2": 12.766302320109588,
+   "Chronos|ettm2": 8.910608309397027,
+   "Chronos|weather": 2.0933809691777974,
+   "Moirai|electricity7": 38.79647219020484,
+   "Moirai|etth1": 23.160046847767703,
+   "Moirai|etth2": 29.143278470510335,
+   "Moirai|ettm2": 13.865982250753055,
+   "Moirai|ili": 15.545256726450845,
+   "Moirai|weather": 20.732647125449592,
+   "TimesFM|etth1": 6.915574999210987,
+   "TimesFM|etth2": 3.9515788384844077,
+   "TimesFM|ettm2": 3.405228349018844,
+   "TimesFM|weather": 6.125670744993185
+  },
+  "M4": {
+   "Chronos|electricity": 55.3482620648213,
+   "Chronos|etth1": 27.1247294054604,
+   "Chronos|etth2": 17.607426516665182,
+   "Chronos|ettm2": 8.399448440901487,
+   "Chronos|weather": 4.857500029185573,
+   "Moirai|electricity7": 39.834140421251334,
+   "Moirai|etth1": 23.259491810188774,
+   "Moirai|etth2": 29.89078064543917,
+   "Moirai|ettm2": 13.833557769320493,
+   "Moirai|ili": 15.189014665887136,
+   "Moirai|weather": 20.733508059320805,
+   "TimesFM|etth1": 0.8944435239407604,
+   "TimesFM|etth2": 1.3957545863248857,
+   "TimesFM|ettm2": 3.987473979744319,
+   "TimesFM|weather": 4.851017582171302
+  }
+ },
+ "dr2": -0.024801036900033546,
+ "dr2_median": -0.08346360056925067,
+ "dr2_iqr": [
+  -0.22730615481301727,
+  0.04299194134983808
+ ],
+ "dr2_frac_not_helping": 0.6949,
+ "dmae": 0.5927202612287594,
+ "dmae_iqr": [
+  -0.3675885659485676,
+  2.9755800536996952
+ ],
+ "dmae_ci_not_reported": [
+  -6.784693117355535,
+  16.469180853744867
+ ],
+ "dispersion_note": "dR2 and dMAE carry median and IQR, NOT a 95% interval; the 95% interval is carried by b1(CKA), the one linear coefficient here. An out-of-sample R2 is unbounded below, so dR2's 2.5th percentile moved between -1.7 and -32.5 across bootstrap seeds, and dMAE's 97.5th moved between +11 and +19, while the point estimates, medians and sign share moved in the third decimal. dmae_ci_not_reported is kept for the record and is deliberately NOT quoted in the paper. The pre-registered DECIDING STATISTIC (the sign of dR2) is unchanged; only the dispersion measure reported beside it differs from the registration.",
+ "dr2_boot_kept": 10000,
+ "dr2_boot_requested": 10000,
+ "cka_coef_m3_insample": 42.89070708308069,
+ "cka_coef_ci": [
+  -30.534344204507885,
+  106.95435626505956
+ ],
+ "cka_coef_excludes_zero": false,
+ "cka_coef_boot_kept": 8713,
+ "branch": "dR2 <= 0",
+ "r2_insample_dataset_fe": {
+  "M2+dataset FE": 0.6422354056325739,
+  "M3+dataset FE": 0.711052772795698
+ },
+ "n_series": 7
+}

@@ -74,8 +74,20 @@ run "mitigation_spectrum"          "$PY" scripts/emit_mitigation_spectrum.py
 run "gate_sensitivity"             "$PY" scripts/gate_threshold_sensitivity.py
 run "prospective"                  "$PY" scripts/score_prospective.py --latex
 run "drift_metrics (--report)"     "$PY" scripts/drift_metric_battery.py --report
+# Both splits of the ladder. The SELECTION-split one is the paper's primary -- it is the split every
+# admission decision is made on, and the value axis below reads it -- and the held-out one is the
+# retrospective variant the prospective predictor was frozen against. Emitting only one would leave
+# the other's table drifting from its own JSON with nothing to catch it.
 run "gate_baseline_family"         "$PY" scripts/gate_baseline_sensitivity.py --from-json --latex
+run "gate_baseline_family (val)"   "$PY" scripts/gate_baseline_sensitivity.py --split val --from-json --latex
+# The three-window-set comparison. Reads all three ladder JSONs and counts them over the cells they
+# share, which is the only comparison that is about windows rather than about coverage.
+run "gate_splitcompare (3 splits)"  "$PY" scripts/emit_traintail_ladder.py --latex
 run "value_axis (+ interaction)"   "$PY" scripts/value_axis.py --json --latex
+# The pre-registered nested ladder under leave-one-cluster-out. --latex pins TEX_BOOT/TEX_SEED, so the
+# bootstrap numbers in the caption are byte-reproducible from this one line; the design it fits is
+# imported from scripts/preregister_loco.py, which was committed before the models were run.
+run "cka_loco"                     "$PY" scripts/cka_fixed_effects.py --loco --json --latex
 run "sample_sweep"                 "$PY" scripts/emit_sample_sweep.py
 
 echo
@@ -90,6 +102,11 @@ if [ -x "$PYFIG" ] && "$PYFIG" -c 'import matplotlib' 2>/dev/null; then
   # a figure that disagrees with the tables fails here instead of shipping.
   run "fig1_diagnostic_flow"       "$PYFIG" paper_8/fig1_diagnostic_flow.py
   run "fig_value_axis"             "$PYFIG" paper_8/fig_value_axis.py
+  # The two appendix figures added 20 Sep 2026. figA_gate_scatter is the axis Figure 1's panel (b)
+  # gave up when it went back to CKA; figA_freeze_boundary transcribes finetune_forecasting.py's
+  # requires_grad blocks and asserts condition H's CKA is exactly 1 on every cell it ran on.
+  run "figA_gate_scatter"          "$PYFIG" paper_8/figA_gate_scatter.py
+  run "figA_freeze_boundary"       "$PYFIG" paper_8/figA_freeze_boundary.py
   # The other two \includegraphics'd figures. Both were missing from this sweep, and
   # analyse_n5k_trajectories.py had been dead since July -- it carried an absolute path to a
   # repository location that no longer exists, so nobody would have noticed the figure going stale.
@@ -109,6 +126,7 @@ if [ "$WITH_DATA" = 1 ]; then
     # the MLP and GBM rungs are fitted per cell per feature. --from-json above is the cheap path and
     # reproduces the TABLE; this is the path that reproduces the NUMBERS in it.
     run "gate ladder (recompute)"  "$PY" scripts/gate_baseline_sensitivity.py --latex
+    run "gate ladder val (recompute)" "$PY" scripts/gate_baseline_sensitivity.py --split val --latex
   else
     echo "  STOPPED: the benchmark CSVs do not match the manifest."
     sed 's/^/    /' /tmp/rederive_manifest.txt
@@ -146,7 +164,8 @@ fi
 echo
 echo "-- STALENESS: what moved ----------------------------------------------------"
 changed=$(git -C "$ROOT" status --porcelain paper_8/tables/ paper_8/fig1_diagnostic_flow.pdf \
-            paper_8/fig_value_axis.pdf paper_8/figures/dissociation_trajectory.pdf \
+            paper_8/fig_value_axis.pdf paper_8/figA_gate_scatter.pdf \
+            paper_8/figA_freeze_boundary.pdf paper_8/figures/dissociation_trajectory.pdf \
             paper_8/figures/n5k_trajectories.pdf | sed 's/^/    /')
 if [ -z "$changed" ]; then
   echo "  nothing changed: every \\input-ed table and figure in the PDF matches the run records."
