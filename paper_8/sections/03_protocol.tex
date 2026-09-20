@@ -1,5 +1,5 @@
 % ============================================================
-\section{Fine-Tuning Protocol}
+\section{Protocol and Definitions}
 \label{sec:method}
 % ============================================================
 
@@ -49,13 +49,16 @@ windows). Both terms therefore see the same targets; the pre-trained model sees
 $96{+}h$ steps of context against the baseline's $96$, which if anything makes
 the gate a lower bound on the linear model's strength.
 
-\textbf{Two splits, named once.} The \emph{selection} split is the set of
-windows used for early stopping and checkpoint choice; the \emph{held-out} split
-is disjoint from it and is where every number in this paper is scored.
-$\text{B}{-}\text{D}$ is the difference in forgetting between full fine-tuning
-and the frozen encoder, positive when freezing does better, and estimates the
-incremental downstream value of allowing encoder-side adaptation \emph{under
-this protocol}.
+\textbf{Two splits, and the estimand, named once.} The \emph{selection} split is
+the set of windows used for early stopping and checkpoint choice; the
+\emph{held-out} split is disjoint from it and is where every number in this paper
+is scored.  We write $\denc \equiv \text{B}{-}\text{D}$ for the difference in
+forgetting between full fine-tuning and the frozen encoder, positive when
+freezing does better; it estimates the incremental downstream value of allowing
+encoder-side adaptation \emph{under this protocol}.  $\denc$ is the estimand
+because it is the contrast this design \emph{manipulates}.  Representation drift
+is not manipulated: CKA is measured after the fact, so it enters as a candidate
+\emph{predictor} of $\denc$ and never as the treatment.
 
 \textbf{Definition (degradation of a demonstrated capability).} A cell counts as
 degradation when all three clauses hold: (i)~$R^2_\text{task}(\text{PT}) \ge
@@ -64,8 +67,10 @@ degradation when all three clauses hold: (i)~$R^2_\text{task}(\text{PT}) \ge
 0$, in \emph{every} seed; and (iii)~the frozen encoder ends better,
 forg.$_\text{D} < 0$, in \emph{every} seed, which localises the loss to encoder
 weight updates rather than to the data or the epoch budget. Clauses (ii) and
-(iii) require unanimity because with three to ten seeds a majority is not
-evidence of a sign. This definition is fixed for the whole paper;
+(iii) require unanimity because at three to ten seeds an exact sign-flip test
+cannot reach $p{<}0.05$ on 28 of our 31 cells; every cell is additionally reported
+with a paired interval, an effect size and two $p$-values in
+Appendix~\ref{app:pairedinference}. This definition is fixed for the whole paper;
 \S\ref{sec:analysis:degradation} reports how many cells meet it.
 
 \textbf{Conditions.} \textbf{B}~NLL-only fine-tune (baseline: how much does
@@ -82,10 +87,10 @@ guarantee of unchanged representations: its measured CKA is close to but never
 exactly $1$ on Moirai ($0.969$--$0.9999$ across our cells) and falls as low as
 $0.38$ on TimesFM, where the encoder stack's weight drift is exactly zero.
 \textbf{H}~(strict freeze) additionally freezes those two modules and is the
-only condition with CKA exactly $1.000$; we use it to check that the
-$\text{B}{-}\text{D}$ comparisons do not depend on the projections being
-trainable (Appendix~\ref{app:strictfreeze}).
+only condition with CKA exactly $1.000$; it checks whether $\denc$ depends on the
+projections being trainable, and on 4 of the 16 cells we ran it on---every
+Moirai/ETTm2 cell---$\denc$ reverses sign (Appendix~\ref{app:strictfreeze}).
 
 \textbf{Dispersion.} Every ${\pm}$ in the body and in every generated table is
-the standard error of the mean over seeds; two hand-assembled appendix tables
-report standard deviations and say so in their captions.
+the standard error of the mean over seeds; where an appendix table or passage
+uses a standard deviation instead it says so, and says which, where it does.

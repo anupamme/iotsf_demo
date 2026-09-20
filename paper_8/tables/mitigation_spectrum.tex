@@ -3,8 +3,12 @@
 \centering
 \caption{\textbf{Mitigation spectrum on Moirai-Small/ETTh2.}
 Rows ordered by representation preservation (CKA at $h{=}96$).
-LoRA preserves representations (CKA${\approx}0.98$) while \emph{improving} on
-zero-shot; weight anchoring reduces drift without buying utility.
+On \emph{this} cell LoRA preserves representations (CKA${\approx}0.98$) while
+\emph{improving} on zero-shot, and weight anchoring reduces drift without buying
+utility.  \textbf{Neither reading generalises, and we checked rather than assumed:}
+extending condition~E to 8 further value-cells
+(Appendix~\ref{app:loravaluecells}) puts CKA$_\text{E}$ anywhere from $0.55$ to
+$0.97$ and leaves full fine-tuning ahead of LoRA on 4 of the 8.
 \textbf{Every row is scored against its own zero-shot.} Forgetting\% is the
 mean over seeds of each run's $(\text{fine-tuned}-\text{zero-shot})/
 \text{zero-shot}$, so no row borrows another's denominator; earlier versions of

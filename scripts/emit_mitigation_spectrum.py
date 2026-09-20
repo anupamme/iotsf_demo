@@ -93,7 +93,25 @@ def cell(a, best_mse=False, best_forg=False):
             f"{cka}{{\\tiny$\\pm${cka_sd}}} & {a['drift']:.2f}{{\\tiny$\\pm${num(a['drift_sd'], 2)}}}")
 
 
+def lora_scope():
+    """
+    The three facts the caption needs about the eight-cell LoRA arm.
+
+    Read from cell_matrix rather than typed into the caption. The caption's job here is to stop a
+    reader generalising this cell's CKA${\\approx}0.98$, so if the wider arm ever moves, the sentence
+    that scopes it has to move with it -- and a hand-typed "$0.55$ to $0.97$" would not.
+    """
+    import cell_matrix as cm
+    lo = {k: v for k, v in cm.lora_value_cells().items() if v["be_seeds"] >= cm.MIN_SEEDS}
+    if not lo:
+        sys.exit("MISSING condition-E value-cell runs; the caption's scoping sentence needs them")
+    cka = [v["cka_e"] for v in lo.values()]
+    return {"n": len(lo), "cka_lo": min(cka), "cka_hi": max(cka),
+            "be_neg": sum(1 for v in lo.values() if v["be_test"] < 0)}
+
+
 def main():
+    lora = lora_scope()
     data = {}
     for label, pat, n_train in ARMS:
         for h in HORIZONS:
@@ -116,8 +134,16 @@ def main():
          r"\begin{table}[t]", r"\centering",
          r"\caption{\textbf{Mitigation spectrum on Moirai-Small/ETTh2.}",
          r"Rows ordered by representation preservation (CKA at $h{=}96$).",
-         r"LoRA preserves representations (CKA${\approx}0.98$) while \emph{improving} on",
-         r"zero-shot; weight anchoring reduces drift without buying utility.",
+         r"On \emph{this} cell LoRA preserves representations (CKA${\approx}0.98$) while",
+         r"\emph{improving} on zero-shot, and weight anchoring reduces drift without buying",
+         r"utility.  \textbf{Neither reading generalises, and we checked rather than assumed:}",
+         (rf"extending condition~E to {lora['n']} further value-cells"),
+         # Plain formatting, not num(): num() drops the leading zero, which is the body's convention
+         # for MSE columns but not how this caption or the LoRA appendix writes a CKA.
+         (r"(Appendix~\ref{app:loravaluecells}) puts CKA$_\text{E}$ anywhere from "
+          rf"${lora['cka_lo']:.2f}$ to"),
+         (rf"${lora['cka_hi']:.2f}$ and leaves full fine-tuning ahead of LoRA on "
+          rf"{lora['be_neg']} of the {lora['n']}."),
          r"\textbf{Every row is scored against its own zero-shot.} Forgetting\% is the",
          r"mean over seeds of each run's $(\text{fine-tuned}-\text{zero-shot})/",
          r"\text{zero-shot}$, so no row borrows another's denominator; earlier versions of",

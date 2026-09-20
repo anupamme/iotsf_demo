@@ -30,6 +30,9 @@
 
 % ---- Macros ----
 \newcommand{\R}{\mathbb{R}}
+% The paper's estimand, named once in S3 and used everywhere after. A macro rather than a literal so
+% that the manipulated contrast (B minus D) and the symbol can never drift apart across 30-odd sites.
+\newcommand{\denc}{\Delta_\text{enc}}
 
 \title{Representation Drift Is Not Forgetting:\\
        Diagnosing Fine-Tuning Damage in Time-Series Foundation Models}
@@ -57,7 +60,8 @@ backbones (Moirai-S/B/L, Chronos-T5, TimesFM-2.5) and six datasets against a
 lookback-96 linear regression \emph{fit on the target data}, only
 \textbf{five} show the pre-trained model beating that baseline, and all five
 are ETTh2; all three backbones lose to it on ETTh1, ETTm2, Weather and
-Electricity, as does Moirai on ILI.  On the five that pass, fine-tuning
+Electricity, as does Moirai on ILI.  Against an eight-baseline ladder,
+\textbf{no cell beats every admissible rung}.  On the five that pass, fine-tuning
 \emph{improves} MSE by 31--42\% in three, and the two with mean harm carry
 4/10 and 5/10 seed agreement.  \textbf{No cell meets our own definition of
 damaging a demonstrated pre-trained capability}, so the value-gate we
@@ -71,21 +75,28 @@ its linear baseline was an unfitted per-window trend extrapolation that a
 constant predictor beats; correcting the estimator moves 16 of 21 Moirai cells
 from gate-pass to gate-fail.
 Across the 31 intervention cells the outcome still spans $-51.8\%$ to
-$+46.1\%$ against zero-shot with no reliable signature in geometric drift
-(within-backbone Spearman $\rho{=}{+}0.168$, clustered CI $[-0.469,{+}0.717]$), so
-how far the encoder moved remains uninformative about whether fine-tuning
-helped.  We additionally retract a probe-based diagnostic reported in an
+$+46.1\%$ against zero-shot, and the magnitude of CKA-measured representation
+change is not sufficient to predict whether allowing encoder adaptation helps or
+hurts (within-backbone Spearman $\rho{=}{+}0.168$ against the frozen-encoder
+contrast, clustered CI $[-0.469,{+}0.717]$---too wide to establish a reliable
+relationship in either direction).  We additionally retract a probe-based diagnostic reported in an
 earlier version.
 \end{abstract}
 
 % ============================================================
+% The body is four experiments in the order the design runs them: is there value
+% to preserve, does encoder adaptation help or harm, does measured drift predict
+% that, and does the reading survive prospectively. Correction and retraction
+% material lives in the appendix, not here.
 \input{sections/01_introduction}
 \input{sections/02_background}
-\input{sections/04_methodology}
-\input{sections/05_forecasting}
-\input{sections/07_analysis}
-\input{sections/075_limitations}
-\input{sections/08_conclusion}
+\input{sections/03_protocol}
+\input{sections/04_exp1_value}
+\input{sections/05_exp2_adaptation}
+\input{sections/06_exp3_drift}
+\input{sections/07_exp4_prospective}
+\input{sections/085_limitations}
+\input{sections/09_conclusion}
 
 % Ethics and Reproducibility statements. ICLR excludes both from the 9-page
 % main-text limit, so these must stay AFTER the conclusion -- the body ends

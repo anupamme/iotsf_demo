@@ -1,0 +1,326 @@
+{
+ "written_utc": "2026-09-20T18:17:22+00:00",
+ "git_head": "7623afe42ae90044e68df4dc5bf86d84d99594ab",
+ "guarantee": "PRE-SPECIFIED ANALYSIS, NOT A PROSPECTIVE TEST. The outcome (bd_test) already exists and is already published; what is frozen is the model ladder, the covariate construction, the deciding statistic and the sentence the paper prints under each outcome. Weaker than results/v48_prospective2/preregistration_v2.json, where the outcome runs did not yet exist, and the paper must describe it as the weaker thing.",
+ "outcome": "bd_test (held-out B-D as percent of zero-shot loss; positive = freezing better)",
+ "models": {
+  "M0": "intercept",
+  "M1": "backbone FE",
+  "M2": "backbone FE + horizon + log n",
+  "M3": "M2 + CKA",
+  "M4": "M2 + CKA x backbone"
+ },
+ "deciding_statistic": "dR2 = R2_LOCO(M3) - R2_LOCO(M2)",
+ "prediction": "dR2 <= 0 (CKA adds no out-of-sample information beyond backbone identity)",
+ "validation": {
+  "loco": "leave-one-cluster-out, cluster = (backbone, dataset) via cluster_keys.cluster_of; dataset FE EXCLUDED because holding out a cluster removes the cells that identify it. Genuinely out-of-sample; dR2 is computed here.",
+  "by_dataset": "leave-one-series-out WITH dataset FE, reported as in-sample fit plus per-series residuals and explicitly NOT called out-of-sample, because the held-out series' own FE is unidentified by construction."
+ },
+ "r2_convention": "out-of-sample R2 against the TRAINING-fold mean, never the held-out fold's own mean; per-fold MAE reported alongside because cluster sizes are 1-5",
+ "inference": "cluster bootstrap (resample clusters with replacement) on b1 of M3 and on dR2",
+ "outcome_branches": {
+  "dR2 <= 0": "STRONGEST OUTCOME FOR THE PAPER. Claim A promotes from 'no reliable ordering' to 'no incremental out-of-sample predictive value at this n': knowing CKA does not improve prediction of the value of encoder adaptation over knowing the backbone, horizon and training-set size. Title and abstract unchanged.",
+  "dR2 > 0, bootstrap CI excludes 0": "THE CLAIM NARROWS. Section 6's framing changes to 'CKA carries some out-of-sample information about the value of encoder adaptation, insufficient to license a decision rule: no threshold separates the cells adaptation helped from those it hurt, and the predictive gain is dR2.' The abstract's ordering sentence is replaced by that sentence. The title survives unchanged: a predictor carrying signal is still not a substitute for the intervention, which is what the title claims.",
+  "dR2 > 0, bootstrap CI covers 0": "INDETERMINATE AT THIS N. Reported as a point estimate with its interval and the explicit statement that 15 clusters cannot separate a modest predictive gain from none. No existing claim changes; the appendix carries the numbers."
+ },
+ "n_cells": 31,
+ "n_clusters": 15,
+ "clusters": [
+  "Chronos|electricity",
+  "Chronos|etth1",
+  "Chronos|etth2",
+  "Chronos|ettm2",
+  "Chronos|weather",
+  "Moirai|electricity7",
+  "Moirai|etth1",
+  "Moirai|etth2",
+  "Moirai|ettm2",
+  "Moirai|ili",
+  "Moirai|weather",
+  "TimesFM|etth1",
+  "TimesFM|etth2",
+  "TimesFM|ettm2",
+  "TimesFM|weather"
+ ],
+ "cells": [
+  {
+   "cell": "Moirai-small/ETTh2 h192 n500",
+   "backbone": "Moirai",
+   "dataset": "etth2",
+   "cluster": "Moirai|etth2",
+   "horizon": 192,
+   "n_train": 500,
+   "cka": 0.9695092797279358
+  },
+  {
+   "cell": "Moirai-small/ETTh2 h96 n500",
+   "backbone": "Moirai",
+   "dataset": "etth2",
+   "cluster": "Moirai|etth2",
+   "horizon": 96,
+   "n_train": 500,
+   "cka": 0.9369100630283356
+  },
+  {
+   "cell": "Moirai-small/ETTh1 h192 n1000",
+   "backbone": "Moirai",
+   "dataset": "etth1",
+   "cluster": "Moirai|etth1",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.8368388175964355
+  },
+  {
+   "cell": "Moirai-small/ETTh1 h96 n1000",
+   "backbone": "Moirai",
+   "dataset": "etth1",
+   "cluster": "Moirai|etth1",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.8074549436569214
+  },
+  {
+   "cell": "Moirai-base/ETTh2 h192 n1000",
+   "backbone": "Moirai",
+   "dataset": "etth2",
+   "cluster": "Moirai|etth2",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.39613603117565316
+  },
+  {
+   "cell": "Moirai-base/ETTh2 h96 n1000",
+   "backbone": "Moirai",
+   "dataset": "etth2",
+   "cluster": "Moirai|etth2",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.46009905139605206
+  },
+  {
+   "cell": "Moirai-small/ETTm2 h192 n1000",
+   "backbone": "Moirai",
+   "dataset": "ettm2",
+   "cluster": "Moirai|ettm2",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.8846229076385498
+  },
+  {
+   "cell": "Moirai-small/ETTm2 h96 n1000",
+   "backbone": "Moirai",
+   "dataset": "ettm2",
+   "cluster": "Moirai|ettm2",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.8511378645896912
+  },
+  {
+   "cell": "Moirai-large/ETTh2 h96 n500",
+   "backbone": "Moirai",
+   "dataset": "etth2",
+   "cluster": "Moirai|etth2",
+   "horizon": 96,
+   "n_train": 500,
+   "cka": 0.625774989525477
+  },
+  {
+   "cell": "Moirai-base_ETTh1_h192",
+   "backbone": "Moirai",
+   "dataset": "etth1",
+   "cluster": "Moirai|etth1",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.6685995658238729
+  },
+  {
+   "cell": "Moirai-base_ETTh1_h96",
+   "backbone": "Moirai",
+   "dataset": "etth1",
+   "cluster": "Moirai|etth1",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.7553606629371643
+  },
+  {
+   "cell": "Moirai-small_Weather_h192",
+   "backbone": "Moirai",
+   "dataset": "weather",
+   "cluster": "Moirai|weather",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.8799434900283813
+  },
+  {
+   "cell": "Moirai-small_Weather_h96",
+   "backbone": "Moirai",
+   "dataset": "weather",
+   "cluster": "Moirai|weather",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.8863542874654134
+  },
+  {
+   "cell": "Moirai-base_ETTm2_h192",
+   "backbone": "Moirai",
+   "dataset": "ettm2",
+   "cluster": "Moirai|ettm2",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.48817284901936847
+  },
+  {
+   "cell": "Moirai-base_ETTm2_h96",
+   "backbone": "Moirai",
+   "dataset": "ettm2",
+   "cluster": "Moirai|ettm2",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.5101938645044962
+  },
+  {
+   "cell": "Moirai-base_Weather_h192",
+   "backbone": "Moirai",
+   "dataset": "weather",
+   "cluster": "Moirai|weather",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.5089116295178732
+  },
+  {
+   "cell": "Moirai-base_Weather_h96",
+   "backbone": "Moirai",
+   "dataset": "weather",
+   "cluster": "Moirai|weather",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.5666172405083975
+  },
+  {
+   "cell": "Moirai-large_ETTh1_h96",
+   "backbone": "Moirai",
+   "dataset": "etth1",
+   "cluster": "Moirai|etth1",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.3618045647939046
+  },
+  {
+   "cell": "Moirai-large_Weather_h96",
+   "backbone": "Moirai",
+   "dataset": "weather",
+   "cluster": "Moirai|weather",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.6220877766609192
+  },
+  {
+   "cell": "Moirai-small_Electricity7_h192",
+   "backbone": "Moirai",
+   "dataset": "electricity7",
+   "cluster": "Moirai|electricity7",
+   "horizon": 192,
+   "n_train": 1000,
+   "cka": 0.9510760108629862
+  },
+  {
+   "cell": "Moirai-small_Electricity7_h96",
+   "backbone": "Moirai",
+   "dataset": "electricity7",
+   "cluster": "Moirai|electricity7",
+   "horizon": 96,
+   "n_train": 1000,
+   "cka": 0.9423306584358215
+  },
+  {
+   "cell": "Chronos/etth1 h24",
+   "backbone": "Chronos",
+   "dataset": "etth1",
+   "cluster": "Chronos|etth1",
+   "horizon": 24,
+   "n_train": 8000,
+   "cka": 0.1689053936318784
+  },
+  {
+   "cell": "Chronos/etth2 h24",
+   "backbone": "Chronos",
+   "dataset": "etth2",
+   "cluster": "Chronos|etth2",
+   "horizon": 24,
+   "n_train": 8000,
+   "cka": 0.09449968370160322
+  },
+  {
+   "cell": "Chronos/weather h24",
+   "backbone": "Chronos",
+   "dataset": "weather",
+   "cluster": "Chronos|weather",
+   "horizon": 24,
+   "n_train": 8000,
+   "cka": 0.09233432705878446
+  },
+  {
+   "cell": "Chronos/ettm2 h24",
+   "backbone": "Chronos",
+   "dataset": "ettm2",
+   "cluster": "Chronos|ettm2",
+   "horizon": 24,
+   "n_train": 8000,
+   "cka": 0.11187505642658478
+  },
+  {
+   "cell": "Chronos/electricity h24",
+   "backbone": "Chronos",
+   "dataset": "electricity",
+   "cluster": "Chronos|electricity",
+   "horizon": 24,
+   "n_train": 8000,
+   "cka": 0.23242515864776278
+  },
+  {
+   "cell": "TimesFM/ETTh1 h24",
+   "backbone": "TimesFM",
+   "dataset": "etth1",
+   "cluster": "TimesFM|etth1",
+   "horizon": 24,
+   "n_train": 1000,
+   "cka": 0.5609099072040359
+  },
+  {
+   "cell": "TimesFM/Weather h24",
+   "backbone": "TimesFM",
+   "dataset": "weather",
+   "cluster": "TimesFM|weather",
+   "horizon": 24,
+   "n_train": 1000,
+   "cka": 0.3348295961103599
+  },
+  {
+   "cell": "TimesFM/ETTm2 h24",
+   "backbone": "TimesFM",
+   "dataset": "ettm2",
+   "cluster": "TimesFM|ettm2",
+   "horizon": 24,
+   "n_train": 1000,
+   "cka": 0.35984648595588653
+  },
+  {
+   "cell": "TimesFM/ETTh2 h24",
+   "backbone": "TimesFM",
+   "dataset": "etth2",
+   "cluster": "TimesFM|etth2",
+   "horizon": 24,
+   "n_train": 1000,
+   "cka": 0.2459372147483399
+  },
+  {
+   "cell": "Moirai-small/ILI h24",
+   "backbone": "Moirai",
+   "dataset": "ili",
+   "cluster": "Moirai|ili",
+   "horizon": 24,
+   "n_train": 452,
+   "cka": 0.4554903175149645
+  }
+ ]
+}

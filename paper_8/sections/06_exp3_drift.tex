@@ -1,0 +1,73 @@
+% ============================================================
+\section{Experiment 3: Does Measured Drift Predict the Outcome?}
+\label{sec:exp3}
+% ============================================================
+
+Experiment 2 established what allowing encoder adaptation does.  Neither CKA nor
+weight drift is manipulated by that design---both are measured after the
+fact---so this section asks whether either can \emph{predict} $\denc$ without
+running the frozen control.
+
+\label{sec:forecasting:nonmoirai}
+\textbf{Drift and outcome come apart inside a single backbone}---within our
+Moirai matrix, the strongest form of the finding.  Beyond the sweep of
+\S\ref{sec:forecasting:replication}: within Moirai-Base the two \emph{least}
+drifted cells are the only two that degrade (ETTh1 at CKA $0.755$ and $0.669$,
+$+22.8\%$ and $+39.5\%$) while its two most drifted improve the most within the
+arm (ETTh2 at CKA $0.460$ and $0.396$, $-31.4\%$ and $-36.4\%$); and inside
+Moirai-Large's LoRA arm the learning rate, not the rank, decides the sign at
+near-identical CKA ($0.973$ against $0.989$; Appendix~\ref{app:lora_rank}).
+
+Against the fitted baseline none of the ten non-Moirai cells gate-passes, so what
+the two extra backbones supply is the dissociation, which does not depend on the
+gate.
+
+\textbf{Near-identical drift, opposite consequences.} On Chronos-T5-Small four
+of the five datasets restructure to a degree that would, on the usual reading,
+be called catastrophic---CKA ${\in}[0.092, 0.169]$, at or below the
+$0.215{\pm}0.054$ an \emph{untrained} encoder of this architecture scores
+(Appendix~\ref{app:cka_calibration})---yet outcomes across the five span \textbf{$-41.4\%$ on
+ETTm2 to $+20.6\%$ on ETTh1}, a 62-point spread, with ETTh1 the \emph{least}
+drifted of the four and the only one that degrades.  TimesFM-2.5 adds four
+cells at milder drift (CKA $0.246$--$0.561$), all improving ($-51.8\%$ to
+$-3.0\%$).  Pooled across all 31 cells CKA does correlate with the intervention
+($\rho{=}{+}0.567$, clustered CI $[{+}0.239,{+}0.828]$), but that pooled figure is a
+backbone artefact by our own rule: within Moirai, the only arm with enough
+cells to ask, $\rho{=}{+}0.168$ with clustered CI $[-0.469,{+}0.717]$, which admits a
+moderate positive relationship but does not order our cells.  Nor does the
+second diagnostic \S\ref{sec:method} defines rescue it: pooled $\ell_2$ weight
+drift gives $\rho{=}{+}0.118$ with a CI including zero, on the 25 cells that
+retain a drift record, and neither do five further geometric measures on the 59
+encoders that retained checkpoints
+(Appendices~\ref{app:crosscell},~\ref{app:driftmetrics}).  The same dissociation
+holds \emph{inside} one encoder: unfreezing the top 3 of 6 layers and unfreezing
+all 6 are indistinguishable on the task ($-5.9{\pm}2.0\%$ against
+$-7.9{\pm}2.1\%$, 10 seeds each) at CKA $0.716$ against $0.465$, a gap of 3.5
+standard errors (Appendix~\ref{app:layerunfreeze}).  And where a cell does degrade,
+freezing does not save it: on Chronos/ETTh1 the frozen encoder is worse still
+($+59.8\%$ against $+20.6\%$), so encoder adaptation is not the locus of the damage.
+
+\textbf{Not an artefact of cells with nothing to lose.} Drift might fail to order
+$\denc$ only because 16 of the 31 cells beat no rung of the ladder on held-out
+MSE.  Grading the screen answers that: on the 15 clearing $0.20$ against some
+admissible rung the relation is \emph{weaker} ($\rho{=}{+}0.454$, CI
+$[-0.490,{+}0.890]$) than on the 16 not ($+0.826$, CI $[-0.321,{+}0.913]$), and
+as a single coefficient the dependence is $b_3{=}{-}45.3$~pp per unit CKA per unit
+value, CI $[-225.6,{+}55.0]$---the wrong sign for the objection and far too wide to
+settle it (Appendix~\ref{app:valueaxis}).  Measured value does not order $\denc$ by
+itself either ($\rho{=}{+}0.023$, CI $[-0.516,{+}0.599]$).
+
+\textbf{ILI: a small-data external case study.}
+\label{sec:analysis:ili}
+Moirai-Small on ILI (weekly influenza, $h{=}24$, 10 seeds) restructures heavily
+(CKA $0.456{\pm}0.008$) and improves ($-50.8{\pm}0.5\%$ held-out, 10/10
+negative), but \textbf{gate-fails decisively} at
+$R^2_\text{task}(\text{PT}){=}{-}1.625$.  Two further corrections attach to it:
+the pre-registered CKA-intermediate prediction ($0.90$--$0.95$) is
+\textbf{falsified}, and an earlier report of \emph{zero} frozen-encoder
+improvement in all 10 seeds was a script defect, now
+$\denc{=}{-}38.6{\pm}1.3$ (Appendix~\ref{app:ili_gate}).  At
+${\approx}450$ windows this is a case study, not a pillar; an IoT
+anomaly-detection negative control behaves the same way
+(Appendix~\ref{app:cnn_detail}).
+

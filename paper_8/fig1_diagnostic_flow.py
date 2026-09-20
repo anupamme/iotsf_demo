@@ -14,11 +14,20 @@ Fig. 1 -- the screen, and why nothing survives it.
     no regimes left to separate: with the gate computed against the fitted linear baseline the
     degradation set is empty, so a panel whose legend said "8 degradation cells" was drawing a class
     that does not exist. Second, the gate is the axis the paper is actually about, and on it the
-    relationship runs the WRONG WAY: within Moirai, rho = -0.52 (CI [-0.84, -0.03], excludes zero),
-    i.e. higher measured pre-trained value predicts encoder adaptation helping MORE. Only 5 of 32
-    cells sit right of the 0.20 threshold at all, and 3 of those 5 sit below zero, where adaptation
-    helps. The dissociation reading survives too, in weaker form and off this axis: within Moirai
-    rho(CKA, B-D) = +0.17 with CI [-0.33, +0.60]. Both correlations are computed here, not typed.
+    point estimate runs the WRONG WAY: within Moirai, rho(gate, Delta_encoder) is negative, i.e.
+    higher measured pre-trained value goes with encoder adaptation helping MORE. Only 5 of 32 cells
+    sit right of the 0.20 threshold at all, and 3 of those 5 sit below zero, where adaptation helps.
+    The dissociation reading survives too, off this axis: rho(CKA, Delta_encoder) is small and
+    positive. Both correlations and both intervals are computed here, not typed.
+
+    THE INTERVALS ARE CLUSTERED AND THEY ARE WIDE, and the panel prints them rather than a p-value.
+    An earlier version of this docstring asserted "rho = -0.52 (CI [-0.84, -0.03], excludes zero)" and
+    the panel printed a matching cell-level p. Both were cell-level, and the body replaced cell-level
+    intervals with intervals clustered on (backbone, dataset) in bb718d4 -- 22 Moirai cells reuse only
+    6 series, so treating them as 22 independent observations understates the uncertainty. Clustered,
+    neither interval excludes zero. No number is quoted in this docstring any more: the values are
+    printed by the script at draw time, and a docstring that repeats them is one more place for them
+    to go stale, which is exactly how the -0.52 survived the correction that invalidated it.
 
     History, so the change is auditable: at 23 cells this panel read "degradation cells are the least
     drifted"; the prospective arm broke that; the corrected gate then removed the degradation set
@@ -45,6 +54,7 @@ from scipy import stats
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 import cell_matrix  # noqa: E402
+import cluster_keys  # noqa: E402
 
 # ---- ink / chrome (dataviz reference, light surface) ----
 INK_PRIMARY = "#0b0b0b"
@@ -111,10 +121,27 @@ MARKER = {"Moirai": "o", "Chronos": "s", "TimesFM": "^"}
 
 # Within-backbone correlations. Moirai is the only arm with enough cells to ask, and pooling across
 # backbones is what S5.2 forbids, so the number the panel prints is the within-Moirai one.
+#
+# INTERVALS, NOT p-VALUES, AND CLUSTERED ONES. Until 2026-09-18 this panel printed the cell-level
+# Spearman p-value ("p=0.014"), which contradicted the body twice over: the body reports the
+# DIRECTION and not the interval on this axis, and it reports cross-cell uncertainty clustered on
+# (backbone, dataset) because the 22 Moirai cells reuse 6 series and a cell-level interval is too
+# narrow. A figure quoting a cell-level p beside a body quoting a clustered CI is the paper
+# disagreeing with itself in the one place a reader looks first. The clustered interval is wide, and
+# printing it wide is the point.
 _M = [r for r in ROWS if backbone(r) == "Moirai"]
 RHO_GATE = stats.spearmanr([r["gate"] for r in _M], [r["bd_test"] for r in _M])
 RHO_CKA = stats.spearmanr([r["cka"] for r in _M], [r["bd_test"] for r in _M])
+_MCL = cluster_keys.clusters_for([r["cell"] for r in _M])
+CI_GATE = cluster_keys.cluster_bootstrap_spearman([r["gate"] for r in _M],
+                                                 [r["bd_test"] for r in _M], _MCL)
+CI_CKA = cluster_keys.cluster_bootstrap_spearman([r["cka"] for r in _M],
+                                                [r["bd_test"] for r in _M], _MCL)
 assert RHO_GATE.statistic < 0, "the gate is no longer anti-predictive; panel (b)'s title is wrong"
+# The clustered rho must be the same point estimate the body quotes; cluster_bootstrap_spearman
+# returns it from the unresampled data, so a mismatch here means the two are reading different rows.
+assert abs(CI_GATE[0] - RHO_GATE.statistic) < 1e-12 and abs(CI_CKA[0] - RHO_CKA.statistic) < 1e-12, \
+    "clustered and cell-level point estimates disagree -- the two are not reading the same cells"
 
 fig = plt.figure(figsize=(5.5, 1.62), dpi=150)
 fig.patch.set_facecolor(SURFACE)
@@ -209,9 +236,9 @@ axr.text(-0.10, 1.03, "(b) the gate points the wrong way",
 axr.text(-1.70, 56, "freezing better", fontsize=5.3, color=DAMAGE, ha="left", va="center")
 axr.text(-0.55, -43, "adaptation helps", fontsize=5.3, color=ADAPT, ha="center", va="bottom")
 axr.text(-1.70, 30,
-         f"Moirai only ($n$={len(_M)}):\n"
-         rf"$\rho_{{\rm gate}}={RHO_GATE.statistic:.2f}$, $p$={RHO_GATE.pvalue:.3f}" "\n"
-         rf"$\rho_{{\rm CKA}}={RHO_CKA.statistic:+.2f}$, $p$={RHO_CKA.pvalue:.2f}",
+         f"Moirai only ($n$={len(_M)}, {CI_GATE[4]} clusters):\n"
+         rf"$\rho_{{\rm gate}}={CI_GATE[0]:.2f}$ [{CI_GATE[1]:+.2f}, {CI_GATE[2]:+.2f}]" "\n"
+         rf"$\rho_{{\rm CKA}}={CI_CKA[0]:+.2f}$ [{CI_CKA[1]:+.2f}, {CI_CKA[2]:+.2f}]",
          fontsize=4.8, color=INK_SECONDARY, ha="left", va="center", linespacing=1.25)
 
 # The bracket spanning the survivors, drawn because it is the whole argument in five points: the only

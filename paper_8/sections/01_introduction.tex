@@ -30,11 +30,13 @@ on the sign.
 \textbf{Terminology.}  \emph{Zero-shot} (ZS) is the frozen pre-trained model
 evaluated without fine-tuning; condition~B is full fine-tuning and
 condition~D a frozen encoder trained on the same data for the same epochs, so
-$\text{B}{-}\text{D}$ is the incremental value of allowing encoder-side
-adaptation. We measure representational change with \emph{centred kernel
-alignment} (CKA, geometric similarity between pre-trained and fine-tuned
-encoders; CKA${=}1$ means no change) and \emph{weight drift} ($\ell_2$
-parameter distance), both defined in \S\ref{sec:method}. EWC~\cite{kirkpatrick2017ewc},
+$\denc \equiv \text{B}{-}\text{D}$ is the incremental value of allowing
+encoder-side adaptation, and is the quantity this design manipulates. We measure
+representational change with \emph{centred kernel alignment} (CKA, geometric
+similarity between pre-trained and fine-tuned encoders; CKA${=}1$ means no
+change) and \emph{weight drift} ($\ell_2$ parameter distance), both defined in
+\S\ref{sec:method}; neither is manipulated, so both enter only as candidate
+predictors of $\denc$. EWC~\cite{kirkpatrick2017ewc},
 L2-SP and LoRA appear as mitigation conditions; LR is learning rate, $n$
 sample size, ILI the influenza-like-illness benchmark.
 
@@ -71,7 +73,7 @@ uninformative---higher pre-trained value predicts encoder adaptation helping
   \item \textbf{Two measurement preconditions for getting this right.}
     Held-out scoring of the frozen-encoder comparison (4 of 31 cells reverse
     sign, all one-directional), and a fitted rather than per-window linear
-    baseline (17 cells change gate status). Both corrections move results
+    baseline (17 of 21 Moirai cells flip). Both corrections move results
     against the conclusion we originally drew
     (\S\ref{sec:analysis:heldout}, Appendix~\ref{app:gatecorrection}).
 
@@ -86,7 +88,7 @@ uninformative---higher pre-trained value predicts encoder adaptation helping
 \end{enumerate}
 
 \textbf{What is a claim here, and what is a control.}  Those four are the
-paper's claims, argued in \S\ref{sec:forecasting} and \S\ref{sec:analysis}; we
+paper's claims, argued in \S\S\ref{sec:forecasting}--\ref{sec:exp4}; we
 do not claim that foundation models are useless for forecasting, nor that
 fine-tuning is safe.  Everything else is a control or a boundary case, labelled
 as such where it

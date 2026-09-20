@@ -1,0 +1,21 @@
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+
+% One paragraph rather than two: the body ends flush with the bottom of page 9, and a paragraph
+% break here costs a printed line that the page limit does not have to give.
+We set out to measure how much fine-tuning damages a time-series foundation
+model's pre-trained capability, and found that on these benchmarks it is mostly not
+\emph{measurably} there to damage: 5 of 32 cells beat a lookback-96 regression fit
+on the target data, all five on one dataset, and none beats every admissible rung
+of an eight-baseline ladder.  On three of those five, unconstrained fine-tuning
+improves MSE by 31--42\%, and no cell meets a definition of degradation we fixed in
+advance.  So check the features beat a fitted baseline before spending effort on
+LoRA, EWC or L2-SP; if they do, settle the question against a frozen encoder scored
+on windows you did not select on.  What survives as a positive
+finding is the dissociation: the outcome spans $-51.8\%$ to $+46.1\%$ against
+zero-shot across the 31 cells, and the magnitude of CKA-measured
+change is not sufficient to predict $\denc$'s sign (within-backbone
+$\rho{=}{+}0.168$, clustered CI $[-0.469,{+}0.717]$).  The cheap rule we had hoped
+to report rests on a premise these benchmarks do not supply.

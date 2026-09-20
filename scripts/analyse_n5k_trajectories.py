@@ -8,6 +8,7 @@ import glob
 import json
 import os
 import sys
+from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
@@ -15,18 +16,35 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-RESULT_GLOB = "/Users/mediratta/code/iotsf_demo/results/*/condition_B_h96_s*.json"
-OUT_PDF = "/Users/mediratta/code/iotsf_demo/paper_8/figures/n5k_trajectories.pdf"
+# Paths are derived from __file__ rather than hardcoded: this script carried an absolute path to a
+# repository location that no longer exists, so it exited "no n=5000 condition B h=96 runs found" and
+# the figure it writes -- Figure~\ref{fig:n5k_trajectories}, cited from the body -- had not been
+# regenerated since July.
+#
+# THE DIRECTORIES ARE LISTED, NOT GLOBBED, AND THAT IS THE POINT. The original glob was
+# `results/*/condition_B_h96_s*.json`, which also matches `results/v11_n5k_lr_half/` -- the
+# HALF-LEARNING-RATE arm at the same n, condition and horizon. Its seeds disagree sharply with the
+# ones Table~\ref{tab:sample_sweep} reports (seed 789: +38.4 against +5.9; seed 456: +1.0 against
+# +21.4), so a wildcard here silently draws the figure from a different experiment than the table it
+# is cited beside. These are exactly the two directories scripts/emit_sample_sweep.py reads for its
+# n=5,000 row, so the figure and the table describe the same seven runs by construction.
+ROOT = Path(__file__).resolve().parent.parent
+RESULT_GLOBS = ["results/v8_final/n5000/s*.json",
+                "results/v9_n5k_seeds/condition_B_h96_s*.json"]
+OUT_PDF = str(ROOT / "paper_8/figures/n5k_trajectories.pdf")
+EXPECT_SEEDS = 7   # asserted below, so a missing directory fails here instead of thinning the figure
 
 
 def load_n5k_seeds():
-    runs = []
-    for p in glob.glob(RESULT_GLOB):
+    runs, seen = [], set()
+    for p in sorted(f for g in RESULT_GLOBS for f in glob.glob(str(ROOT / g))):
         try:
             d = json.load(open(p))
         except Exception:
             continue
-        if d.get("max_train_samples") == 5000 and d.get("condition") == "B" and d.get("horizon") == 96:
+        if (d.get("max_train_samples") == 5000 and d.get("condition") == "B"
+                and d.get("horizon") == 96 and d.get("seed") not in seen):
+            seen.add(d["seed"])
             runs.append(d)
     runs.sort(key=lambda d: d["seed"])
     return runs
@@ -39,8 +57,10 @@ def classify(forg):
 
 def main():
     runs = load_n5k_seeds()
-    if not runs:
-        sys.exit("no n=5000 condition B h=96 runs found")
+    if len(runs) != EXPECT_SEEDS:
+        sys.exit(f"expected {EXPECT_SEEDS} n=5000 condition-B h=96 runs, found {len(runs)}: "
+                 f"{[d.get('seed') for d in runs]} -- check RESULT_GLOBS against "
+                 f"scripts/emit_sample_sweep.py's n=5,000 row")
 
     print(f"{'seed':>6} {'forg%':>8} {'cka':>6} {'wd':>6} mode")
     for d in runs:

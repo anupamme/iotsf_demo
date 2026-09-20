@@ -1,0 +1,46 @@
+% ============================================================
+% Broader impact used to close this section. It now lives in the Ethics Statement, which is where
+% ICLR puts it and which is excluded from the page limit; it also duplicated the "read too broadly"
+% paragraph there almost sentence for sentence.
+\section{Limitations}
+\label{sec:limitations}
+% ============================================================
+
+Full detail is in Appendix~\ref{app:limitations}; broader impact is in the Ethics
+Statement.
+(1)~\emph{A null result is not a proof of absence, and the screen is a low bar.}
+We report that no cell in our matrix meets the degradation definition, not that
+degradation does not occur.  What would settle it is a cell with a \emph{large}
+pre-trained margin over a \emph{strong} baseline, and that is the combination our
+benchmarks do not supply: 27 of 32 cells lose to a fitted lookback-96 ridge map,
+the five that beat it are \emph{all Moirai on ETTh2}, and no cell in the matrix
+beats every admissible rung of the eight-baseline ladder
+(Appendix~\ref{app:baselines}).  So the part of our result that rests on a
+demonstrated pre-trained advantage is a claim about one series measured against
+one weak baseline, and the five-survivor agreement in
+\S\ref{sec:analysis:degradation} could reflect something about ETTh2 rather than
+about fine-tuning.
+(2)~\emph{Condition~D is a control on encoder weight updates, not on
+representations.} It leaves the input projection and mask encoding trainable,
+so its CKA is $0.969$--$0.9999$ on Moirai and as low as $0.38$ on TimesFM.
+Condition~H (strict freeze, CKA exactly $1.0000$) closes that gap on 16 of the
+31 cells; it confirms all five survivors but \emph{reverses} $\denc$'s sign on
+all four ETTm2 cells, and 15 rest on D alone (Appendix~\ref{app:strictfreeze}).
+(3)~\emph{Seed counts are small.} Cells carry 3 to 10 seeds, and the unanimity
+requirement in clauses~(ii) and~(iii) is doing real work at those counts: the
+closest candidate is excluded on a 5/10 split.
+(4)~\emph{Horizon confounds the cross-backbone comparison.} The non-Moirai arm
+runs at $h{=}24$ and the Moirai arm at $h{\in}\{96,192\}$, on different
+normalisations; we report them separately and never pool them.
+(5)~\emph{A retracted axis.} The linear-probe $\Delta R^2$ diagnostic is
+withdrawn (Appendix~\ref{sec:retraction}), so we offer no account of \emph{what} the
+encoder restructured---only whether the restructuring was necessary, which the
+frozen-encoder comparison answers.
+(6)~\emph{Similarity is not mechanism.} A representation can drift far and still
+carry the task information in a transformed basis, and a small drift can destroy
+one critical direction; our negative claim is about \emph{identifying} damage
+from similarity alone, not about CKA's validity as a measure of similarity.
+(7)~\emph{Also unsettled:} the forgetting sign at $n{=}10$k is
+protocol-dependent; the ILI cell is small (${\approx}450$ windows); and two
+pre-registered predictions failed (\S\ref{sec:analysis:prospective},
+\S\ref{sec:analysis:ili}).

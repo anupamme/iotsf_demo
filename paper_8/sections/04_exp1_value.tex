@@ -1,0 +1,81 @@
+% ============================================================
+\section{Experiment 1: Is There a Capability Worth Preserving?}
+\label{sec:forecasting}
+\label{sec:forecasting:gate}
+% ============================================================
+
+To ask whether fine-tuning damages valuable pre-trained features we first have
+to find a cell where such features are demonstrably present.  This section
+reports that search, and it comes out negative: across \textbf{32 screened
+cells}---21 Moirai (three capacities, five datasets, two horizons), 5
+Chronos-T5, 5 TimesFM-2.5 and 1 Moirai/ILI---\textbf{five} clear the value gate,
+and all five are ETTh2 on Moirai.  Thirty-one of the 32 also carry a paired
+frozen-encoder intervention; TimesFM/Electricity is screened but has no B/D
+pair, so the intervention matrix has 31 rows throughout.
+Figure~\ref{fig:screen} shows both: the screen emptying, and the gate running
+backwards on the cells that clear it.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig1_diagnostic_flow.pdf}
+\caption{\textbf{(a) The screen empties.} Of 32 screened cells, five clear
+$R^2_\text{task}(\text{PT}){\geq}0.20$ and \emph{none} satisfies the
+three-clause degradation definition of \S\ref{sec:method}; three of the five
+survivors are \emph{improved} by full fine-tuning.  \textbf{(b) The gate points
+the wrong way.}  The 31 cells with a paired frozen-encoder run, plotted as gate
+score against held-out $\denc$ (positive ${=}$ freezing better,
+so the upper-right quadrant beyond the dashed threshold is the only region a
+degradation cell could occupy).  Within Moirai---the only backbone with enough
+cells to ask, and pooling across backbones is what \S\ref{sec:forecasting:nonmoirai}
+forbids---higher measured pre-trained value predicts encoder adaptation helping
+\emph{more} ($\rho{=}{-}0.52$), while CKA drift does not reliably order them
+($\rho{=}{+}0.17$, clustered CI $[-0.47,{+}0.72]$).  Both correlations are
+directions rather than interval claims (Appendix~\ref{app:clustered}).
+Filled markers clear the gate.
+Every value is read from \texttt{scripts/cell\_matrix.py}; the figure asserts
+each count quoted here at draw time and fails loudly if the run records move,
+so it cannot silently disagree with the text.}
+\label{fig:screen}
+\end{figure}
+
+\textbf{Setup} follows \S\ref{sec:method}: $h{\in}\{96,192\}$ for Moirai and $h{=}24$
+elsewhere, $n{=}500$ or $n{=}1{,}000$ samples, 3--10 seeds per cell.  Every gate
+value is computed on held-out test windows against a lookback-96 ridge map fit
+on the cell's own training split.
+
+\textbf{Moirai: 5 of 21} (Appendix Table~\ref{tab:r2task}).  The five are
+ETTh2 at Small $h{=}96$ ($+0.400$) and $h{=}192$ ($+0.464$), Base $h{=}96$
+($+0.361$) and $h{=}192$ ($+0.275$), and Large $h{=}96$ ($+0.219$).  Every
+other dataset fails at every capacity: ETTh1 spans $-0.243$ to $-0.501$,
+Weather $-0.621$ to $-1.324$, \texttt{Electricity7} $-0.085$ and $-0.047$, and
+ETTm2 $-0.110$ to $+0.108$---never reaching the threshold even where the sign
+turns.  Capacity does not help: Moirai-Base is 6.3$\times$ larger than
+Moirai-Small and \emph{further} behind the baseline on both ETTh1 and Weather.
+
+\textbf{Chronos-T5-Small: 0 of 5} and \textbf{TimesFM-2.5: 0 of 5}
+(\S\ref{sec:forecasting:nonmoirai}, Appendix Table~\ref{tab:crossbackbone}).
+Across the ten cells the scores run from $-1.281$ (ETTm2) to $+0.132$
+(Electricity), per cell in Appendix Table~\ref{tab:crossbackbone}.
+The two backbones agree on the ordering of the five datasets
+despite unrelated pre-training corpora and architectures, which is what one
+expects if the ranking is a property of the \emph{benchmarks} rather than of
+either model.  Note in particular that ETTh2---the only dataset on which
+Moirai clears the gate---is where Chronos posts its second-worst score.
+The advantage is not a property of the dataset alone.
+
+\textbf{Why the estimator matters more than the threshold.}
+Moving the threshold anywhere in $[0.10,0.60]$ changes which cells pass but
+changes nothing below (\S\ref{sec:analysis:prospective}).  Changing the
+\emph{baseline} changes everything.  Swapping the fitted regression for the
+per-window trend extrapolation used earlier---a denominator a constant
+predictor beats---moves 17 of Moirai's 21 cells across the threshold
+(Appendix~\ref{app:gatecorrection}).  So we report a \textbf{ladder}: eight
+estimators on the same windows and the same numerator, with the training mean as
+an admissibility floor.  The count clearing $0.20$ against a denominator no worse
+than that floor is 5, 2, 4, 2, 0, 4, 6 and 7 of 32, so the screen's emptiness is
+not one estimator's artefact.  Measured against the \emph{strongest} admissible
+rung each cell faces---a minimum, since a weaker rival inflates the score---%
+\textbf{no cell of the 32 clears $0.20$}, and the five ETTh2 survivors land
+between $-0.74$ and $-1.46$, every one of them beaten by DLinear.  That count can
+only fall as rungs are added.  When this paper says five cells clear the gate, it
+means five cells clear \emph{this} gate (Appendix~\ref{app:baselines}).

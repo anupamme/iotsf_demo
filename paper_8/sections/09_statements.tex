@@ -29,6 +29,17 @@ pre-trained checkpoint holds a large, well-established advantage --- which these
 benchmarks do not, on 27 of the 32 cells we screened --- are exactly where the
 question remains open.
 
+\textbf{Broader impact.}  This is a diagnostic study on public forecasting
+benchmarks, and the effect we intend is to raise the bar for claims about
+forgetting in time-series foundation models: a paper reporting that fine-tuning
+damaged pre-trained features should say what baseline established that the
+features were valuable, and how that baseline was fit.  Our own screen is the
+worked example of why --- the earlier version of this work reported eight
+degradation cells on a baseline a constant predictor beats.  The controlled
+comparison remains the way to answer the question for any particular cell, and
+\S\ref{sec:analysis:degradation} claims only that the harm cannot be demonstrated
+on these benchmarks.
+
 \textbf{Research integrity.}  This version corrects an earlier version of the
 same work in two ways that changed its conclusions rather than its presentation,
 and we flag both rather than absorbing them silently.  An earlier version's value
@@ -57,17 +68,61 @@ The paper is organised so that every quantity can be traced to a stored run
 record, and we have tried to make the failure modes we hit ourselves cheap for
 others to avoid.
 
-\textbf{Where the numbers come from.}  The cell-level results are not assembled by
-hand: \texttt{scripts/cell\_matrix.py} reads the per-run JSON records and emits
-the main tables, so a discrepancy between the text and the runs is detectable by
-regenerating them.  Each appendix table names the result directory it is read
-from, and the cross-cell correlations of Appendix~\ref{app:crosscell} are the
-output of named functions in that script rather than transcribed values.  The
-per-run records carry the fields the tables use --- \texttt{final\_cka},
-\texttt{forgetting\_pct}, \texttt{final\_val\_mse}, \texttt{final\_weight\_drift}
-and the early-stopping block --- together with the seed, epoch budget and sample
-count, so the dispersion conventions can be recomputed rather than taken on
-trust.
+\textbf{Where the numbers come from.}  Every table the source
+\texttt{\textbackslash input}s is written by a named emitter that reads the per-run
+JSON records --- none is assembled by hand --- and
+\texttt{scripts/rederive\_all.sh} runs all of them in one command and then reports
+which generated files changed.  A clean run means the PDF agrees with the run
+records; any diff is a number that was stale.  There is one exception and it is
+marked where it appears: the two inline tabulars in \S\ref{sec:retraction}
+transcribe a \emph{withdrawn} computation whose probe records are too sparse to
+re-derive, and they support no claim in this paper.  The per-run records carry the
+fields the tables use --- \texttt{final\_cka}, \texttt{forgetting\_pct},
+\texttt{final\_val\_mse}, \texttt{final\_weight\_drift} and the early-stopping
+block --- together with the seed, epoch budget and sample count, so the dispersion
+conventions can be recomputed rather than taken on trust.
+
+\textbf{What ``reproducible'' means here, exactly, and what it does not.}
+Auditability is not independent reproduction, and we distinguish three tiers
+rather than letting the stronger word cover the weaker work.  \emph{(i)}~Every
+table and figure is re-derivable from a clean clone with no data and no
+checkpoints, because the run records are in the release; that is what
+\texttt{rederive\_all.sh} checks.  \emph{(ii)}~Re-running the value gate or any
+fine-tuning cell additionally needs the benchmark CSVs, which are public but not
+ours to redistribute.  The obstacle there is not the download but knowing you
+fetched the same file: ETT and Weather circulate in variants that differ in column
+order and date parsing, and a variant with the same name changes every window and
+so every MSE.  \texttt{results/data\_manifest.json} therefore records the
+SHA-256, shape and date range of each CSV we used, and
+\texttt{scripts/data\_manifest.py --check} verifies a local copy against it.
+\emph{(iii)}~The drift-metric battery's geometry pass needs the fine-tuned
+encoders themselves, which are excluded for size; its stored output is released,
+so the table is re-derivable even though the measurement behind it is not.
+\textbf{No third party has run any of this.}  What we offer is re-derivation from
+committed run records and a bounded two-cell from-scratch check, not independent
+replication.
+
+\textbf{What the two-cell check found, and why we report it rather than a
+tolerance.}  \texttt{scripts/rerun\_two\_cells.sh} retrains one Moirai cell
+(Small/ETTh2 $h{=}96$, $n{=}500$, seed 42, condition~B) and one non-Moirai cell
+(TimesFM/ETTh1 $h{=}24$, $n{=}1{,}000$, seed 42, condition~B) from the raw CSVs
+and diffs every stored field.  \textbf{TimesFM reproduces exactly}: all nine
+fields, including CKA and weight drift, are bit-identical.  \textbf{Moirai
+reproduces its MSEs to within a few percent but not its forgetting percentage}:
+zero-shot MSE moves $-0.8\%$, held-out MSE $+0.8\%$, the selection-window MSE
+$+3.2\%$, CKA $-0.6\%$ ($0.957$ to $0.952$), and weight drift $+25.2\%$, while
+forg.$_\text{B}$ moves from $+6.81$ to $+11.14$, a $63.5\%$ relative change.
+That last figure is the informative one and it is not a failure of the smaller
+ones, it is those smaller ones compounded: forg.$_\text{B}$ is
+$(\text{MSE}_\text{val}-\text{MSE}_\text{ZS})/\text{MSE}_\text{ZS}$ on two nearly
+equal quantities, so a $-0.8\%$ move in the denominator against a $+3.2\%$ move in
+the numerator's larger term is amplified into $+63.5\%$ in the ratio.
+Moirai scores the median of 20 sampled forecasts and TimesFM emits a point
+forecast, which is why only one of the two is reproducible to the bit.  Every
+sign-bearing field kept its sign, which is what the paper's claims are stated in
+terms of --- but a reader should treat any single-seed Moirai forgetting figure as
+carrying at least this much run-to-run variation, and that is why the paper
+reports cells at 3--10 seeds with a dispersion and never a single run.
 
 \textbf{Two things are required to reproduce the Moirai runs at all.}  First, the
 \texttt{uni2ts} \texttt{PackedStdScaler} performs an in-place write that silently
@@ -99,8 +154,9 @@ the registration precedes the runs it scores, so the ordering is checkable from
 the history rather than asserted by us.
 
 \textbf{What we release.}  The analysis and experiment scripts, the per-run JSON
-records behind every table, the pre-registration file, and the \LaTeX{} source
-and style files needed to build this paper.  Model checkpoints are excluded for
-size; the appendices state which runs retained a checkpoint, because two
-re-measurements we would otherwise have made were blocked by runs whose
-checkpoints were not kept (Appendix~\ref{app:noisefloor}).
+records behind every table, the emitter for every table and the one-command
+re-derivation script, the benchmark-data manifest, the pre-registration file, and
+the \LaTeX{} source and style files needed to build this paper.  Model checkpoints
+are excluded for size; the appendices state which runs retained a checkpoint,
+because two re-measurements we would otherwise have made were blocked by runs
+whose checkpoints were not kept (Appendix~\ref{app:noisefloor}).

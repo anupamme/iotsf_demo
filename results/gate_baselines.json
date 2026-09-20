@@ -2,9 +2,12 @@
   "baselines": [
     "fitted",
     "constant",
+    "persistence",
     "seasonal_naive",
     "ar",
+    "dlinear",
     "ridge_tuned",
+    "mlp",
     "gbm"
   ],
   "arms": [
@@ -13,7 +16,41 @@
     "timesfm",
     "ili"
   ],
+  "ladder_order": [
+    "constant",
+    "persistence",
+    "seasonal_naive",
+    "ar",
+    "dlinear",
+    "ridge_tuned",
+    "mlp",
+    "gbm"
+  ],
+  "channel_independent": [
+    "persistence",
+    "seasonal_naive",
+    "ar",
+    "dlinear",
+    "mlp",
+    "gbm"
+  ],
+  "no_training": [
+    "trend",
+    "persistence",
+    "seasonal_naive"
+  ],
   "gbm_max_rows": 200000,
+  "mlp_hidden": [
+    128
+  ],
+  "mlp_max_iter": 200,
+  "mlp_alpha_grid": [
+    0.0001,
+    0.01,
+    1.0
+  ],
+  "mlp_max_windows": 20000,
+  "dlinear_kernel": 25,
   "season_of": {
     "etth1": 24,
     "etth2": 24,
@@ -49,6 +86,12 @@
       ],
       "n_scored": 31
     },
+    "persistence": {
+      "n": 0,
+      "cells": [],
+      "near_misses": [],
+      "n_scored": 31
+    },
     "seasonal_naive": {
       "n": 1,
       "cells": [
@@ -63,7 +106,21 @@
       "near_misses": [],
       "n_scored": 31
     },
+    "dlinear": {
+      "n": 0,
+      "cells": [],
+      "near_misses": [],
+      "n_scored": 31
+    },
     "ridge_tuned": {
+      "n": 0,
+      "cells": [],
+      "near_misses": [
+        "Moirai-small/ETTh2 h192 n500"
+      ],
+      "n_scored": 31
+    },
+    "mlp": {
       "n": 0,
       "cells": [],
       "near_misses": [
@@ -77,6 +134,677 @@
       "near_misses": [],
       "n_scored": 31
     }
+  },
+  "graded": {
+    "cells": {
+      "small_ETTh1_h96": {
+        "r2_best": -0.36238796598414824,
+        "best_baseline": "ar",
+        "r2_any": 0.21595597051410598,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 6,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_ETTh1_h192": {
+        "r2_best": -0.40952674794817234,
+        "best_baseline": "ar",
+        "r2_any": 0.08339049083677463,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 6,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "small_ETTh2_h96": {
+        "r2_best": -0.8891261302180835,
+        "best_baseline": "dlinear",
+        "r2_any": 0.8057544241702725,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_ETTh2_h192": {
+        "r2_best": -0.7382182073394736,
+        "best_baseline": "dlinear",
+        "r2_any": 0.46369911142468634,
+        "weakest_baseline": "fitted",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_ETTm2_h96": {
+        "r2_best": -0.25194184614155724,
+        "best_baseline": "dlinear",
+        "r2_any": 0.8483021751185882,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_ETTm2_h192": {
+        "r2_best": 0.058192385455588025,
+        "best_baseline": "seasonal_naive",
+        "r2_any": 0.8255442909021574,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_Weather_h96": {
+        "r2_best": -0.8666748227892938,
+        "best_baseline": "fitted",
+        "r2_any": 0.013690492978766233,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "small_Weather_h192": {
+        "r2_best": -0.7749174183034551,
+        "best_baseline": "ar",
+        "r2_any": -0.6386399650030787,
+        "weakest_baseline": "ridge_tuned",
+        "n_admissible": 5,
+        "admissible": [
+          "fitted",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "seasonal_naive",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "base_ETTh1_h96": {
+        "r2_best": -0.5985072522100889,
+        "best_baseline": "ar",
+        "r2_any": 0.08007109687006375,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 6,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "base_ETTh1_h192": {
+        "r2_best": -0.5898203377511446,
+        "best_baseline": "ar",
+        "r2_any": -0.033853697040570285,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 6,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "base_ETTh2_h96": {
+        "r2_best": -1.0137599623705933,
+        "best_baseline": "dlinear",
+        "r2_any": 0.792939202302829,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "base_ETTh2_h192": {
+        "r2_best": -1.3504546241718605,
+        "best_baseline": "dlinear",
+        "r2_any": 0.2748028422572274,
+        "weakest_baseline": "fitted",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "large_ETTh2_h96": {
+        "r2_best": -1.4604435393850044,
+        "best_baseline": "dlinear",
+        "r2_any": 0.7470098663823999,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "base_Weather_h96": {
+        "r2_best": -1.0286497675670216,
+        "best_baseline": "fitted",
+        "r2_any": -0.07189346946777997,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "base_Weather_h192": {
+        "r2_best": -1.5166680826754964,
+        "best_baseline": "ar",
+        "r2_any": -1.32343930843924,
+        "weakest_baseline": "ridge_tuned",
+        "n_admissible": 5,
+        "admissible": [
+          "fitted",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "seasonal_naive",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "base_ETTm2_h96": {
+        "r2_best": -0.19254471284760788,
+        "best_baseline": "dlinear",
+        "r2_any": 0.8554993272488195,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "base_ETTm2_h192": {
+        "r2_best": 0.03189224116505596,
+        "best_baseline": "seasonal_naive",
+        "r2_any": 0.8206725843553805,
+        "weakest_baseline": "gbm",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_Electricity7_h96": {
+        "r2_best": -0.4039499388745331,
+        "best_baseline": "ar",
+        "r2_any": 0.6494835479660855,
+        "weakest_baseline": "persistence",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "small_Electricity7_h192": {
+        "r2_best": -0.5158526592972985,
+        "best_baseline": "ar",
+        "r2_any": 0.6247367165825486,
+        "weakest_baseline": "persistence",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "large_ETTh1_h96": {
+        "r2_best": -0.5938495315027925,
+        "best_baseline": "ar",
+        "r2_any": 0.08275158011180361,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 6,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "inadmissible": [
+          "persistence",
+          "gbm"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "large_Weather_h96": {
+        "r2_best": -0.6210545014958424,
+        "best_baseline": "fitted",
+        "r2_any": 0.14347081414222718,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "chronos_etth1": {
+        "r2_best": -0.12274883991514329,
+        "best_baseline": "dlinear",
+        "r2_any": 0.27756110860935135,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "chronos_etth2": {
+        "r2_best": -0.3247235711918417,
+        "best_baseline": "dlinear",
+        "r2_any": -0.007963899118462958,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "chronos_weather": {
+        "r2_best": -0.10349337764149524,
+        "best_baseline": "ridge_tuned",
+        "r2_any": 0.18970581933196862,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "chronos_ettm2": {
+        "r2_best": -1.2808082123513547,
+        "best_baseline": "dlinear",
+        "r2_any": -0.013314815892943699,
+        "weakest_baseline": "persistence",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "seasonal_naive"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "chronos_electricity": {
+        "r2_best": 0.048058830903127236,
+        "best_baseline": "fitted",
+        "r2_any": 0.06371261079266155,
+        "weakest_baseline": "gbm",
+        "n_admissible": 5,
+        "admissible": [
+          "fitted",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence",
+          "seasonal_naive",
+          "mlp"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "timesfm_etth1": {
+        "r2_best": -0.1013024362438033,
+        "best_baseline": "dlinear",
+        "r2_any": 0.29136091453372026,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 8,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "timesfm_etth2": {
+        "r2_best": -0.2872982165357558,
+        "best_baseline": "dlinear",
+        "r2_any": 0.02051253719277457,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "timesfm_ettm2": {
+        "r2_best": -0.9452841379812138,
+        "best_baseline": "dlinear",
+        "r2_any": 0.13575142904902882,
+        "weakest_baseline": "persistence",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "persistence",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "seasonal_naive"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "timesfm_weather": {
+        "r2_best": -0.07742808669255274,
+        "best_baseline": "ridge_tuned",
+        "r2_any": 0.20884553870073197,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": true
+      },
+      "timesfm_electricity": {
+        "r2_best": 0.1319400189831459,
+        "best_baseline": "fitted",
+        "r2_any": 0.14621445139018518,
+        "weakest_baseline": "gbm",
+        "n_admissible": 5,
+        "admissible": [
+          "fitted",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence",
+          "seasonal_naive",
+          "mlp"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      },
+      "ili": {
+        "r2_best": -1.638151629954313,
+        "best_baseline": "ridge_tuned",
+        "r2_any": -0.7864349398537016,
+        "weakest_baseline": "seasonal_naive",
+        "n_admissible": 7,
+        "admissible": [
+          "fitted",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "inadmissible": [
+          "persistence"
+        ],
+        "clears_all_admissible": false,
+        "clears_any_admissible": false
+      }
+    },
+    "n_scored": 32,
+    "n_clearing_all_admissible": 0,
+    "n_clearing_any_admissible": 15,
+    "threshold": 0.2
   },
   "selfcheck_passed": true,
   "cells": {
@@ -100,6 +828,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.5701405384469823,
+        "zs_test": 0.5151413987599067,
+        "linear_test": 1.1983949286559337,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.21595597051410598,
         "zs_test": 0.5151413987599067,
@@ -117,6 +852,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.24221083231227314,
+        "zs_test": 0.5151413987599067,
+        "linear_test": 0.4146972360569529,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.29681028157648326,
         "zs_test": 0.5151413987599067,
@@ -126,6 +874,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.6244788078701756
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.1474851859937425,
+        "zs_test": 0.5151413987599067,
+        "linear_test": 0.44893076185012804,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -162,6 +942,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.4059548944579825,
+        "zs_test": 0.6144698052182835,
+        "linear_test": 1.0343824054532529,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.08339049083677463,
         "zs_test": 0.6144698052182835,
@@ -179,6 +966,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.3511952850107851,
+        "zs_test": 0.6144698052182835,
+        "linear_test": 0.454760175701308,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.38195140325007415,
         "zs_test": 0.6144698052182835,
@@ -188,6 +988,38 @@
           "selected": true,
           "n_sel": 1995,
           "sel_mse": 0.8312593641730033
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.22654069374124353,
+        "zs_test": 0.6144698052182835,
+        "linear_test": 0.5009779197329386,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 9973,
+          "capped": false,
+          "avail_windows": 9973,
+          "n_sel": 1995,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -224,6 +1056,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.22251976774396387,
+        "zs_test": 0.49225142143044676,
+        "linear_test": 0.40265313855729856,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.21478907100164868,
         "zs_test": 0.49225142143044676,
@@ -241,6 +1080,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.8891261302180835,
+        "zs_test": 0.49225142143044676,
+        "linear_test": 0.26057096641483674,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.37392073931044667,
         "zs_test": 0.49225142143044676,
@@ -250,6 +1102,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.23854003927009504
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.4063668162481705,
+        "zs_test": 0.49225142143044676,
+        "linear_test": 0.8292181685655805,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 1,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -286,6 +1170,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.06322187130592805,
+        "zs_test": 0.31918626431072805,
+        "linear_test": 0.30020663882570414,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.26741960860341174,
         "zs_test": 0.31918626431072805,
@@ -303,6 +1194,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.7382182073394736,
+        "zs_test": 0.31918626431072805,
+        "linear_test": 0.18362842073739194,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.42177784515604566,
         "zs_test": 0.31918626431072805,
@@ -312,6 +1216,38 @@
           "selected": true,
           "n_sel": 1995,
           "sel_mse": 0.29461187453358145
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.2961178528394991,
+        "zs_test": 0.31918626431072805,
+        "linear_test": 0.4534654921968726,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 9973,
+          "capped": false,
+          "avail_windows": 9973,
+          "n_sel": 1995,
+          "channels_hitting_iter_budget": 1,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -348,6 +1284,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.12367100649687135,
+        "zs_test": 0.4943745299621248,
+        "linear_test": 0.5641426149622879,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.00030517607874824826,
         "zs_test": 0.4943745299621248,
@@ -365,6 +1308,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.25194184614155724,
+        "zs_test": 0.4943745299621248,
+        "linear_test": 0.3948861774097339,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.1206346264904885,
         "zs_test": 0.4943745299621248,
@@ -374,6 +1330,38 @@
           "selected": true,
           "n_sel": 8305,
           "sel_mse": 0.12851099024066537
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.1532696887847549,
+        "zs_test": 0.4943745299621248,
+        "linear_test": 0.5838630357434448,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 41521,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -410,6 +1398,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.10096988075257574,
+        "zs_test": 0.8029427439335555,
+        "linear_test": 0.893121072078983,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.058192385455588025,
         "zs_test": 0.8029427439335555,
@@ -427,6 +1422,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": 0.12325929302241412,
+        "zs_test": 0.8029427439335555,
+        "linear_test": 0.9158269229925045,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.11941672691366023,
         "zs_test": 0.8029427439335555,
@@ -436,6 +1444,38 @@
           "selected": true,
           "n_sel": 8266,
           "sel_mse": 0.17705389727166795
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.5451513219625466,
+        "zs_test": 0.8029427439335555,
+        "linear_test": 1.7652964220936773,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 41329,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -472,6 +1512,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.13400457847058556,
+        "zs_test": 1.202529492509579,
+        "linear_test": 1.3886095268099912,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.013690492978766233,
         "zs_test": 1.202529492509579,
@@ -489,6 +1536,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.6552085573537711,
+        "zs_test": 1.202529492509579,
+        "linear_test": 0.7265123704000764,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.8548654156252466,
         "zs_test": 1.202529492509579,
@@ -498,6 +1558,45 @@
           "selected": true,
           "n_sel": 9756,
           "sel_mse": 0.4247848670125522
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.8551630089928881,
+        "zs_test": 1.202529492509579,
+        "linear_test": 0.6482069158776489,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48777,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -534,6 +1633,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.27588426733989924,
+        "zs_test": 0.8853690929943704,
+        "linear_test": 1.2226900384305859,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.16299073480534976,
         "zs_test": 0.8853690929943704,
@@ -551,6 +1657,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.6699384523851184,
+        "zs_test": 0.8853690929943704,
+        "linear_test": 0.5301806732636324,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.6386399650030787,
         "zs_test": 0.8853690929943704,
@@ -560,6 +1679,45 @@
           "selected": true,
           "n_sel": 9717,
           "sel_mse": 0.4945918632905529
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.6482195108084821,
+        "zs_test": 0.8853690929943704,
+        "linear_test": 0.5371669775708944,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48585,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -596,6 +1754,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.49564038740810656,
+        "zs_test": 0.6044220019489965,
+        "linear_test": 1.1983949286559337,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.08007109687006375,
         "zs_test": 0.6044220019489965,
@@ -613,6 +1778,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.4575018818451628,
+        "zs_test": 0.6044220019489965,
+        "linear_test": 0.4146972360569529,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.5215641150670114,
         "zs_test": 0.6044220019489965,
@@ -622,6 +1800,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.6244788078701756
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.34635906761670743,
+        "zs_test": 0.6044220019489965,
+        "linear_test": 0.44893076185012804,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -658,6 +1868,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.3299701536653984,
+        "zs_test": 0.6930670841770586,
+        "linear_test": 1.0343824054532529,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.033853697040570285,
         "zs_test": 0.6930670841770586,
@@ -675,6 +1892,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.5240276550343175,
+        "zs_test": 0.6930670841770586,
+        "linear_test": 0.454760175701308,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.5587178106899509,
         "zs_test": 0.6930670841770586,
@@ -684,6 +1914,38 @@
           "selected": true,
           "n_sel": 1995,
           "sel_mse": 0.8312593641730033
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.383428404482415,
+        "zs_test": 0.6930670841770586,
+        "linear_test": 0.5009779197329386,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 9973,
+          "capped": false,
+          "avail_windows": 9973,
+          "n_sel": 1995,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -720,6 +1982,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.3031746912553639,
+        "zs_test": 0.5247273795224108,
+        "linear_test": 0.40265313855729856,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.29493396696920615,
         "zs_test": 0.5247273795224108,
@@ -737,6 +2006,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -1.0137599623705933,
+        "zs_test": 0.5247273795224108,
+        "linear_test": 0.26057096641483674,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.33261557908700456,
         "zs_test": 0.5247273795224108,
@@ -746,6 +2028,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.23854003927009504
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.36720226423631286,
+        "zs_test": 0.5247273795224108,
+        "linear_test": 0.8292181685655805,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 1,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -782,6 +2096,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.43771061272954026,
+        "zs_test": 0.43161027065157886,
+        "linear_test": 0.30020663882570414,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.7138310180099143,
         "zs_test": 0.43161027065157886,
@@ -799,6 +2120,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -1.3504546241718605,
+        "zs_test": 0.43161027065157886,
+        "linear_test": 0.18362842073739194,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.21811603864637175,
         "zs_test": 0.43161027065157886,
@@ -808,6 +2142,38 @@
           "selected": true,
           "n_sel": 1995,
           "sel_mse": 0.29461187453358145
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.04819599709652278,
+        "zs_test": 0.43161027065157886,
+        "linear_test": 0.4534654921968726,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 9973,
+          "capped": false,
+          "avail_windows": 9973,
+          "n_sel": 1995,
+          "channels_hitting_iter_budget": 1,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -844,6 +2210,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.5922392984786309,
+        "zs_test": 0.641120150866692,
+        "linear_test": 0.40265313855729856,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.5821706521609928,
         "zs_test": 0.641120150866692,
@@ -861,6 +2234,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -1.4604435393850044,
+        "zs_test": 0.641120150866692,
+        "linear_test": 0.26057096641483674,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.18457923615257943,
         "zs_test": 0.641120150866692,
@@ -870,6 +2256,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.23854003927009504
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.22683779110179048,
+        "zs_test": 0.641120150866692,
+        "linear_test": 0.8292181685655805,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 1,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -906,6 +2324,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.05886049934790616,
+        "zs_test": 1.3068752766626954,
+        "linear_test": 1.3886095268099912,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.07189346946777997,
         "zs_test": 1.3068752766626954,
@@ -923,6 +2348,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.7988341698063919,
+        "zs_test": 1.3068752766626954,
+        "linear_test": 0.7265123704000764,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -1.0158156355554002,
         "zs_test": 1.3068752766626954,
@@ -932,6 +2370,45 @@
           "selected": true,
           "n_sel": 9756,
           "sel_mse": 0.4247848670125522
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -1.0161390516687612,
+        "zs_test": 1.3068752766626954,
+        "linear_test": 0.6482069158776489,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48777,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -968,6 +2445,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.02672886848490652,
+        "zs_test": 1.2553711596656023,
+        "linear_test": 1.2226900384305859,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.18680141447510756,
         "zs_test": 1.2553711596656023,
@@ -985,6 +2469,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -1.36781765721092,
+        "zs_test": 1.2553711596656023,
+        "linear_test": 0.5301806732636324,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -1.32343930843924,
         "zs_test": 1.2553711596656023,
@@ -994,6 +2491,45 @@
           "selected": true,
           "n_sel": 9717,
           "sel_mse": 0.4945918632905529
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -1.337022214847376,
+        "zs_test": 1.2553711596656023,
+        "linear_test": 0.5371669775708944,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48585,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1030,6 +2566,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.1652475623064552,
+        "zs_test": 0.4709194230465807,
+        "linear_test": 0.5641426149622879,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.04715330616728641,
         "zs_test": 0.4709194230465807,
@@ -1047,6 +2590,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.19254471284760788,
+        "zs_test": 0.4709194230465807,
+        "linear_test": 0.3948861774097339,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.06746723338144434,
         "zs_test": 0.4709194230465807,
@@ -1056,6 +2612,38 @@
           "selected": true,
           "n_sel": 8305,
           "sel_mse": 0.12851099024066537
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.19344196460913243,
+        "zs_test": 0.4709194230465807,
+        "linear_test": 0.5838630357434448,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 41521,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1092,6 +2680,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.07586430558775892,
+        "zs_test": 0.8253650621399161,
+        "linear_test": 0.893121072078983,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.03189224116505596,
         "zs_test": 0.8253650621399161,
@@ -1109,6 +2704,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": 0.09877615363938008,
+        "zs_test": 0.8253650621399161,
+        "linear_test": 0.9158269229925045,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.09482628319209097,
         "zs_test": 0.8253650621399161,
@@ -1118,6 +2726,38 @@
           "selected": true,
           "n_sel": 8266,
           "sel_mse": 0.17705389727166795
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.5324495921421422,
+        "zs_test": 0.8253650621399161,
+        "linear_test": 1.7652964220936773,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 41329,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1154,6 +2794,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.6494835479660855,
+        "zs_test": 0.20059001068616994,
+        "linear_test": 0.5722698878247282,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.09265972082484064,
         "zs_test": 0.20059001068616994,
@@ -1171,6 +2818,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.3997693073089599,
+        "zs_test": 0.20059001068616994,
+        "linear_test": 0.14330219246755874,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.10178891483337038,
         "zs_test": 0.20059001068616994,
@@ -1180,6 +2840,38 @@
           "selected": true,
           "n_sel": 3612,
           "sel_mse": 0.19717509725144747
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.33733706555398624,
+        "zs_test": 0.20059001068616994,
+        "linear_test": 0.1499921118264051,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0001,
+            0.0001
+          ],
+          "n_train_windows": 18058,
+          "capped": false,
+          "avail_windows": 18058,
+          "n_sel": 3612,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1216,6 +2908,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.6247367165825486,
+        "zs_test": 0.2188731782085863,
+        "linear_test": 0.5832523134567014,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.03480485818051471,
         "zs_test": 0.2188731782085863,
@@ -1233,6 +2932,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.439691494139796,
+        "zs_test": 0.2188731782085863,
+        "linear_test": 0.15202783311528922,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.0711743484484888,
         "zs_test": 0.2188731782085863,
@@ -1242,6 +2954,38 @@
           "selected": true,
           "n_sel": 3574,
           "sel_mse": 0.23465633797379407
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.366757704506113,
+        "zs_test": 0.2188731782085863,
+        "linear_test": 0.16014043856272064,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 17866,
+          "capped": false,
+          "avail_windows": 17866,
+          "n_sel": 3574,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1278,6 +3022,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.49710998737910783,
+        "zs_test": 0.6026608407965957,
+        "linear_test": 1.1983949286559337,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.08275158011180361,
         "zs_test": 0.6026608407965957,
@@ -1295,6 +3046,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.45325502172825805,
+        "zs_test": 0.6026608407965957,
+        "linear_test": 0.4146972360569529,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.5171305908046544,
         "zs_test": 0.6026608407965957,
@@ -1304,6 +3068,38 @@
           "selected": true,
           "n_sel": 2033,
           "sel_mse": 0.6244788078701756
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.342436054755787,
+        "zs_test": 0.6026608407965957,
+        "linear_test": 0.44893076185012804,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 10165,
+          "capped": false,
+          "avail_windows": 10165,
+          "n_sel": 2033,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1340,6 +3136,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.24795376291229498,
+        "zs_test": 1.0442985694215925,
+        "linear_test": 1.3886095268099912,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.14347081414222718,
         "zs_test": 1.0442985694215925,
@@ -1357,6 +3160,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.43741333522857606,
+        "zs_test": 1.0442985694215925,
+        "linear_test": 0.7265123704000764,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.6107989966754206,
         "zs_test": 1.0442985694215925,
@@ -1366,6 +3182,45 @@
           "selected": true,
           "n_sel": 9756,
           "sel_mse": 0.4247848670125522
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.61105743218992,
+        "zs_test": 1.0442985694215925,
+        "linear_test": 0.6482069158776489,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48777,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1400,6 +3255,13 @@
         "info": {},
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.10675643693251036,
+        "zs_test": 1.3284191350551122,
+        "linear_test": 1.4871857911779238,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.27756110860935135,
         "zs_test": 1.3284191350551122,
@@ -1414,10 +3276,24 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.12274883991514329,
+        "zs_test": 1.3284191350551122,
+        "linear_test": 1.1831845982183453,
+        "info": {},
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.11236544890458444,
         "zs_test": 1.3284191350551122,
         "linear_test": 1.194229051579487,
+        "info": {},
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.014141019467169613,
+        "zs_test": 1.3284191350551122,
+        "linear_test": 1.309895872028788,
         "info": {},
         "r2_from_arm": false
       },
@@ -1447,6 +3323,13 @@
         "info": {},
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.5133708274875207,
+        "zs_test": 1.0139033237995163,
+        "linear_test": 2.083523514557721,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": -0.007963899118462958,
         "zs_test": 1.0139033237995163,
@@ -1461,10 +3344,24 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.3247235711918417,
+        "zs_test": 1.0139033237995163,
+        "linear_test": 0.7653697313525695,
+        "info": {},
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.2735253171972716,
         "zs_test": 1.0139033237995163,
         "linear_test": 0.7961391187973224,
+        "info": {},
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.14053409031956332,
+        "zs_test": 1.0139033237995163,
+        "linear_test": 0.8889723967088378,
         "info": {},
         "r2_from_arm": false
       },
@@ -1494,6 +3391,13 @@
         "info": {},
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.5233286127932334,
+        "zs_test": 1.1143411213508871,
+        "linear_test": 2.337755424928657,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.18970581933196862,
         "zs_test": 1.1143411213508871,
@@ -1508,10 +3412,24 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.10297140124091042,
+        "zs_test": 1.1143411213508871,
+        "linear_test": 1.0103082637475325,
+        "info": {},
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.10349337764149524,
         "zs_test": 1.1143411213508871,
         "linear_test": 1.0098303659352963,
+        "info": {},
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.02670323155069365,
+        "zs_test": 1.1143411213508871,
+        "linear_test": 1.0853585409172508,
         "info": {},
         "r2_from_arm": false
       },
@@ -1541,6 +3459,13 @@
         "info": {},
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": -0.013314815892943699,
+        "zs_test": 1.5178671663445331,
+        "linear_test": 1.4979226026681278,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.5673064254215636,
         "zs_test": 1.5178671663445331,
@@ -1555,10 +3480,24 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -1.2808082123513547,
+        "zs_test": 1.5178671663445331,
+        "linear_test": 0.665495309129792,
+        "info": {},
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -1.2294637946844524,
         "zs_test": 1.5178671663445331,
         "linear_test": 0.680821626241912,
+        "info": {},
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -1.1815033796572951,
+        "zs_test": 1.5178671663445331,
+        "linear_test": 0.6957895094267438,
         "info": {},
         "r2_from_arm": false
       },
@@ -1588,6 +3527,13 @@
         "info": {},
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.18230904874490206,
+        "zs_test": 1.7432276187822828,
+        "linear_test": 2.1318905585374908,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.23318919000423355,
         "zs_test": 1.7432276187822828,
@@ -1602,10 +3548,24 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": 0.04805883281176471,
+        "zs_test": 1.7432276187822828,
+        "linear_test": 1.8312346170838305,
+        "info": {},
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.048058835764311025,
         "zs_test": 1.7432276187822828,
         "linear_test": 1.8312346227635987,
+        "info": {},
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.1074982909343597,
+        "zs_test": 1.7432276187822828,
+        "linear_test": 1.953192471314444,
         "info": {},
         "r2_from_arm": false
       },
@@ -1637,6 +3597,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.12381890126052464,
+        "zs_test": 1.3030440805440093,
+        "linear_test": 1.4871857911779238,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.29136091453372026,
         "zs_test": 1.3030440805440093,
@@ -1654,6 +3621,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.1013024362438033,
+        "zs_test": 1.3030440805440093,
+        "linear_test": 1.1831845982183453,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.09111738558076743,
         "zs_test": 1.3030440805440093,
@@ -1663,6 +3643,32 @@
           "selected": true,
           "n_sel": 1705,
           "sel_mse": 0.9420523430939739
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.0052307909591062796,
+        "zs_test": 1.3030440805440093,
+        "linear_test": 1.309895872028788,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0
+          ],
+          "n_train_windows": 8521,
+          "capped": false,
+          "avail_windows": 8521,
+          "n_sel": 1705,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1699,6 +3705,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.5271188046227745,
+        "zs_test": 0.9852590901606132,
+        "linear_test": 2.083523514557721,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.02051253719277457,
         "zs_test": 0.9852590901606132,
@@ -1716,6 +3729,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.2872982165357558,
+        "zs_test": 0.9852590901606132,
+        "linear_test": 0.7653697313525695,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.23754638718039955,
         "zs_test": 0.9852590901606132,
@@ -1725,6 +3751,32 @@
           "selected": true,
           "n_sel": 1705,
           "sel_mse": 0.6920739170974477
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.10831235458856647,
+        "zs_test": 0.9852590901606132,
+        "linear_test": 0.8889723967088378,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0
+          ],
+          "n_train_windows": 8521,
+          "capped": false,
+          "avail_windows": 8521,
+          "n_sel": 1705,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1761,6 +3813,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.13575142904902882,
+        "zs_test": 1.294577468751089,
+        "linear_test": 1.4979226026681278,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.6309589106722493,
         "zs_test": 1.294577468751089,
@@ -1778,6 +3837,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.9452841379812138,
+        "zs_test": 1.294577468751089,
+        "linear_test": 0.665495309129792,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.901492871043281,
         "zs_test": 1.294577468751089,
@@ -1787,6 +3859,32 @@
           "selected": true,
           "n_sel": 6885,
           "sel_mse": 1.828433182970738
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.8605877944576694,
+        "zs_test": 1.294577468751089,
+        "linear_test": 0.6957895094267438,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 34423,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1823,6 +3921,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.5345879267558922,
+        "zs_test": 1.0880195990537067,
+        "linear_test": 2.337755424928657,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.20884553870073197,
         "zs_test": 1.0880195990537067,
@@ -1840,6 +3945,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": -0.07691843974226242,
+        "zs_test": 1.0880195990537067,
+        "linear_test": 1.0103082637475325,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": -0.07742808669255274,
         "zs_test": 1.0880195990537067,
@@ -1849,6 +3967,32 @@
           "selected": true,
           "n_sel": 9789,
           "sel_mse": 0.8572163519300474
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": -0.00245177794814877,
+        "zs_test": 1.0880195990537067,
+        "linear_test": 1.0853585409172508,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0
+          ],
+          "n_train_windows": 20000,
+          "capped": true,
+          "avail_windows": 48945,
+          "n_sel": 4000,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1885,6 +4029,13 @@
         },
         "r2_from_arm": false
       },
+      "persistence": {
+        "r2_task": 0.2543606530878785,
+        "zs_test": 1.5896214837560125,
+        "linear_test": 2.1318905585374908,
+        "info": {},
+        "r2_from_arm": false
+      },
       "seasonal_naive": {
         "r2_task": 0.3007574430256561,
         "zs_test": 1.5896214837560125,
@@ -1902,6 +4053,19 @@
         "info": {},
         "r2_from_arm": false
       },
+      "dlinear": {
+        "r2_task": 0.131940020723602,
+        "zs_test": 1.5896214837560125,
+        "linear_test": 1.8312346170838305,
+        "info": {
+          "kernel": 25,
+          "lam": 0.0001,
+          "individual": false,
+          "channel_independent": true,
+          "channel_shared_weights": true
+        },
+        "r2_from_arm": false
+      },
       "ridge_tuned": {
         "r2_task": 0.131940023415982,
         "zs_test": 1.5896214837560125,
@@ -1911,6 +4075,32 @@
           "selected": true,
           "n_sel": 1908,
           "sel_mse": 2.6782387104139027
+        },
+        "r2_from_arm": false
+      },
+      "mlp": {
+        "r2_task": 0.18614191529919133,
+        "zs_test": 1.5896214837560125,
+        "linear_test": 1.953192471314444,
+        "info": {
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0
+          ],
+          "n_train_windows": 9537,
+          "capped": false,
+          "avail_windows": 9537,
+          "n_sel": 1908,
+          "channels_hitting_iter_budget": 0,
+          "channel_independent": true
         },
         "r2_from_arm": false
       },
@@ -1945,6 +4135,13 @@
         "info": {},
         "r2_from_arm": true
       },
+      "persistence": {
+        "r2_task": 0.027045042083597464,
+        "zs_test": 2.4787049246971797,
+        "linear_test": 2.617766592470241,
+        "info": {},
+        "r2_from_arm": true
+      },
       "seasonal_naive": {
         "r2_task": -0.7864349398537016,
         "zs_test": 2.4787049246971797,
@@ -1959,10 +4156,24 @@
         "info": {},
         "r2_from_arm": true
       },
+      "dlinear": {
+        "r2_task": -1.6253272442158118,
+        "zs_test": 2.4787049246971797,
+        "linear_test": 1.0737335574757927,
+        "info": {},
+        "r2_from_arm": true
+      },
       "ridge_tuned": {
         "r2_task": -1.638151629954313,
         "zs_test": 2.4787049246971797,
         "linear_test": 1.071840896517275,
+        "info": {},
+        "r2_from_arm": true
+      },
+      "mlp": {
+        "r2_task": -1.3009932956783121,
+        "zs_test": 2.4787049246971797,
+        "linear_test": 1.3870749289243618,
         "info": {},
         "r2_from_arm": true
       },

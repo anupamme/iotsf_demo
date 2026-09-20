@@ -1,0 +1,369 @@
+{
+  "correlations": {
+    "value_vs_denc_all": {
+      "n": 31,
+      "clusters": 15,
+      "rho": 0.023387096774193553,
+      "lo": -0.5161559187871742,
+      "hi": 0.5986110582454806,
+      "kept": 10000
+    },
+    "value_vs_denc_valuecells": {
+      "n": 15,
+      "clusters": 7,
+      "rho": 0.32499999999999996,
+      "lo": -0.49693251533742344,
+      "hi": 0.6648093115403666,
+      "kept": 9991
+    },
+    "cka_vs_denc_all": {
+      "n": 31,
+      "clusters": 15,
+      "rho": 0.5673387096774194,
+      "lo": 0.23889125033862985,
+      "hi": 0.827850556118563,
+      "kept": 10000
+    },
+    "cka_vs_denc_moirai": {
+      "n": 22,
+      "clusters": 6,
+      "rho": 0.16770186335403728,
+      "lo": -0.469119579500657,
+      "hi": 0.7168539325842697,
+      "kept": 10000
+    },
+    "cka_vs_denc_valuecells": {
+      "n": 15,
+      "clusters": 7,
+      "rho": 0.4535714285714285,
+      "lo": -0.49005424954792054,
+      "hi": 0.8900674662668666,
+      "kept": 9991
+    },
+    "cka_vs_denc_lowvalue": {
+      "n": 16,
+      "clusters": 9,
+      "rho": 0.8264705882352942,
+      "lo": -0.3210691823899368,
+      "hi": 0.9133840300696734,
+      "kept": 10000
+    }
+  },
+  "interaction": {
+    "cka_slope_at_mean_value": {
+      "b": 31.162356184095827,
+      "lo": -34.06101249084573,
+      "hi": 107.86802338595776,
+      "kept": 9895,
+      "n_boot": 10000,
+      "n": 31,
+      "clusters": 15
+    },
+    "cka_x_value": {
+      "b": -45.27417147577438,
+      "lo": -225.63629871649127,
+      "hi": 55.025818965676876,
+      "kept": 9877,
+      "n_boot": 10000,
+      "n": 31,
+      "clusters": 15
+    }
+  },
+  "n_scored": 31,
+  "n_value_cells": 15,
+  "n_clearing_all": 0,
+  "dropped": [],
+  "gate_threshold": 0.2,
+  "baselines": [
+    "fitted",
+    "constant",
+    "persistence",
+    "seasonal_naive",
+    "ar",
+    "dlinear",
+    "ridge_tuned",
+    "mlp",
+    "gbm"
+  ],
+  "cells": {
+    "small_ETTh2_h192": {
+      "cell": "Moirai-small/ETTh2 h192 n500",
+      "value": -0.7382182073394736,
+      "best_baseline": "dlinear",
+      "cka": 0.9695092797279358,
+      "d_enc": 6.1482207209776245,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "small_ETTh2_h96": {
+      "cell": "Moirai-small/ETTh2 h96 n500",
+      "value": -0.8891261302180835,
+      "best_baseline": "dlinear",
+      "cka": 0.9369100630283356,
+      "d_enc": 2.7979526919682294,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "small_ETTh1_h192": {
+      "cell": "Moirai-small/ETTh1 h192 n1000",
+      "value": -0.40952674794817234,
+      "best_baseline": "ar",
+      "cka": 0.8368388175964355,
+      "d_enc": 13.489607634411774,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "small_ETTh1_h96": {
+      "cell": "Moirai-small/ETTh1 h96 n1000",
+      "value": -0.36238796598414824,
+      "best_baseline": "ar",
+      "cka": 0.8074549436569214,
+      "d_enc": 22.07644350687768,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "base_ETTh2_h192": {
+      "cell": "Moirai-base/ETTh2 h192 n1000",
+      "value": -1.3504546241718605,
+      "best_baseline": "dlinear",
+      "cka": 0.39613603117565316,
+      "d_enc": -20.22050453967959,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "base_ETTh2_h96": {
+      "cell": "Moirai-base/ETTh2 h96 n1000",
+      "value": -1.0137599623705933,
+      "best_baseline": "dlinear",
+      "cka": 0.46009905139605206,
+      "d_enc": -22.3372959905269,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "small_ETTm2_h192": {
+      "cell": "Moirai-small/ETTm2 h192 n1000",
+      "value": 0.058192385455588025,
+      "best_baseline": "seasonal_naive",
+      "cka": 0.8846229076385498,
+      "d_enc": 4.6869731133181505,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "small_ETTm2_h96": {
+      "cell": "Moirai-small/ETTm2 h96 n1000",
+      "value": -0.25194184614155724,
+      "best_baseline": "dlinear",
+      "cka": 0.8511378645896912,
+      "d_enc": 2.573200867488101,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "large_ETTh2_h96": {
+      "cell": "Moirai-large/ETTh2 h96 n500",
+      "value": -1.4604435393850044,
+      "best_baseline": "dlinear",
+      "cka": 0.625774989525477,
+      "d_enc": -20.801289103233618,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "base_ETTh1_h192": {
+      "cell": "Moirai-base_ETTh1_h192",
+      "value": -0.5898203377511446,
+      "best_baseline": "ar",
+      "cka": 0.6685995658238729,
+      "d_enc": 46.95466827849642,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "base_ETTh1_h96": {
+      "cell": "Moirai-base_ETTh1_h96",
+      "value": -0.5985072522100889,
+      "best_baseline": "ar",
+      "cka": 0.7553606629371643,
+      "d_enc": 37.52516060976203,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "small_Weather_h192": {
+      "cell": "Moirai-small_Weather_h192",
+      "value": -0.7749174183034551,
+      "best_baseline": "ar",
+      "cka": 0.8799434900283813,
+      "d_enc": 62.097756033320046,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "small_Weather_h96": {
+      "cell": "Moirai-small_Weather_h96",
+      "value": -0.8666748227892938,
+      "best_baseline": "fitted",
+      "cka": 0.8863542874654134,
+      "d_enc": 53.07621556179696,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "base_ETTm2_h192": {
+      "cell": "Moirai-base_ETTm2_h192",
+      "value": 0.03189224116505596,
+      "best_baseline": "seasonal_naive",
+      "cka": 0.48817284901936847,
+      "d_enc": 1.2947327385814826,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "base_ETTm2_h96": {
+      "cell": "Moirai-base_ETTm2_h96",
+      "value": -0.19254471284760788,
+      "best_baseline": "dlinear",
+      "cka": 0.5101938645044962,
+      "d_enc": 7.019480728739157,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "base_Weather_h192": {
+      "cell": "Moirai-base_Weather_h192",
+      "value": -1.5166680826754964,
+      "best_baseline": "ar",
+      "cka": 0.5089116295178732,
+      "d_enc": 12.518105404565166,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "base_Weather_h96": {
+      "cell": "Moirai-base_Weather_h96",
+      "value": -1.0286497675670216,
+      "best_baseline": "fitted",
+      "cka": 0.5666172405083975,
+      "d_enc": 9.430562976515187,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "large_ETTh1_h96": {
+      "cell": "Moirai-large_ETTh1_h96",
+      "value": -0.5938495315027925,
+      "best_baseline": "ar",
+      "cka": 0.3618045647939046,
+      "d_enc": 28.191392908604143,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "large_Weather_h96": {
+      "cell": "Moirai-large_Weather_h96",
+      "value": -0.6210545014958424,
+      "best_baseline": "fitted",
+      "cka": 0.6220877766609192,
+      "d_enc": 12.000554898432613,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "small_Electricity7_h192": {
+      "cell": "Moirai-small_Electricity7_h192",
+      "value": -0.5158526592972985,
+      "best_baseline": "ar",
+      "cka": 0.9510760108629862,
+      "d_enc": -2.633899889696454,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "small_Electricity7_h96": {
+      "cell": "Moirai-small_Electricity7_h96",
+      "value": -0.4039499388745331,
+      "best_baseline": "ar",
+      "cka": 0.9423306584358215,
+      "d_enc": -3.2426082612098606,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "chronos_etth1": {
+      "cell": "Chronos/etth1 h24",
+      "value": -0.12274883991514329,
+      "best_baseline": "dlinear",
+      "cka": 0.1689053936318784,
+      "d_enc": -39.196139904005236,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "chronos_etth2": {
+      "cell": "Chronos/etth2 h24",
+      "value": -0.3247235711918417,
+      "best_baseline": "dlinear",
+      "cka": 0.09449968370160322,
+      "d_enc": -12.94772154953225,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "chronos_weather": {
+      "cell": "Chronos/weather h24",
+      "value": -0.10349337764149524,
+      "best_baseline": "ridge_tuned",
+      "cka": 0.09233432705878446,
+      "d_enc": -21.554572366927374,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "chronos_ettm2": {
+      "cell": "Chronos/ettm2 h24",
+      "value": -1.2808082123513547,
+      "best_baseline": "dlinear",
+      "cka": 0.11187505642658478,
+      "d_enc": -29.506378799579856,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "chronos_electricity": {
+      "cell": "Chronos/electricity h24",
+      "value": 0.048058830903127236,
+      "best_baseline": "fitted",
+      "cka": 0.23242515864776278,
+      "d_enc": -2.6910737110379594,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "timesfm_etth1": {
+      "cell": "TimesFM/ETTh1 h24",
+      "value": -0.1013024362438033,
+      "best_baseline": "dlinear",
+      "cka": 0.5609099072040359,
+      "d_enc": -1.4465496368446664,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "timesfm_weather": {
+      "cell": "TimesFM/Weather h24",
+      "value": -0.07742808669255274,
+      "best_baseline": "ridge_tuned",
+      "cka": 0.3348295961103599,
+      "d_enc": -1.641128557435954,
+      "clears_any": true,
+      "clears_all": false
+    },
+    "timesfm_ettm2": {
+      "cell": "TimesFM/ETTm2 h24",
+      "value": -0.9452841379812138,
+      "best_baseline": "dlinear",
+      "cka": 0.35984648595588653,
+      "d_enc": -7.704069950484271,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "timesfm_etth2": {
+      "cell": "TimesFM/ETTh2 h24",
+      "value": -0.2872982165357558,
+      "best_baseline": "dlinear",
+      "cka": 0.2459372147483399,
+      "d_enc": -7.147428612847542,
+      "clears_any": false,
+      "clears_all": false
+    },
+    "ili": {
+      "cell": "Moirai-small/ILI h24",
+      "value": -1.638151629954313,
+      "best_baseline": "ridge_tuned",
+      "cka": 0.4554903175149645,
+      "d_enc": -38.585458352880444,
+      "clears_any": false,
+      "clears_all": false
+    }
+  }
+}

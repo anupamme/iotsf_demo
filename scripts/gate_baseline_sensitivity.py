@@ -113,7 +113,7 @@ def timesfm_denoms(baseline, lookback=96, horizon=24):
         train_s, _, test_s = load_series(ds)
         ctx, tgt = build_windows(test_s, lookback, horizon, max_windows=200, seed=0)
         tr_w = (build_windows(train_s, lookback, horizon)
-                if baseline not in ("trend", "seasonal_naive") else None)
+                if baseline not in gate_baselines.NO_TRAINING else None)
         info = {}
         lin = gac._window_linear_mse(ctx, tgt, lookback, horizon, train=tr_w,
                                      baseline=baseline, dataset=ds, info_out=info)
@@ -222,6 +222,62 @@ def passes(results, key, baseline, require_admissible=True):
     return not (require_admissible and admissible(results, key, baseline) is False)
 
 
+def graded_value(results, key, baselines=None):
+    """The cell's pre-trained value as a GRADED quantity rather than a pass/fail verdict.
+
+    WHY GRADED. The gate as published is a binary test against one estimator, and a reviewer's fair
+    objection is that this throws away the only interesting axis: cells do not divide into "has value"
+    and "has none", they differ in how far up the ladder their advantage survives. Reporting the
+    strongest rival each checkpoint still beats turns the screen into a continuous covariate, which is
+    what the drift-versus-outcome question actually needs -- see fig_value_axis.py.
+
+    WHICH DIRECTION IS "BEST", because it is the opposite of the intuitive reading. R2_task =
+    1 - MSE_zs/MSE_base, so a WEAKER rival (larger MSE_base) yields a LARGER R2_task. The strongest
+    admissible rival is therefore the one giving the SMALLEST R2_task, and `r2_best` is a MINIMUM over
+    admissible rungs. Getting this backwards would report each cell's most flattering column and call
+    it the strongest baseline -- and since the ladder now includes `persistence`, the most flattering
+    column is often the one nothing should be measured against.
+
+    Consequences of that, both worth stating in the paper:
+      * `r2_best >= 0.20` means the advantage survives EVERY admissible rung. This is the strong
+        claim, and it is monotone in ladder length: adding a rung can only remove cells from it.
+      * `r2_any >= 0.20` means it survives at least one, i.e. the weakest. Adding rungs can only add
+        cells here, so a large count is not evidence -- which is why it is reported beside the other
+        and never alone.
+
+    Inadmissible rungs (denominator worse than the training mean) are excluded from both, because a
+    rung that loses to a constant cannot establish anything about a checkpoint either way.
+    """
+    baselines = list(results[key]) if baselines is None else [b for b in baselines
+                                                             if b in results[key]]
+    adm = [b for b in baselines if b != FLOOR and admissible(results, key, b) is not False]
+    if not adm:
+        return None
+    r2 = {b: results[key][b]["r2_task"] for b in adm}
+    best = min(r2, key=r2.get)                      # strongest rival == least flattering column
+    weakest = max(r2, key=r2.get)
+    return dict(r2_best=r2[best], best_baseline=best,
+                r2_any=r2[weakest], weakest_baseline=weakest,
+                n_admissible=len(adm), admissible=adm,
+                inadmissible=[b for b in baselines
+                              if b != FLOOR and admissible(results, key, b) is False],
+                clears_all_admissible=r2[best] >= gac.GATE_THRESHOLD,
+                clears_any_admissible=r2[weakest] >= gac.GATE_THRESHOLD)
+
+
+def graded_table(results, baselines):
+    """{cell: graded_value(...)} for every scored cell, plus the two headline tallies."""
+    per = {k: graded_value(results, k, baselines) for k in results}
+    per = {k: v for k, v in per.items() if v}
+    return dict(cells=per,
+                n_scored=len(per),
+                n_clearing_all_admissible=sum(1 for v in per.values()
+                                              if v["clears_all_admissible"]),
+                n_clearing_any_admissible=sum(1 for v in per.values()
+                                              if v["clears_any_admissible"]),
+                threshold=gac.GATE_THRESHOLD)
+
+
 def degradation_counts(results, baselines, threshold=None):
     """Cells meeting the paper's degradation definition when clause~(i) uses each baseline.
 
@@ -296,6 +352,30 @@ def report(results, baselines):
               + (f"   {', '.join(d['cells'])}" if d["cells"] else "")
               + (f"   [near-miss on seeds: {', '.join(d['near_misses'])}]"
                  if d["near_misses"] else ""))
+    g = graded_table(results, baselines)
+    print(f"\n{'=' * 110}\nTHE LADDER AS A GRADED AXIS: value measured against the STRONGEST "
+          f"admissible rival\n{'=' * 110}")
+    print("  R2_task(best) is a MINIMUM over admissible rungs, because a weaker rival inflates\n"
+          "  R2_task. It is the honest per-cell value score, and it is what fig_value_axis.py uses\n"
+          "  as its x-axis. `any` is the maximum, i.e. the most flattering rung, printed only so the\n"
+          "  gap between the two is visible.")
+    col = "cell".ljust(26) + "R2(best)".rjust(10) + "  strongest rival".ljust(20) \
+        + "R2(any)".rjust(9) + "  weakest rival".ljust(20) + "adm".rjust(5)
+    print(f"\n{col}\n{'-' * len(col)}")
+    for key in sorted(g["cells"], key=lambda k: -g["cells"][k]["r2_best"]):
+        v = g["cells"][key]
+        print(key.ljust(26) + f"{v['r2_best']:+.3f}".rjust(10)
+              + f"  {v['best_baseline']}".ljust(20) + f"{v['r2_any']:+.3f}".rjust(9)
+              + f"  {v['weakest_baseline']}".ljust(20)
+              + f"{v['n_admissible']}".rjust(5)
+              + ("   <- clears against ALL admissible" if v["clears_all_admissible"] else ""))
+    print(f"{'-' * len(col)}")
+    print(f"  clears {gac.GATE_THRESHOLD} against ALL admissible rungs: "
+          f"{g['n_clearing_all_admissible']}/{g['n_scored']}   "
+          f"(monotone DOWN as rungs are added -- the conservative headline)")
+    print(f"  clears {gac.GATE_THRESHOLD} against AT LEAST ONE:         "
+          f"{g['n_clearing_any_admissible']}/{g['n_scored']}   "
+          f"(monotone UP as rungs are added -- not evidence on its own)")
     for b in baselines:
         infos = [(k, results[k][b]["info"]) for k in results
                  if b in results[k] and results[k][b]["info"]]
@@ -307,12 +387,25 @@ def report(results, baselines):
 
 def emit_latex(results, baselines, path=TABLE):
     label = {"fitted": r"Fitted ridge \\ (ours)", "constant": r"Training \\ mean",
+             "persistence": r"Persist- \\ ence",
              "seasonal_naive": r"Seasonal \\ naive", "ar": r"Per-feature \\ AR",
-             "ridge_tuned": r"Tuned \\ ridge", "gbm": r"Boosted \\ trees"}
+             "dlinear": r"DLinear \\ (shared)",
+             "ridge_tuned": r"Tuned \\ ridge", "mlp": r"MLP \\ (128)",
+             "gbm": r"Boosted \\ trees"}
+    missing = [b for b in baselines if b not in label]
+    if missing:
+        # A rung with no label would silently print its bare snake_case key as a column header.
+        sys.exit(f"no column label for baseline(s) {missing}; add them to `label` in emit_latex")
     cols = "l" + "c" * len(baselines)
     lines = [
         "% GENERATED by scripts/gate_baseline_sensitivity.py --latex -- do not edit by hand.",
-        "\\begin{center}", "\\footnotesize", "\\setlength{\\tabcolsep}{3pt}",
+        "\\begin{center}", "\\footnotesize", "\\setlength{\\tabcolsep}{2pt}",
+        # \resizebox rather than a hand-picked font size: the ladder has grown from five rungs to
+        # eight once already, and every rung adds a column. At footnotesize/3pt the eight-rung version
+        # ran 85pt past \textwidth, which LaTeX reports as an Overfull hbox and then prints anyway --
+        # i.e. into the margin. Scaling to \linewidth keeps the table legal whatever the rung count,
+        # at the cost of an effective font size smaller than the surrounding footnotesize.
+        "\\resizebox{\\linewidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}{cols}@{{}}}}", "\\toprule",
         "Cell & " + " & ".join(
             f"\\makecell{{{label.get(b, b)}}}" for b in baselines) + " \\\\",
@@ -349,7 +442,7 @@ def emit_latex(results, baselines, path=TABLE):
     deg = degradation_counts(results, baselines)
     lines.append(r"\emph{Degradation cells} & "
                  + " & ".join(f"{deg[b]['n']}/{deg[b]['n_scored']}" for b in baselines) + r" \\")
-    lines += ["\\bottomrule", "\\end{tabular}", "\\end{center}"]
+    lines += ["\\bottomrule", "\\end{tabular}}", "\\end{center}"]
     path.write_text("\n".join(lines) + "\n")
     print(f"\nwrote {path.relative_to(ROOT)}")
 
@@ -379,10 +472,22 @@ if __name__ == "__main__":
         ok = selfcheck(res)
     report(res, baselines)
     OUT.write_text(json.dumps(dict(baselines=baselines, arms=arms,
+                                   ladder_order=list(gate_baselines.NAMES),
+                                   channel_independent=list(gate_baselines.CHANNEL_INDEPENDENT),
+                                   no_training=list(gate_baselines.NO_TRAINING),
                                    gbm_max_rows=gate_baselines.GBM_MAX_ROWS,
+                                   mlp_hidden=list(gate_baselines.MLP_HIDDEN),
+                                   mlp_max_iter=gate_baselines.MLP_MAX_ITER,
+                                   mlp_alpha_grid=list(gate_baselines.MLP_ALPHA_GRID),
+                                   mlp_max_windows=gate_baselines.MLP_MAX_WINDOWS,
+                                   dlinear_kernel=gate_baselines.DLINEAR_KERNEL,
                                    season_of=gate_baselines.SEASON_OF,
                                    floor=FLOOR, gate_threshold=gac.GATE_THRESHOLD,
                                    degradation=degradation_counts(res, baselines),
+                                   # The graded axis, stored so fig_value_axis.py and
+                                   # cka_fixed_effects.py read the same per-cell value score the
+                                   # console printed rather than each deriving its own from `cells`.
+                                   graded=graded_table(res, baselines),
                                    selfcheck_passed=ok, cells=res), indent=2))
     print(f"wrote {OUT.relative_to(ROOT)}")
     if a.latex:

@@ -167,6 +167,11 @@ def build():
             f"{r['cell']}: dB - dD does not close the gap"
         p = published.get(r["cell"])
         assert p is not None, f"{r['cell']} is not a published row -- reader keys have drifted"
+        # n is taken from the published row rather than re-read here, so the n this table prints is
+        # the same n Table~\ref{tab:heldout_all} prints for the same cell by construction. The local
+        # readers above do not carry it, and a second reader of max_train_samples is a second thing
+        # that can disagree.
+        r["n_train"] = p.get("n_train")
         for k in ("bd_val", "bd_test"):
             assert abs(r[k] - p[k]) < TOL, \
                 f"{r['cell']} {k}: recomputed {r[k]:+.2f} vs published {p[k]:+.2f}"
@@ -187,7 +192,7 @@ def emit_latex(rev, path=ROOT / "paper_8/tables/heldout_decomposition.tex"):
         r"\midrule",
     ]
     for r in sorted(rev, key=lambda x: x["bd_test"]):
-        lines.append(f"{cm._display(r['cell'])} & {f(r['bd_val'])} & {f(r['bd_test'])} & "
+        lines.append(f"{cm._display(r['cell'], r.get('n_train'))} & {f(r['bd_val'])} & {f(r['bd_test'])} & "
                      f"{f(r['d_b'])} & {f(r['d_d'])} & ${r['zs_ratio']:.2f}$ \\\\")
     lines += [r"\bottomrule", r"\end{tabular}", r"\end{center}"]
     path.write_text("\n".join(lines) + "\n")

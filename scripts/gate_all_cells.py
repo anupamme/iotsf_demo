@@ -47,6 +47,12 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
+# Module level, after the path insert. Only NO_TRAINING and NAMES are read up here; the estimators
+# themselves are still reached through the lazy imports inside the two gate functions, which is what
+# keeps sklearn and the Moirai/Chronos loaders off the import path of anything that only wants the
+# constants. gate_baselines itself imports nothing heavier than numpy at module scope.
+import gate_baselines                                                  # noqa: E402
+
 GATE_THRESHOLD = 0.20
 OUT_PATH = ROOT / "results/gate_test_side.json"
 
@@ -283,7 +289,7 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
             test_seed = runs[0].get("test_seed", 0)
             train_s, _, test_s = load_series(ds_cfg)
             ctx, tgt = build_windows(test_s, lookback, horizon, max_windows=200, seed=test_seed)
-            tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
+            tr_w = build_windows(train_s, lookback, horizon) if baseline not in gate_baselines.NO_TRAINING else None
             lin = _window_linear_mse(ctx, tgt, lookback, horizon, train=tr_w, baseline=baseline,
                                      dataset=ds_dir)
             n_win = int(len(ctx))
@@ -329,7 +335,7 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
                 print(f"  {key:24s} SKIPPED -- no stored zeroshot_mse")
                 continue
             train_s, val_s, _ = load_series(ds)
-            tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
+            tr_w = build_windows(train_s, lookback, horizon) if baseline not in gate_baselines.NO_TRAINING else None
             zs_by_seed, lin_by_seed = {}, {}
             for d, _f in runs:
                 sd_ = d["seed"]
@@ -360,7 +366,7 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
         if ds == (datasets or TIMESFM_DATASETS)[0]:
             verify_native_path(model, ctx, horizon, device)
         zs = batched_point_mse(model, ctx, tgt, horizon, device)
-        tr_w = build_windows(train_s, lookback, horizon) if baseline not in ("trend", "seasonal_naive") else None
+        tr_w = build_windows(train_s, lookback, horizon) if baseline not in gate_baselines.NO_TRAINING else None
         lin = _window_linear_mse(ctx, tgt, lookback, horizon, train=tr_w, baseline=baseline,
                                  dataset=ds)
         key = f"timesfm_{ds.lower()}"
@@ -405,7 +411,7 @@ def ili_gate(lookback=104, horizon=24, data_path="data/national_illness.csv", sp
     for name, zs_vals in per_feature.items():
         j = columns.index(name)
         c, t = slide(series[:, j].astype(np.float64))
-        tr_w = slide(train[:, j].astype(np.float64)) if baseline not in ("trend", "seasonal_naive") else None
+        tr_w = slide(train[:, j].astype(np.float64)) if baseline not in gate_baselines.NO_TRAINING else None
         lin = _window_linear_mse(c, t, lookback, horizon, train=tr_w, baseline=baseline,
                                  dataset="ILI")
         zs = st.mean(zs_vals)
