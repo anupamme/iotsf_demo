@@ -29,6 +29,7 @@ Abhimanyu Das et~al.
 Mononito Goswami et~al.
 \newblock {MOMENT}: A family of open time-series foundation models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.03885}.
 
 \bibitem[Hewitt \& Manning(2019)Hewitt and Manning]{hewitt2019structural}
 John Hewitt and Christopher~D. Manning.
@@ -36,6 +37,7 @@ John Hewitt and Christopher~D. Manning.
 \newblock In \emph{Proceedings of the 2019 Conference of the North American
   Chapter of the Association for Computational Linguistics: Human Language
   Technologies (NAACL-HLT)}, pp.\  4129--4138, 2019.
+\newblock \doi{10.18653/v1/N19-1419}.
 
 \bibitem[Jin et~al.(2024)Jin, Wang, Ma, Chu, Zhang, Shi, Chen, Liang, Li, Pan,
   and Wen]{jin2024timellm}
@@ -45,6 +47,7 @@ Ming Jin, Shiyu Wang, Lintao Ma, Zhixuan Chu, James~Y. Zhang, Xiaoming Shi,
   models.
 \newblock In \emph{International Conference on Learning Representations
   (ICLR)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.01728}.
 
 \bibitem[Khosla et~al.(2020)]{khosla2020supcon}
 Prannay Khosla et~al.
@@ -59,6 +62,7 @@ James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, et~al.
 \newblock Overcoming catastrophic forgetting in neural networks.
 \newblock \emph{Proceedings of the National Academy of Sciences}, 114\penalty0
   (13):\penalty0 3521--3526, 2017.
+\newblock \doi{10.1073/pnas.1611835114}.
 
 \bibitem[Kornblith et~al.(2019)Kornblith, Norouzi, Lee, and
   Hinton]{kornblith2019cka}
@@ -66,6 +70,7 @@ Simon Kornblith, Mohammad Norouzi, Honglak Lee, and Geoffrey Hinton.
 \newblock Similarity of neural network representations revisited.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, pp.\
   3519--3529, 2019.
+\newblock URL \url{https://arxiv.org/abs/1905.00414}.
 
 \bibitem[Kumar et~al.(2022)Kumar, Raghunathan, Jones, Ma, and
   Liang]{kumar2022finetuning}
@@ -81,6 +86,7 @@ Zhizhong Li and Derek Hoiem.
 \newblock Learning without forgetting.
 \newblock \emph{IEEE Transactions on Pattern Analysis and Machine
   Intelligence}, 40\penalty0 (12):\penalty0 2935--2947, 2018.
+\newblock \doi{10.1109/TPAMI.2017.2773081}.
 
 \bibitem[Liu et~al.(2024)Liu, Zhang, Li, Huang, Wang, and Long]{liu2024timer}
 Yong Liu, Haoran Zhang, Chenyu Li, Xiangdong Huang, Jianmin Wang, and Mingsheng
@@ -88,6 +94,7 @@ Yong Liu, Haoran Zhang, Chenyu Li, Xiangdong Huang, Jianmin Wang, and Mingsheng
 \newblock Timer: Generative pre-trained transformers are large time series
   models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2402.02368}.
 
 \bibitem[Luo et~al.(2023)Luo, Yang, Meng, Li, Zhou, and
   Zhang]{luo2023forgetting}
@@ -104,6 +111,7 @@ Yair Meidan, Michael Bohadana, Yael Mathov, Yisroel Mirsky, Asaf Shabtai,
   autoencoders.
 \newblock \emph{IEEE Pervasive Computing}, 17\penalty0 (3):\penalty0 12--22,
   2018.
+\newblock \doi{10.1109/MPRV.2018.03367731}.
 
 \bibitem[Pimentel et~al.(2020)Pimentel, Valvoda, Maudslay, Zmigrod, Williams,
   and Cotterell]{pimentel2020information}
@@ -112,6 +120,7 @@ Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
 \newblock Information-theoretic probing for linguistic structure.
 \newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
   for Computational Linguistics (ACL)}, pp.\  4609--4622, 2020.
+\newblock \doi{10.18653/v1/2020.acl-main.420}.
 
 \bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Ghonia, Bhagwatkar,
   Khorasani, Bayazi, Adamopoulos, Riachi, Hassen, Bilo{\v{s}}, Garg, Schneider,
@@ -133,6 +142,7 @@ Micha{\l} Wili{\'n}ski, Mononito Goswami, Willa Potosnak, Nina {\.Z}ukowska,
 \newblock Exploring representations and interventions in time series foundation
   models.
 \newblock In \emph{International Conference on Machine Learning (ICML)}, 2025.
+\newblock URL \url{https://arxiv.org/abs/2409.12915}.
 
 \bibitem[Woo et~al.(2024)]{woo2024moirai}
 Gerald Woo et~al.
@@ -145,11 +155,13 @@ Ailing Zeng, Muxi Chen, Lei Zhang, and Qiang Xu.
 \newblock Are transformers effective for time series forecasting?
 \newblock In \emph{Proceedings of the AAAI Conference on Artificial
   Intelligence}, volume~37, pp.\  11121--11128, 2023.
+\newblock \doi{10.1609/aaai.v37i9.26317}.
 
 \bibitem[Zhou et~al.(2023)Zhou, Niu, Wang, Sun, and Jin]{zhou2023onefitsall}
 Tian Zhou, Peisong Niu, Xue Wang, Liang Sun, and Rong Jin.
 \newblock One fits all: Power general time series analysis by pretrained {LM}.
 \newblock In \emph{Advances in Neural Information Processing Systems
   (NeurIPS)}, 2023.
+\newblock \doi{10.52202/075280-1877}.
 
 \end{thebibliography}
