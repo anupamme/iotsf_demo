@@ -6,41 +6,44 @@
 \label{sec:limitations}
 % ============================================================
 
-Full detail is in Appendix~\ref{app:limitations}; broader impact is in the Ethics
-Statement.
+Full detail is in Appendix~\ref{app:limitations}; broader impact is in the Ethics Statement.
 (1)~\emph{A null result is not a proof of absence, and the screen is a low bar.}
 We report that no cell in our matrix meets the degradation definition, not that
 degradation does not occur.  What would settle it is a cell with a \emph{large}
-pre-trained margin over a \emph{strong} baseline, and that is the combination our
-benchmarks do not supply: 27 of 32 cells lose to a fitted lookback-96 ridge map,
-the five that beat it are \emph{all Moirai on ETTh2}, and no cell in the matrix
-beats every admissible rung of the eight-baseline ladder
-(Appendix~\ref{app:baselines}).  So the part of our result that rests on a
-demonstrated pre-trained advantage is a claim about one series measured against
-one weak baseline, and the five-survivor agreement in
-\S\ref{sec:analysis:degradation} could reflect something about ETTh2 rather than
-about fine-tuning.
-(2)~\emph{Condition~D is a control on encoder weight updates, not on
-representations.} It leaves the input projection and mask encoding trainable,
-so its CKA is $0.969$--$0.9999$ on Moirai and as low as $0.38$ on TimesFM.
-Condition~H (strict freeze, CKA exactly $1.0000$) closes that gap on 16 of the
-31 cells; it confirms all five survivors but \emph{reverses} $\denc$'s sign on
-all four ETTm2 cells, and 15 rest on D alone (Appendix~\ref{app:strictfreeze}).
-(3)~\emph{Seed counts are small.} Cells carry 3 to 10 seeds, and the unanimity
-requirement in clauses~(ii) and~(iii) is doing real work at those counts: the
-closest candidate is excluded on a 5/10 split.
+pre-trained margin over a \emph{strong} baseline, and that is the combination these
+benchmarks do not supply (\S\ref{sec:forecasting:gate},
+Appendix~\ref{app:baselines}).  The drift analyses run on the 20-cell union
+spanning all three backbones, but the seven-survivor agreement in
+\S\ref{sec:analysis:degradation} rests on one backbone and two series
+(Appendix~\ref{app:limitations}).
+% The relaxed-definition ladder was spelled out here as well as in S5.3. S5.3 now leads with it, so
+% this is a pointer: the counts, the two rungs and the coin-flip cell are all still in the body.
+The null is relative to one operational definition too, and we grant that rather
+than argue it away: \S\ref{sec:analysis:degradation} bounds how much of the zero
+our definition is responsible for without making the zero definition-free.
+% Item (2) used to state the strict-freeze coverage and reversal counts here. They are now stated in
+% S5's opening paragraph, where the estimate they qualify is made, so this is a pointer and not a cut:
+% the counts, the two affected survivors and the 15-cell remainder are all still in the body.
+(2)~\emph{The frozen encoder controls encoder weight updates, not
+representations} (\S\ref{sec:method}); how much of $\denc$ rests on where that
+boundary is drawn is quantified in \S\ref{sec:exp2} and
+Appendix~\ref{app:strictfreeze}.
+% The second half of this item -- that the closest candidate is the 5/10 split -- is now the closing
+% clause of S5.3's opening, so it is a pointer here rather than a second statement of the same cell.
+(3)~\emph{Seed counts are small:} 3 to 10 per cell, which is why the unanimity
+requirement in clauses~(ii) and~(iii) is doing real work
+(\S\ref{sec:analysis:degradation}).
 (4)~\emph{Horizon confounds the cross-backbone comparison.} The non-Moirai arm
 runs at $h{=}24$ and the Moirai arm at $h{\in}\{96,192\}$, on different
 normalisations; we report them separately and never pool them.
-(5)~\emph{A retracted axis.} The linear-probe $\Delta R^2$ diagnostic is
-withdrawn (Appendix~\ref{sec:retraction}), so we offer no account of \emph{what} the
-encoder restructured---only whether the restructuring was necessary, which the
-frozen-encoder comparison answers.
+(5)~\emph{A retracted axis.} With the probe diagnostic withdrawn
+(Appendix~\ref{sec:retraction}) we say whether restructuring was necessary, not what it changed.
 (6)~\emph{Similarity is not mechanism.} A representation can drift far and still
 carry the task information in a transformed basis, and a small drift can destroy
 one critical direction; our negative claim is about \emph{identifying} damage
 from similarity alone, not about CKA's validity as a measure of similarity.
-(7)~\emph{Also unsettled:} the forgetting sign at $n{=}10$k is
-protocol-dependent; the ILI cell is small (${\approx}450$ windows); and two
-pre-registered predictions failed (\S\ref{sec:analysis:prospective},
-\S\ref{sec:analysis:ili}).
+% Item (7) was a three-item recap -- the n=10k sign being protocol-dependent, the ILI cell's ~450
+% windows, and the two falsified pre-registrations. Cut for page room, not because any of it is
+% withdrawn: each is stated where it arises (S5.2, S6.4 and the whole of S7, which reports its own
+% pre-registered predictor scoring precision 0.00), and it is restated as item (6) of
+% Appendix \ref{app:limitations}, which is page-exempt, so the list lost nothing but its recap.

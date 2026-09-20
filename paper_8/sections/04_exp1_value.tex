@@ -8,74 +8,53 @@ To ask whether fine-tuning damages valuable pre-trained features we first have
 to find a cell where such features are demonstrably present.  This section
 reports that search, and it comes out negative: across \textbf{32 screened
 cells}---21 Moirai (three capacities, five datasets, two horizons), 5
-Chronos-T5, 5 TimesFM-2.5 and 1 Moirai/ILI---\textbf{five} clear the value gate,
-and all five are ETTh2 on Moirai.  Thirty-one of the 32 also carry a paired
-frozen-encoder intervention; TimesFM/Electricity is screened but has no B/D
-pair, so the intervention matrix has 31 rows throughout.
-Figure~\ref{fig:screen} shows both: the screen emptying, and the gate running
-backwards on the cells that clear it.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{fig1_diagnostic_flow.pdf}
-\caption{\textbf{(a) The screen empties.} Of 32 screened cells, five clear
-$R^2_\text{task}(\text{PT}){\geq}0.20$ and \emph{none} satisfies the
-three-clause degradation definition of \S\ref{sec:method}; three of the five
-survivors are \emph{improved} by full fine-tuning.  \textbf{(b) The gate points
-the wrong way.}  The 31 cells with a paired frozen-encoder run, plotted as gate
-score against held-out $\denc$ (positive ${=}$ freezing better,
-so the upper-right quadrant beyond the dashed threshold is the only region a
-degradation cell could occupy).  Within Moirai---the only backbone with enough
-cells to ask, and pooling across backbones is what \S\ref{sec:forecasting:nonmoirai}
-forbids---higher measured pre-trained value predicts encoder adaptation helping
-\emph{more} ($\rho{=}{-}0.52$), while CKA drift does not reliably order them
-($\rho{=}{+}0.17$, clustered CI $[-0.47,{+}0.72]$).  Both correlations are
-directions rather than interval claims (Appendix~\ref{app:clustered}).
-Filled markers clear the gate.
-Every value is read from \texttt{scripts/cell\_matrix.py}; the figure asserts
-each count quoted here at draw time and fails loudly if the run records move,
-so it cannot silently disagree with the text.}
-\label{fig:screen}
-\end{figure}
+Chronos-T5, 5 TimesFM-2.5 and 1 Moirai/ILI---\textbf{seven} clear the value gate,
+and all seven are Moirai: five on ETTh2 and two on ETTm2.  The gate is scored on
+selection windows, which exist for 31 of the 32---TimesFM/Electricity has no
+paired frozen-encoder run, so it is screened but carries neither a gate nor an
+intervention row---and every denominator below is 31.
+Figure~\ref{fig:screen}a is this screen emptying; the figure itself is in
+\S\ref{sec:intro}, because panel~(b) is the paper's claim rather than this
+section's.
 
 \textbf{Setup} follows \S\ref{sec:method}: $h{\in}\{96,192\}$ for Moirai and $h{=}24$
-elsewhere, $n{=}500$ or $n{=}1{,}000$ samples, 3--10 seeds per cell.  Every gate
-value is computed on held-out test windows against a lookback-96 ridge map fit
-on the cell's own training split.
+elsewhere, $n{=}500$ or $n{=}1{,}000$ samples, 3--10 seeds per cell, and every gate
+value scored on \emph{selection} windows against a baseline fit on the cell's own
+training split.
 
-\textbf{Moirai: 5 of 21} (Appendix Table~\ref{tab:r2task}).  The five are
-ETTh2 at Small $h{=}96$ ($+0.400$) and $h{=}192$ ($+0.464$), Base $h{=}96$
-($+0.361$) and $h{=}192$ ($+0.275$), and Large $h{=}96$ ($+0.219$).  Every
-other dataset fails at every capacity: ETTh1 spans $-0.243$ to $-0.501$,
-Weather $-0.621$ to $-1.324$, \texttt{Electricity7} $-0.085$ and $-0.047$, and
-ETTm2 $-0.110$ to $+0.108$---never reaching the threshold even where the sign
-turns.  Capacity does not help: Moirai-Base is 6.3$\times$ larger than
+\textbf{Moirai: 7 of 21} (Appendix Table~\ref{tab:r2task}).  ETTh2 clears at
+every capacity---Small $h{=}96$ ($+0.874$) and $h{=}192$ ($+0.932$), Base
+$h{=}96$ ($+0.777$) and $h{=}192$ ($+0.925$), Large $h{=}96$ ($+0.875$)---and
+ETTm2 clears at two of four, Small $h{=}192$ ($+0.352$) and Base $h{=}192$
+($+0.211$).  Every other dataset fails at every capacity, and every failing cell
+is below the baseline rather than short of the threshold (Table~\ref{tab:r2task}).
+Capacity does not help: Moirai-Base is 6.3$\times$ larger than
 Moirai-Small and \emph{further} behind the baseline on both ETTh1 and Weather.
 
-\textbf{Chronos-T5-Small: 0 of 5} and \textbf{TimesFM-2.5: 0 of 5}
+\textbf{Chronos-T5-Small: 0 of 5} and \textbf{TimesFM-2.5: 0 of 4}
 (\S\ref{sec:forecasting:nonmoirai}, Appendix Table~\ref{tab:crossbackbone}).
-Across the ten cells the scores run from $-1.281$ (ETTm2) to $+0.132$
-(Electricity), per cell in Appendix Table~\ref{tab:crossbackbone}.
-The two backbones agree on the ordering of the five datasets
-despite unrelated pre-training corpora and architectures, which is what one
-expects if the ranking is a property of the \emph{benchmarks} rather than of
-either model.  Note in particular that ETTh2---the only dataset on which
-Moirai clears the gate---is where Chronos posts its second-worst score.
-The advantage is not a property of the dataset alone.
+All nine cells fall in a narrow band about zero, $-0.275$ to $+0.082$, and none
+reaches the threshold.  Within a band that narrow the dataset \emph{ordering} is
+not stable across splits, and we withdraw a claim an earlier version built on it
+(Appendix~\ref{app:corrections}).  What holds on both splits is the dataset
+contrast: ETTh2, where Moirai clears the gate at every capacity, is where
+Chronos is \emph{below} the fitted baseline ($-0.184$ on selection, $-0.325$ on
+held-out), so the advantage is not a property of the dataset alone.
 
-\textbf{Why the estimator matters more than the threshold.}
-Moving the threshold anywhere in $[0.10,0.60]$ changes which cells pass but
-changes nothing below (\S\ref{sec:analysis:prospective}).  Changing the
-\emph{baseline} changes everything.  Swapping the fitted regression for the
-per-window trend extrapolation used earlier---a denominator a constant
-predictor beats---moves 17 of Moirai's 21 cells across the threshold
-(Appendix~\ref{app:gatecorrection}).  So we report a \textbf{ladder}: eight
-estimators on the same windows and the same numerator, with the training mean as
-an admissibility floor.  The count clearing $0.20$ against a denominator no worse
-than that floor is 5, 2, 4, 2, 0, 4, 6 and 7 of 32, so the screen's emptiness is
-not one estimator's artefact.  Measured against the \emph{strongest} admissible
-rung each cell faces---a minimum, since a weaker rival inflates the score---%
-\textbf{no cell of the 32 clears $0.20$}, and the five ETTh2 survivors land
-between $-0.74$ and $-1.46$, every one of them beaten by DLinear.  That count can
-only fall as rungs are added.  When this paper says five cells clear the gate, it
-means five cells clear \emph{this} gate (Appendix~\ref{app:baselines}).
+% This paragraph replaces two -- the eight-rung enumeration and a third-window-set paragraph -- that
+% between them ran ~24 printed lines here. Every number they carried is in Appendix \ref{app:baselines}
+% and \ref{app:baselines:traintail} already, verbatim, so nothing moved and nothing was retyped: the
+% appendix was always the record and the body was restating it. A reviewer asked for the ladder to read
+% as a robustness check rather than as a second headline, which is what it is.
+\textbf{One rung of eight.}  The screen's emptiness is not one estimator's
+artefact.  Scoring the same numerator against a \textbf{ladder} of eight
+baselines---on the same selection windows, with the training mean as an
+admissibility floor---and measuring each cell against the \emph{strongest}
+admissible rung it faces, \textbf{no cell of the 31 clears $0.20$}, and none does
+on either of two further window sets.  \textbf{20 of the 31 clear it against at
+least one admissible rung---14 Moirai, 3 Chronos, 3 TimesFM}: that union, not the
+seven, is the scope every drift analysis below runs on, so those analyses are not
+confined to one backbone.  Where this paper says seven cells clear the gate it
+means seven clear \emph{this} rung of the eight; the per-rung counts, the other
+two window sets, and the four cells a near-constant rung would admit are in
+Appendix~\ref{app:baselines}.

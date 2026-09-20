@@ -131,10 +131,14 @@
   url       = {https://arxiv.org/abs/2310.10688}
 }
 
-@inproceedings{ansari2024chronos,
+% TMLR is a journal, so the inproceedings/booktitle form printed this as "In Transactions on Machine
+% Learning Research". Same fix as andreassen2023evolution, which was already an article entry.
+% NB: do not write an at-sign in a comment here -- BibTeX reads it as the start of an entry and skips
+% the real one, which is how this edit failed the first time.
+@article{ansari2024chronos,
   title     = {Chronos: Learning the Language of Time Series},
   author    = {Ansari, Abdul Fatir and others},
-  booktitle = {Transactions on Machine Learning Research},
+  journal   = {Transactions on Machine Learning Research (TMLR)},
   year      = {2024},
   url       = {https://arxiv.org/abs/2403.07815}
 }
@@ -364,11 +368,17 @@
   pages     = {11121--11128}
 }
 
-@inproceedings{rasul2024lagllama,
+% Corrected 20 Sep 2026 against arXiv:2310.08278 (v3). The previous entry claimed NeurIPS 2024 as the
+% venue; the paper has NO journal or conference reference and is an arXiv preprint. Its author list was
+% also wrong: "Goya, Sahil" is Sahil Garg, four listed names (Kozerawski, Chow, Falconieri, Heinecke)
+% are not authors of it at all, and eight real authors were missing. Verified by arXiv-ID round-trip,
+% not by title lookup, which is what produced the bad entry.
+@article{rasul2024lagllama,
   title     = {Lag-Llama: Towards Foundation Models for Probabilistic Time Series Forecasting},
-  author    = {Rasul, Kashif and Ashok, Arjun and Williams, Andrew Robert and Khorasani, Arian and Adamopoulos, George and Bhatt, Rishika and Bilos, Marin and Ghonia, Hena and Hassen, Nadhir Vincent and Schneider, Anderson and Goya, Sahil and Kozerawski, Janus and Chow, Lennart and Falconieri, Carlo and Heinecke, Shelby},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  year      = {2024}
+  author    = {Rasul, Kashif and Ashok, Arjun and Williams, Andrew Robert and Ghonia, Hena and Bhagwatkar, Rishika and Khorasani, Arian and Bayazi, Mohammad Javad Darvishi and Adamopoulos, George and Riachi, Roland and Hassen, Nadhir and Bilo{\v{s}}, Marin and Garg, Sahil and Schneider, Anderson and Chapados, Nicolas and Drouin, Alexandre and Zantedeschi, Valentina and Nevmyvaka, Yuriy and Rish, Irina},
+  journal   = {arXiv preprint arXiv:2310.08278},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2310.08278}
 }
 
 @inproceedings{liu2024timer,

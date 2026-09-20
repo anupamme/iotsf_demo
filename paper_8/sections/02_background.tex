@@ -25,53 +25,34 @@ paper measures.
 \textbf{Pre-training value gate.}
 The gate is deliberately cheap and \emph{downstream-only}: the practitioner
 runs the frozen model zero-shot on the target set and compares against a
-lookback-96 linear regression \emph{fit on that same dataset}---one ridge-OLS
-map $\R^{96 \times F} \to \R^{h \times F}$ estimated on the training split and
-applied unchanged to the evaluation windows. Neither pre-training data nor
-pre-training compute is required.
-We report $R^2_{\text{task}}(\text{PT}) = 1 - \text{MSE}_{\text{ZS}} /
-\text{MSE}_{\text{Linear}}$ as a continuous quantity for every cell
-(Table~\ref{tab:r2task}) and mark $0.20$ only as an operating point, so
-readers can apply alternative thresholds; \S\ref{sec:analysis:prospective}
-shows the choice makes no difference to the outcome here.
-The threshold is calibrated to ETT short-horizon benchmarks, where linear
+lookback-96 linear regression \emph{fit on that same dataset}
+(\S\ref{sec:method}), so neither pre-training data nor pre-training compute is
+required.  We report $\Vb{b}$ as a continuous quantity for every cell
+(Table~\ref{tab:r2task}) rather than only its verdict, and the $0.20$ operating
+point is calibrated to ETT short-horizon benchmarks, where linear
 baselines are famously competitive with deep
 forecasters~\cite{zeng2023transformers}.  That competitiveness is the whole
-reason the gate has teeth: \textbf{5 of our 32 screened cells clear it}, all
-of them ETTh2 on Moirai, and the remaining 27 are cells in which the
-pre-trained model has no measured advantage for fine-tuning to destroy.
-Substituting a per-window trend extrapolation---a linear fit to
-each evaluation window's own last 96 steps, using no training data---inflates
-the denominator enough that a constant predictor beats it on ETTh1 and
-Weather, and moves 17 cells across the threshold. An earlier version of this
-work used that estimator; Appendix~\ref{app:gatecorrection} documents the
-correction and its consequences in full.
+reason the gate has teeth: \textbf{7 of the 31 scored cells clear it}, all on
+Moirai and confined to two series, and in the other 24 the pre-trained model
+has no measured advantage for fine-tuning to destroy.
 
 \textbf{Task-level consequence: forgetting.}
 We define forgetting as signed relative change in zero-shot-canonical
 task metric on held-out test:
 $\text{forg.\%} = 100 \cdot (M_{\text{FT}} - M_{\text{ZS}}) /
-|M_{\text{ZS}}|$ (MSE for forecasting, so positive = worse).
-Forg.$>0$ indicates \emph{task-level forgetting}: degraded performance
-against the zero-shot baseline.
+|M_{\text{ZS}}|$ (MSE for forecasting, so forg.${>}0$ means the fine-tuned model is
+worse than the zero-shot one: \emph{task-level forgetting}).
 
 \textbf{Decoupling harmful forgetting from benign specialisation.}
-A reviewer-critical distinction: representational change that redirects
-features toward the target (\emph{benign specialisation}) must be
-separated from change that discards generally useful structure
-(\emph{harmful forgetting}).  An earlier version of this work operationalised the distinction with a
-\emph{probe-sign asymmetry} criterion: trained-objective decodability up,
-task-orthogonal decodability flat or down.  That criterion is retracted
-(Appendix~\ref{sec:retraction}).
-What remains is \emph{value-gate conditioning}.  Representational change can be
-harmful only where the structure it discards was valuable, i.e.\ in a gate-pass
-cell; in a gate-fail cell the same change is benign by construction, because no
-demonstrated advantage existed to lose.  Gate-passing plus forgetting${>}0$ is
-therefore necessary for harm but not sufficient: the question of whether the
-encoder's \emph{change} carried the loss is answered by intervention---comparing
-full fine-tuning against a frozen encoder on the same data for the same
-epochs---and not by observing the representation.  \S\ref{sec:method} states the
-resulting three-clause definition, and \S\ref{sec:analysis:degradation} reports
-that no cell we screened satisfies it.  We stress that this is a statement about
-what these benchmarks can evidence, not a proof that harmful forgetting never
-occurs; \S\ref{sec:limitations} sets out what would be needed to exhibit it.
+Representational change that redirects features toward the target
+(\emph{benign specialisation}) must be separated from change that discards
+generally useful structure (\emph{harmful forgetting}).  With an earlier
+probe-based criterion retracted (Appendix~\ref{sec:retraction}), what remains is
+\emph{value-gate conditioning}:
+change can be harmful only where the structure it discards was valuable, i.e.\ in
+a gate-pass cell; in a gate-fail cell the same change is benign by construction,
+because no demonstrated advantage existed to lose.  Gate-passing plus
+forgetting${>}0$ is therefore necessary for harm but not sufficient, and whether
+the encoder's \emph{change} carried the loss is settled by intervention---full
+fine-tuning against a frozen encoder on the same data for the same epochs---and
+not by observing the representation.

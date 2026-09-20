@@ -65,7 +65,11 @@ from cluster_keys import cluster_of                               # noqa: E402
 
 OUT_JSON = ROOT / "results/paired_inference.json"
 OUT_TEX = ROOT / "paper_8/tables/paired_inference.tex"
-GATE_BASELINES = ROOT / "results/gate_baselines.json"
+# The SELECTION-split ladder, because that is the split the paper's admission decisions are made on:
+# a value-cell is admitted by windows disjoint from the held-out ones the aggregate below is computed
+# from. results/gate_baselines.json is the retrospective test-side ladder and is reachable with
+# --gate; it must not be the default, or this table's value-cell marks would disagree with S4's count.
+GATE_BASELINES = ROOT / "results/gate_baselines_val.json"
 
 CONTRASTS = (("d_enc", r"$\Delta_\text{enc}$"),
              ("d_ft", r"$\Delta_\text{FT}$"),
@@ -156,7 +160,7 @@ def summarise(x, n_boot, seed):
                 pos=sum(v > 0 for v in x), neg=sum(v < 0 for v in x))
 
 
-def value_cells(rows):
+def value_cells(rows, gate_json=GATE_BASELINES):
     """Cell refs clearing the gate threshold under at least one ADMISSIBLE baseline.
 
     Reuses gate_baseline_sensitivity.passes/admissible rather than re-deriving the rule, so "value
@@ -164,7 +168,7 @@ def value_cells(rows):
     is worse than the training-mean floor cannot admit a cell: it would be measuring value against a
     predictor that is itself beaten by a constant.
     """
-    gb = json.load(open(GATE_BASELINES))
+    gb = json.load(open(gate_json))
     results, baselines = gb["cells"], gb["baselines"]
     out = {}
     for r in rows:
@@ -178,8 +182,8 @@ def value_cells(rows):
     return out
 
 
-def analyse(rows, n_boot=10000, seed=0):
-    vc = value_cells(rows)
+def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES):
+    vc = value_cells(rows, gate_json)
     cells = []
     for r in rows:
         ps = r["per_seed"]
@@ -309,10 +313,13 @@ def main():
     ap.add_argument("--boot", type=int, default=10000)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-tex", action="store_true")
+    ap.add_argument("--gate", default=str(GATE_BASELINES),
+                    help="Ladder file defining a value-cell. Default is the selection-split "
+                         "ladder; results/gate_baselines.json is the retrospective one.")
     a = ap.parse_args()
 
     rows = cm.build_rows()
-    cells, vc = analyse(rows, a.boot, a.seed)
+    cells, vc = analyse(rows, a.boot, a.seed, a.gate)
     all_refs = {c["ref"] for c in cells}
     agg = {"value": {k: cluster_aggregate(cells, k, set(vc), a.boot, a.seed) for k, _ in CONTRASTS},
            "all": {k: cluster_aggregate(cells, k, all_refs, a.boot, a.seed) for k, _ in CONTRASTS}}

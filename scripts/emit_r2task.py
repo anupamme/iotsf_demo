@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit paper_8/tables/r2task.tex from results/gate_test_side.json.
+"""Emit paper_8/tables/r2task.tex from results/gate_val_side.json and results/gate_test_side.json.
 
 WHY THIS EXISTS. This was the last table the paper \\input{}s that carried hand-typed numbers -- 21
 of them -- and its own header said so. Seven of the ten hand-authored tables in this project have
@@ -16,8 +16,14 @@ JSON. Only the NUMBERS and the counts in the Reading paragraph are generated. Th
 the "5 of 21 and all five are ETTh2" sentence are computed, not asserted, so a change in the run
 records changes the sentence too instead of leaving it stale beside new numbers.
 
-Source is the TEST-side gate at baseline `fitted`, which is what the gate is defined against; the
-superseded trend-baseline values stay in results/gate_test_side_trend.json and are not read here.
+BOTH SPLITS, SIDE BY SIDE. The paper's primary gate is scored on the SELECTION windows, which are
+disjoint from the held-out windows the intervention outcome is scored on; scoring it on the held-out
+windows makes cell inclusion a retrospective judgement, and the paper reports that variant as a
+sensitivity analysis rather than dropping it. This table prints both, because the difference between
+them is itself a result: seven cells clear on selection and five on held-out, and the two extra are
+ETTm2 rather than ETTh2. Bold marks the PRIMARY (selection) pass, so the bold set is the one every
+count in the body refers to. Both columns come from baseline `fitted`, which is what the gate is
+defined against; the superseded trend-baseline values stay in results/gate_*_side_trend.json.
 
 Run:  .venv12/bin/python scripts/emit_r2task.py
 """
@@ -26,7 +32,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "results/gate_test_side.json"
+# (split, path). The selection split is first everywhere in this file because it is the primary.
+SRCS = [("val", ROOT / "results/gate_val_side.json"),
+        ("test", ROOT / "results/gate_test_side.json")]
 OUT = ROOT / "paper_8/tables/r2task.tex"
 THRESHOLD = 0.20
 
@@ -44,48 +52,61 @@ HORIZONS = [96, 192]
 TT = {"Electricity7"}
 
 
-def fmt(v):
+def fmt(v, bold):
     """Signed, three decimals, in the hand-written table's exact two forms.
 
     Non-bold entries put the sign in its own math group (`$-$0.243`) so the minus renders as a math
     minus rather than a hyphen and the decimal points still align in the column; bold entries carry
-    the sign inside \\mathbf. A gate-pass is by definition >= +0.20, so the bold branch is never
-    negative and does not need the $-$ treatment.
+    the sign inside \\mathbf. `bold` is passed rather than derived from `v >= THRESHOLD` because only
+    the PRIMARY (selection) column is bolded: bolding both would make the held-out column look like a
+    second set of survivors when it is the retrospective variant of the same decision.
     """
-    if v >= THRESHOLD:
+    if bold:
         return r"$\mathbf{" + f"{v:+.3f}" + "}$"
     return ("$-$" if v < 0 else "$+$") + f"{abs(v):.3f}"
 
 
 def main():
-    if not SRC.exists():
-        sys.exit(f"{SRC.relative_to(ROOT)} not found; run gate_all_cells.py --baseline fitted first")
-    g = json.load(open(SRC))
+    G = {}
+    for split, src in SRCS:
+        if not src.exists():
+            sys.exit(f"{src.relative_to(ROOT)} not found; "
+                     f"run gate_all_cells.py --baseline fitted --split {split} first")
+        G[split] = json.load(open(src))
 
-    vals, rows, n_win = {}, [], set()
+    vals, rows, n_win = {}, [], {s: set() for s, _ in SRCS}
     for heading, pref, datasets in ARMS:
-        rows.append(rf"\multicolumn{{4}}{{l}}{{\textit{{{heading}}}}} \\")
+        rows.append(rf"\multicolumn{{6}}{{l}}{{\textit{{{heading}}}}} \\")
         for ds in datasets:
             cells = []
-            for h in HORIZONS:
-                e = g.get(f"{pref}_{ds}_h{h}")
-                if e is None:
-                    cells.append("---")
-                    continue
-                if e["baseline"] != "fitted" or e["split"] != "test":
-                    sys.exit(f"{pref}_{ds}_h{h} is {e['baseline']}/{e['split']}, not fitted/test")
-                vals[f"{pref}_{ds}_h{h}"] = e["r2_task"]
-                n_win.add(e.get("n_windows", e.get("n", None)))
-                cells.append(fmt(e["r2_task"]))
+            for split, _ in SRCS:
+                for h in HORIZONS:
+                    key = f"{pref}_{ds}_h{h}"
+                    e = G[split].get(key)
+                    if e is None:
+                        cells.append("---")
+                        continue
+                    if e["baseline"] != "fitted" or e["split"] != split:
+                        sys.exit(f"{key} is {e['baseline']}/{e['split']}, not fitted/{split}")
+                    vals.setdefault(key, {})[split] = e["r2_task"]
+                    n_win[split].add(e.get("n_windows", e.get("n", None)))
+                    # bold only where the PRIMARY split passes, in both columns of that row-pair,
+                    # so the bold set reads as "these cells are in" rather than "this number is big"
+                    prim = G["val"].get(key)
+                    cells.append(fmt(e["r2_task"],
+                                     prim is not None and prim["r2_task"] >= THRESHOLD))
             label = rf"\texttt{{{ds}}}" if ds in TT else ds
-            rows.append(rf" & {label:<22s} & {cells[0]} & {cells[1]} \\")
+            rows.append(rf" & {label:<22s} & " + " & ".join(cells) + r" \\")
         if heading != ARMS[-1][0]:
             rows.append(r"\midrule")
 
-    n_win.discard(None)
-    if len(n_win) != 1:
-        sys.exit(f"cells disagree on window count {sorted(n_win)}; the caption states one number")
-    nw = n_win.pop()
+    nw = {}
+    for split, _ in SRCS:
+        n_win[split].discard(None)
+        if len(n_win[split]) != 1:
+            sys.exit(f"{split} cells disagree on window count {sorted(n_win[split])}; "
+                     f"the caption states one number per split")
+        nw[split] = n_win[split].pop()
 
     # The Reading paragraph is prose, and the paper spells small counts as words there while using
     # digits inside tables. Generated text has to follow the same rule or the emitter introduces a
@@ -94,32 +115,48 @@ def main():
         return ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
                 "ten"][n] if n <= 10 else str(n)
 
-    passing = sorted(k for k, v in vals.items() if v >= THRESHOLD)
-    datasets_passing = sorted({k.split("_")[1] for k in passing})
-    # The Reading paragraph's claim is that every passing cell is ETTh2. Computed, so that if a new
-    # run record ever breaks it the sentence changes instead of silently misdescribing the table.
-    all_etth2 = datasets_passing == ["ETTh2"]
+    passing = {s: sorted(k for k, v in vals.items() if v.get(s, -9) >= THRESHOLD)
+               for s, _ in SRCS}
+    datasets_passing = sorted({k.split("_")[1] for k in passing["val"]})
+    # Whether the primary survivors are confined to one dataset is computed, not asserted: if a run
+    # record ever breaks it the sentence changes instead of silently misdescribing the table. The
+    # same goes for the two splits' sets -- whether one contains the other is checked, because the
+    # body says the selection split ADDS cells and that would be wrong if any test-side cell dropped.
+    one_dataset = len(datasets_passing) == 1
+    superset = set(passing["test"]) <= set(passing["val"])
+    added = sorted(set(passing["val"]) - set(passing["test"]))
     reading_pass = (
-        rf"{word(len(passing))} of these {len(vals)} cells clear the ${THRESHOLD:.2f}$ threshold and"
-        "\n"
-        rf"all {word(len(passing))} are ETTh2; on every other dataset the released checkpoint does"
-        "\nnot beat a supervised lookback-96 linear regression out of sample, at any capacity."
-        if all_etth2 else
-        rf"{word(len(passing))} of these {len(vals)} cells clear the ${THRESHOLD:.2f}$ threshold, on"
-        "\n"
-        rf"{word(len(datasets_passing))} dataset(s): {', '.join(datasets_passing)}."
+        rf"{word(len(passing['val']))} of these {len(vals)} cells clear the ${THRESHOLD:.2f}$ "
+        rf"threshold on the selection windows and {word(len(passing['test']))} on the held-out "
+        "windows.\n"
+        + (rf"The selection set contains the held-out set and adds "
+           rf"{word(len(added))} ({', '.join(d.split('_')[1] for d in added)}), "
+           "so the retrospective variant is the stricter of the two here.\n"
+           if superset and added else
+           "The two sets are not nested, so neither split's count bounds the other.\n")
+        + (rf"Every primary survivor is {datasets_passing[0]}; on every other dataset the released "
+           "checkpoint does\nnot beat a supervised lookback-96 linear regression, at any capacity."
+           if one_dataset else
+           rf"The primary survivors span {word(len(datasets_passing))} datasets: "
+           rf"{', '.join(datasets_passing)}.")
     )
 
     tex = "\n".join([
-        f"% GENERATED by scripts/emit_r2task.py from {SRC.relative_to(ROOT)} -- do not hand-edit.",
-        "% The corrected fitted-baseline gate: scripts/gate_all_cells.py --baseline fitted, test",
-        f"% split, {nw} matched windows. Superseded trend-baseline values are preserved in",
+        "% GENERATED by scripts/emit_r2task.py from "
+        + " and ".join(str(s.relative_to(ROOT)) for _, s in SRCS) + " -- do not hand-edit.",
+        "% The corrected fitted-baseline gate: scripts/gate_all_cells.py --baseline fitted, on both",
+        f"% splits ({nw['val']} matched selection windows, {nw['test']} matched held-out windows).",
+        "% Superseded trend-baseline values are preserved in",
         "% results/gate_test_side_trend.json / results/gate_val_side_trend.json and are not read here.",
         r"\begin{table}[t]",
         r"\centering",
-        r"\caption{Task-native gate score $R^2_{\text{task}}(\text{PT}) {=} 1 {-}",
-        r"\text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$ for every Moirai cell, on",
-        r"held-out (test) windows.",
+        r"\caption{Baseline-relative pre-trained advantage $\Vb{\text{ridge}} {=} 1 {-}",
+        r"\text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$ for every Moirai cell, on both",
+        r"splits. The \emph{selection} columns are the paper's primary gate: they are disjoint from",
+        r"the held-out windows every intervention outcome is scored on, so cell inclusion is not a",
+        r"judgement made after seeing the outcome. The \emph{held-out} columns are the retrospective",
+        r"variant, reported as a sensitivity analysis. Bold marks a pass on the \emph{primary} split",
+        r"in both columns of that row, so the bold set is the one the body's counts refer to.",
         r"\textbf{Not a linear probe}: this is a ratio of forecast MSEs computed through",
         r"Moirai's own forecasting head, and is unaffected by the retraction of the",
         r"linear-probe $\Delta R^2$ axis.",
@@ -128,16 +165,20 @@ def main():
         r"$\text{MSE}_{\text{Linear}}$ is a single lookback-96 ridge-OLS linear map",
         r"$\mathbb{R}^{96 \times D} {\to} \mathbb{R}^{h \times D}$ \emph{fit on the",
         r"cell's training windows} and applied unchanged out of sample; both are computed",
-        rf"on the same {nw} matched test windows, train-normalised.",
+        rf"on the same matched windows within a split ({nw['val']} selection, {nw['test']}",
+        r"held-out), train-normalised.",
         r"The gate involves no fine-tuning, so a cell has one value at every $n$: the",
         r"$n{=}500$ and $n{=}10$k (ES) operating points reported in",
         r"\S\ref{sec:forecasting} share the entry shown here.",
-        rf"Bold ${{=}}$ gate-pass at the ${THRESHOLD:.2f}$ threshold. ``---'' ${{=}}$ not run.}}",
+        rf"Bold ${{=}}$ gate-pass at the ${THRESHOLD:.2f}$ threshold on the primary split."
+        r" ``---'' ${=}$ not run.}",
         r"\label{tab:r2task}",
         r"\small",
-        r"\begin{tabular}{llcc}",
+        r"\begin{tabular}{ll cc cc}",
         r"\toprule",
-        r"Backbone & Dataset & $h{=}96$ & $h{=}192$ \\",
+        r"& & \multicolumn{2}{c}{Selection (primary)} & \multicolumn{2}{c}{Held-out (retrosp.)} \\",
+        r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}",
+        r"Backbone & Dataset & $h{=}96$ & $h{=}192$ & $h{=}96$ & $h{=}192$ \\",
         r"\midrule",
         *rows,
         r"\bottomrule",
@@ -146,7 +187,7 @@ def main():
         "",
         r"{\footnotesize",
         r"\textbf{Reading:} " + reading_pass,
-        r"$R^2_{\text{task}}(\text{PT}){<}0$ means the linear baseline wins outright.",
+        r"$\Vb{\text{ridge}}{<}0$ means the linear baseline wins outright.",
         r"These values supersede the ones printed in earlier versions of this table,",
         r"which were computed against a per-window trend extrapolation rather than the",
         r"fitted regression the gate is defined with; the substitution and its",
@@ -158,11 +199,15 @@ def main():
         "",
     ])
     OUT.write_text(tex)
-    print(f"wrote {OUT.relative_to(ROOT)}  ({len(vals)} cells, {len(passing)} gate-pass: "
-          f"{', '.join(passing)})")
-    if not all_etth2:
-        print("  NOTE: the gate-pass cells are no longer all ETTh2 -- check every body sentence "
-              "that says 'all five are ETTh2'")
+    print(f"wrote {OUT.relative_to(ROOT)}  ({len(vals)} cells)")
+    for split, _ in SRCS:
+        print(f"  {split:4s}: {len(passing[split])} gate-pass: {', '.join(passing[split])}")
+    if not superset:
+        print("  NOTE: the held-out pass set is NOT contained in the selection pass set -- the body "
+              "says the selection split ADDS cells, which is now wrong")
+    if not one_dataset:
+        print(f"  NOTE: primary gate-pass cells span {datasets_passing} -- check every body sentence "
+              "that says the survivors are all one dataset")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,672 @@
+{
+  "gate_baselines_val.json": {
+    "arms": {
+      "chronos": 3,
+      "moirai": 14,
+      "timesfm": 3
+    },
+    "cells": {
+      "base_ETTh1_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "ar",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 6,
+        "r2_any": -0.22203461578335193,
+        "r2_best": -0.7143388493517173,
+        "r2_fitted": -0.6001931789830015,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "base_ETTh1_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "ar",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.2820492182887794,
+        "r2_best": -0.36506848692409566,
+        "r2_fitted": -0.3119255995794663,
+        "weakest_baseline": "persistence"
+      },
+      "base_ETTh2_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "seasonal_naive",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.9249116324043706,
+        "r2_best": -0.012816268152887167,
+        "r2_fitted": 0.9249116324043706,
+        "weakest_baseline": "fitted"
+      },
+      "base_ETTh2_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "seasonal_naive",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.9161593261362535,
+        "r2_best": -0.5448239818493346,
+        "r2_fitted": 0.7773647893886328,
+        "weakest_baseline": "gbm"
+      },
+      "base_ETTm2_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "dlinear",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.3874405035337095,
+        "r2_best": -0.10590643067486094,
+        "r2_fitted": 0.2114029705056859,
+        "weakest_baseline": "mlp"
+      },
+      "base_ETTm2_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "dlinear",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.5829680765521051,
+        "r2_best": -0.5052457643245434,
+        "r2_fitted": -0.2568268186720004,
+        "weakest_baseline": "mlp"
+      },
+      "base_Weather_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 6,
+        "r2_any": 0.04777271223818769,
+        "r2_best": -0.6319053092384217,
+        "r2_fitted": -0.6319053092384217,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "base_Weather_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 7,
+        "r2_any": 0.09869343457761959,
+        "r2_best": -0.8189431144278956,
+        "r2_fitted": -0.8189431144278956,
+        "weakest_baseline": "gbm"
+      },
+      "chronos_electricity": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned"
+        ],
+        "arm": "chronos",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 7,
+        "r2_any": 0.10239299269102875,
+        "r2_best": -0.08883444312024946,
+        "r2_fitted": -0.08883444312024946,
+        "weakest_baseline": "mlp"
+      },
+      "chronos_etth1": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "chronos",
+        "best_baseline": "ridge_tuned",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.3218037862106584,
+        "r2_best": -0.12409706287937539,
+        "r2_fitted": -0.11630262468419517,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "chronos_etth2": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "chronos",
+        "best_baseline": "dlinear",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.2228551036941928,
+        "r2_best": -0.1835325461454358,
+        "r2_fitted": -0.18353254238753247,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "chronos_ettm2": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned"
+        ],
+        "arm": "chronos",
+        "best_baseline": "gbm",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 7,
+        "r2_any": 0.13986911031709437,
+        "r2_best": -0.2952769545223062,
+        "r2_fitted": -0.2753792310039853,
+        "weakest_baseline": "persistence"
+      },
+      "chronos_weather": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "chronos",
+        "best_baseline": "ridge_tuned",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.43041790946625635,
+        "r2_best": -0.20435729972576766,
+        "r2_fitted": -0.2029604353189347,
+        "weakest_baseline": "persistence"
+      },
+      "ili": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "ili",
+        "best_baseline": "gbm",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 7,
+        "r2_any": -12.093208075220986,
+        "r2_best": -6.17114987043326,
+        "r2_fitted": -10.206137625086404,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "large_ETTh1_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "ar",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.3154472115330428,
+        "r2_best": -0.301567548885441,
+        "r2_fitted": -0.25089678893133605,
+        "weakest_baseline": "persistence"
+      },
+      "large_ETTh2_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "seasonal_naive",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.9530039931985408,
+        "r2_best": 0.1340651856396654,
+        "r2_fitted": 0.8752041772810654,
+        "weakest_baseline": "gbm"
+      },
+      "large_Weather_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 7,
+        "r2_any": 0.1878748638928759,
+        "r2_best": -0.6389644556551128,
+        "r2_fitted": -0.6389644556551128,
+        "weakest_baseline": "gbm"
+      },
+      "small_ETTh1_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "ar",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 6,
+        "r2_any": -0.028413467062267328,
+        "r2_best": -0.4427162185182316,
+        "r2_fitted": -0.3466559734990764,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "small_ETTh1_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "ar",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.35569594211065036,
+        "r2_best": -0.2250410304251691,
+        "r2_fitted": -0.17734949106575737,
+        "weakest_baseline": "persistence"
+      },
+      "small_ETTh2_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "seasonal_naive",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.9318906022423122,
+        "r2_best": 0.08131834168283258,
+        "r2_fitted": 0.9318906022423122,
+        "weakest_baseline": "fitted"
+      },
+      "small_ETTh2_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "seasonal_naive",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.9524414333808847,
+        "r2_best": 0.1236996213199879,
+        "r2_fitted": 0.8737103245039649,
+        "weakest_baseline": "gbm"
+      },
+      "small_ETTm2_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "dlinear",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.4968317417725189,
+        "r2_best": 0.09158699571991291,
+        "r2_fitted": 0.3522310958151057,
+        "weakest_baseline": "mlp"
+      },
+      "small_ETTm2_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "dlinear",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.6138658564293955,
+        "r2_best": -0.39372252192429036,
+        "r2_fitted": -0.1637088672544167,
+        "weakest_baseline": "mlp"
+      },
+      "small_Electricity7_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "mlp",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 6,
+        "r2_any": -0.14441391200519416,
+        "r2_best": -0.8317057603920648,
+        "r2_fitted": -0.4571063769737673,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "small_Electricity7_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "mlp",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.7969896237153227,
+        "r2_best": -1.0044537548931847,
+        "r2_fitted": -0.6507385023693968,
+        "weakest_baseline": "gbm"
+      },
+      "small_Weather_h192": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 6,
+        "r2_any": 0.1214820277657569,
+        "r2_best": -0.5055839730451466,
+        "r2_fitted": -0.5055839730451466,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "small_Weather_h96": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "moirai",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.23387627666466337,
+        "r2_best": -0.5461281708378751,
+        "r2_fitted": -0.5461281708378751,
+        "weakest_baseline": "gbm"
+      },
+      "timesfm_etth1": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "timesfm",
+        "best_baseline": "ridge_tuned",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.2935313432080783,
+        "r2_best": -0.10935635507879926,
+        "r2_fitted": -0.1006823985877876,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "timesfm_etth2": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "timesfm",
+        "best_baseline": "fitted",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 7,
+        "r2_any": 0.21337822475422874,
+        "r2_best": -0.20767391575477445,
+        "r2_fitted": -0.20767391575477445,
+        "weakest_baseline": "seasonal_naive"
+      },
+      "timesfm_ettm2": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "persistence",
+          "ridge_tuned"
+        ],
+        "arm": "timesfm",
+        "best_baseline": "ridge_tuned",
+        "clears_all": false,
+        "clears_any": false,
+        "n_admissible": 5,
+        "r2_any": 0.08157182648206396,
+        "r2_best": -0.029282314803175113,
+        "r2_fitted": 0.08157181863078666,
+        "weakest_baseline": "dlinear"
+      },
+      "timesfm_weather": {
+        "admissible": [
+          "ar",
+          "dlinear",
+          "fitted",
+          "gbm",
+          "mlp",
+          "persistence",
+          "ridge_tuned",
+          "seasonal_naive"
+        ],
+        "arm": "timesfm",
+        "best_baseline": "ridge_tuned",
+        "clears_all": false,
+        "clears_any": true,
+        "n_admissible": 8,
+        "r2_any": 0.4367985037770118,
+        "r2_best": -0.16082109653675336,
+        "r2_fitted": -0.16033345176420832,
+        "weakest_baseline": "persistence"
+      }
+    },
+    "loose": [
+      "base_ETTh1_h96",
+      "base_ETTm2_h96",
+      "chronos_etth1",
+      "chronos_etth2",
+      "chronos_weather",
+      "large_ETTh1_h96",
+      "small_ETTh1_h96",
+      "small_ETTm2_h96",
+      "small_Electricity7_h96",
+      "small_Weather_h96",
+      "timesfm_etth1",
+      "timesfm_etth2",
+      "timesfm_weather"
+    ],
+    "n_scored": 31,
+    "split": "val",
+    "strict": [],
+    "threshold": 0.2,
+    "union": [
+      "base_ETTh1_h96",
+      "base_ETTh2_h192",
+      "base_ETTh2_h96",
+      "base_ETTm2_h192",
+      "base_ETTm2_h96",
+      "chronos_etth1",
+      "chronos_etth2",
+      "chronos_weather",
+      "large_ETTh1_h96",
+      "large_ETTh2_h96",
+      "small_ETTh1_h96",
+      "small_ETTh2_h192",
+      "small_ETTh2_h96",
+      "small_ETTm2_h192",
+      "small_ETTm2_h96",
+      "small_Electricity7_h96",
+      "small_Weather_h96",
+      "timesfm_etth1",
+      "timesfm_etth2",
+      "timesfm_weather"
+    ]
+  }
+}

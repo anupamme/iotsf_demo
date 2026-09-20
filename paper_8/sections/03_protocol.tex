@@ -3,94 +3,133 @@
 \label{sec:method}
 % ============================================================
 
-\textbf{Moirai for forecasting and anomaly scoring.}
+\textbf{Moirai for forecasting.}
 Moirai~\cite{woo2024moirai} predicts a probabilistic distribution
 over a target horizon given context.  For ETT forecasting we report
 MSE on the median of 20 forecast samples at $h{=}96$ and $h{=}192$
-(Appendix~\ref{app:moirai_median}).  For IoT the anomaly score is
-the fraction of timesteps outside the $1{-}\alpha$ CI
-($\alpha{=}0.05$) over a 32-timestep horizon.
-
-\textbf{Fine-tuning objective.}
-Condition~B uses NLL only.  Condition~C adds supervised
-contrastive loss~\cite{khosla2020supcon}:
-$\mathcal{L}(\theta) = \mathcal{L}_{\text{NLL}}(\theta) +
-\lambda\,\mathcal{L}_{\text{SupCon}}(\mathbf{z}, \mathbf{y};\, \tau)$,
-with $\lambda = 0.5$ and $\tau = 0.07$.
+(Appendix~\ref{app:moirai_median}); the IoT anomaly score of the
+negative control is defined in Appendix~\ref{app:cnn_detail}.
 
 \textbf{Training details.}
 AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$), batch size 32,
 early stopping with patience 3, gradient clipping at 1.0.  ETT
 fine-tuning runs 20 epochs at $n{=}500$ (10 seeds) and is swept
 across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
+\textbf{Reproducing any Moirai fine-tune requires the \texttt{uni2ts}
+\texttt{PackedStdScaler} patch of Appendix~\ref{app:scaler_patch}}, without which
+training can appear to run while silently not propagating gradients.
 
-\textbf{uni2ts PackedStdScaler patch.\footnote{We patched an in-place
-tensor mutation in \texttt{uni2ts}'s \texttt{PackedStdScaler} that
-silently detaches autograd; a differentiable \texttt{torch.where}
-replaces the in-place write (Appendix~\ref{app:scaler_patch}).}}
-\textbf{Any Moirai fine-tuning reproduction of this paper requires the patch.}
+\textbf{Representation diagnostics.}  Two metrics:
+CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned encoder
+representations, and weight drift ($\ell_2$ distance from pre-trained
+parameters).
 
-\textbf{Representation diagnostics.}
-We track representation change with two metrics:
-(1)~CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned
-encoder representations (geometric similarity);
-and (2)~weight drift ($\ell_2$ distance from pre-trained parameters).
-
-\textbf{The value score and its baseline.}
-We write $R^2_\text{task}(\text{PT}) = 1-\text{MSE}_\text{ZS}/\text{MSE}_\text{Linear}$
-for the continuous pre-training value score; it is positive when the
-pre-trained model beats the linear baseline, and $0.20$ marks the operating
-point used as a screen rather than a boundary.
-$\text{MSE}_\text{Linear}$ is one ridge map $\R^{96 \times F} \to \R^{h \times F}$
-($\lambda{=}10^{-4}$) fit by least squares on the \emph{training} windows and
-applied unchanged to the evaluation windows, on the train-normalised scale the
-runs report, over the same window set the model is scored on (up to 300
-windows). Both terms therefore see the same targets; the pre-trained model sees
+% Review S13/S19: name the screen precisely once, here, and document "gate" as its short form rather
+% than renaming 276 sites. "Capability worth preserving" is defined in this paragraph's first sentence
+% and used as the shorthand from here on, which is what S19 asked for.
+\textbf{Baseline-relative pre-trained advantage.}  Nothing can be said about a
+checkpoint having a \emph{capability worth preserving} except relative to a
+baseline, so the baseline belongs in the quantity.  For a baseline
+$b$, $\Vb{b} = 1-\text{MSE}_\text{ZS}/\text{MSE}_b$ is positive when the
+pre-trained model beats $b$, and thresholding it at $0.20$---a prespecified
+operating point, not an established boundary---is the \emph{baseline-relative
+capability screen}, for which we write \emph{gate} in tables, figures and code.
+\textbf{$\Vb{b}$ is a property of the pair, not of the checkpoint}: every
+count we report is a count against a named $b$, and
+\S\ref{sec:forecasting:gate} reports a ladder of eight.  Our primary $b$ is one
+ridge map $\R^{96 \times F} \to \R^{h \times F}$ ($\lambda{=}10^{-4}$) fit by
+least squares on the \emph{training} windows and applied unchanged to the
+evaluation windows, on the train-normalised scale the runs report (up to 300
+windows).  Both terms see the same targets, and the pre-trained model sees
 $96{+}h$ steps of context against the baseline's $96$, which if anything makes
-the gate a lower bound on the linear model's strength.
+$\Vb{b}$ generous to the pre-trained model.
 
-\textbf{Two splits, and the estimand, named once.} The \emph{selection} split is
-the set of windows used for early stopping and checkpoint choice; the
-\emph{held-out} split is disjoint from it and is where every number in this paper
-is scored.  We write $\denc \equiv \text{B}{-}\text{D}$ for the difference in
-forgetting between full fine-tuning and the frozen encoder, positive when
-freezing does better; it estimates the incremental downstream value of allowing
-encoder-side adaptation \emph{under this protocol}.  $\denc$ is the estimand
-because it is the contrast this design \emph{manipulates}.  Representation drift
-is not manipulated: CKA is measured after the fact, so it enters as a candidate
-\emph{predictor} of $\denc$ and never as the treatment.
+\textbf{Three splits, and which quantity each one scores.} The \emph{training}
+split fits both the fine-tuning updates and every baseline; the \emph{selection}
+split chooses checkpoints and early stopping \textbf{and is where we score
+$\Vb{b}$}; the \emph{held-out} split is disjoint from both and is where every
+outcome is scored.  So a cell's admission cannot borrow the windows that later
+judge it.  We also report the retrospective variant---$\Vb{b}$ on the held-out
+windows themselves---which admits two fewer cells and changes no conclusion, though
+two subsidiary readings did rest on it and are withdrawn
+(Appendices~\ref{app:gatecorrection},~\ref{app:corrections}).
+
+\textbf{The estimand, named once.} For a cell with $S$ paired seeds,
+\begin{equation}
+\label{eq:denc}
+\denc \;=\; \frac{1}{S}\sum_{s=1}^{S} 100 \cdot
+\frac{\mathcal{L}_\text{test}(\text{B}_s) - \mathcal{L}_\text{test}(\text{D}_s)}
+     {\mathcal{L}_\text{test}(\text{ZS})},
+\end{equation}
+the difference in forgetting between full fine-tuning~(B) and the frozen
+encoder~(D), positive when freezing does better.  Both arms share the zero-shot
+denominator, so $\denc$ is the raw contrast
+$\mathcal{L}_\text{test}(\text{B})-\mathcal{L}_\text{test}(\text{D})$ rescaled per
+cell to make different loss scales comparable, with no sign or ordering changed.
+It is the estimand because it is the contrast this design \emph{manipulates}: B
+and D differ in exactly one thing, whether the encoder's weights may move.
+\textbf{Representation drift is not manipulated.}  CKA is an observational
+\emph{post-treatment} measurement---taken after the intervention, on the object
+the intervention changed---so it enters only as a candidate \emph{predictor} of
+$\denc$.  That asymmetry is why a CKA-to-outcome association would not license a
+CKA-based decision rule even had we found one.
 
 \textbf{Definition (degradation of a demonstrated capability).} A cell counts as
-degradation when all three clauses hold: (i)~$R^2_\text{task}(\text{PT}) \ge
-0.20$ on held-out windows, so there is a measured pre-trained advantage;
+degradation when all three clauses hold: (i)~$\Vb{b} \ge
+0.20$ on selection windows, so there is a measured pre-trained advantage over $b$;
 (ii)~full fine-tuning ends worse than not fine-tuning at all, forg.$_\text{B} >
 0$, in \emph{every} seed; and (iii)~the frozen encoder ends better,
 forg.$_\text{D} < 0$, in \emph{every} seed, which localises the loss to encoder
 weight updates rather than to the data or the epoch budget. Clauses (ii) and
 (iii) require unanimity because at three to ten seeds an exact sign-flip test
-cannot reach $p{<}0.05$ on 28 of our 31 cells; every cell is additionally reported
-with a paired interval, an effect size and two $p$-values in
-Appendix~\ref{app:pairedinference}. This definition is fixed for the whole paper;
-\S\ref{sec:analysis:degradation} reports how many cells meet it.
+cannot reach $p{<}0.05$ on 28 of our 31 cells; every cell also carries a paired
+interval, an effect size and two $p$-values
+(Appendix~\ref{app:pairedinference}). The definition is fixed for the whole
+paper.
 
 \textbf{Conditions.} \textbf{B}~NLL-only fine-tune (baseline: how much does
-unconstrained fine-tuning drift and forget?); \textbf{C}~NLL$+$SupCon;
+unconstrained fine-tuning drift and forget?); \textbf{C}~NLL$+$SupCon
+(Appendix~\ref{app:full_tables});
 \textbf{D}~frozen encoder (control: separates encoder updates from head
 training and overfitting); \textbf{E}~LoRA ($r{=}8$); \textbf{F}~L2-SP and
 \textbf{G}~EWC. Conditions~D and~B are the comparison every claim in this
-paper turns on.
+paper turns on.  \textbf{We name conditions rather than letter them from here on}
+---\emph{full fine-tuning} (B), \emph{frozen encoder} (D), \emph{strict frozen
+encoder} (H), \emph{LoRA} (E)---and keep the letters for the tables, the clauses
+of the definition above and Equation~\ref{eq:denc}, so that no result in the body
+has to be read through a lookup.
 
-\textbf{What condition~D does and does not hold fixed.} D freezes the
-encoder's own weights but leaves the input projection and mask encoding
-trainable, so it is a control on \emph{encoder weight updates}, not a
-guarantee of unchanged representations: its measured CKA is close to but never
-exactly $1$ on Moirai ($0.969$--$0.9999$ across our cells) and falls as low as
+\textbf{What condition~D does and does not hold fixed.} D freezes the encoder's
+own weights but leaves the input projection and mask encoding trainable, so it
+controls \emph{encoder weight updates} and not representations: its measured CKA
+is near but never exactly $1$ on Moirai ($0.969$--$0.9999$) and falls as low as
 $0.38$ on TimesFM, where the encoder stack's weight drift is exactly zero.
-\textbf{H}~(strict freeze) additionally freezes those two modules and is the
-only condition with CKA exactly $1.000$; it checks whether $\denc$ depends on the
-projections being trainable, and on 4 of the 16 cells we ran it on---every
-Moirai/ETTm2 cell---$\denc$ reverses sign (Appendix~\ref{app:strictfreeze}).
+\textbf{H}~(strict freeze) also freezes those two modules, is the only condition
+with CKA exactly $1.000$, and reverses $\denc$'s sign on 4 of the 16 cells we ran
+it on---every Moirai/ETTm2 cell.  Figure~\ref{fig:freezeboundary} draws which
+modules move under each (Appendix~\ref{app:strictfreeze}).
 
 \textbf{Dispersion.} Every ${\pm}$ in the body and in every generated table is
 the standard error of the mean over seeds; where an appendix table or passage
 uses a standard deviation instead it says so, and says which, where it does.
+
+% The two lessons of this round, boxed because they are the parts of this paper most likely to be
+% useful to someone who disagrees with its conclusion: both are choices we got wrong first, and both
+% move results against us. The prose that used to state (1) in S7 and (2) in S4 is now a pointer, so
+% the box costs its frame and not its content. No package added -- fbox+minipage only; the preamble is
+% at its limit and a new float or tcolorbox risks a reflow the page budget cannot absorb.
+\begin{center}
+\fbox{\begin{minipage}{0.95\linewidth}
+\small
+\textbf{Two measurement choices that decide this result.}
+\emph{(1)~Score the frozen-encoder comparison on windows you did not select on.}
+Scoring $\denc$ on the selection windows instead reverses its sign on 4 of our 31
+cells, and all four reverse toward flattering the frozen encoder
+(\S\ref{sec:analysis:heldout}).
+\emph{(2)~Fit the linear baseline.}  An earlier version of this work reached the
+opposite conclusion from a baseline that was an unfitted per-window trend
+extrapolation---a denominator a constant predictor beats---and correcting the
+estimator moves 17 of Moirai's 21 cells across the threshold, 16 of them to
+gate-fail (Appendix~\ref{app:gatecorrection}).
+\end{minipage}}
+\end{center}

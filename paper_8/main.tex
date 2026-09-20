@@ -33,9 +33,23 @@
 % The paper's estimand, named once in S3 and used everywhere after. A macro rather than a literal so
 % that the manipulated contrast (B minus D) and the symbol can never drift apart across 30-odd sites.
 \newcommand{\denc}{\Delta_\text{enc}}
+% The value score, for the same reason, and with the baseline IN the symbol. It was written
+% R^2_\text{task}(PT) at 24 prose sites through 20 Sep 2026, which invited exactly the misreading a
+% reviewer made: that it measures an absolute property of the checkpoint. It does not -- it is a
+% comparison against one baseline b, and every count the screen produces is a count against that b.
+% \Vb takes the baseline as an argument so no site can quote the score without naming it.
+\newcommand{\Vb}[1]{V_{#1}}
+\newcommand{\Vbest}{\Vb{\text{best}}}
 
-\title{Representation Drift Is Not Forgetting:\\
-       Diagnosing Fine-Tuning Damage in Time-Series Foundation Models}
+% The title carries the METHODOLOGICAL claim; the body's spine sentence carries the empirical one, and
+% they are deliberately not the same string. Two earlier titles named the negation ("Representation
+% Drift Is Not Forgetting") or the empirical finding ("Does Not Reliably Predict the Value of Encoder
+% Adaptation"); a reviewer pointed out that the transferable lesson is the one about substitution -- a
+% post-treatment similarity statistic cannot be assumed to identify the value of a treatment that
+% changed the representation -- and that a title asserting a general negative invites the objection
+% that six datasets cannot support it, whereas "is not a substitute" is exactly what the design tests.
+\title{Representation Drift Is Not a Substitute for Intervention\\
+       in Time-Series Foundation Model Fine-Tuning}
 
 % ICLR submissions are DOUBLE-BLIND. Authors must not appear in the submitted
 % version; non-anonymous submissions are rejected without review. Uncomment
@@ -50,37 +64,43 @@ Paper under double-blind review}
 \maketitle
 
 % ============================================================
+% Rewritten 20 Sep 2026, and the deletions are the point. The previous abstract carried TP/FP/precision
+% 0.00, the [0.10,0.60] threshold sweep, the eight-rung ladder counts, the per-dataset gate values, the
+% Moirai-Base two-least-drifted anecdote and the probe retraction. Every one of those is true and every
+% one of them is still in the paper; none of them is the sentence a reader should leave with, and a
+% reviewer reported having to work out which one that was. What survives here is the spine sentence, the
+% screen, the null, the two measurement choices, and one clause each for the two blockers of earlier
+% rounds: that the screen is scored on windows disjoint from every outcome, and that the matrix spans
+% three backbones. Nothing was dropped for space alone -- see sections/01_introduction.tex for the
+% counts and S4-S7 for all of it.
 \begin{abstract}
 Fine-tuning a time-series foundation model reshapes its internal
 representations, and that reshaping is routinely read as catastrophic
 forgetting to be prevented.  Preventing it presupposes something worth
-preserving.  \textbf{We test that presupposition, and on the standard
-benchmarks it mostly fails.}  Screening \textbf{32 held-out cells} across three
-backbones (Moirai-S/B/L, Chronos-T5, TimesFM-2.5) and six datasets against a
-lookback-96 linear regression \emph{fit on the target data}, only
-\textbf{five} show the pre-trained model beating that baseline, and all five
-are ETTh2; all three backbones lose to it on ETTh1, ETTm2, Weather and
-Electricity, as does Moirai on ILI.  Against an eight-baseline ladder,
-\textbf{no cell beats every admissible rung}.  On the five that pass, fine-tuning
-\emph{improves} MSE by 31--42\% in three, and the two with mean harm carry
-4/10 and 5/10 seed agreement.  \textbf{No cell meets our own definition of
-damaging a demonstrated pre-trained capability}, so the value-gate we
-pre-registered has no positive instance to predict: TP~0, FP~8, and precision
-$0.00$ at every threshold from $0.10$ to $0.60$.
-Two measurement findings show how easily this is missed.  First, the
-frozen-encoder comparison must be scored on held-out windows---4 of 31 cells
-otherwise reverse sign, every one of them flattering the frozen encoder.
-Second, an earlier version of this work drew the opposite conclusion because
-its linear baseline was an unfitted per-window trend extrapolation that a
-constant predictor beats; correcting the estimator moves 16 of 21 Moirai cells
-from gate-pass to gate-fail.
-Across the 31 intervention cells the outcome still spans $-51.8\%$ to
-$+46.1\%$ against zero-shot, and the magnitude of CKA-measured representation
-change is not sufficient to predict whether allowing encoder adaptation helps or
-hurts (within-backbone Spearman $\rho{=}{+}0.168$ against the frozen-encoder
-contrast, clustered CI $[-0.469,{+}0.717]$---too wide to establish a reliable
-relationship in either direction).  We additionally retract a probe-based diagnostic reported in an
-earlier version.
+preserving.  \textbf{CKA tells us that the representation changed; a
+fine-tune-versus-frozen-encoder intervention tells us whether that change was
+valuable.  Across the cells we evaluate, the former does not reliably predict
+the latter.}
+Screening \textbf{32 cells}---three backbones (Moirai-S/B/L, Chronos-T5,
+TimesFM-2.5), six datasets, two horizons---against a lookback-96 linear
+regression \emph{fit on the target data} and scored on windows disjoint from
+every outcome we report, only \textbf{7 of the 31} scored cells show the
+pre-trained model beating that baseline, and all seven are Moirai on two of the
+six datasets.  On those seven, full fine-tuning \emph{improves} MSE in five.
+\textbf{No cell meets a degradation definition we fixed in advance}, under any
+fine-tuning protocol we evaluated.
+The outcome nonetheless spans $-51.8\%$ to $+46.1\%$ against zero-shot, and CKA
+\textbf{does not provide a reliable ordering} of it: within Moirai, the only
+backbone with enough cells to ask, $\rho{=}{+}0.168$ (clustered CI
+$[-0.469,{+}0.717]$), and no cut on CKA separates the cells encoder adaptation
+helped from the cells it hurt.  Under an analysis fixed before it was run, CKA adds
+\textbf{no} out-of-sample predictive information beyond backbone identity: across
+15 leave-one-cluster-out folds it \emph{lowers} $R^2$ from $+0.201$ to $+0.176$.
+Two measurement choices decide this: the frozen-encoder comparison must be scored
+on \textbf{held-out} windows---4 of 31 cells otherwise reverse sign, every one of
+them flattering the frozen encoder---and the baseline must be \textbf{fitted},
+since an unfitted per-window trend extrapolation that a constant predictor beats
+puts 16 of 21 Moirai cells on the wrong side of the screen.
 \end{abstract}
 
 % ============================================================
@@ -106,10 +126,11 @@ earlier version.
 % ============================================================
 \bibliographystyle{iclr2027_conference}
 \bibliography{bibliography}
+% The retraction used to be its own \input here. It is now the last subsection of
+% "Audit trail and withdrawn analyses" at the end of sections/appendix.tex, together with
+% the corrections summary, the gate-baseline correction and the ILI withdrawal: one place
+% for every withdrawn reading, so a reader auditing the record reads one section.
+% The labels sec:retraction, app:corrections, app:gatecorrection and app:ili_gate all survive.
 \input{sections/appendix}
-% Demoted from the body to the appendix: the retraction is a record of a
-% withdrawn computation, not a result of this paper. Body pointers are
-% Appendix~\ref{sec:retraction}.
-\input{sections/076_retraction}
 
 \end{document}

@@ -3,19 +3,43 @@
 \label{sec:conclusion}
 % ============================================================
 
-% One paragraph rather than two: the body ends flush with the bottom of page 9, and a paragraph
-% break here costs a printed line that the page limit does not have to give.
-We set out to measure how much fine-tuning damages a time-series foundation
-model's pre-trained capability, and found that on these benchmarks it is mostly not
-\emph{measurably} there to damage: 5 of 32 cells beat a lookback-96 regression fit
-on the target data, all five on one dataset, and none beats every admissible rung
-of an eight-baseline ladder.  On three of those five, unconstrained fine-tuning
-improves MSE by 31--42\%, and no cell meets a definition of degradation we fixed in
-advance.  So check the features beat a fitted baseline before spending effort on
-LoRA, EWC or L2-SP; if they do, settle the question against a frozen encoder scored
-on windows you did not select on.  What survives as a positive
-finding is the dissociation: the outcome spans $-51.8\%$ to $+46.1\%$ against
-zero-shot across the 31 cells, and the magnitude of CKA-measured
-change is not sufficient to predict $\denc$'s sign (within-backbone
-$\rho{=}{+}0.168$, clustered CI $[-0.469,{+}0.717]$).  The cheap rule we had hoped
-to report rests on a premise these benchmarks do not supply.
+% Three paragraphs as of 20 Sep 2026 -- result, why no cheap diagnostic replaces the intervention, what
+% to do -- funded by the cuts in S4, S6 and S7 this round. It was one paragraph for six rounds because
+% each paragraph break costs a printed line the page limit did not have; the comment recording that is
+% deleted rather than kept, because the constraint no longer applies and a stale justification is worse
+% than none.
+We set out to measure how much fine-tuning damages a foundation model's
+pre-trained capability, and on these benchmarks it is mostly not
+\emph{measurably} there to damage: no cell beats every admissible rung of an
+eight-baseline ladder, four of the seven that beat a fitted ridge are
+\emph{improved} by full fine-tuning in every seed, and no cell meets a degradation
+definition fixed in advance.
+
+The reason no cheap diagnostic rescues this is structural rather than statistical.
+CKA tells us that the representation changed; only the intervention---fine-tune,
+then fine-tune again with the encoder frozen---tells us whether that change was
+valuable, and \textbf{across the cells we evaluate the former does not reliably
+predict the latter}.  Drift is measured \emph{after} the treatment and on the object
+the treatment altered, so even a strong association would not license a decision
+rule---and there is none to work with: $\denc$ spans $-51.8\%$ to $+46.1\%$
+(\S\ref{sec:exp3}), and under an analysis fixed before it was run, CKA adds no
+out-of-sample predictive information once backbone identity, horizon and $n$ are
+known (Appendix~\ref{app:loco}).  The claim we would defend outside this setting is
+that methodological one: \textbf{a post-treatment similarity statistic cannot be
+assumed to identify the value of a treatment that changed the representation.}
+
+The advice therefore inverts the literature's.  Check that
+the pre-trained features beat a baseline fitted on your own data before spending
+effort on LoRA, EWC or L2-SP; if they do, settle the question against a frozen
+encoder scored on windows you did not select on---in that order, because
+\textbf{a forgetting result measured on cells with no measurable pre-trained
+advantage is a statement about the benchmark}.  We claim that CKA magnitude does
+not identify whether encoder adaptation contributed in the cells we evaluate, and
+that the screen locates cells where no advantage over a fitted baseline is
+measurable under a definition we state; we do \emph{not} claim that drift is
+generally unpredictive across time-series foundation models, which three backbones
+cannot establish.
+% The closing line -- "the cheap rule we hoped to report rests on a premise these benchmarks do not
+% supply" -- is cut for the one printed line S5's treatment paragraph needs. It restated the
+% benchmark-selection lesson three sentences above it rather than adding a claim, and it was the only
+% whole sentence on the spilling page that did.

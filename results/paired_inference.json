@@ -5,12 +5,15 @@
    "ref": "small_ETTh2_h192",
    "cluster": "Moirai|etth2",
    "seeds": 10,
-   "gate": 0.4636991114246872,
+   "gate": 0.9318906022423123,
    "cka": 0.9695092797279358,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
     "fitted",
+    "persistence",
+    "ar",
+    "dlinear",
     "ridge_tuned",
     "mlp"
    ],
@@ -75,12 +78,15 @@
    "ref": "small_ETTh2_h96",
    "cluster": "Moirai|etth2",
    "seeds": 10,
-   "gate": 0.4003060756294661,
+   "gate": 0.8737103245039648,
    "cka": 0.9369100630283356,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
     "fitted",
+    "persistence",
+    "ar",
+    "dlinear",
     "ridge_tuned",
     "mlp",
     "gbm"
@@ -146,7 +152,7 @@
    "ref": "small_ETTh1_h192",
    "cluster": "Moirai|etth1",
    "seeds": 5,
-   "gate": -0.3305209412980148,
+   "gate": -0.3466559734990766,
    "cka": 0.8368388175964355,
    "n_train": null,
    "is_value_cell": false,
@@ -212,12 +218,12 @@
    "ref": "small_ETTh1_h96",
    "cluster": "Moirai|etth1",
    "seeds": 5,
-   "gate": -0.24266834667616433,
+   "gate": -0.1773494910657567,
    "cka": 0.8074549436569214,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
-    "seasonal_naive"
+    "persistence"
    ],
    "ft_paired": false,
    "zs_seeds": 3,
@@ -280,13 +286,16 @@
    "ref": "base_ETTh2_h192",
    "cluster": "Moirai|etth2",
    "seeds": 3,
-   "gate": 0.2748028422572285,
+   "gate": 0.9249116324043706,
    "cka": 0.39613603117565316,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
     "fitted",
-    "ridge_tuned"
+    "ar",
+    "dlinear",
+    "ridge_tuned",
+    "mlp"
    ],
    "ft_paired": false,
    "zs_seeds": 3,
@@ -349,12 +358,13 @@
    "ref": "base_ETTh2_h96",
    "cluster": "Moirai|etth2",
    "seeds": 3,
-   "gate": 0.360741670311411,
+   "gate": 0.7773647893886326,
    "cka": 0.46009905139605206,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
     "fitted",
+    "ar",
     "ridge_tuned",
     "mlp",
     "gbm"
@@ -420,14 +430,15 @@
    "ref": "small_ETTm2_h192",
    "cluster": "Moirai|ettm2",
    "seeds": 5,
-   "gate": 0.10811802136491078,
+   "gate": 0.3522310958151065,
    "cka": 0.8846229076385498,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
+    "fitted",
     "ar",
-    "mlp",
-    "gbm"
+    "ridge_tuned",
+    "mlp"
    ],
    "ft_paired": false,
    "zs_seeds": 3,
@@ -490,12 +501,12 @@
    "ref": "small_ETTm2_h96",
    "cluster": "Moirai|ettm2",
    "seeds": 5,
-   "gate": -0.10967743889885218,
+   "gate": -0.1637088672544147,
    "cka": 0.8511378645896912,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
-    "gbm"
+    "mlp"
    ],
    "ft_paired": false,
    "zs_seeds": 3,
@@ -558,12 +569,16 @@
    "ref": "large_ETTh2_h96",
    "cluster": "Moirai|etth2",
    "seeds": 3,
-   "gate": 0.2189441360087564,
+   "gate": 0.8752041772810653,
    "cka": 0.625774989525477,
    "n_train": null,
    "is_value_cell": true,
    "clearing": [
     "fitted",
+    "persistence",
+    "ar",
+    "dlinear",
+    "ridge_tuned",
     "mlp",
     "gbm"
    ],
@@ -628,7 +643,7 @@
    "ref": "base_ETTh1_h192",
    "cluster": "Moirai|etth1",
    "seeds": 3,
-   "gate": -0.5007088410053777,
+   "gate": -0.6001931789830017,
    "cka": 0.6685995658238729,
    "n_train": 1000,
    "is_value_cell": false,
@@ -694,11 +709,13 @@
    "ref": "base_ETTh1_h96",
    "cluster": "Moirai|etth1",
    "seeds": 3,
-   "gate": -0.45803868930891767,
+   "gate": -0.31192559957946564,
    "cka": 0.7553606629371643,
    "n_train": 1000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "persistence"
+   ],
    "ft_paired": false,
    "zs_seeds": 3,
    "zs_sem": 0.0839563358486478,
@@ -760,7 +777,7 @@
    "ref": "small_Weather_h192",
    "cluster": "Moirai|weather",
    "seeds": 3,
-   "gate": -0.6387319453197278,
+   "gate": -0.5055839730451466,
    "cka": 0.8799434900283813,
    "n_train": 1000,
    "is_value_cell": false,
@@ -826,11 +843,13 @@
    "ref": "small_Weather_h96",
    "cluster": "Moirai|weather",
    "seeds": 3,
-   "gate": -0.8666748228739947,
+   "gate": -0.5461281708378751,
    "cka": 0.8863542874654134,
    "n_train": 1000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "gbm"
+   ],
    "ft_paired": false,
    "zs_seeds": 3,
    "zs_sem": 0.12535247493961132,
@@ -892,14 +911,14 @@
    "ref": "base_ETTm2_h192",
    "cluster": "Moirai|ettm2",
    "seeds": 3,
-   "gate": 0.0832120592915685,
+   "gate": 0.21140297050568668,
    "cka": 0.48817284901936847,
    "n_train": 1000,
    "is_value_cell": true,
    "clearing": [
-    "ar",
-    "mlp",
-    "gbm"
+    "fitted",
+    "ridge_tuned",
+    "mlp"
    ],
    "ft_paired": false,
    "zs_seeds": 1,
@@ -962,12 +981,12 @@
    "ref": "base_ETTm2_h96",
    "cluster": "Moirai|ettm2",
    "seeds": 3,
-   "gate": -0.05702989863593899,
+   "gate": -0.2568268186719982,
    "cka": 0.5101938645044962,
    "n_train": 1000,
    "is_value_cell": true,
    "clearing": [
-    "gbm"
+    "mlp"
    ],
    "ft_paired": false,
    "zs_seeds": 1,
@@ -1030,7 +1049,7 @@
    "ref": "base_Weather_h192",
    "cluster": "Moirai|weather",
    "seeds": 3,
-   "gate": -1.3235697279870777,
+   "gate": -0.6319053092384217,
    "cka": 0.5089116295178732,
    "n_train": 1000,
    "is_value_cell": false,
@@ -1096,7 +1115,7 @@
    "ref": "base_Weather_h96",
    "cluster": "Moirai|weather",
    "seeds": 3,
-   "gate": -1.0286497676590725,
+   "gate": -0.8189431144278956,
    "cka": 0.5666172405083975,
    "n_train": 1000,
    "is_value_cell": false,
@@ -1162,11 +1181,13 @@
    "ref": "large_ETTh1_h96",
    "cluster": "Moirai|etth1",
    "seeds": 3,
-   "gate": -0.45379026504569087,
+   "gate": -0.2508967889313354,
    "cka": 0.3618045647939046,
    "n_train": 1000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "persistence"
+   ],
    "ft_paired": false,
    "zs_seeds": 1,
    "zs_sem": 0.0,
@@ -1228,7 +1249,7 @@
    "ref": "large_Weather_h96",
    "cluster": "Moirai|weather",
    "seeds": 3,
-   "gate": -0.6210545015693982,
+   "gate": -0.6389644556551128,
    "cka": 0.6220877766609192,
    "n_train": 1000,
    "is_value_cell": false,
@@ -1294,13 +1315,11 @@
    "ref": "small_Electricity7_h192",
    "cluster": "Moirai|electricity7",
    "seeds": 3,
-   "gate": -0.04663985584539909,
+   "gate": -0.4571063769737673,
    "cka": 0.9510760108629862,
    "n_train": 1000,
-   "is_value_cell": true,
-   "clearing": [
-    "persistence"
-   ],
+   "is_value_cell": false,
+   "clearing": [],
    "ft_paired": false,
    "zs_seeds": 1,
    "zs_sem": 0.0,
@@ -1362,12 +1381,12 @@
    "ref": "small_Electricity7_h96",
    "cluster": "Moirai|electricity7",
    "seeds": 3,
-   "gate": -0.0849220404248916,
+   "gate": -0.6507385023693968,
    "cka": 0.9423306584358215,
    "n_train": 1000,
    "is_value_cell": true,
    "clearing": [
-    "persistence"
+    "gbm"
    ],
    "ft_paired": false,
    "zs_seeds": 1,
@@ -1430,7 +1449,7 @@
    "ref": "chronos_etth1",
    "cluster": "Chronos|etth1",
    "seeds": 3,
-   "gate": -0.12274883941122328,
+   "gate": -0.11630262468419539,
    "cka": 0.1689053936318784,
    "n_train": 8000,
    "is_value_cell": true,
@@ -1498,11 +1517,13 @@
    "ref": "chronos_etth2",
    "cluster": "Chronos|etth2",
    "seeds": 3,
-   "gate": -0.32472356451021267,
+   "gate": -0.18353254238753136,
    "cka": 0.09449968370160322,
    "n_train": 8000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "seasonal_naive"
+   ],
    "ft_paired": true,
    "zs_seeds": null,
    "zs_sem": null,
@@ -1564,11 +1585,13 @@
    "ref": "chronos_weather",
    "cluster": "Chronos|weather",
    "seeds": 3,
-   "gate": -0.1029714016435479,
+   "gate": -0.2029604353189347,
    "cka": 0.09233432705878446,
    "n_train": 8000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "persistence"
+   ],
    "ft_paired": true,
    "zs_seeds": null,
    "zs_sem": null,
@@ -1630,7 +1653,7 @@
    "ref": "chronos_ettm2",
    "cluster": "Chronos|ettm2",
    "seeds": 3,
-   "gate": -1.2808082086659045,
+   "gate": -0.27537923100399064,
    "cka": 0.11187505642658478,
    "n_train": 8000,
    "is_value_cell": false,
@@ -1696,7 +1719,7 @@
    "ref": "chronos_electricity",
    "cluster": "Chronos|electricity",
    "seeds": 3,
-   "gate": 0.048058830903127236,
+   "gate": -0.08883444312024946,
    "cka": 0.23242515864776278,
    "n_train": 8000,
    "is_value_cell": false,
@@ -1762,7 +1785,7 @@
    "ref": "timesfm_etth1",
    "cluster": "TimesFM|etth1",
    "seeds": 3,
-   "gate": -0.10130243574950915,
+   "gate": -0.10068239858778782,
    "cka": 0.5609099072040359,
    "n_train": 1000,
    "is_value_cell": true,
@@ -1830,11 +1853,12 @@
    "ref": "timesfm_weather",
    "cluster": "TimesFM|weather",
    "seeds": 3,
-   "gate": -0.07691844013538929,
+   "gate": -0.16033345176420832,
    "cka": 0.3348295961103599,
    "n_train": 1000,
    "is_value_cell": true,
    "clearing": [
+    "persistence",
     "seasonal_naive"
    ],
    "ft_paired": true,
@@ -1898,7 +1922,7 @@
    "ref": "timesfm_ettm2",
    "cluster": "TimesFM|ettm2",
    "seeds": 3,
-   "gate": -0.9452841348379213,
+   "gate": 0.0815718186307931,
    "cka": 0.35984648595588653,
    "n_train": 1000,
    "is_value_cell": false,
@@ -1964,11 +1988,13 @@
    "ref": "timesfm_etth2",
    "cluster": "TimesFM|etth2",
    "seeds": 3,
-   "gate": -0.28729821004289224,
+   "gate": -0.20767391575477512,
    "cka": 0.2459372147483399,
    "n_train": 1000,
-   "is_value_cell": false,
-   "clearing": [],
+   "is_value_cell": true,
+   "clearing": [
+    "seasonal_naive"
+   ],
    "ft_paired": true,
    "zs_seeds": null,
    "zs_sem": null,
@@ -2030,7 +2056,7 @@
    "ref": "ili",
    "cluster": "Moirai|ili",
    "seeds": 10,
-   "gate": -1.625327170810122,
+   "gate": -10.206137625086404,
    "cka": 0.4554903175149645,
    "n_train": 452,
    "is_value_cell": false,
@@ -2095,31 +2121,31 @@
  "aggregate": {
   "value": {
    "d_enc": {
-    "n_cells": 15,
-    "n_clusters": 7,
-    "mean": -4.328160767645457,
-    "lo": -13.138394799814552,
-    "hi": 4.50101067276745,
-    "pos": 7,
-    "neg": 8
+    "n_cells": 20,
+    "n_clusters": 11,
+    "mean": 0.742726746293528,
+    "lo": -11.124583057923546,
+    "hi": 14.13271080010357,
+    "pos": 10,
+    "neg": 10
    },
    "d_ft": {
-    "n_cells": 15,
-    "n_clusters": 7,
-    "mean": -9.455832949324833,
-    "lo": -15.974858149922186,
-    "hi": 4.386916719129778,
-    "pos": 4,
-    "neg": 11
+    "n_cells": 20,
+    "n_clusters": 11,
+    "mean": -3.780145632750366,
+    "lo": -13.32647165597397,
+    "hi": 9.599064641231688,
+    "pos": 7,
+    "neg": 13
    },
    "d_frozen": {
-    "n_cells": 15,
-    "n_clusters": 7,
-    "mean": -5.127672181679376,
-    "lo": -11.537693016780779,
-    "hi": 11.75993199201788,
-    "pos": 2,
-    "neg": 13
+    "n_cells": 20,
+    "n_clusters": 11,
+    "mean": -4.522872379043894,
+    "lo": -10.50115914491521,
+    "hi": 7.916414281226358,
+    "pos": 4,
+    "neg": 16
    }
   },
   "all": {
@@ -2155,62 +2181,93 @@
  "value_cells": {
   "small_ETTh2_h192": [
    "fitted",
+   "persistence",
+   "ar",
+   "dlinear",
    "ridge_tuned",
    "mlp"
   ],
   "small_ETTh2_h96": [
    "fitted",
+   "persistence",
+   "ar",
+   "dlinear",
    "ridge_tuned",
    "mlp",
    "gbm"
   ],
   "small_ETTh1_h96": [
-   "seasonal_naive"
+   "persistence"
   ],
   "base_ETTh2_h192": [
    "fitted",
-   "ridge_tuned"
+   "ar",
+   "dlinear",
+   "ridge_tuned",
+   "mlp"
   ],
   "base_ETTh2_h96": [
    "fitted",
+   "ar",
    "ridge_tuned",
    "mlp",
    "gbm"
   ],
   "small_ETTm2_h192": [
+   "fitted",
    "ar",
-   "mlp",
-   "gbm"
+   "ridge_tuned",
+   "mlp"
   ],
   "small_ETTm2_h96": [
-   "gbm"
+   "mlp"
   ],
   "large_ETTh2_h96": [
    "fitted",
+   "persistence",
+   "ar",
+   "dlinear",
+   "ridge_tuned",
    "mlp",
+   "gbm"
+  ],
+  "base_ETTh1_h96": [
+   "persistence"
+  ],
+  "small_Weather_h96": [
    "gbm"
   ],
   "base_ETTm2_h192": [
-   "ar",
-   "mlp",
-   "gbm"
+   "fitted",
+   "ridge_tuned",
+   "mlp"
   ],
   "base_ETTm2_h96": [
-   "gbm"
+   "mlp"
   ],
-  "small_Electricity7_h192": [
+  "large_ETTh1_h96": [
    "persistence"
   ],
   "small_Electricity7_h96": [
-   "persistence"
+   "gbm"
   ],
   "chronos_etth1": [
    "seasonal_naive"
+  ],
+  "chronos_etth2": [
+   "seasonal_naive"
+  ],
+  "chronos_weather": [
+   "persistence"
   ],
   "timesfm_etth1": [
    "seasonal_naive"
   ],
   "timesfm_weather": [
+   "persistence",
+   "seasonal_naive"
+  ],
+  "timesfm_etth2": [
    "seasonal_naive"
   ]
  },

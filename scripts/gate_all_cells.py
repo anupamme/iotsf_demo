@@ -102,11 +102,31 @@ def _zs_val_refs():
     return {k: st.mean(v) for k, v in refs.items()}
 
 
+def _zs_traintail_refs():
+    """dataset-key -> zero-shot MSE on the train-tail third split, plus the window bookkeeping.
+
+    Written by `finetune_forecasting.py --condition A --zs-windows traintail`. Returns
+    (refs, meta) where meta carries the cut index, window count and extended lookback the
+    numerator was measured with, so the denominator here can assert it built the SAME windows
+    rather than trusting that two scripts agree.
+    """
+    refs, meta = {}, {}
+    for f in sorted(glob.glob(str(ROOT / "results/v49_thirdsplit/*/condition_A_traintail_*.json"))):
+        d = json.load(open(f))
+        key = Path(f).parent.name
+        refs[key] = d["zeroshot_traintail_mse"]
+        meta[key] = {k: d[k] for k in ("traintail_cut_index", "n_traintail_windows",
+                                       "n_traintail_eval", "extended_lookback",
+                                       "traintail_frac", "n_train_head_steps")}
+    return refs, meta
+
+
 # ---------------------------------------------------------------------------
 # Moirai forecasting arm
 # ---------------------------------------------------------------------------
 
-def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted"):
+def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted",
+                 traintail_meta=None, traintail_frac=0.2):
     """R2_task per Moirai cell on `split`.
 
     The extended lookback MUST be the one finetune_forecasting.py evaluates with
@@ -142,21 +162,34 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted
             train_df, val_df, test_df = loader.get_splits()
             cols = loader.FEATURE_COLUMNS
             tr = train_df[cols].values
-            mu, sd = tr.mean(axis=0), tr.std(axis=0) + 1e-8
             ext_lb = lookback + h                     # matches finetune_forecasting.py:709
             total = ext_lb + h
+
+            # The third split: the gate is scored on the tail of the train region and every rung is
+            # fitted on the head alone, with head-only normalisation. Both halves must be exactly
+            # the ones the numerator was measured on, so the cut is recomputed by the same rule and
+            # then checked against what the condition-A run recorded.
+            if split == "traintail":
+                cut = int(len(tr) * (1.0 - traintail_frac))
+                fit_vals, eval_vals = tr[:cut], tr[cut:]
+            else:
+                cut = None
+                fit_vals = tr
+                eval_vals = (val_df if split == "val" else test_df)[cols].values
+            mu, sd = fit_vals.mean(axis=0), fit_vals.std(axis=0) + 1e-8
 
             def windows(vals, cap=None):
                 X = np.array([vals[i:i + ext_lb] for i in range(len(vals) - total + 1)])
                 y = np.array([vals[i + ext_lb:i + total] for i in range(len(vals) - total + 1)])
                 return (X, y) if cap is None else (X[:cap], y[:cap])
 
-            X, y = windows((val_df if split == "val" else test_df)[cols].values, max_eval)
+            X, y = windows(eval_vals, max_eval)
             binfo = {}
             if baseline == "fitted":
-                # Fit on the TRAIN split only, on the same train-normalised scale the stored
-                # zeroshot_mse is measured on, so numerator and denominator stay comparable.
-                Xtr, ytr = windows(train_df[cols].values)
+                # Fit on the fitting region only -- the TRAIN split, or its head under the third
+                # split -- on the same normalised scale the stored zero-shot numerator is measured
+                # on, so numerator and denominator stay comparable.
+                Xtr, ytr = windows(fit_vals)
                 coef = fit_linear_map((Xtr - mu) / sd, (ytr - mu) / sd, lookback)
                 pred_n = apply_linear_map(coef, (X - mu) / sd, lookback, h)
             elif baseline == "trend":
@@ -166,13 +199,31 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted
                 # gradient-boosted trees). Everything is handed over already train-normalised, so
                 # the denominator stays on the same scale as the stored zero-shot numerator.
                 import gate_baselines
-                Xtr, ytr = windows(train_df[cols].values)
+                Xtr, ytr = windows(fit_vals)
                 pred_n, binfo = gate_baselines.predict(
                     baseline, (X - mu) / sd, lookback, h,
                     train=((Xtr - mu) / sd, (ytr - mu) / sd), dataset=ds)
             lin = float(np.mean((pred_n - (y - mu) / sd) ** 2))
-            linear_cache[(ds, h)] = (lin, len(X), binfo)
-        lin, n_win, binfo = linear_cache[(ds, h)]
+            geom = dict(cut=cut, n_all=len(windows(eval_vals)[0]), n_scored=len(X), ext_lb=ext_lb)
+            linear_cache[(ds, h)] = (lin, len(X), binfo, geom)
+        lin, n_win, binfo, geom = linear_cache[(ds, h)]
+        # Per cell, not per (dataset, horizon): the cache is shared across model sizes, and a cell
+        # whose numerator was measured with a different cut must not borrow a sibling's denominator.
+        if split == "traintail":
+            m = (traintail_meta or {}).get(key)
+            if m is None:
+                print(f"  {key:24s} SKIPPED -- no third-split numerator recorded")
+                continue
+            bad = [(n, a, b) for n, a, b in
+                   (("cut index", geom["cut"], m["traintail_cut_index"]),
+                    ("window count", geom["n_all"], m["n_traintail_windows"]),
+                    ("scored windows", geom["n_scored"], m["n_traintail_eval"]),
+                    ("extended lookback", geom["ext_lb"], m["extended_lookback"]))
+                   if a != b]
+            if bad:
+                raise SystemExit(
+                    f"{key}: third-split window construction disagrees with the numerator's -- "
+                    + "; ".join(f"{n}: denominator {a} vs numerator {b}" for n, a, b in bad))
         out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
                         n_windows=n_win, split=split, arm="moirai", baseline=baseline,
                         **({"baseline_info": binfo} if binfo else {}))
@@ -263,11 +314,19 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
                 print(f"  {key:24s} SKIPPED -- no stored zs_mse/linear_mse")
                 continue
             zs = st.mean(r["zs_mse"] for r in runs)
-            if baseline == "fitted":
-                # The stored `linear_mse` is the trend baseline, so it cannot be reused here.
+            if baseline == "trend":
+                # The ONLY rung that may be read from the runs: `linear_mse` is the superseded
+                # per-window trend extrapolation, stored so the correction can still be reported.
+                lin = st.mean(r["linear_mse"] for r in runs)
+            else:
+                # Every other rung is recomputed. This branch read `linear_mse` for all
+                # non-"fitted" baselines until 2026-09-20, from a time when "trend" was the only
+                # alternative -- so a ladder sweep would have returned the trend denominator under
+                # all eight rung names and printed eight identical columns for these five cells.
                 # Validation windows are drawn with seed=args.seed, so rebuild them per seed.
                 train_s, val_s, _ = load_series(ds_cfg)
-                tr_w = build_windows(train_s, lookback, horizon)
+                tr_w = (build_windows(train_s, lookback, horizon)
+                        if baseline not in gate_baselines.NO_TRAINING else None)
                 by_seed = {}
                 for r in runs:
                     sd_ = r["seed"]
@@ -277,8 +336,6 @@ def chronos_gates(root="results/v44_chronos_guarded", horizon=24, lookback=96, s
                                                          train=tr_w, baseline=baseline,
                                                          dataset=ds_dir)
                 lin = st.mean(by_seed[r["seed"]] for r in runs)
-            else:
-                lin = st.mean(r["linear_mse"] for r in runs)
             n_win = 200
         else:
             runs = [r for r in runs if "zs_mse_test" in r]

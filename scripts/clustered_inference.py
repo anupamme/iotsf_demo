@@ -55,7 +55,7 @@ TAB_FE = ROOT / "paper_8/tables/clustered_fixedeffects.tex"
 PREDICTORS = [
     ("forg_b", r"forg$_\text{B}$ (condition~B only)"),
     ("forg_d", r"forg$_\text{D}$"),
-    ("gate", r"Gate $R^2_\text{task}(\text{PT})$"),
+    ("gate", r"Gate $\Vb{\text{ridge}}$"),
     ("cka", r"CKA"),
     ("drift", r"$\ell_2$ weight drift"),
 ]

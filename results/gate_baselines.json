@@ -1,4 +1,5 @@
 {
+  "split": "test",
   "baselines": [
     "fitted",
     "constant",

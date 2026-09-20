@@ -1,0 +1,34 @@
+{
+  "condition": "A",
+  "zs_windows": "traintail",
+  "zeroshot_traintail_mse": 0.26879571635076543,
+  "zeroshot_traintail_mae": 0.32780714167712255,
+  "n_traintail_eval": 300,
+  "n_traintail_windows": 3190,
+  "traintail_frac": 0.2,
+  "traintail_cut_index": 14676,
+  "n_train_head_steps": 14676,
+  "n_traintail_steps": 3669,
+  "extended_lookback": 288,
+  "head_mean": [
+    -0.07148997055778138,
+    0.05999709043608615,
+    0.14024432664860997,
+    -0.21259956702337146,
+    -0.12685086801962384,
+    -0.024980315187820262,
+    -0.5164543059344647
+  ],
+  "head_std": [
+    0.9219483950979135,
+    1.0967336762470212,
+    1.3218913445427407,
+    0.9469823149080897,
+    0.925637029941606,
+    0.9732724695716732,
+    1.021103246630695
+  ],
+  "scale_note": "head-normalised; not comparable with the published val/test zero-shot refs",
+  "horizon": 192,
+  "seed": 42
+}

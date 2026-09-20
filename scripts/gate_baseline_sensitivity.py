@@ -22,7 +22,17 @@ normalisation or split had drifted, that comparison fails and the run aborts. Wi
 alternative-baseline column could differ from the published one because of a window off-by-one rather
 than because of the estimator, and the table would silently be measuring the wrong thing.
 
-Usage:  .venv12/bin/python scripts/gate_baseline_sensitivity.py [--arms moirai,chronos,timesfm,ili]
+WHICH WINDOWS. `--split test` reproduces the published analysis: the gate's numerator and denominator
+are both scored on the same held-out windows the B-D outcome is scored on, which makes cell INCLUSION a
+retrospective judgement. `--split val` scores the gate on the selection windows instead -- disjoint from
+the outcome by construction (forecasting_loader.get_splits slices one frame into non-overlapping
+chronological ranges, and windows are built inside each range only). The val side needs no GPU on any
+arm: every numerator is already stored (`zeroshot_mse` / `zs_mse`), so only the denominators are
+recomputed, and gate_all_cells.timesfm_gates(split="val") returns without loading TimesFM at all.
+Each split writes its own JSON and its own table; neither overwrites the other.
+
+Usage:  .venv12/bin/python scripts/gate_baseline_sensitivity.py [--split test|val]
+                                                               [--arms moirai,chronos,timesfm,ili]
                                                                [--baselines seasonal_naive,ar,...]
                                                                [--latex]
 """
@@ -40,13 +50,19 @@ import gate_baselines                                                 # noqa: E4
 from cell_matrix import _display                                      # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-STORED = ROOT / "results/gate_test_side.json"
-OUT = ROOT / "results/gate_baselines.json"
+# Per split: the published gate to self-check against, where the recomputation lands, and the table.
+# Keyed rather than reassigned so a val-side run can never silently overwrite the test-side record the
+# paper's existing appendix table is emitted from.
 # NOT gate_baselines.tex: the appendix already has a `tab:gate_baselines`, the two-cell table that
 # recorded the trend-to-fitted correction. That one is a historical audit of one swap; this one is the
 # estimator family across every cell. Sharing a name would eventually get one \input in place of the
 # other.
-TABLE = ROOT / "paper_8/tables/gate_baseline_family.tex"
+STORED_BY_SPLIT = {"test": ROOT / "results/gate_test_side.json",
+                   "val": ROOT / "results/gate_val_side.json"}
+OUT_BY_SPLIT = {"test": ROOT / "results/gate_baselines.json",
+                "val": ROOT / "results/gate_baselines_val.json"}
+TABLE_BY_SPLIT = {"test": ROOT / "paper_8/tables/gate_baseline_family.tex",
+                  "val": ROOT / "paper_8/tables/gate_baseline_family_val.tex"}
 
 BASELINES = ("fitted",) + gate_baselines.NAMES
 SELFCHECK_RTOL = 1e-6
@@ -58,8 +74,8 @@ SELFCHECK_RTOL = 1e-6
 FLOOR = "constant"
 
 
-def stored():
-    d = json.load(open(STORED))
+def stored(split):
+    d = json.load(open(STORED_BY_SPLIT[split]))
     return d.get("cells", d)
 
 
@@ -81,31 +97,42 @@ def _unpack(v):
 
 
 
-def moirai_denoms(baseline, refs):
+def moirai_denoms(baseline, split, refs):
     return {k: (v["linear_test"], v.get("baseline_info", {}))
-            for k, v in gac.moirai_gates(refs, split="test", baseline=baseline).items()}
+            for k, v in gac.moirai_gates(refs, split=split, baseline=baseline).items()}
 
 
-def chronos_denoms(baseline):
+def chronos_denoms(baseline, split):
     return {k: (v["linear_test"], v.get("baseline_info", {}))
-            for k, v in gac.chronos_gates(split="test", baseline=baseline).items()}
+            for k, v in gac.chronos_gates(split=split, baseline=baseline).items()}
 
 
-def ili_denoms(baseline):
+def ili_denoms(baseline, split):
     """The ILI cell, carrying gate_all_cells' own per-feature R2 aggregation through -- see _unpack."""
     return {k: (v["linear_test"], v.get("baseline_info", {}), v["r2_task"])
-            for k, v in gac.ili_gate(split="test", baseline=baseline).items()}
+            for k, v in gac.ili_gate(split=split, baseline=baseline).items()}
 
 
-def timesfm_denoms(baseline, lookback=96, horizon=24):
+def timesfm_denoms(baseline, split, lookback=96, horizon=24):
     """The TimesFM denominator only.
 
-    gac.timesfm_gates() would LOAD TIMESFM to recompute its numerator, which this analysis does not
-    need -- the numerator is stored. So the denominator is rebuilt here from the same helpers
-    timesfm_gates uses, on the same window set (build_windows(test_s, ..., max_windows=200, seed=0),
-    documented there as shared with the Chronos arm). The `fitted` self-check confirms the
+    On the TEST side, gac.timesfm_gates() would LOAD TIMESFM to recompute its numerator, which this
+    analysis does not need -- the numerator is stored. So the denominator is rebuilt here from the same
+    helpers timesfm_gates uses, on the same window set (build_windows(test_s, ..., max_windows=200,
+    seed=0), documented there as shared with the Chronos arm). The `fitted` self-check confirms the
     reconstruction matches the published number rather than merely resembling it.
+
+    On the VAL side there is nothing to reconstruct: timesfm_gates(split="val") reads the stored
+    `zeroshot_mse` and never touches the model, so it is called directly. Duplicating its per-seed
+    window averaging here would be a second implementation of the aggregation with no self-check
+    covering it -- the ILI cell already showed that a denominator can match to 1e-6 while the
+    aggregation around it is wrong.
     """
+    if split == "val":
+        return {k: (v["linear_test"], v.get("baseline_info", {}))
+                for k, v in gac.timesfm_gates(split="val", baseline=baseline,
+                                              lookback=lookback, horizon=horizon).items()}
+
     from chronos_mse_finetune import build_windows, load_series
 
     out = {}
@@ -125,20 +152,20 @@ ARMS = {"moirai": moirai_denoms, "chronos": chronos_denoms,
         "timesfm": timesfm_denoms, "ili": ili_denoms}
 
 
-def run(arms, baselines):
-    cells = stored()
-    refs = gac._zs_test_refs()
+def run(arms, baselines, split="test"):
+    cells = stored(split)
+    refs = gac._zs_val_refs() if split == "val" else gac._zs_test_refs()
     results = {}                        # cell -> baseline -> dict
     for baseline in baselines:
         print(f"\n{'=' * 96}\nBASELINE: {baseline}\n{'=' * 96}")
         denoms = {}
         for arm in arms:
             fn = ARMS[arm]
-            denoms.update(fn(baseline, refs) if arm == "moirai" else fn(baseline))
+            denoms.update(fn(baseline, split, refs) if arm == "moirai" else fn(baseline, split))
         for key, v in denoms.items():
             lin, info, r2_arm = _unpack(v)
             if key not in cells:
-                print(f"  {key:24s} SKIPPED -- not in {STORED.name}")
+                print(f"  {key:24s} SKIPPED -- not in {STORED_BY_SPLIT[split].name}")
                 continue
             zs = cells[key]["zs_test"]
             r2 = 1 - zs / lin if r2_arm is None else r2_arm
@@ -166,12 +193,12 @@ def run(arms, baselines):
     return results
 
 
-def selfcheck(results):
+def selfcheck(results, split="test"):
     bad = [k for k, v in results.items()
            if "fitted" in v and not v["fitted"].get("selfcheck_ok", True)]
     checked = [k for k, v in results.items() if "fitted" in v]
     print(f"\nSELF-CHECK: {len(checked) - len(bad)}/{len(checked)} recomputed `fitted` denominators "
-          f"match the published gate_test_side.json to rtol={SELFCHECK_RTOL:g}")
+          f"match the published {STORED_BY_SPLIT[split].name} to rtol={SELFCHECK_RTOL:g}")
     if bad:
         print("  MISMATCHED (window construction has drifted -- do NOT report the other columns):")
         for k in bad:
@@ -385,7 +412,7 @@ def report(results, baselines):
                 print(f"    {k:24s} {i}")
 
 
-def emit_latex(results, baselines, path=TABLE):
+def emit_latex(results, baselines, path):
     label = {"fitted": r"Fitted ridge \\ (ours)", "constant": r"Training \\ mean",
              "persistence": r"Persist- \\ ence",
              "seasonal_naive": r"Seasonal \\ naive", "ar": r"Per-feature \\ AR",
@@ -449,17 +476,23 @@ def emit_latex(results, baselines, path=TABLE):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
+    ap.add_argument("--split", default="test", choices=["test", "val"],
+                    help="test = the gate as published, scored on the same windows as the outcome; "
+                         "val = scored on the selection windows, disjoint from the outcome")
     ap.add_argument("--arms", default="moirai,chronos,timesfm,ili")
     ap.add_argument("--baselines", default=",".join(BASELINES))
     ap.add_argument("--latex", action="store_true")
     ap.add_argument("--from-json", action="store_true",
-                    help="re-report and re-emit from results/gate_baselines.json without "
-                         "recomputing any denominator. The boosted-tree column is a ten-minute "
+                    help="re-report and re-emit from this split's results/gate_baselines*.json "
+                         "without recomputing any denominator. The boosted-tree column is a ten-minute "
                          "fit and changing a table caption or a tally is not a reason to pay it "
                          "again; the self-check verdict is read back from the file that produced it.")
     a = ap.parse_args()
     arms = [x for x in a.arms.split(",") if x]
     baselines = [x for x in a.baselines.split(",") if x]
+    OUT, TABLE = OUT_BY_SPLIT[a.split], TABLE_BY_SPLIT[a.split]
+    print(f"gate split: {a.split}   (numerator from {STORED_BY_SPLIT[a.split].name}, "
+          f"denominators recomputed)")
 
     if a.from_json:
         prev = json.load(open(OUT))
@@ -468,10 +501,10 @@ if __name__ == "__main__":
         print(f"re-reporting from {OUT.relative_to(ROOT)} "
               f"(self-check as recorded there: {'passed' if ok else 'FAILED'})")
     else:
-        res = run(arms, baselines)
-        ok = selfcheck(res)
+        res = run(arms, baselines, a.split)
+        ok = selfcheck(res, a.split)
     report(res, baselines)
-    OUT.write_text(json.dumps(dict(baselines=baselines, arms=arms,
+    OUT.write_text(json.dumps(dict(split=a.split, baselines=baselines, arms=arms,
                                    ladder_order=list(gate_baselines.NAMES),
                                    channel_independent=list(gate_baselines.CHANNEL_INDEPENDENT),
                                    no_training=list(gate_baselines.NO_TRAINING),
@@ -494,4 +527,4 @@ if __name__ == "__main__":
         if not ok:
             sys.exit("self-check failed; refusing to emit a table from denominators that do not "
                      "reproduce the published `fitted` column")
-        emit_latex(res, baselines)
+        emit_latex(res, baselines, TABLE)

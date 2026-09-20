@@ -113,14 +113,29 @@ def rederive():
     rows = cm.build_rows()
     sf = cm.strict_freeze_cells()
 
-    # -- the two cell counts the paper keeps confusing. n_screened is the gate denominator;
-    # n_int is the intervention denominator, one smaller because TimesFM/Electricity has no B/D pair.
+    # -- the cell counts the paper keeps confusing, and now they carry a SPLIT as well as a
+    # denominator. n_screened (32) is the screen, which is test-side because a test-side numerator
+    # can be recomputed by loading the model. The primary gate is scored on the SELECTION windows,
+    # and that is only available where a run stored a validation zero-shot, so its denominator is
+    # n_val_scored (31): TimesFM/Electricity is screened but has no paired B/D run and therefore no
+    # selection-split reference. n_int is the intervention denominator, also 31, for the same cell.
+    # Mixing the two is how "5 of 32" and "7 of 31" would silently become "7 of 32".
     gate_side = json.load(open(ROOT / "results/gate_test_side.json"))
+    val_side_primary = json.load(open(ROOT / "results/gate_val_side.json"))
     R["n_screened"] = len(gate_side)
+    R["n_val_scored"] = len(val_side_primary)
     R["n_int"] = len(rows)
+    # From `rows`, so it follows cell_matrix.GATE_SPLIT: primary = the selection split.
     R["n_gate_pass"] = sum(r["gate"] is not None and r["gate"] >= 0.20 for r in rows)
-    R["n_gate_fail"] = R["n_screened"] - R["n_gate_pass"]
+    R["n_gate_fail"] = R["n_val_scored"] - R["n_gate_pass"]
     R["n_clause_i_out"] = R["n_int"] - R["n_gate_pass"]
+    assert cm.GATE_SPLIT == "val", (
+        f"cell_matrix.GATE_SPLIT is {cm.GATE_SPLIT!r}: the counts registered here are the "
+        f"selection-split primary, so a test-side default would check the prose against the "
+        f"retrospective variant while the prose describes the primary one")
+    # The retrospective variant, still reported as a sensitivity analysis, so it keeps its own name.
+    R["n_gate_pass_test"] = sum(1 for v in gate_side.values() if v["r2_task"] >= 0.20)
+    R["n_gate_fail_test"] = R["n_screened"] - R["n_gate_pass_test"]
     # degradation_cells() reports to stdout as its main job; here only the count is wanted, and the
     # banner would bury this script's own output when it runs inside rederive_all.sh.
     import contextlib
@@ -139,10 +154,33 @@ def rederive():
     tfm = [r["forg_b"] for r in rows if r["cell"].startswith("TimesFM")]
     R["timesfm_min"] = abs(min(tfm))
     R["timesfm_max"] = abs(max(tfm))
+    # S6 now states the TimesFM arm qualitatively -- "sit at milder drift and all improve" -- with the
+    # per-cell numbers in Appendix Table tab:crossbackbone, because the review asked for the
+    # cross-backbone arm to be read as architectural diversity rather than replication. "All" is a
+    # quantifier no captured group can carry, so it is an assert: if one TimesFM cell ever degrades the
+    # sentence becomes false while still parsing, which is the failure mode this file exists for.
+    R["n_timesfm"] = len(tfm)
+    assert tfm and max(tfm) < 0, (
+        f'"the four TimesFM cells all improve" is false: the worst is {max(tfm):+.1f}%')
 
     # -- held-out vs selection-window scoring: the sign reversals
     R["n_heldout_rev"] = sum(
         1 for r in rows if r["bd_val"] is not None and r["bd_test"] * r["bd_val"] < 0)
+
+    # -- Figure 1's separability claim, added 20 Sep 2026 with the panel (b) axis flip: the fewest
+    # cells any single CKA cut misplaces. Sort by CKA, then for every cut position count the cells on
+    # the wrong side of it, under BOTH orientations -- low-CKA-means-freezing-better (which is what a
+    # "drift is damage" heuristic implies) and its reverse (which is the direction the positive rho
+    # actually points). The minimum over both is the best case ANY threshold rule gets, so the
+    # caption's "no cut separates them" is not resting on a choice of direction. On the current
+    # records the two orientations give 5 and 14, so the claim is the same number either way.
+    # fig1_diagnostic_flow.py computes this identically and asserts it at draw time; the caption is
+    # the only prose site, which is why it is registered here rather than left to the figure.
+    _sorted_by_cka = sorted(rows, key=lambda r: r["cka"])
+    _sgn = [1 if r["bd_test"] > 0 else 0 for r in _sorted_by_cka]
+    R["n_miscut"] = min(min(sum(_sgn[:k]) + sum(1 - s for s in _sgn[k:]),
+                            sum(1 - s for s in _sgn[:k]) + sum(_sgn[k:]))
+                        for k in range(len(_sgn) + 1))
 
     # -- the strict-freeze control. Recomputed here rather than read from the prose because this arm
     # grew mid-round twice and the prose lagged it both times.
@@ -151,6 +189,33 @@ def rederive():
     R["n_sf_agree"] = R["n_sf"] - R["n_sf_reverse"]
     R["n_sf_hneg"] = sum(1 for v in sf.values() if v["forg_h_pos"] == 0)
     R["n_d_only"] = R["n_int"] - R["n_sf"]
+
+    # -- the relaxed-definition ladder. Registered for the first time on 21 Sep 2026, after the ladder
+    # was found stale in both directions: rederive_all.sh ran the emitter WITHOUT --latex, so the table
+    # still carried the pre-correction 6/5 gate-passing counts, and the body and appendix both said the
+    # largest count anywhere is one when the seed-counts-only rung admits two. Imported from the
+    # emitter so the prose is checked against the same predicates the table prints.
+    import degradation_sensitivity as dsx
+    _ds_keep, _ds_noref, _ds_conf = dsx.scorable(rows)
+    R["ds_n_scorable"], R["ds_n_confounded"] = len(_ds_keep), len(_ds_conf)
+    R["ds_n_rungs"] = len(dsx.LADDER)
+    _adm = {(k, g): len(dsx.admits(_ds_keep, rung, g))
+            for g in dsx.GATES for k, rung in ((r[0], r) for r in dsx.LADDER)}
+    for g, tag in ((0.10, "010"), (0.20, "020")):
+        R[f"ds_pass_{tag}"] = sum(1 for r in _ds_keep if r["gate"] >= g)
+        R[f"ds_max_{tag}"] = max(_adm[(k, g)] for k, *_ in dsx.LADDER)
+        # the six rungs that KEEP the means clause -- every rung except the two "seed counts only" ones
+        R[f"ds_max_means_{tag}"] = max(_adm[(k, g)] for k, *_ in dsx.LADDER
+                                       if not k.endswith("_only"))
+        R[f"ds_n_zero_{tag}"] = sum(1 for k, *_ in dsx.LADDER if _adm[(k, g)] == 0)
+    # Both thresholds now behave identically; the appendix used to say relaxing the gate raises the
+    # maximum, which was true before the correction. An assert, because no captured group carries it.
+    assert R["ds_max_010"] == R["ds_max_020"] and R["ds_pass_010"] == R["ds_pass_020"], \
+        "the two gate thresholds no longer agree; the appendix's 'at either threshold' is now false"
+    # The maximum is reached by exactly one rung, and it is one that drops the means clause.
+    _at_max = [k for k, *_ in dsx.LADDER if _adm[(k, 0.20)] == R["ds_max_020"]]
+    assert _at_max == ["half_only"], \
+        f"the ladder's maximum is no longer the seed-counts-majority rung alone: {_at_max}"
 
     # -- the held-out-vs-selection decomposition. Read from the emitter rather than re-derived, so
     # this checks the prose against the same rows the table prints (the emitter already asserts the
@@ -286,20 +351,40 @@ def rederive():
     cl = ck.clusters_for([r["cell"] for r in moirai])
     y = np.array([r["bd_test"] for r in moirai])
     R["n_moirai"] = len(moirai)
-    for pred, tag in (("cka", "cka"), ("gate", "gate")):
-        x = np.array([r[pred] for r in moirai])
-        rho, _, _, _ = ck.cell_bootstrap_spearman(x, y, rng=np.random.default_rng(0))
+    # `gate` follows cell_matrix.GATE_SPLIT and is therefore the selection-split primary.
+    # `gate_test` re-reads the same 22 rows against the retrospective test-side score, because the
+    # paper quotes both -- the whole point of \S7 is that the magnitude is not stable across splits,
+    # and a claim about two numbers needs both of them registered.
+    preds = {"cka": [r["cka"] for r in moirai],
+             "gate": [r["gate"] for r in moirai],
+             "gate_test": [gate_side[r["ref"]]["r2_task"] for r in moirai]}
+    for tag, xs in preds.items():
+        x = np.array(xs)
+        rho, clo, chi, _ = ck.cell_bootstrap_spearman(x, y, rng=np.random.default_rng(0))
         _, lo, hi, _, ncl = ck.cluster_bootstrap_spearman(
             x, y, cl, rng=np.random.default_rng(0))
         # magnitudes, because the sign is carried by the prose's own {+}/{-} and the pattern
         # anchors on it -- a flipped sign shows up as a zero-site match, not as a passing check
         R[f"{tag}_rho"], R[f"{tag}_lo"], R[f"{tag}_hi"] = abs(rho), abs(lo), hi
+        R[f"{tag}_celllo"], R[f"{tag}_cellhi"] = abs(clo), abs(chi)
     R["n_moirai_clusters"] = ncl
+
+    # -- the cross-backbone dataset ordering, which agrees on one split and not the other. An
+    # earlier draft read the test-side +1.00 as evidence the ranking is a benchmark property; it is
+    # registered here so the withdrawal in Exp 1 cannot drift from the numbers that forced it.
+    for tag, src in (("xback_test", gate_side), ("xback_val", val_side_primary)):
+        ar = {a: {k.split("_", 1)[1]: v["r2_task"] for k, v in src.items() if v.get("arm") == a}
+              for a in ("chronos", "timesfm")}
+        shared = sorted(set(ar["chronos"]) & set(ar["timesfm"]))
+        R[f"{tag}_rho"] = abs(stats.spearmanr([ar["chronos"][k] for k in shared],
+                                             [ar["timesfm"][k] for k in shared]).statistic)
+        R[f"{tag}_n"] = len(shared)
 
     # -- the graded value axis and the pooled figure, from the stored artifact
     va = json.load(open(ROOT / "results/value_axis.json"))["correlations"]
     for key, tag in (("cka_vs_denc_all", "pooled"), ("cka_vs_denc_valuecells", "vc"),
-                     ("cka_vs_denc_lowvalue", "lv"), ("value_vs_denc_all", "val")):
+                     ("cka_vs_denc_lowvalue", "lv"), ("value_vs_denc_all", "val"),
+                     ("value_vs_denc_valuecells", "valvc")):
         c = va[key]
         R[f"{tag}_rho"], R[f"{tag}_lo"], R[f"{tag}_hi"] = c["rho"], abs(c["lo"]), c["hi"]
         R[f"{tag}_n"] = c["n"]
@@ -313,29 +398,127 @@ def rederive():
     R["n_vc"], R["n_vc_pos"] = agg["n_cells"], agg["pos"]
 
     # -- the eight-rung ladder. "Admissible" = a denominator no worse than the training-mean floor,
-    # which is the rule the caption states, so it is the rule reproduced here.
-    gb = json.load(open(ROOT / "results/gate_baselines.json"))
-    cells, T = gb["cells"], gb["gate_threshold"]
-    rungs = ["fitted"] + [b for b in gb["ladder_order"] if b != gb["floor"]]
-    counts = []
-    for b in rungs:
-        counts.append(sum(
+    # which is the rule the caption states, so it is the rule reproduced here. Derived for BOTH
+    # splits, under separate key prefixes: the body quotes the selection-split ladder (the split its
+    # admission decisions are made on) and the appendix keeps the held-out one as the retrospective
+    # variant. One derivation over two files, so the two can never be checked by one set of numbers.
+    def ladder(path, gate):
+        gb = json.load(open(ROOT / path))
+        cells, T = gb["cells"], gb["gate_threshold"]
+        rungs = ["fitted"] + [b for b in gb["ladder_order"] if b != gb["floor"]]
+        out = {"n_cells": len(cells)}
+        out["counts"] = [sum(
             1 for per in cells.values()
             if b in per and per[b].get("r2_task") is not None
             and per[b]["linear_test"] <= per[gb["floor"]]["linear_test"]
-            and per[b]["r2_task"] >= T))
-    R["ladder_counts"] = counts
-    strongest = {}
-    for k, per in cells.items():
-        adm = [(e["linear_test"], b, e["r2_task"]) for b, e in per.items()
-               if b != gb["floor"] and e.get("r2_task") is not None
-               and e["linear_test"] <= per[gb["floor"]]["linear_test"]]
-        if adm:
-            strongest[k] = min(adm)
-    R["n_clear_strongest"] = sum(1 for v in strongest.values() if v[2] >= T)
-    surv = [v[2] for k, v in strongest.items()
-            if gate_side[k]["r2_task"] >= T]
-    R["surv_strongest_hi"], R["surv_strongest_lo"] = abs(max(surv)), abs(min(surv))
+            and per[b]["r2_task"] >= T) for b in rungs]
+        # Below-the-floor tallies, which the appendix narrates rung by rung.
+        out["below_floor"] = {b: sum(
+            1 for per in cells.values()
+            if b in per and per[b].get("r2_task") is not None
+            and per[b]["linear_test"] > per[gb["floor"]]["linear_test"]) for b in rungs}
+        strongest = {}
+        for k, per in cells.items():
+            adm = [(e["linear_test"], b, e["r2_task"]) for b, e in per.items()
+                   if b != gb["floor"] and e.get("r2_task") is not None
+                   and e["linear_test"] <= per[gb["floor"]]["linear_test"]]
+            if adm:
+                strongest[k] = min(adm)
+        out["n_clear_strongest"] = sum(1 for v in strongest.values() if v[2] >= T)
+        # The union: cells clearing T against AT LEAST ONE admissible rung. Read from the stored
+        # `graded` block rather than recomputed, so the paper, the figure and this checker cannot
+        # disagree about which cells are in the analysis scope.
+        graded = gb["graded"]["cells"]
+        union = [k for k, v in graded.items() if v["clears_any_admissible"]]
+        out["n_union"] = len(union)
+        # Backbone read off the ref, not off a cell label: the ladder files are keyed by ref
+        # (`small_ETTh1_h96`, `chronos_etth1`, `timesfm_etth1`) and carry no label column.
+        def bb_of(ref):
+            r = ref.lower()
+            return "Chronos" if "chronos" in r else ("TimesFM" if "timesfm" in r else "Moirai")
+        out["union_backbones"] = {bb: sum(1 for k in union if bb_of(k) == bb)
+                                  for bb in ("Moirai", "Chronos", "TimesFM")}
+        # The fitted-gate survivors, scored against the strongest admissible rung they face. Which
+        # cells count as survivors comes from the gate PUBLISHED for this split, not from the
+        # ladder's own `fitted` column, so this mirrors the prose's "the seven that clear the gate".
+        surv = [v[2] for k, v in strongest.items() if k in gate and gate[k]["r2_task"] >= T]
+        out["surv_hi"], out["surv_lo"] = max(surv), min(surv)
+        return out
+
+    # -- the prospective arm's positive class, under the CORRECTED gates. The frozen predictor's own
+    # scores are pre-correction and are not touched; what is derived here is the answer to "did the
+    # baseline correction empty the positive class?", which S7 now states as a number.
+    pro = json.load(open(ROOT / "results/v47_prospective/preregistration.json"))
+    pro_rows = {r["ref"]: r for r in rows}
+    clearing = [c["cell"] for c in pro["cells"]
+                if max(val_side_primary.get(c["cell"], {}).get("r2_task", -9),
+                       gate_side.get(c["cell"], {}).get("r2_task", -9)) >= pro["gate_threshold"]]
+    R["n_pro"] = len(pro["cells"])
+    R["n_pro_clearing_corrected"] = len(clearing)
+    assert len(clearing) == 1, f"S7 says exactly one prospective cell clears; records say {clearing}"
+    R["pro_clearing_gate"] = val_side_primary[clearing[0]]["r2_task"]
+    R["pro_clearing_forg_pos"] = pro_rows[clearing[0]]["forg_b_pos"]
+    R["pro_clearing_seeds"] = pro_rows[clearing[0]]["seeds"]
+
+    # -- how many rungs admit a degradation cell, and how many cells each admitting rung admits. The
+    # body sentence that reports this was hand-counted wrong once ("five of the eight" when six of the
+    # eight admit none), which is exactly the arithmetic a derived check exists to stop.
+    import gate_baseline_sensitivity as gbs
+    with contextlib.redirect_stdout(io.StringIO()):
+        dc_val = gbs.degradation_counts(
+            json.load(open(ROOT / "results/gate_baselines_val.json"))["cells"],
+            ["fitted", "persistence", "seasonal_naive", "ar", "dlinear", "ridge_tuned", "mlp", "gbm"])
+    R["n_rungs_no_degradation"] = sum(1 for v in dc_val.values() if v["n"] == 0)
+    R["n_degradation_persistence"] = dc_val["persistence"]["n"]
+    R["n_degradation_gbm"] = dc_val["gbm"]["n"]
+    R["n_degradation_manufactured"] = sum(v["n"] for v in dc_val.values())
+
+    lad_val = ladder("results/gate_baselines_val.json", val_side_primary)
+    lad_test = ladder("results/gate_baselines.json", gate_side)
+    R["ladder_counts"] = lad_val["counts"]
+    R["n_clear_strongest"] = lad_val["n_clear_strongest"]
+    R["n_union"] = lad_val["n_union"]
+    R["n_union_moirai"] = lad_val["union_backbones"]["Moirai"]
+    R["n_union_chronos"] = lad_val["union_backbones"]["Chronos"]
+    R["n_union_timesfm"] = lad_val["union_backbones"]["TimesFM"]
+    # The body prints this range as "between $-0.55$ and $+0.13$", i.e. signed and ordered low-to-
+    # high, so the registered values are signed too. The retrospective variant's range is all
+    # negative and the appendix prints it as two magnitudes, which is why that one is abs()ed.
+    R["surv_strongest_lo"], R["surv_strongest_hi"] = lad_val["surv_lo"], lad_val["surv_hi"]
+    R["ladder_counts_test"] = lad_test["counts"]
+    R["n_clear_strongest_test"] = lad_test["n_clear_strongest"]
+    R["n_union_test"] = lad_test["n_union"]
+    R["surv_strongest_hi_test"] = abs(min(lad_test["surv_lo"], lad_test["surv_hi"]))
+    R["surv_strongest_lo_test"] = abs(max(lad_test["surv_lo"], lad_test["surv_hi"]))
+    R["below_floor_val"] = lad_val["below_floor"]
+
+    # -- the third window set. Derived through emit_traintail_ladder.analyse() rather than re-counted
+    # here, so the body, the table and this check cannot disagree: the emitter is the one place that
+    # decides what "counted over the cells all three splits share" means, and that restriction is the
+    # whole point of the comparison (19 of 21 against 20 of 31 would be a statement about coverage).
+    import emit_traintail_ladder as ttl
+    _tt = ttl.analyse()
+    R["n_traintail"] = _tt["n_common"]
+    R["n_tt_all_admissible"] = [_tt["n_all"][s] for s in _tt["splits"]]
+    R["n_tt_any_sel"], R["n_tt_any_tail"] = _tt["n_any"]["Selection"], _tt["n_any"]["Train tail"]
+    R["n_tt_fitted_sel"] = len(_tt["fitted_set"]["Selection"])
+    R["n_tt_fitted_tail"] = len(_tt["fitted_set"]["Train tail"])
+    R["n_tt_fitted_both"] = len(_tt["fitted_overlap"])
+    # The three zeros are the confirmation the body leans on, so a nonzero anywhere must break the
+    # build rather than quietly weaken a sentence that says "on any of the three window sets".
+    assert R["n_tt_all_admissible"] == [0, 0, 0], (
+        f'"no cell clears every admissible rung on any of the three window sets" is false: '
+        f'{R["n_tt_all_admissible"]}')
+    assert len(_tt["fitted_tail_only"]) == 1, (
+        f'the appendix names ONE train-tail-only fitted cell; there are '
+        f'{len(_tt["fitted_tail_only"])}: {_tt["fitted_tail_only"]}')
+    # The mechanism figures the appendix quotes, read from the two JSONs rather than transcribed.
+    _cell = "base_ETTh2_h96"
+    _v = json.load(open(ROOT / "results/gate_baselines_val.json"))["cells"][_cell]["fitted"]
+    _t = json.load(open(ROOT / "results/gate_baselines_traintail.json"))["cells"][_cell]["fitted"]
+    R["tt_ridge_val"], R["tt_ridge_tail"] = _v["linear_test"], _t["linear_test"]
+    R["tt_ridge_ratio"] = _v["linear_test"] / _t["linear_test"]
+    R["tt_zs_val"], R["tt_zs_tail"] = _v["zs_test"], _t["zs_test"]
 
     # -- the unfitted-baseline correction, which is where "16 of 21" and "17" come from
     trend = json.load(open(ROOT / "results/gate_test_side_trend.json"))
@@ -353,21 +536,39 @@ def rederive():
         R[f"n_screened_{arm}"] = len(ks)
         R[f"n_pass_{arm}"] = sum(1 for k in ks if gate_side[k]["r2_task"] >= 0.20)
         R[f"n_pass_trend_{arm}"] = sum(1 for k in ks if trend[k]["r2_task"] >= 0.20)
-    val_side = json.load(open(ROOT / "results/gate_val_side.json"))
-    R["n_gate_pass_val"] = sum(1 for v in val_side.values() if v["r2_task"] >= 0.20)
+    R["n_gate_pass_val"] = sum(1 for v in val_side_primary.values() if v["r2_task"] >= 0.20)
 
     # -- the gate values quoted cell by cell. Whole passages of Exp 1 and the correction appendix
     # are lists of these, hand-typed, and they are the least likely thing to be re-checked by eye.
+    # Two families, kept apart on purpose. `gate_of`/`mo_*`/`nonmo_*` are TEST-side, because the
+    # correction appendix's "before and after" lists are a historical record of the test-side screen
+    # and must not move when the primary split changes. `vgate_of`/`vmo_*`/`vnonmo_*` are the
+    # SELECTION-side primary, which is what Experiment 1's own cell-by-cell prose quotes. A single
+    # shared record here is exactly how a val-side sentence would silently pass against a test-side
+    # number -- the failure this whole file exists to prevent.
     R["gate_of"] = {k: v["r2_task"] for k, v in gate_side.items()}
-    mo_gate = {k: v["r2_task"] for k, v in gate_side.items() if v.get("arm") == "moirai"}
-    for ds in ("ETTh1", "Weather", "Electricity7", "ETTm2"):
-        vals = [v for k, v in mo_gate.items() if k.split("_")[1] == ds]
-        # "spans X to Y" runs from the least negative to the most negative, as the prose reads
-        R[f"mo_{ds}_hi"], R[f"mo_{ds}_lo"] = abs(max(vals)), abs(min(vals))
-    nonmo = [v["r2_task"] for k, v in gate_side.items()
-             if v.get("arm") in ("chronos", "timesfm")]
-    R["nonmo_lo"], R["nonmo_hi"] = abs(min(nonmo)), max(nonmo)
+    R["vgate_of"] = {k: v["r2_task"] for k, v in val_side_primary.items()}
+    for pfx, src in (("mo", gate_side), ("vmo", val_side_primary)):
+        mo_gate = {k: v["r2_task"] for k, v in src.items() if v.get("arm") == "moirai"}
+        for ds in ("ETTh1", "Weather", "Electricity7", "ETTm2"):
+            vals = [v for k, v in mo_gate.items() if k.split("_")[1] == ds]
+            # "spans X to Y" runs from the least negative to the most negative, as the prose reads
+            R[f"{pfx}_{ds}_hi"], R[f"{pfx}_{ds}_lo"] = abs(max(vals)), abs(min(vals))
+        nm = [v["r2_task"] for v in src.values() if v.get("arm") in ("chronos", "timesfm")]
+        R[f"{'nonmo' if pfx == 'mo' else 'vnonmo'}_lo"] = abs(min(nm))
+        R[f"{'nonmo' if pfx == 'mo' else 'vnonmo'}_hi"] = max(nm)
+        R[f"{'nonmo' if pfx == 'mo' else 'vnonmo'}_n"] = len(nm)
+    # The two failing ETTm2 cells are quoted individually now that the other two clear the gate.
+    R["vmo_ETTm2_fail_hi"] = abs(R["vgate_of"]["small_ETTm2_h96"])
+    R["vmo_ETTm2_fail_lo"] = abs(R["vgate_of"]["base_ETTm2_h96"])
     R["ili_gate"] = abs(next(v["r2_task"] for v in gate_side.values() if v.get("arm") == "ili"))
+    # The 32nd cell. TimesFM/Electricity is screened but has no paired B/D run, so it has no
+    # selection-split gate at all -- gate_val_side.json does not contain it, and its only gate value
+    # is test-side. The cross-backbone caption is the one place that number is printed, and it sat
+    # unregistered while the caption also called the whole column "held-out"; both are fixed together.
+    assert "timesfm_electricity" not in val_side_primary, \
+        "TimesFM/Electricity now has a selection-split gate; the caption's 'no paired run' is stale"
+    R["timesfm_elec_gate_test"] = gate_side["timesfm_electricity"]["r2_task"]
 
     # -- the five survivors' own numbers, which the body quotes cell by cell
     by = {r["cell"]: r for r in rows}
@@ -377,6 +578,14 @@ def rederive():
         R[f"imp{i}_b"] = abs(by[c]["forg_b"])
         R[f"imp{i}_d"] = abs(by[c]["forg_d"])
         R[f"imp{i}_cka"] = by[c]["cka"]
+    # The fourth improver, added by the selection split. Its cell label is un-normalised in
+    # cell_matrix ("Moirai-base_ETTm2_h192", not "Moirai-base/ETTm2 h192 n1000") unlike its siblings,
+    # so it is keyed by `ref` rather than by display label -- a lookup by the sibling convention
+    # raises KeyError here rather than silently skipping the check.
+    _fb = [r["forg_b"] for r in rows if r["forg_b"] is not None]
+    R["forg_b_lo"], R["forg_b_hi"] = abs(min(_fb)), max(_fb)
+    imp4 = next(r for r in rows if r["ref"] == "base_ETTm2_h192")
+    R["imp4_b"], R["imp4_d"], R["imp4_cka"] = abs(imp4["forg_b"]), abs(imp4["forg_d"]), imp4["cka"]
     small192 = by["Moirai-small/ETTh2 h192 n500"]
     small96 = by["Moirai-small/ETTh2 h96 n500"]
     # `forg_b_sd` is a standard deviation (ddof=1, via cell_matrix._sd) but the body declares every
@@ -389,6 +598,99 @@ def rederive():
     R["s96_forg_b"] = small96["forg_b"]
     R["s96_sem"] = small96["forg_b_sd"] / math.sqrt(small96["seeds"])
     R["s96_pos"], R["s96_seeds"] = small96["forg_b_pos"], small96["seeds"]
+
+    # -- "improved by full fine-tuning": the MEAN reading and the EVERY-SEED reading differ by one
+    # cell, and the body states both counts and says which one it uses. Registering both is the point:
+    # the figure asserts the unanimous count at draw time, so if these two ever coincide (or diverge by
+    # more than one) the body's sentence explaining the discrepancy becomes wrong while still parsing.
+    _pass = [r for r in rows if r["gate"] is not None and r["gate"] >= 0.20]
+    R["n_imp_mean"] = sum(r["forg_b"] < 0 for r in _pass)
+    R["n_imp_unan"] = sum(r["forg_b"] < 0 and r["forg_b_pos"] == 0 for r in _pass)
+    # The survivor whose mean improves but whose seeds disagree -- the cell that makes the two differ.
+    _split = [r for r in _pass if r["forg_b"] < 0 and r["forg_b_pos"] != 0]
+    assert len(_split) == 1, f"expected exactly 1 mean-improves/seeds-disagree survivor, got {len(_split)}"
+    R["split_forg_b"] = abs(_split[0]["forg_b"])
+    R["split_pos"], R["split_seeds"] = _split[0]["forg_b_pos"], _split[0]["seeds"]
+
+    # -- WHICH datasets the survivors are, and the size of the improvement on them. Until 20 Sep 2026
+    # the abstract and the introduction's LEAD both said "five cells clear it, and all five are ETTh2"
+    # -- the pre-correction, test-split composition -- while contribution 1 twenty lines below said
+    # "7 of 31 ... five on ETTh2 and two on ETTm2". Both counts were individually derivable and only
+    # one was registered, so the paper contradicted itself in its first two paragraphs and the checker
+    # slid past it: the lead's wording matched no pattern. The composition is therefore derived here
+    # per dataset, not asserted, and the improvement range with it.
+    def _ds(ref):  # "base_ETTh2_h192 ..." / "Moirai-small/ETTh2 h96 n500" -> ETTH2
+        return re.sub(r"_h\d+.*$", "", re.sub(r"^(small|base|large|chronos|timesfm)[_ ]", "",
+                                              ref.split()[0])).upper()
+    _scored = [r for r in rows if r["gate"] is not None]
+    # Scoped to MOIRAI, because that is what the sentence says: all seven survivors are Moirai, so
+    # "two of four on ETTm2" is two of Moirai's four and not two of the six ETTm2 cells screened
+    # across all three backbones. The unscoped denominator is 6, and the unscoped "every ETTh2 cell"
+    # would be false -- Chronos and TimesFM each have an ETTh2 cell and both fail. Deriving it
+    # Moirai-scoped is what keeps the prose from having to be read charitably.
+    def _moirai(r):
+        return not re.match(r"(chronos|timesfm)", r["ref"].lower())
+    for tag in ("etth2", "ettm2"):
+        R[f"n_scored_{tag}"] = sum(_ds(r["ref"]) == tag.upper() and _moirai(r) for r in _scored)
+        R[f"n_pass_{tag}"] = sum(_ds(r["ref"]) == tag.upper() and _moirai(r) for r in _pass)
+    assert R["n_pass_etth2"] + R["n_pass_ettm2"] == len(_pass), "a survivor outside ETTh2/ETTm2"
+    # S5's opening says the strict-freeze reversals land on "every Moirai/ETTm2 cell, 2 of which are
+    # among the seven survivors". Both halves are quantifiers, so both are asserts, and the second is
+    # what licenses reporting the ETTm2 survivor count as the number of survivors affected.
+    _sf_rev = {k for k, v in sf.items() if v["bd_same"] * v["bh_test"] < 0}
+    assert all(_ds(k) == "ETTM2" for k in _sf_rev), \
+        f"a strict-freeze reversal outside ETTm2: {sorted(_sf_rev)}"
+    _pass_m2 = {r["ref"].split()[0] for r in _pass if _ds(r["ref"]) == "ETTM2" and _moirai(r)}
+    assert _pass_m2 <= set(sf), \
+        f"an ETTm2 survivor was never run under strict freeze: {sorted(_pass_m2 - set(sf))}"
+    # The abstract and the intro both say "ALL five of its ETTh2 cells", which is a claim no captured
+    # group can carry: if one Moirai ETTh2 cell ever failed the gate, both counts would still be 5 and
+    # both sentences would still parse while being false.
+    assert R["n_pass_etth2"] == R["n_scored_etth2"], \
+        f'"all of its ETTh2 cells" is false: {R["n_pass_etth2"]} of {R["n_scored_etth2"]} pass'
+    # S4 used to list the failing cells' gate values one dataset at a time -- four hand-typed ranges
+    # restating Table r2task, none of them registered here. They are replaced by the qualitative claim
+    # that every failing Moirai cell is BELOW the baseline rather than merely short of 0.20, which is
+    # what the ranges were there to show. No captured group can carry "every", so it is an assert.
+    _mfail = [r["gate"] for r in _scored if _moirai(r) and r["gate"] < 0.20]
+    assert _mfail and max(_mfail) < 0, (
+        '"every failing cell is below the baseline" is false: the best failing Moirai cell scores '
+        f'{max(_mfail):+.3f}')
+    # The three big improvers the abstract quotes a range for. Named by dataset rather than by cell so
+    # that a fourth ETTh2 survivor entering the set breaks the count instead of widening the range
+    # silently.
+    _big = sorted(abs(r["forg_b"]) for r in _pass if _ds(r["ref"]) == "ETTH2" and r["forg_b"] < 0)
+    R["n_imp_big"], R["imp_lo"], R["imp_hi"] = len(_big), _big[0], _big[-1]
+
+    # -- how many of the four selection-vs-held-out sign reversals are themselves gate survivors.
+    # S7 leans on this overlap to argue the reversals are not confined to cells nobody would inspect,
+    # so it has to move with both the reversal set and the gate split.
+    R["n_rev_gate_pass"] = sum(
+        1 for r in rows
+        if r["bd_val"] is not None and r["bd_test"] is not None
+        and (r["bd_val"] > 0) != (r["bd_test"] > 0)
+        and r["gate"] is not None and r["gate"] >= 0.20)
+
+    # -- the pre-registered LOCO ladder. Read from the emitter's JSON rather than recomputed here: the
+    # bootstrap figures are only reproducible at the emitter's pinned TEX_BOOT/TEX_SEED, so a second
+    # implementation in this file would disagree with the table on the third decimal and the
+    # disagreement would be in the checker, not in the paper. The whole ladder is registered, not just
+    # dR2, because the body quotes four of the five rungs and the rungs are what make the point.
+    _loco = json.load(open(ROOT / "results/cka_loco.json"))
+    for s in ("M0", "M1", "M2", "M3", "M4"):
+        R[f"loco_r2_{s.lower()}"] = _loco["r2_loco"][s]
+    R["loco_dr2"] = _loco["dr2"]
+    R["loco_folds"] = _loco["n_folds"]
+    R["loco_frac"] = round(_loco["dr2_frac_not_helping"] * 100)
+    R["loco_b1"] = _loco["cka_coef_m3_insample"]
+    R["loco_b1_lo"], R["loco_b1_hi"] = _loco["cka_coef_ci"]
+    # The sign of dR2 IS the pre-registered deciding statistic, so the paper's "it does not help"
+    # framing is false the moment this flips. No captured group can carry that, hence the assert.
+    assert R["loco_dr2"] <= 0, (
+        f'the registered prediction no longer holds: dR2 = {R["loco_dr2"]:+.3f} > 0. The body and '
+        f'Appendix app:loco assert the dR2 <= 0 branch; switch to the branch the registration '
+        f'pre-wrote for a positive dR2 instead of editing the number.')
+    assert _loco["branch"] == "dR2 <= 0", f'unexpected branch: {_loco["branch"]!r}'
     return R
 
 
@@ -402,55 +704,206 @@ def build_checks(R):
         C.append(dict(name=name, pattern=pattern, expect=expect, min_sites=min_sites))
 
     # --- denominators
-    chk("screened-cell count", r"\\textbf\{(\d+) (?:screened|held-out) cells\}",
-        R["n_screened"], min_sites=2)
+    # "held-out cells" was retired where "held-out" modified the screening set rather than the
+    # outcome: the gate is scored on selection windows, so calling the screened cells held-out
+    # was the ambiguity a reviewer caught. The three bold sites (abstract, intro, S4) remain.
+    chk("screened-cell count", r"\\textbf\{(\d+) (?:screened |held-out )?cells\}",
+        R["n_screened"], min_sites=3)
     chk("screened-cell count (prose)", r"(?:Of|across) (\d+) screened cells", R["n_screened"])
-    chk("screened-cell count (ladder)", r"of (\d+), so the screen", R["n_screened"])
-    chk("screened-cell count (no cell clears)", r"no cell of the (\d+) clears", R["n_screened"])
+    # The one sentence that states the 31-vs-32 relation rather than one side of it. S4's wording
+    # moved on 20 Sep 2026 (", so the screen's denominator" became an em-dash clause naming the cell),
+    # so the pattern follows it: both numbers in one site is what stops the two denominators being
+    # swapped, which is the failure the comment below describes.
+    chk("selection-split denominator (S4)", r"which exist for (\d+) of the (\d+)",
+        R["n_val_scored"], R["n_screened"])
+    # "no cell of the N clears" appears on both splits with different N -- 31 in S4 and the
+    # selection-split appendix, 32 in the retrospective one -- so one pattern spanning both would
+    # have to agree with two numbers. Split in two, under "no cell clears every admissible rung
+    # (selection split)" and "union count (retrospective)" below, each anchored on wording only its
+    # own split uses.
     chk("intervention-cell count", r"(?:all |the )(\d+) intervention cells",
         R["n_int"], min_sites=2)
     chk("intervention-cell count (paired run)", r"(\d+) cells that carry a paired", R["n_int"])
-    chk("intervention-cell count (matrix rows)", r"matrix has (\d+) rows", R["n_int"])
+    chk("intervention-cell count (every denominator)",
+        r"every\s+denominator below is (\d+)", R["n_int"])
     chk("intervention-cell count (pooled)", r"Pooled across all (\d+) cells", R["n_int"])
     chk("intervention-cell count (conclusion)", r"across the (\d+) cells", R["n_int"])
-    chk("gate-passing count", r"only (\d+) of (\d+) held-out cells",
-        R["n_gate_pass"], R["n_screened"])
-    chk("gate-passing count (conclusion)", r"(\d+) of (\d+) cells beat a lookback",
-        R["n_gate_pass"], R["n_screened"])
+    # Every gate count below is the SELECTION-split primary, so its denominator is n_val_scored
+    # (31), not n_screened (32). The screen's own 32 is checked by "32 screened cells" above; the
+    # one cell of difference -- TimesFM/Electricity, no paired run and so no selection reference --
+    # is why these two numbers must not share a record.
+    chk("gate-passing count", r"only (\d+) of (\d+) cells show a pre-trained advantage",
+        R["n_gate_pass"], R["n_val_scored"])
+    # The conclusion used to open by re-enumerating the screen ("7 of 31 cells beat a lookback-96
+    # regression fit ... all seven on one backbone and two datasets"). Cut for page room: it was the
+    # fourth restatement of a count the abstract, the intro lead and S4 all pin above, and the
+    # conclusion's own content is the prescription that follows it. No site remains, so the check is
+    # retired rather than left to fail -- the fact itself is still covered four times.
+    # The abstract and the introduction's lead. These two sentences are where the stale "five cells,
+    # all ETTh2" survived longest, so each of the three quantities they state -- the count, the
+    # per-dataset composition, the improvement range -- is pinned separately rather than as one phrase.
+    # The abstract was rewritten to the short version on 20 Sep 2026; this claim survived the cut but
+    # its clause did not ("that carry a paired intervention run" moved to S4), so the pattern follows
+    # the surviving sentence. Both numbers still in one site, for the same reason as above.
+    chk("gate-passing count (abstract)",
+        r"only \\textbf\{(\d+) of the (\d+)\} scored cells show the",
+        R["n_gate_pass"], R["n_val_scored"])
+    chk("gate-passing count (intro lead)",
+        r"\\textbf\{(\w+) of the (\d+) scored\s+cells clear it\}",
+        R["n_gate_pass"], R["n_val_scored"])
+    # "all five of its ETTh2 cells and two of its four on ETTm2" -- three numbers, and the word "all"
+    # is a fourth claim, asserted in rederive() rather than matched here.
+    # One site, not two: the short abstract states the composition as "all seven are Moirai on two of
+    # the six datasets" and leaves the per-dataset split to the intro, which still carries it in full.
+    # The three numbers keep two further registered sites below ("survivor composition (contribution 1
+    # and S4)"), so lowering the floor tracks a deliberate cut rather than loosening the check.
+    chk("survivor composition by dataset",
+        r"all (\w+) of its\s+ETTh2 cells and (\w+) of its (\w+) on ETTm2",
+        R["n_pass_etth2"], R["n_pass_ettm2"], R["n_scored_ettm2"])
+    # Two sites -- contribution 1 (comma) and S4's lead (colon). Deliberately one pattern over both:
+    # they are the same claim, and the failure mode being guarded is one of them moving alone.
+    chk("survivor composition (contribution 1 and S4)",
+        r"all seven are Moirai[,:]\s+(\w+) on ETTh2 and (\w+) on ETTm2",
+        R["n_pass_etth2"], R["n_pass_ettm2"], min_sites=2)
+    # The emphasis is optional as of 20 Sep 2026: the abstract keeps \emph{improves} and the intro's
+    # result paragraph puts the emphasis on "helps" a clause earlier and writes this one plain. Both
+    # sites are still required -- the count is the one the whole "adaptation usually helps" reading
+    # rests on, and it was the abstract's copy that went stale last time.
+    chk("survivors improved on the mean",
+        r"(?:\\emph\{improves\}|improves) MSE (?:in|on) (\w+)", R["n_imp_mean"], min_sites=2)
+    # One site: the abstract's copy of the range was cut with the rest of the short-abstract trim.
+    # Contribution 1 still states it, under its own check immediately below.
+    chk("the big improvers' range",
+        r"([\d.]+)--([\d.]+)\\% on the (\w+) ETTh2 cells",
+        R["imp_lo"], R["imp_hi"], R["n_imp_big"])
+    chk("the big improvers' range (contribution 1)",
+        r"(\w+) of them by ([\d.]+)--([\d.]+)\\%", R["n_imp_big"], R["imp_lo"], R["imp_hi"])
+    # The abstract's ladder-union clause was cut with the short-abstract rewrite. n_union keeps three
+    # registered sites -- "ladder union and its backbones" (S4 and app:baselines:val, min_sites=2) and
+    # "union count (limitations)" -- and all three carry the backbone composition the abstract did not,
+    # so the fact is better covered after the cut than before it. Retired, not loosened.
+
+    # --- the third window set (S4's closing paragraph and app:baselines:traintail)
+    # S4's train-tail paragraph moved to app:baselines:traintail on 20 Sep 2026, so these three now
+    # read the appendix's own wording. The arm size is stated once there, in the sentence that names
+    # the script and the JSON, which is the site worth pinning.
+    chk("train-tail arm size", r"arm covers the (\d+) Moirai cells", R["n_traintail"])
+    chk("train-tail fraction", r"the last \$(\d+)\\%\$ of (?:each|the)", 20, min_sites=2)
+    # The body's copy of the fitted-rung transfer is gone with the paragraph; the appendix sentence it
+    # was restating is registered immediately below and carries all four numbers.
+    chk("fitted rung, selection vs train tail (appendix)",
+        r"it admits \\textbf\{(\d+) cells on the selection windows and (\d+) on the\s+"
+        r"train tail, with only (\d+) in both\}",
+        R["n_tt_fitted_sel"], R["n_tt_fitted_tail"], R["n_tt_fitted_both"])
+    chk("the three zeros", r"\\textbf\{(\d+), (\d+) and\s+(\d+) of (\d+)\}",
+        *R["n_tt_all_admissible"], R["n_traintail"])
+    chk("the union on the two splits", r"The union moves the other way, (\d+) to\s+(\d+)",
+        R["n_tt_any_sel"], R["n_tt_any_tail"])
+    chk("the ridge's own-region advantage",
+        r"the fitted ridge scores \$([\d.]+)\$ on the selection windows\s+"
+        r"and \$([\d.]+)\$ on the train tail---\$([\d.]+)\\times\$ better---while zero-shot barely "
+        r"moves,\s+\$([\d.]+)\$ to \$([\d.]+)\$",
+        R["tt_ridge_val"], R["tt_ridge_tail"], R["tt_ridge_ratio"], R["tt_zs_val"], R["tt_zs_tail"])
     chk("gate-passing count (Moirai arm)", r"Moirai: (\d+) of (\d+)\}",
         R["n_gate_pass"], R["n_moirai_screened"])
     chk("gate-failing count", r"(\d+) of (?:the|our) (\d+) cells we screened",
-        R["n_gate_fail"], R["n_screened"])
+        R["n_gate_fail"], R["n_val_scored"])
     chk("gate-failing count (disqualifier)", r"(\d+) of our (\d+) fail",
-        R["n_gate_fail"], R["n_screened"])
-    chk("gate-failing count (limitations)", r"(\d+) of (\d+) cells lose to a fitted",
-        R["n_gate_fail"], R["n_screened"])
+        R["n_gate_fail"], R["n_val_scored"])
+    # Limitation (1) used to spell the screen out again ("24 of 31 cells lose to a fitted lookback-96
+    # ridge map, the seven that beat it are all Moirai ..."); it now points at S4 instead. Same reason
+    # as the conclusion above, and the count keeps three other registered sites.
+    # This pair sat UNREGISTERED and went stale: through 20 Sep 2026 S2 read "5 of our 32 screened
+    # cells clear it, all of them ETTh2 on Moirai, and the remaining 27", which were the test-side
+    # numbers, and it survived the selection-split flip because no pattern reached it -- "screened
+    # cells clear it" is not "cells we screened", so the check above slid past it. Registering both
+    # halves, and the pass/fail split must reconcile to n_val_scored.
+    chk("gate counts (background)",
+        r"\\textbf\{(\d+) of the (\d+) scored cells clear it\}",
+        R["n_gate_pass"], R["n_val_scored"])
+    chk("gate-failing count (background)", r"in the other (\d+) the pre-trained model",
+        R["n_gate_fail"])
+    # Also unregistered and also stale until 20 Sep 2026: S7 said the reversals overlap "the five
+    # gate-passing cells". Both halves are derived in rederive() -- how many of the sign reversals are
+    # gate-passing, and the survivor count they are a subset of -- so the overlap cannot drift from
+    # either the reversal set or the gate.
+    chk("reversals overlapping the survivors",
+        r"(\w+) of the four are among the (\w+) gate-passing cells",
+        R["n_rev_gate_pass"], R["n_gate_pass"])
+    # S5.1 carried the survivor count as a SPELLED-OUT word in six places (title, lead, both
+    # sub-headings, the "among the five" comparison, the sweep aside) and every one of them was still
+    # the test-side five after the selection-split flip, because no pattern reached a bare word. These
+    # five patterns are deliberately phrase-anchored rather than general: the point is that each site
+    # is individually pinned, since that is the failure mode that actually occurred.
+    # The S5 lead paragraph ("Experiment 1 leaves N cells...") was deleted for the page limit --
+    # it restated the S5.1 lead sentence three lines later -- so its check is retired rather than
+    # loosened. The count stays pinned at the six sites below.
+    chk("survivor count (S5.1 subsection title and lead)",
+        r"The (\w+) cells Experiment 1 admits are the entire evidence base", R["n_gate_pass"])
+    chk("survivor count (S5.1 improver heading)",
+        r"On (\w+) of the (\w+), full fine-tuning improves the checkpoint in every",
+        R["n_imp_unan"], R["n_gate_pass"])
+    chk("survivor count (S5.1 comparison)",
+        r"representational change among the (\w+)", R["n_gate_pass"])
+    chk("non-improver remainder (S5.1 heading)",
+        r"On the remaining (\w+), the mean harm does not survive",
+        R["n_gate_pass"] - R["n_imp_unan"])
+    chk("survivor count (S5.2 sweep aside)",
+        r"one of the (\w+) survivors, so a sweep", R["n_gate_pass"])
+    chk("survivor count (S5.1 subsection title)",
+        r"What Fine-Tuning Does to the (\w+) Survivors", R["n_gate_pass"])
+    # The fourth improver, which the selection split added. It is the only survivor where the frozen
+    # encoder does BETTER than full fine-tuning, so its two percentages must not be swapped.
+    chk("the fourth improver (S5.1)",
+        r"Moirai-Base/ETTm2 at \$h\{=\}192\$, improves by a smaller \$([\d.]+)\\%\$ and is the one "
+        r"survivor where freezing does slightly better \(\$-([\d.]+)\\%\$\), at CKA \$([\d.]+)\$",
+        R["imp4_b"], R["imp4_d"], R["imp4_cka"])
+    chk("the split-sign survivor (S5.1)",
+        r"a mean \$([\d.]+)\\%\$ improvement with (\d+) of (\d+) seeds harmful",
+        R["split_forg_b"], R["split_pos"], R["split_seeds"])
+    # The outcome range. This is a headline number -- it is in the abstract, the contributions and the
+    # conclusion -- and it was UNREGISTERED until 20 Sep 2026, which is how the survivor counts around
+    # it went stale unnoticed. The negative end is TimesFM/ETTm2 and the positive end is
+    # Moirai-Small/Weather h192, so the pair also pins that the span is taken across all three arms.
+    # Anchored on the word "outcome": an unanchored pair-of-percentages pattern also matches the
+    # Chronos-only span ($-41.4$ to $+20.6$) three lines below the contributions site, which is a
+    # different quantity over 5 cells rather than 31.
+    # The outcome range, at all three sites that state it, under ONE check. It used to be three checks
+    # over three fixed phrasings ("Outcomes from", "outcome still spans", "outcome spanning"), and
+    # rewriting the abstract and the conclusion this round broke two of them at once while the fact
+    # itself stayed correct everywhere -- which is the failure mode of pinning a sentence instead of a
+    # claim. One pattern with the three verbs it is actually written with, and min_sites=3 so that
+    # losing any single site still fails. The subject is required (an "outcome"/$\denc$ anchor): an
+    # unanchored pair of percentages also matches the Chronos-only span three lines from the
+    # contributions site, which is a different quantity over 5 cells rather than 31.
+    chk("outcome span across the intervention cells",
+        r"(?:[Oo]utcomes? (?:from|spanning|(?:still |nonetheless )?spans)|\\denc\$ spans) "
+        r"\$-([\d.]+)\\%\$ to \$\{?\+\}?([\d.]+)\\%\$",
+        R["forg_b_lo"], R["forg_b_hi"], min_sites=3)
     chk("clause-(i) exclusions", r"removes (\d+) of the (\d+)",
         R["n_clause_i_out"], R["n_int"])
 
-    # --- the outcome span
-    chk("outcome span (abstract/conclusion)",
-        r"outcome (?:still )?spans \$-([\d.]+)\\%\$ to \$\{?\+\}?([\d.]+)\\%\$",
-        R["forg_b_min"], R["forg_b_max"])
-    chk("outcome span (contributions)",
-        r"Outcomes from \$-([\d.]+)\\%\$ to \$\{?\+\}?([\d.]+)\\%\$",
-        R["forg_b_min"], R["forg_b_max"])
     chk("Chronos span", r"\$-([\d.]+)\\%\$ on ETTm2 to \$\{?\+\}?([\d.]+)\\%\$ on ETTh1",
         R["chronos_min"], R["chronos_max"])
-    chk("Chronos span (contributions)",
-        r"spans (\d+) points, from \$-([\d.]+)\\%\$ to \$\{?\+\}?([\d.]+)\\%\$",
-        R["chronos_span"], R["chronos_min"], R["chronos_max"])
+    # The contributions' Chronos clause was cut when the intro was restructured into five paragraphs.
+    # chronos_span keeps its site at "Chronos span (point count)" below and the two ends keep theirs at
+    # "Chronos span" above, both in S6 where the dissociation is argued.
     chk("Chronos span (point count)", r"a (\d+)-point spread", R["chronos_span"])
-    chk("TimesFM span", r"all improving \(\$-([\d.]+)\\%\$ to \$-([\d.]+)\\%\$\)",
-        R["timesfm_min"], R["timesfm_max"])
+    # The two ends of the TimesFM range moved to Appendix Table tab:crossbackbone with the demotion of
+    # the cross-backbone arm; what stays in S6 is the cell count and the quantifier, and the quantifier
+    # is enforced by the assert in rederive() rather than by a pattern.
+    chk("TimesFM arm (qualitative, with the count)",
+        r"the (\w+) TimesFM-2\.5\s+cells sit at milder drift and all improve", R["n_timesfm"])
 
     # --- held-out scoring
     chk("held-out sign reversals",
         r"reverses its sign in (\d+) of the (\d+) intervention cells",
         R["n_heldout_rev"], R["n_int"])
-    chk("held-out sign reversals (abstract/contributions)",
+    # One site, not two: contribution 3 was folded into contribution 2, which now names the
+    # measurement choice without repeating the count the abstract and S7 both carry.
+    chk("held-out sign reversals (abstract)",
         r"(\d+) of (\d+) cells (?:otherwise )?reverse",
-        R["n_heldout_rev"], R["n_int"], min_sites=2)
+        R["n_heldout_rev"], R["n_int"])
 
     # --- the decomposition behind the reversals
     chk("largest reversal", r"moves from \$\+([\d.]+)\$ to \$-([\d.]+)\$, a (\d+)-point swing",
@@ -461,6 +914,30 @@ def build_checks(R):
     chk("selection/held-out difficulty ratio",
         r"ratio spans \$([\d.]+)\$ to \$([\d.]+)\$ across these four cells",
         R["ratio_lo"], R["ratio_hi"])
+
+    # --- the relaxed-definition ladder. None of this was registered before 21 Sep 2026, which is how
+    # the body, the appendix and the generated table came to disagree with the emitter in five places.
+    chk("ladder maximum (body)",
+        r"across (\d+) rungs from the weakest defensible one up to ours, at either gate "
+        r"threshold, \\textbf\{the largest count anywhere is (\d+)\}",
+        R["ds_n_rungs"], R["ds_max_020"])
+    chk("ladder maximum among means-clause rungs (body)",
+        r"clause admits at most (\d+), the 5/10 seed split", R["ds_max_means_020"])
+    chk("ladder maximum (appendix)",
+        r"the largest count anywhere on the ladder is \\textbf\{(\w+)\}", R["ds_max_020"])
+    chk("ladder scorable and gate-passing counts",
+        r"That leaves (\d+) scorable cells, of which (\d+) clear a gate of \$0\.10\$ and "
+        r"(\d+) clear \$0\.20\$",
+        R["ds_n_scorable"], R["ds_pass_010"], R["ds_pass_020"])
+    chk("ladder rungs yielding zero",
+        r"(\d+) of\s+the (\d+) rungs yield zero at both", R["ds_n_zero_020"], R["ds_n_rungs"])
+    chk("ladder rungs yielding zero (restated)",
+        r"at gate \$0\.20\$ (\d+) of the (\d+) rungs\s+also yield zero",
+        R["ds_n_zero_020"], R["ds_n_rungs"])
+    # "the five Chronos cells are excluded" is spelled as a word in the appendix, so it cannot carry a
+    # captured group; the count is enforced here instead.
+    assert R["ds_n_confounded"] == 5, \
+        f'"the five Chronos cells are excluded" is now {R["ds_n_confounded"]}'
 
     # --- strict freeze
     chk("the four ETTm2 strict-freeze shifts",
@@ -474,7 +951,15 @@ def build_checks(R):
         R["n_sf"], R["n_int"])
     chk("strict-freeze coverage (protocol)", r"on (\d+) of the (\d+) cells we ran it on",
         R["n_sf_reverse"], R["n_sf"])
-    chk("strict-freeze D-only remainder", r"and (\d+) rest on D alone", R["n_d_only"])
+    # Promoted from limitations item (2) into S5's opening this round, and registered on the way: the
+    # claim is that the reversals hit cells the paper leans on, so it is the ETTm2 SURVIVOR count, and
+    # it is only equal to it if every reversing cell is ETTm2 and every ETTm2 survivor was run under H.
+    chk("survivors resting on the freeze boundary",
+        r"(\d+) of which are among the seven survivors", R["n_pass_ettm2"])
+    # "D alone" became "the ordinary freeze alone" under the naming convention of S3: the body no
+    # longer asks a reader to decode a bare condition letter, so the pattern follows the name.
+    chk("strict-freeze D-only remainder",
+        r"and (\d+) cells rest on the ordinary freeze alone", R["n_d_only"])
 
     # --- the LoRA value-cell arm (app:loravaluecells). This section is hand-written prose over a
     # generated table, which is the configuration that has gone stale most often in this project, so
@@ -528,75 +1013,215 @@ def build_checks(R):
         R["sf_cell_count"], R["lora_cells"])
 
     # --- correlations: within-Moirai CKA
-    chk("within-Moirai CKA rho", r"within-backbone (?:Spearman )?\$\\rho\{=\}\{\+\}([\d.]+)",
-        R["cka_rho"], min_sites=2)
+    # rho must be labelled within-backbone wherever it appears: pooled across backbones the same
+    # quantity reads differently, and that is a distinction this paper's own rule turns on.
+    # "within Moirai, the only backbone with enough cells to ask" is the same labelling requirement as
+    # "within-backbone" and is how the abstract, S6 and app:valueaxis all phrase it; only contribution 2
+    # uses the hyphenated form. Accepting both is not a loosening -- the point of the check is that the
+    # scope is NAMED next to the number, and a bare "$\rho{=}{+}0.168$" still matches nothing.
+    # The lookahead excludes exactly one thing, and it is the same hazard the gate's RETRO list below
+    # handles: app:clustered prints the L2 weight drift's OWN within-Moirai rho as "within Moirai
+    # ($\rho{=}{+}0.318$)", three words from the CKA one, in the same notation. Every CKA site names
+    # its scope with a clause first ("within Moirai, the only backbone...", "within Moirai at either
+    # level"), so requiring anything other than an immediate "($" separates them without loosening
+    # what the check is for -- a bare "$\rho{=}{+}0.168$" with no named scope still matches nothing.
+    chk("within-Moirai CKA rho",
+        r"within(?:-backbone|\s+Moirai(?! \(\$))[^$]{0,70}\$\\rho\{=\}\{\+\}([\d.]+)",
+        R["cka_rho"], min_sites=4)
+    # A "label after symbol" variant ("$\rho{=}{+}0.168$ within backbone") existed only in the
+    # conclusion, whose copy of this statistic was removed on 20 Sep 2026; the conclusion now points
+    # at S6. The check is retired rather than loosened -- the value is still pinned at six prose sites
+    # by the three checks around this comment, so retiring it costs no coverage.
     chk("within-Moirai CKA rho (body)",
         r"cells to ask, \$?\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"])
+    # The preceding {+}rho is required and non-capturing: since the flip, the gate's own clustered
+    # CI is printed in the same shape a few words away in Figure 1's caption, and without this the
+    # gate's interval would be checked against CKA's numbers.
+    # Four word orders join the rho to its CI, so the gap is a bounded run that may not cross a `$`.
+    # The [^$] is what makes the preceding {+} load-bearing: it cannot be borrowed from an earlier
+    # math group, so the gate's own negative-rho interval a few words away does not match here.
     chk("within-Moirai CKA clustered CI",
-        r"clustered CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$",
-        R["cka_lo"], R["cka_hi"], min_sites=3)
+        r"\{\+\}[\d.]+\$[^$]{0,25}?clustered CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$",
+        # 4, not 5: the conclusion's copy of this CI was removed on 20 Sep 2026 to pay for the
+        # selection-split prose, and it now points at S6 where the interval is stated with the
+        # clustering rationale. Lowering the floor to match a deliberate deletion, not to a failure.
+        R["cka_lo"], R["cka_hi"], min_sites=4)
+    # Figure 1's caption was rewritten with the panel (b) axis flip: it now names CKA first and the
+    # gate second, in that order, because CKA is the axis. Both rhos are still printed, and both are
+    # still checked -- this one and "gate rho, primary, clustered CI in the figure caption" below.
     chk("within-Moirai CKA rho (figure caption)",
-        r"order them \(\$\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"])
+        r"neither CKA \(\$\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"])
     chk("Moirai cell count", r"\$n\{=\}(\d+)\$ cells from six series", R["n_moirai"])
-    chk("Moirai cell count (rho over)", r"over (\d+) cells from six series", R["n_moirai"])
+    # The intro's second copy of this denominator went with the restructure into five paragraphs; it
+    # was attached to the retrospective rho, which S7 states with the same denominator two lines from
+    # the site the check above pins.
 
     # --- correlations: the gate against the intervention
-    # Deliberately unanchored: every negative rho the paper prints is this one, and a new site that
-    # quotes a different value should fail here rather than pass unnoticed. The one exception is the
-    # LoRA arm's two CKA_E correlations, which have their own check above; they are excluded by the
-    # words that follow them, not by their value, so a *wrong* value there still fails its own check.
+    # Deliberately unanchored: the DEFAULT reading of a negative rho in this paper is the primary
+    # selection-split gate, and a new site that quotes a different value should fail here rather
+    # than pass unnoticed. Four contexts legitimately print a different negative rho, and each is
+    # excluded by the words that FOLLOW it (lookbehind would have to be fixed-width) and then
+    # re-checked on its own below. So a swapped value -- the retrospective number dropped into a
+    # primary sentence -- fails the unanchored check, and a wrong value in an excluded context
+    # fails that context's own check. Neither can pass by being in the other's list.
     # The trailing \$ is load-bearing: without it [\d.]+ backtracks a digit at a time until the
     # lookahead is satisfied, so the exclusion silently becomes "match a prefix of any number".
-    chk("gate rho within Moirai", r"\\rho\{=\}\{-\}([\d.]+)\$(?! against B\$-\$E)",
+    # The gate rho is quoted at six sites and three OTHER negative rhos share its notation, so each
+    # exclusion here names the phrase that follows one of them. ", CI $[-" is the graded value axis
+    # (-0.270 over 31 cells, -0.229 over the 20 value-cells); the gate sites all write "clustered CI"
+    # or continue with prose, so the lookahead cannot swallow one of them.
+    RETRO = (r"(?! against B\$-\$E)(?! on the same cells)(?! with a cell-level CI)"
+             r"(?! between the gate)(?! over the four shared datasets)(?!, CI \$\[-)")
+    chk("gate rho within Moirai", r"\\rho\{=\}\{-\}([\d.]+)\$" + RETRO,
         R["gate_rho"], min_sites=3)
+    # the retrospective variant, quoted in Exp 4 and twice in the audit appendix
+    chk("gate rho, retrospective variant (body)",
+        r"instead gives \$\\rho\{=\}\{-\}([\d.]+)\$ on the same cells", R["gate_test_rho"])
+    chk("gate rho, retrospective variant (appendix)",
+        r"\$\\rho\{=\}\{-\}([\d.]+)\$ with a cell-level CI of \$\[-([\d.]+), -([\d.]+)\]\$",
+        R["gate_test_rho"], R["gate_test_celllo"], R["gate_test_cellhi"])
+    chk("gate rho, retrospective variant (audit bullet)",
+        r"\$\\rho\{=\}\{-\}([\d.]+)\$ between the gate and B\$-\$D moves from "
+        r"\$\[-([\d.]+), -([\d.]+)\]\$ over cells to \$\[-([\d.]+), \+([\d.]+)\]\$",
+        R["gate_test_rho"], R["gate_test_celllo"], R["gate_test_cellhi"],
+        R["gate_test_lo"], R["gate_test_hi"])
+    # the primary gate's own two intervals, which the appendix prints side by side
+    chk("gate rho, primary, both resampling levels",
+        r"primary\. Neither resampling level supports an interval claim: cells give "
+        r"\$\[-([\d.]+), \+([\d.]+)\]\$ and the six clusters give \$\[-([\d.]+), \+([\d.]+)\]\$",
+        R["gate_celllo"], R["gate_cellhi"], R["gate_lo"], R["gate_hi"])
+    # The caption states "clustered CI" once and lets it govern both intervals, so the gate's copy of
+    # the words is gone while the interval itself is unchanged; the pattern follows that.
+    chk("gate rho, primary, clustered CI in the figure caption",
+        r"gate score\s+\(\$\\rho\{=\}\{-\}([\d.]+)\$, \$\[-([\d.]+),\{\+\}([\d.]+)\]\$\)",
+        R["gate_rho"], R["gate_lo"], R["gate_hi"])
+    # the withdrawn cross-backbone ordering claim, both splits
+    chk("cross-backbone dataset ordering, both splits",
+        r"identically on the held-out windows \(\$\\rho\{=\}\{\+\}([\d.]+)\$\) and disagree on the "
+        r"selection windows \(\$\\rho\{=\}\{-\}([\d.]+)\$ over the four shared datasets\)",
+        R["xback_test_rho"], R["xback_val_rho"])
 
     # --- correlations: pooled and graded
     chk("pooled CKA rho and CI",
         r"\\rho\{=\}\{\+\}([\d.]+)\$, clustered CI \$\[\{\+\}([\d.]+),\{\+\}([\d.]+)\]",
         R["pooled_rho"], R["pooled_lo"], R["pooled_hi"])
-    chk("value-cell CKA rho and CI",
-        r"\\emph\{weaker\} \(\$\\rho\{=\}\{\+\}([\d.]+)\$, CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$\)",
-        R["vc_rho"], R["vc_lo"], R["vc_hi"])
+    # S6's graded-screen paragraph became a one-sentence pointer on 20 Sep 2026 and its four numbers
+    # went back to app:valueaxis, which had been stating them all along -- the body was restating the
+    # appendix. So the three body checks here are re-pointed at the appendix's own wording rather than
+    # retired: vc_* keeps the check immediately below, and lv_*, b3 and val_* are re-pointed just after
+    # it. On the selection-split ladder the value-cell interval no longer straddles zero, so the sign
+    # of the lower bound is part of the claim and is written into each pattern: if the union moved and
+    # a bound went negative, the check would stop matching rather than quietly agree.
+    chk("value-cell CKA rho and CI (appendix)",
+        r"the (\d+) value-cells gives \$\\rho\{=\}\{\+\}([\d.]+)\$ with clustered "
+        r"CI \$\[\{\+\}([\d.]+), \{\+\}([\d.]+)\]\$",
+        R["vc_n"], R["vc_rho"], R["vc_lo"], R["vc_hi"])
     chk("low-value CKA rho and CI",
-        r"than on the (\d+) not \(\$\+([\d.]+)\$, CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$\)",
+        r"the (\d+) cells with no admissible value give \$\\rho\{=\}\{\+\}([\d.]+)\$ with CI "
+        r"\$\[-([\d.]+), \{\+\}([\d.]+)\]",
         R["lv_n"], R["lv_rho"], R["lv_lo"], R["lv_hi"])
-    chk("value-cells clearing the screen", r"on the (\d+) clearing \$0\.20\$", R["vc_n"])
+    # vc_n's body site went with the same paragraph and keeps three appendix sites: the two rho
+    # sentences registered here and "value-cell count (aggregate)" in the paired-inference block.
     chk("cells with nothing to lose", r"because (\d+) of the (\d+) cells beat no rung",
         R["lv_n"], R["n_int"])
     chk("interaction coefficient",
-        r"\$b_3\{=\}\{-\}([\d.]+)\$~pp per unit CKA per unit value, "
-        r"CI \$\[-([\d.]+),\{\+\}([\d.]+)\]",
+        r"\$b_3\{=\}\{-\}([\d.]+)\$~pp per unit CKA per unit value with "
+        r"CI \$\[-([\d.]+), \{\+\}([\d.]+)\]",
         R["b3"], R["b3_lo"], R["b3_hi"])
-    chk("value score rho and CI",
-        r"either \(\$\\rho\{=\}\{\+\}([\d.]+)\$, CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$\)",
-        R["val_rho"], R["val_lo"], R["val_hi"])
+    # On the selection-split axis this rho is NEGATIVE, so the sign is in the pattern and the
+    # registered value is its magnitude: a sign flip in the record breaks the match instead of
+    # passing on the magnitude alone. The body clause that stated it is now a pointer (S7 says only
+    # that no other quantity orders \denc either), so the appendix sentence is the site, and it
+    # carries both the 31-cell and the 20-value-cell readings rather than one of them.
+    chk("value score rho and CI (appendix)",
+        r"gives \$\\rho\{=\}\{-\}([\d.]+)\$, CI \$\[-([\d.]+), \{\+\}([\d.]+)\]\$ across all (\d+) "
+        r"cells and \$\\rho\{=\}\{-\}([\d.]+)\$, CI \$\[-([\d.]+), \{\+\}([\d.]+)\]\$ across "
+        r"the (\d+) value-cells",
+        abs(R["val_rho"]), R["val_lo"], R["val_hi"], R["n_int"],
+        abs(R["valvc_rho"]), R["valvc_lo"], R["valvc_hi"], R["vc_n"])
 
     # --- paired inference
+    # Sign in the pattern, magnitude in the record: on the selection-split value-cells the aggregate
+    # is POSITIVE (freezing marginally ahead on average) where the test-side one was negative, and
+    # the direction is the whole content of the sentence.
     chk("value-cell aggregate Delta_enc",
-        r"\\denc\{=\}\{-\}([\d.]+)\$ with CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$ and (\d+) of (\d+)",
+        r"\\denc\{=\}\{\+\}([\d.]+)\$ with CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$ and (\d+) of (\d+)",
         R["agg_mean"], R["agg_lo"], R["agg_hi"], R["n_vc_pos"], R["n_vc"])
     chk("value-cell count (aggregate)", r"over the (\d+) value-cells", R["n_vc"])
 
-    # --- the ladder
-    chk("ladder pass counts",
-        r"floor is " + r", ".join([r"(\d+)"] * (len(R["ladder_counts"]) - 1))
-        + r" and (\d+) of (\d+)",
-        *R["ladder_counts"], R["n_screened"])
-    chk("survivor range against the strongest rung",
-        r"land\s*between \$-([\d.]+)\$ and \$-([\d.]+)\$",
-        R["surv_strongest_hi"], R["surv_strongest_lo"])
+    # --- the ladder, selection split (the body's primary)
+    # S4's eight-rung enumeration moved to app:baselines:val this round: a reviewer asked for the
+    # ladder to read as a robustness check rather than as a second headline, and the appendix had been
+    # printing the same eight counts all along. So the per-rung counts keep exactly one site, the one
+    # below, and the body now states only the two facts that are claims -- that no cell clears every
+    # admissible rung, and the union's size and composition, both still registered.
+    chk("ladder pass counts (appendix, selection split)",
+        r"the eight rungs give \\textbf\{"
+        + r", ".join([r"(\d+)"] * (len(R["ladder_counts"]) - 1))
+        + r" and (\d+) of (\d+)\} on this split",
+        *R["ladder_counts"], R["n_val_scored"])
+    # Two sites, S4 and the ladder appendix, and both must carry the backbone composition: the union
+    # is what answers "gate-positive evidence is concentrated in Moirai/ETTh2", and a bare count of
+    # 20 does not answer it. The pattern requires all four numbers, so dropping the composition from
+    # either site fails here rather than silently weakening the claim.
+    chk("ladder union and its backbones",
+        r"\\textbf\{(\d+)(?: of the \d+)? clear it against at least one"
+        r"(?: admissible rung)?[-:]+ ?(\d+) Moirai, (\d+) Chronos, (\d+) TimesFM\}",
+        R["n_union"], R["n_union_moirai"], R["n_union_chronos"], R["n_union_timesfm"],
+        min_sites=2)
+    # --- the prospective arm under the corrected gates
+    chk("prospective cells clearing the corrected gate",
+        r"only (\w+) of the (\w+) clears \$0\.20\$ on either corrected split "
+        r"\(base/ETTm2 \$h\{=\}192\$, \$\+([\d.]+)\$ on selection windows\) and it fails "
+        r"clause~\(ii\) in (\d+) of (\d+) seeds",
+        R["n_pro_clearing_corrected"], R["n_pro"], R["pro_clearing_gate"],
+        R["pro_clearing_forg_pos"], R["pro_clearing_seeds"])
+    chk("rungs admitting a degradation cell",
+        r"(\w+) of the ladder's eight rungs admit none, persistence admits (\w+) and GBM (\w+)",
+        R["n_rungs_no_degradation"], R["n_degradation_persistence"], R["n_degradation_gbm"])
+    chk("degradation cells a weak rung manufactures",
+        r"All (\w+) rest on a denominator within", R["n_degradation_manufactured"])
+    chk("union count (limitations)",
+        r"the (\d+)-cell union spanning all three backbones", R["n_union"])
+    chk("no cell clears every admissible rung (selection split)",
+        r"\\textbf\{no cell of the (\d+) clears \$0\.20\$\}", R["n_val_scored"])
+    # Same move as the per-rung counts: the survivors' graded range left S4 with the enumeration and is
+    # stated once, in app:baselines:val, where the rung that sets each end is named beside it.
+    chk("survivor range against the strongest rung (appendix)",
+        r"\$\\Vbest\$ between \$-([\d.]+)\$ and \$\+([\d.]+)\$",
+        abs(R["surv_strongest_lo"]), R["surv_strongest_hi"])
+    # --- the ladder, held-out split (the retrospective variant in the appendix)
+    chk("ladder pass counts (retrospective)",
+        r"the eight rungs give \\textbf\{"
+        + r", ".join([r"(\d+)"] * (len(R["ladder_counts_test"]) - 1))
+        + r" and (\d+) of (\d+)\} in ladder order",
+        *R["ladder_counts_test"], R["n_screened"])
+    chk("union count (retrospective)",
+        r"no cell of the (\d+) clears \$0\.20\$ against every admissible rung\}, and (\d+) "
+        r"clear it against at least one",
+        R["n_screened"], R["n_union_test"])
 
     # --- the unfitted-baseline correction
+    # The abstract stopped saying "correcting the estimator MOVES n of m" when its provenance clause was
+    # compressed to one sentence; it now states the same count from the failure side, "puts n of m on
+    # the wrong side of the screen". Same two numbers, so the pattern follows the wording rather than
+    # the wording being kept alive to suit the pattern.
     chk("Moirai gate flips (abstract)",
-        r"moves (\d+) of (\d+) Moirai cells", R["n_flip_moirai_p2f"], R["n_moirai_screened"])
+        r"puts (\d+) of (\d+) Moirai cells on the wrong side",
+        R["n_flip_moirai_p2f"], R["n_moirai_screened"])
     # Both body sites must name the Moirai denominator. 17 is the Moirai flip count; across all
     # arms it is 26 of 32, so an unqualified "17 cells" in a 32-cell context reads as 17 of 32 and
     # understates the correction. The pattern requires the qualifier, so dropping it fails the check.
     chk("gate flips across the threshold",
         r"moves (\d+) of Moirai's (\d+) cells across the threshold",
         R["n_flip_moirai"], R["n_moirai_screened"])
-    chk("gate flips (contributions)", r"\((\d+) of (\d+) Moirai cells flip\)",
+    chk("gate flips (contributions)", r"\((\d+) of (\d+) Moirai cells flip either way",
         R["n_flip_moirai"], R["n_moirai_screened"])
+    # 16 and 17 are both correct and sit twenty lines apart, which reads as one fact unless each
+    # site says which direction it counts. The abstract's 16 is pass-to-fail; the two 17s are
+    # either-direction and now carry the pass-to-fail subcount, so a reader cannot conflate them.
+    chk("gate flips, the pass-to-fail subcount", r", (\d+) of them to gate-fail",
+        R["n_flip_moirai_p2f"], min_sites=2)
     chk("gate flips (appendix)", r"(\w+) cells change status: (\d+) flip",
         R["n_flip_moirai"], R["n_flip_moirai_p2f"])
     # Per-arm, because the three arms' before/after counts sit in three adjacent list items and a
@@ -609,43 +1234,50 @@ def build_checks(R):
             R[f"n_pass_{arm}"], R[f"n_screened_{arm}"],
             R[f"n_pass_trend_{arm}"], R[f"n_screened_{arm}"])
     chk("gate passes across arms, both splits",
-        r"\\textbf\{(\d+) of (\d+) cells pass on the test split and (\d+) of (\d+) on validation\}",
-        R["n_gate_pass"], R["n_screened"], R["n_gate_pass_val"], R["n_int"])
+        r"\\textbf\{(\d+) of (\d+) cells pass on the selection split---the\s+"
+        r"paper's primary---and (\d+) of (\d+) on the retrospective test-side variant\}",
+        R["n_gate_pass"], R["n_val_scored"], R["n_gate_pass_test"], R["n_screened"])
 
     # --- the closest candidate cell, quoted number for number
     chk("h192 survivor forgetting",
         r"forg\.\$_\\text\{B\}\{=\}\{\+\}([\d.]+)\{\\pm\}([\d.]+)\$ with (\d+) of (\d+) seeds",
-        R["s192_forg_b"], R["s192_sem"], R["s192_pos"], R["s192_seeds"], min_sites=2)
+        # One site, not two: S5.3 used to restate this cell number for number and now
+        # points back at S5.1 instead (a deliberate deletion for the page limit, not a
+        # stale pattern).  The seed split is still pinned at three other sites below.
+        R["s192_forg_b"], R["s192_sem"], R["s192_pos"], R["s192_seeds"])
     chk("h96 survivor forgetting",
         r"\(\$\+([\d.]+)\{\\pm\}([\d.]+)\$, (\d+) of (\d+) seeds\)",
         R["s96_forg_b"], R["s96_sem"], R["s96_pos"], R["s96_seeds"])
     chk("seed splits in the introduction",
         r"only (\d+)/(\d+) and (\d+)/(\d+) seeds agreeing",
         R["s96_pos"], R["s96_seeds"], R["s192_pos"], R["s192_seeds"])
-    chk("seed splits in the abstract",
-        r"(\d+)/(\d+) and (\d+)/(\d+) seed agreement",
-        R["s96_pos"], R["s96_seeds"], R["s192_pos"], R["s192_seeds"])
+    # The abstract's seed-agreement clause was cut with the short-abstract rewrite. Both splits keep
+    # four registered sites between them -- the intro check above, the two survivor-forgetting checks,
+    # and the closest-candidate one below -- so no seed count lost its last site.
     chk("closest candidate split", r"splits (\d+)/(\d+) on the sign",
         R["s192_pos"], R["s192_seeds"])
 
     # --- the gate values quoted cell by cell
-    g = R["gate_of"]
-    chk("the five survivors' gate values",
-        r"ETTh2 at Small \$h\{=\}96\$ \(\$\+([\d.]+)\$\) and \$h\{=\}192\$ \(\$\+([\d.]+)\$\), "
-        r"Base \$h\{=\}96\$ \(\$\+([\d.]+)\$\) and \$h\{=\}192\$ \(\$\+([\d.]+)\$\), "
-        r"and Large \$h\{=\}96\$ \(\$\+([\d.]+)\$\)",
-        g["small_ETTh2_h96"], g["small_ETTh2_h192"], g["base_ETTh2_h96"],
-        g["base_ETTh2_h192"], g["large_ETTh2_h96"])
-    chk("the failing datasets' gate ranges",
-        r"ETTh1 spans \$-([\d.]+)\$ to \$-([\d.]+)\$, Weather \$-([\d.]+)\$ to \$-([\d.]+)\$, "
-        r"\\texttt\{Electricity7\} \$-([\d.]+)\$ and \$-([\d.]+)\$, "
-        r"and ETTm2 \$-([\d.]+)\$ to \$\+([\d.]+)\$",
-        R["mo_ETTh1_hi"], R["mo_ETTh1_lo"], R["mo_Weather_hi"], R["mo_Weather_lo"],
-        R["mo_Electricity7_lo"], R["mo_Electricity7_hi"],
-        R["mo_ETTm2_lo"], R["mo_ETTm2_hi"])
-    chk("non-Moirai gate range",
-        r"scores run from \$-([\d.]+)\$ \(ETTm2\) to \$\+([\d.]+)\$ \(Electricity\)",
-        R["nonmo_lo"], R["nonmo_hi"])
+    g, vg = R["gate_of"], R["vgate_of"]
+    chk("the seven survivors' gate values (selection split)",
+        r"Small \$h\{=\}96\$ \(\$\+([\d.]+)\$\) and \$h\{=\}192\$ \(\$\+([\d.]+)\$\), Base "
+        r"\$h\{=\}96\$ \(\$\+([\d.]+)\$\) and \$h\{=\}192\$ \(\$\+([\d.]+)\$\), Large "
+        r"\$h\{=\}96\$ \(\$\+([\d.]+)\$\).{0,120}?Small \$h\{=\}192\$ \(\$\+([\d.]+)\$\) and Base "
+        r"\$h\{=\}192\$ \(\$\+([\d.]+)\$\)",
+        vg["small_ETTh2_h96"], vg["small_ETTh2_h192"], vg["base_ETTh2_h96"],
+        vg["base_ETTh2_h192"], vg["large_ETTh2_h96"],
+        vg["small_ETTm2_h192"], vg["base_ETTm2_h192"])
+    # S4's four per-dataset failing ranges are gone -- eight printed numbers restating Table r2task,
+    # cut to make page room. What replaced them ("every failing cell is below the baseline rather than
+    # short of the threshold") is a claim about all 15 failing Moirai cells at once, so it is enforced
+    # by the max(_mfail) < 0 assert in rederive() rather than by a pattern here: no captured group can
+    # carry "every", and a range check would pass while the word it qualifies went false.
+    # The four vmo_* range values stay derived -- Appendix Table r2task still prints them.
+    # The count reads as a word ("All nine cells"), which parse() cannot take, so the arm counts are
+    # checked by the "0 of 5"/"0 of 4" headings just above and only the band is checked here.
+    chk("non-Moirai gate band (selection split)",
+        r"cells fall in a narrow band about zero, \$-([\d.]+)\$ to \$\+([\d.]+)\$",
+        R["vnonmo_lo"], R["vnonmo_hi"])
     for arm, label in (("chronos", "Chronos"), ("timesfm", "TimesFM")):
         chk(f"{label} per-cell gate values",
             r"\\textbf\{" + label + r":\}.{0,60}?before: "
@@ -653,7 +1285,10 @@ def build_checks(R):
             r"ETTm2 \$-([\d.]+)\$, Electricity \$\+([\d.]+)\$",
             *(abs(g[f"{arm}_{d}"]) for d in
               ("etth1", "etth2", "weather", "ettm2", "electricity")))
-    chk("ILI gate", r"R\^2_\\text\{task\}\(\\text\{PT\}\)\{=\}\{-\}([\d.]+)", R["ili_gate"])
+    chk("TimesFM/Electricity, the screened-only 32nd cell",
+        r"no selection-split gate: it scores \$\+([\d.]+)\$ on the held-out windows",
+        R["timesfm_elec_gate_test"])
+    chk("ILI gate", r"\\Vb\{\\text\{ridge\}\}\{=\}\{-\}([\d.]+)", R["ili_gate"])
     chk("ILI gate (appendix list)",
         r"\\textbf\{ILI\} \(Moirai-Small\): \$\\mathbf\{-([\d.]+)\}\$", R["ili_gate"])
     chk("ILI gate (appendix, restated)", r"it now carries \$-([\d.]+)\$", R["ili_gate"])
@@ -668,6 +1303,16 @@ def build_checks(R):
     chk("the three improvers under a frozen encoder",
         r"\(\$-([\d.]+)\\%\$, \$-([\d.]+)\\%\$, \$-([\d.]+)\\%\$\)",
         R["imp1_d"], R["imp2_d"], R["imp3_d"])
+
+    # --- the mean-vs-unanimous improver counts. The appendix states BOTH and says which the paper
+    # uses; the figure asserts the unanimous one at draw time. `word()` is not available here, so the
+    # counts are matched as digits where the prose uses digits and spelled out where it spells them.
+    chk("the split-sign survivor (mean improves, seeds disagree)",
+        r"its mean is a \$([\d.]+)\\%\$ \\emph\{improvement\} but (\d+) of its (\d+) seeds are harmful",
+        R["split_forg_b"], R["split_pos"], R["split_seeds"])
+    chk("mean-reading vs every-seed-reading improver counts",
+        r"on the mean-only reading (\w+) of the seven improve and on the every-seed reading (\w+) do",
+        R["n_imp_mean"], R["n_imp_unan"])
 
     # --- the two-cell from-scratch check (Reproducibility Statement). These are the only numbers in
     # the paper that come from a re-run rather than from the recorded runs, so they are the ones most
@@ -696,8 +1341,74 @@ def build_checks(R):
 
     # --- the headline nulls
     chk("degradation count", r"definition of \\S\\ref\{sec:method\} to all (\d+)", R["n_int"])
-    chk("cells clearing the strongest rung",
-        r"\\textbf\{no cell of the (\d+) clears", R["n_screened"])
+
+    # --- claims added by the 20 Sep 2026 clarity pass
+    # Figure 1's panel (b) claim, and the only number in the paper that comes from the figure script
+    # rather than from a table: the fewest cells any single CKA cut misplaces. It is in the caption
+    # only, so without this it would be the one load-bearing figure number with no prose check.
+    chk("Figure 1: the best CKA cut", r"the best threshold\s+misplaces (\w+) of the (\d+)",
+        R["n_miscut"], R["n_int"])
+
+    # -- the pre-registered LOCO ladder, quoted in S6, in the abstract and in Appendix app:loco. Each
+    # number is registered where it is PHRASED, not once per fact: S6 quotes the four rungs in one
+    # sentence, the abstract quotes only the two that straddle CKA, and the appendix restates all of
+    # them in prose. Three phrasings, three checks -- the alternative is the failure this project has
+    # already had ten times, where one restatement drifts and every pattern still matches.
+    chk("LOCO ladder (S6, four rungs in one sentence)",
+        r"rises from \$([+-][\d.]+)\$ to\s+\$([+-][\d.]+)\$ on backbone identity and "
+        r"\$([+-][\d.]+)\$ with horizon and \$\\log n\$, then\s+\\emph\{falls\} to \$([+-][\d.]+)\$",
+        R["loco_r2_m0"], R["loco_r2_m1"], R["loco_r2_m2"], R["loco_r2_m3"])
+    chk("LOCO dR2 and the share of unhelpful draws",
+        r"\$\\Delta R\^2\{=\}\{-\}([\d.]+)\$; no help in\s+\$(\d+)\\%\$ of cluster-bootstrap draws",
+        abs(R["loco_dr2"]), R["loco_frac"])
+    chk("LOCO interaction rung (the worst of the five)",
+        r"backbone-specific-slope variant is\s+worst of all at \$([+-][\d.]+)\$", R["loco_r2_m4"])
+    # Both sites -- S6's "cluster interval" and the appendix's "cluster-bootstrap interval" -- in one
+    # check, so the two cannot drift apart while each keeps matching its own pattern.
+    chk("LOCO b1 and its cluster interval",
+        r"\$([+-]\d+)\$~pp per unit CKA with a cluster(?:-bootstrap)? interval of "
+        r"\$\[([+-]\d+), ([+-]\d+)\]\$",
+        R["loco_b1"], R["loco_b1_lo"], R["loco_b1_hi"], min_sites=2)
+    chk("LOCO fold count (S6)", r"leave-one-cluster-out \$R\^2\$ over the (\d+) clusters",
+        R["loco_folds"])
+    chk("LOCO in the abstract", r"it \\emph\{lowers\} \$R\^2\$ from \$([+-][\d.]+)\$ to \$([+-][\d.]+)\$",
+        R["loco_r2_m2"], R["loco_r2_m3"])
+    chk("LOCO fold count (abstract)", r"across\s+(\d+) leave-one-cluster-out folds", R["loco_folds"])
+    chk("LOCO ladder (appendix restatement)",
+        r"buys\s+\$R\^2_\\text\{LOCO\}\{=\}\{\+\}([\d.]+)\$; adding horizon and \$\\log n\$ takes it to "
+        r"\$([+-][\d.]+)\$;\s+adding CKA \\emph\{lowers\} it to \$([+-][\d.]+)\$",
+        R["loco_r2_m1"], R["loco_r2_m2"], R["loco_r2_m3"])
+
+    # The spine sentence, which is the round's whole point: the paper's one claim has to reach the
+    # reader in the SAME words in the title, the abstract, the introduction and the section that tests
+    # it. Per the project's own experience, coverage here is per PHRASING and not per fact -- the
+    # abstract and the intro lead contradicted the corrected counts for ten rounds because each
+    # restatement was a site no pattern reached -- so the two phrasings are registered separately and
+    # by site count. These two checks capture no numbers: they exist to fail if a rewrite drops a
+    # restatement, which is a change no value-based check can see.
+    # Four sites: the abstract, the introduction's lead, S6's opening and the conclusion's second
+    # paragraph. The conclusion's site was one of the five "reliable ordering" sites until this round,
+    # so that count drops to four by exactly the same edit -- the fact did not lose a restatement, one
+    # restatement changed into the spine's wording, which is what this round is for. If a later edit
+    # converts another ordering site, move the count between these two lines rather than lowering one.
+    chk("the spine sentence, verbatim", r"does not reliably predict the latter", min_sites=4)
+    # The title no longer restates the spine sentence: it carries the METHODOLOGICAL claim, and the
+    # body carries the empirical one. Registered as its own check, and paired with the generalised
+    # claim in the conclusion so that a rewrite cannot leave the title asserting something the body
+    # never states. If these two ever disagree, the title is the one that is wrong.
+    chk("the methodological claim in the title", r"Is Not a Substitute for Intervention")
+    chk("the methodological claim, generalised",
+        r"cannot be assumed to identify the value of a\s+treatment that changed the representation")
+    # Figure 1's caption states the same claim about the figure's two axes, so it cannot use
+    # former/latter -- nothing in a caption sets those up. Registered separately for that reason:
+    # patterns here are case-sensitive, so neither this nor the title check can cover the other.
+    chk("the spine sentence in Figure 1's caption",
+        r"measured drift does not\s+reliably predict the value of encoder adaptation")
+    chk("the ordering claim, verbatim", r"does not provide a reliable ordering", min_sites=4)
+    # "no cell clears the strongest admissible rung" is now registered per split, beside the rest of
+    # the ladder: "no cell clears every admissible rung (selection split)" for the body's 31 and
+    # "union count (retrospective)" for the appendix's 32. A single pattern here matched both and
+    # could only agree with one.
     return C
 
 

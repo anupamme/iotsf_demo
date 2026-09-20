@@ -3,6 +3,13 @@
 \label{sec:intro}
 % ============================================================
 
+% Restructured 20 Sep 2026 into five paragraphs with one job each, around one running example. The
+% previous version opened with the premise and the screen, then a Terminology block, then the
+% definition, then contributions -- all true, and a reviewer reported not being able to tell which
+% sentence was the one to remember. The Terminology block is gone from here: under the naming
+% convention at the end of S3 the body no longer uses bare condition letters, so the block was
+% decoding notation the text had stopped using. Everything it defined is still defined in S3.
+
 Fine-tuning a time-series foundation model reshapes its internal
 representations, and a large literature treats that reshaping as damage to be
 prevented---by freezing the encoder, by regularising toward the pre-trained
@@ -11,91 +18,130 @@ prescriptions presupposes that the pre-trained representation was worth
 preserving \emph{on the target task}.  \textbf{We test that presupposition on
 the benchmarks the field actually uses, and it mostly fails.}
 
-Our test is deliberately weak.  We ask only whether the pre-trained model,
-zero-shot (ZS), beats a lookback-96 linear regression \emph{fit on the
-practitioner's own target data}: not a tuned supervised forecaster, not an
-ensemble---a single ridge-OLS map estimated once on the training split and
-applied unchanged.  We write the margin as
-$R^2_{\text{task}}(\text{PT}) = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{\text{Linear}}$
-and screen \textbf{32 held-out cells} spanning three backbones---Moirai
-(Small 13.8M, Base 91M, Large 311M), Chronos-T5~\cite{ansari2024chronos} and
-TimesFM-2.5~\cite{das2024timeseries}, with
-MOMENT~\cite{goswami2024moment} screened and excluded---six datasets and two
-forecast horizons (\S\ref{sec:forecasting}).  \textbf{Five cells clear it},
-and all five are the same dataset on the same backbone family: ETTh2 on
-Moirai.  On the five that do clear it, full fine-tuning \emph{improves} MSE by 31--42\% in
-three; the two whose mean shows harm carry only 4/10 and 5/10 seeds agreeing
-on the sign.
+\textbf{One checkpoint, two datasets, opposite lessons.}  Fine-tune Moirai-Base
+on ETTh1 and its encoder barely moves---CKA $0.755$ against the pre-trained
+encoder---and the model ends $22.8\%$ \emph{worse} than not fine-tuning at all.
+Fine-tune the same checkpoint on ETTh2 and the encoder restructures far more, to
+CKA $0.460$, and the model ends $31.4\%$ \emph{better}.  Read drift as damage and
+you would have protected the run that needed no protection and left alone the one
+that did.  The pair is not a curiosity we picked out: within our Moirai-Base cells
+the two \emph{least} drifted are the only two that degrade, and the two most
+drifted improve the most (\S\ref{sec:exp3}; both pairs are labelled in
+Figure~\ref{fig:screen}b).
 
-\textbf{Terminology.}  \emph{Zero-shot} (ZS) is the frozen pre-trained model
-evaluated without fine-tuning; condition~B is full fine-tuning and
-condition~D a frozen encoder trained on the same data for the same epochs, so
-$\denc \equiv \text{B}{-}\text{D}$ is the incremental value of allowing
-encoder-side adaptation, and is the quantity this design manipulates. We measure
-representational change with \emph{centred kernel alignment} (CKA, geometric
-similarity between pre-trained and fine-tuned encoders; CKA${=}1$ means no
-change) and \emph{weight drift} ($\ell_2$ parameter distance), both defined in
-\S\ref{sec:method}; neither is manipulated, so both enter only as candidate
-predictors of $\denc$. EWC~\cite{kirkpatrick2017ewc},
-L2-SP and LoRA appear as mitigation conditions; LR is learning rate, $n$
-sample size, ILI the influenza-like-illness benchmark.
+\textbf{What drift can and cannot tell you.}  CKA tells us that the
+representation \emph{changed}.  It takes an intervention---fine-tune the whole
+model, then fine-tune it again with the encoder frozen, same data, same epochs---to
+tell us whether that change was \emph{valuable}.  \textbf{Across the cells we
+evaluate, the former does not reliably predict the latter.}  So we split the
+practitioner's question into four layers and answer them in order
+(Figure~\ref{fig:screen}a): is there a capability
+worth preserving at all (\S\ref{sec:forecasting})?  did the representation change
+(CKA, \S\ref{sec:exp3})?  did letting the encoder adapt
+help or hurt (\S\ref{sec:exp2})?  and does the conjunction of the first and third
+amount to destroying a demonstrated capability
+(\S\ref{sec:analysis:degradation})?  Layer~2 is the cheap measurement and layer~3
+the expensive intervention, so the paper's question is whether the first can stand
+in for the second; a fifth section asks whether the whole screen works
+\emph{prospectively} (\S\ref{sec:exp4}).
 
-\textbf{The definition no cell meets.}
-We fixed, in advance, what it would take for a cell to count as damage to a
-demonstrated pre-trained capability: the cell must clear the gate, full
-fine-tuning must end worse than not fine-tuning at all in \emph{every} seed,
-and the frozen encoder must end better in \emph{every} seed.  \textbf{No cell
-in the matrix satisfies it} (\S\ref{sec:analysis:degradation}).  The single
-candidate, Moirai-Small on ETTh2 at $h{=}192$, splits 5/10 on the sign of the
-harm.  The prospective test
-we pre-registered therefore has no positive instance to predict: scored on
-eight held-out cells the gate returns TP~0, FP~8, and precision $0.00$ at
-every threshold from $0.10$ to $0.60$.  Within Moirai it is worse than
-uninformative---higher pre-trained value predicts encoder adaptation helping
-\emph{more} (Spearman $\rho{=}{-}0.518$ over 22 cells from six series).
+% Figure 1 is declared here rather than at the head of S4 (where it lived until 20 Sep 2026) so that a
+% reader meets the paper's one claim, drawn, on page 2 instead of page 5. It is a [t] float and this
+% declaration point is past page 1's break, so it cannot be pulled back onto the abstract page. Panel
+% (b)'s x-axis is CKA as of this round -- the figure script's docstring records why it was the gate for
+% two rounds before that, and the two correlations are printed on the panel either way.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig1_diagnostic_flow.pdf}
+\caption{\textbf{The whole paper.} \textbf{(a)}~The four layers as a funnel over the
+31 cells carrying a selection-split gate: seven clear
+$\Vb{\text{ridge}}{\geq}0.20$; CKA is measured on all 31 and filters none (dashed
+box); the fine-tune-versus-frozen comparison is scored on held-out windows, on which
+4 of the 31 reverse sign; and \emph{none} satisfies the three-clause degradation
+definition of \S\ref{sec:method}, four of the seven survivors being \emph{improved}
+by full fine-tuning in every seed.  \textbf{(b)}~The same 31 cells as CKA against
+held-out $\denc$ (positive ${=}$ freezing better): \textbf{measured drift does not
+reliably predict the value of encoder adaptation}.  No cut on CKA separates the cells
+adaptation helped from the cells it hurt---the best threshold misplaces five of the
+31---and the labelled pairs are the running example above.
+Within Moirai, the only backbone with enough cells to ask, neither CKA
+($\rho{=}{+}0.17$, clustered CI $[-0.47,{+}0.72]$) nor the gate score
+($\rho{=}{-}0.29$, $[-0.71,{+}0.71]$) orders $\denc$; both span zero
+(Appendix~\ref{app:clustered}).  Filled markers clear the gate.}
+\label{fig:screen}
+\end{figure}
+
+\textbf{Design and scope.}  We screen \textbf{32 cells}---three backbones (Moirai
+Small 13.8M, Base 91M, Large 311M; Chronos-T5~\cite{ansari2024chronos};
+TimesFM-2.5~\cite{das2024timeseries}, with MOMENT~\cite{goswami2024moment}
+screened and excluded), six datasets and two forecast horizons---and pair each with
+a full fine-tune and a frozen-encoder run at 3--10 seeds
+(\S\ref{sec:forecasting}).  The screen is deliberately weak: it asks only whether
+the pre-trained model, zero-shot, beats a lookback-96 linear regression \emph{fit
+on the practitioner's own target data}---not a tuned supervised forecaster, not an
+ensemble, a single ridge-OLS map estimated once on the training split and applied
+unchanged.  We write that margin against a baseline $b$ as
+$\Vb{b} = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{b}$---a \emph{baseline-relative}
+advantage, never a property of the checkpoint alone---and score it on windows
+disjoint from every outcome we report.  \textbf{Every claim below is about the
+checkpoints, datasets and fine-tuning protocols we evaluated}: we do not claim
+that fine-tuning is safe, nor that foundation models are useless for forecasting.
+
+\textbf{The result, in three clauses.}  \textbf{Seven of the 31 scored cells}
+clear the screen, all of them Moirai and on two of the six datasets---all five of
+its ETTh2 cells and two of its four on ETTm2.  Where the advantage does exist,
+letting the encoder adapt usually \emph{helps}: full fine-tuning improves MSE on
+five of the seven, by 31--42\% on the three ETTh2 cells, and the two whose mean
+shows harm carry only 4/10 and 5/10 seeds agreeing on the sign.  And \textbf{no
+cell in the matrix} meets the definition of damaging a demonstrated capability
+that we fixed in advance---clear the screen, end worse than zero-shot in
+\emph{every} seed under full fine-tuning, and end better in \emph{every} seed with
+the encoder frozen.  The single candidate, Moirai-Small on ETTh2 at $h{=}192$,
+splits 5/10 on the sign of the harm (\S\ref{sec:analysis:degradation}).
 
 \textbf{Contributions.}
 
 \begin{enumerate}\itemsep1pt
   \item \textbf{A negative result on the premise of forgetting mitigation.}
-    Screened against a linear regression fit on the target data, only 5 of 32
-    held-out cells show a pre-trained advantage to preserve, and all five are
-    ETTh2 on Moirai; three of those five are \emph{improved} 31--42\% by full
-    fine-tuning (\S\ref{sec:forecasting}).
+    Screened against a linear regression fit on the target data, only 7 of 31
+    cells show a pre-trained advantage to preserve, and all seven are Moirai,
+    five on ETTh2 and two on ETTm2; four of the seven are \emph{improved} by full
+    fine-tuning in every seed, three of them by 31--42\% (\S\ref{sec:forecasting}).
 
-  \item \textbf{Zero cells meet a pre-registered definition of degradation},
-    so the value-gate we proposed has no positive instance: TP~0, FP~8,
-    precision $0.00$ at every threshold in $[0.10,0.60]$, and
-    $\rho{=}{-}0.518$ against the intervention outcome within Moirai---a
-    direction, not an interval claim (\S\ref{sec:analysis:degradation},
-    \S\ref{sec:analysis:prospective}).
+  \item \textbf{The intervention contrast as the estimand, and drift as a failed
+    predictor of it.}  We name $\denc$---full fine-tuning minus a frozen
+    encoder---as the quantity this design manipulates, and show that CKA
+    \textbf{does not provide a reliable ordering} of it across an outcome spanning
+    $-51.8\%$ to $+46.1\%$: within-backbone $\rho{=}{+}0.168$ with clustered CI
+    $[-0.469,{+}0.717]$, on three backbones and with no actionable threshold
+    (\S\ref{sec:exp3}).
 
-  \item \textbf{Two measurement preconditions for getting this right.}
-    Held-out scoring of the frozen-encoder comparison (4 of 31 cells reverse
-    sign, all one-directional), and a fitted rather than per-window linear
-    baseline (17 of 21 Moirai cells flip). Both corrections move results
-    against the conclusion we originally drew
+  \item \textbf{Two measurement choices that decide the result}, boxed in
+    \S\ref{sec:method}.  The frozen-encoder comparison must be scored on held-out
+    rather than selection windows, and the linear baseline must be \emph{fitted}
+    rather than the per-window trend extrapolation a constant predictor beats
+    (17 of 21 Moirai cells flip either way, 16 of them to gate-fail).  Both move
+    results \emph{against} our own earlier conclusion
     (\S\ref{sec:analysis:heldout}, Appendix~\ref{app:gatecorrection}).
 
-  \item \textbf{The drift--utility dissociation, on three backbones.}
-    Outcomes from $-51.8\%$ to $+46.1\%$ with no reliable drift signature
-    (within-backbone $\rho{=}{+}0.168$, clustered CI $[-0.469,{+}0.717]$); four of
-    Chronos-T5's five cells sit at CKA${\in}[0.092,0.169]$---indistinguishable
-    drift---and the outcome across all five spans 62 points, from $-41.4\%$ to
-    $+20.6\%$ (\S\ref{sec:forecasting:nonmoirai}). A reproducibility bundle (configs,
-    seed lists, metric scripts, uni2ts patch, both linear baselines)
-    accompanies this paper.
+  \item \textbf{Zero cells meet a pre-registered definition of degradation}, so
+    the value gate we proposed has no positive instance to predict: TP~0, FP~8 on
+    eight cells whose predictions were frozen in git before those cells were
+    trained, and $\rho{=}{-}0.293$ against the intervention outcome within
+    Moirai---a direction, not an interval claim (\S\ref{sec:exp4}).  A
+    reproducibility bundle (configs, seed lists, metric scripts, uni2ts patch,
+    both linear baselines) accompanies this paper.
 \end{enumerate}
 
-\textbf{What is a claim here, and what is a control.}  Those four are the
-paper's claims, argued in \S\S\ref{sec:forecasting}--\ref{sec:exp4}; we
-do not claim that foundation models are useless for forecasting, nor that
-fine-tuning is safe.  Everything else is a control or a boundary case, labelled
-as such where it
-appears: ILI and an IoT anomaly detector are external cells that gate-fail,
-reported as case studies rather than evidence (\S\ref{sec:analysis:ili}); the
-mitigation spectrum, a strict-freeze condition and the LoRA sweeps ask only
-whether the frozen-encoder comparison depends on how it is implemented
-(Appendices~\ref{app:full_tables},~\ref{app:strictfreeze},~\ref{app:lora_rank});
-and a linear-probe $\Delta R^2$ axis from an earlier version is retracted
-outright (Appendix~\ref{sec:retraction}).  No claim above rests on any of them.
+\textbf{What is a claim here, and what is a control.}  Those four are the paper's
+claims, argued in \S\S\ref{sec:forecasting}--\ref{sec:exp4}.  Everything else is a
+control or a boundary case, labelled where it appears: ILI
+and an IoT anomaly detector are external cells that gate-fail, reported as case
+studies rather than evidence (\S\ref{sec:analysis:ili}); the mitigation spectrum,
+strict freeze and the LoRA sweeps ask only whether the frozen-encoder comparison
+depends on how it is implemented
+(Appendices~\ref{app:full_tables},~\ref{app:strictfreeze},~\ref{app:lora_rank}).
+No claim above rests on any of them.
+% The retraction pointer that stood here is cut for page room, not withdrawn: S8 item (5) states that
+% the probe axis is retracted and points at the same appendix, and S9's Research Integrity statement
+% and Appendix app:corrections carry the full record. Cutting the restatement, not the record.

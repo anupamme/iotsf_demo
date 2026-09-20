@@ -65,7 +65,12 @@ echo
 echo "-- TIER A: tables, from results/*.json only ----------------------------------"
 run "heldout_all + strictfreeze"   "$PY" scripts/cell_matrix.py --latex
 run "r2task"                       "$PY" scripts/emit_r2task.py
-run "degradation_sensitivity"      "$PY" scripts/degradation_sensitivity.py
+# --latex was missing here until 21 Sep 2026, so this line ran the ladder, printed "ok", and never
+# rewrote tables/degradation_sensitivity.tex. The table therefore predated the baseline correction by
+# ten rounds: it said 6/5 gate-passing cells against the corrected 7/7, and 1 admitted cell at
+# gate 0.20 where the corrected ladder admits 2. An emitter invoked without its emit flag is a
+# staleness hole the sweep reports as clean.
+run "degradation_sensitivity"      "$PY" scripts/degradation_sensitivity.py --latex
 run "clustered_* (4 tables)"       "$PY" scripts/clustered_inference.py --latex
 run "paired_inference"             "$PY" scripts/paired_inference.py
 run "heldout_decomposition"        "$PY" scripts/heldout_decomposition.py

@@ -16,7 +16,7 @@ Anders Andreassen, Yasaman Bahri, Behnam Neyshabur, and Rebecca Roelofs.
 \bibitem[Ansari et~al.(2024)]{ansari2024chronos}
 Abdul~Fatir Ansari et~al.
 \newblock Chronos: Learning the language of time series.
-\newblock In \emph{Transactions on Machine Learning Research}, 2024.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2024.
 \newblock URL \url{https://arxiv.org/abs/2403.07815}.
 
 \bibitem[Das et~al.(2024)]{das2024timeseries}
@@ -96,11 +96,14 @@ Yun Luo, Zhengxuan Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
   models during continual fine-tuning.
 \newblock \emph{arXiv preprint arXiv:2308.08747}, 2023.
 
-\bibitem[Neto et~al.(2023)]{neto2023ciciot}
-Euclides Carlos~Pinto Neto et~al.
-\newblock {CICIoT2023}: A real-time dataset and benchmark for large-scale
-  attacks in iot environment.
-\newblock \emph{Sensors}, 23\penalty0 (13), 2023.
+\bibitem[Meidan et~al.(2018)Meidan, Bohadana, Mathov, Mirsky, Shabtai,
+  Breitenbacher, and Elovici]{meidan2018n}
+Yair Meidan, Michael Bohadana, Yael Mathov, Yisroel Mirsky, Asaf Shabtai,
+  Dominik Breitenbacher, and Yuval Elovici.
+\newblock {N-BaIoT}: Network-based detection of {IoT} botnet attacks using deep
+  autoencoders.
+\newblock \emph{IEEE Pervasive Computing}, 17\penalty0 (3):\penalty0 12--22,
+  2018.
 
 \bibitem[Pimentel et~al.(2020)Pimentel, Valvoda, Maudslay, Zmigrod, Williams,
   and Cotterell]{pimentel2020information}
@@ -110,17 +113,18 @@ Tiago Pimentel, Josef Valvoda, Rowan~Hall Maudslay, Ran Zmigrod, Adina
 \newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
   for Computational Linguistics (ACL)}, pp.\  4609--4622, 2020.
 
-\bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Khorasani, Adamopoulos,
-  Bhatt, Bilos, Ghonia, Hassen, Schneider, Goya, Kozerawski, Chow, Falconieri,
-  and Heinecke]{rasul2024lagllama}
-Kashif Rasul, Arjun Ashok, Andrew~Robert Williams, Arian Khorasani, George
-  Adamopoulos, Rishika Bhatt, Marin Bilos, Hena Ghonia, Nadhir~Vincent Hassen,
-  Anderson Schneider, Sahil Goya, Janus Kozerawski, Lennart Chow, Carlo
-  Falconieri, and Shelby Heinecke.
+\bibitem[Rasul et~al.(2024)Rasul, Ashok, Williams, Ghonia, Bhagwatkar,
+  Khorasani, Bayazi, Adamopoulos, Riachi, Hassen, Bilo{\v{s}}, Garg, Schneider,
+  Chapados, Drouin, Zantedeschi, Nevmyvaka, and Rish]{rasul2024lagllama}
+Kashif Rasul, Arjun Ashok, Andrew~Robert Williams, Hena Ghonia, Rishika
+  Bhagwatkar, Arian Khorasani, Mohammad Javad~Darvishi Bayazi, George
+  Adamopoulos, Roland Riachi, Nadhir Hassen, Marin Bilo{\v{s}}, Sahil Garg,
+  Anderson Schneider, Nicolas Chapados, Alexandre Drouin, Valentina
+  Zantedeschi, Yuriy Nevmyvaka, and Irina Rish.
 \newblock Lag-llama: Towards foundation models for probabilistic time series
   forecasting.
-\newblock In \emph{Advances in Neural Information Processing Systems
-  (NeurIPS)}, 2024.
+\newblock \emph{arXiv preprint arXiv:2310.08278}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2310.08278}.
 
 \bibitem[Wili{\'n}ski et~al.(2025)Wili{\'n}ski, Goswami, Potosnak,
   {\.Z}ukowska, and Dubrawski]{wilinski2025representations}

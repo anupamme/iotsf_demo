@@ -651,7 +651,20 @@ def main():
                         help="When --early-stopping is set, also persist best_state to {results_dir}/best_encoder.pt for future re-probing.")
     parser.add_argument('--deterministic', action='store_true',
                         help="Enable deterministic training: fixed seeds for DataLoader workers, PYTHONHASHSEED, and torch.use_deterministic_algorithms(True, warn_only=True).")
+    # The value gate's numerator on a THIRD region, used for nothing else. The paper's primary gate
+    # is scored on the selection split, which is disjoint from the outcome windows but still drove
+    # early stopping and checkpoint choice. `traintail` scores it on the last --traintail-frac of
+    # the TRAIN region instead, held back by explicit index: the ladder is fitted on the head only,
+    # so the gate is scored on windows that neither fitted a baseline, nor selected a checkpoint,
+    # nor carried an outcome. Zero-shot only -- a fine-tune would train on the windows the gate is
+    # then scored on, which is the circularity this option exists to remove.
+    parser.add_argument('--zs-windows', default='default', choices=['default', 'traintail'],
+                        help="Which windows condition A scores zero-shot on (default: val+test).")
+    parser.add_argument('--traintail-frac', type=float, default=0.2,
+                        help="Fraction of the train region held back as the third split.")
     args = parser.parse_args()
+    if args.zs_windows == 'traintail' and args.condition != 'A':
+        parser.error("--zs-windows traintail is a zero-shot measurement: use --condition A")
 
     # Patch uni2ts for MPS compatibility before any model loading
     if args.device == 'mps' or (args.device == 'auto' and torch.backends.mps.is_available()):
@@ -698,6 +711,17 @@ def main():
     train_vals = train_df[feature_cols].values
     val_vals = val_df[feature_cols].values
     test_vals = test_df[feature_cols].values
+
+    # See --zs-windows. The head-only normalisation below is not cosmetic: if the tail's own
+    # statistics entered train_mean, the gate would be scored on windows that had already informed
+    # the scale its numerator and denominator are both measured on.
+    traintail_vals, traintail_cut = None, None
+    if args.zs_windows == 'traintail':
+        traintail_cut = int(len(train_vals) * (1.0 - args.traintail_frac))
+        traintail_vals = train_vals[traintail_cut:]
+        train_vals = train_vals[:traintail_cut]
+        logger.info(f"Third split: train head {len(train_vals)} steps, held-back tail "
+                    f"{len(traintail_vals)} steps (cut index {traintail_cut})")
 
     train_mean = train_vals.mean(axis=0)
     train_std = train_vals.std(axis=0) + 1e-8
@@ -776,6 +800,42 @@ def main():
     # Extract pre-trained representations
     pretrained_reps = extract_representations(model, X_val_eval_t, None, device=args.device)
     logger.info(f"Pre-trained reps shape: {pretrained_reps.shape}")
+
+    # Condition A on the third split: one number, on windows used for nothing else. Written to its
+    # own file with its own key names, because these MSEs are head-normalised and are therefore not
+    # comparable with the val/test zero-shot references the published runs store.
+    if args.condition == 'A' and traintail_vals is not None:
+        X_tt, y_tt = make_eval_sequences(traintail_vals, extended_lookback, horizon)
+        if len(X_tt) == 0:
+            raise SystemExit(f"third split too short for ext_lb={extended_lookback}+h={horizon}: "
+                             f"{len(traintail_vals)} steps yield no windows")
+        X_tt_t = torch.from_numpy(X_tt[:eval_limit]).float()
+        zs_tt = evaluate_forecasting(
+            model, X_tt_t, y_tt[:eval_limit], train_mean, train_std, horizon, device=args.device)
+        logger.info(f"Zero-shot (train-tail third split): MSE={zs_tt['mse']:.6f}")
+        results = {
+            'condition': 'A',
+            'zs_windows': 'traintail',
+            'zeroshot_traintail_mse': zs_tt['mse'],
+            'zeroshot_traintail_mae': zs_tt['mae'],
+            'n_traintail_eval': int(len(X_tt_t)),
+            'n_traintail_windows': int(len(X_tt)),
+            'traintail_frac': args.traintail_frac,
+            'traintail_cut_index': int(traintail_cut),
+            'n_train_head_steps': int(len(train_vals)),
+            'n_traintail_steps': int(len(traintail_vals)),
+            'extended_lookback': int(extended_lookback),
+            'head_mean': [float(v) for v in train_mean],
+            'head_std': [float(v) for v in train_std],
+            'scale_note': 'head-normalised; not comparable with the published val/test zero-shot refs',
+            'horizon': horizon,
+            'seed': args.seed,
+        }
+        output_path = results_dir / f'condition_A_traintail_h{horizon}_s{args.seed}.json'
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Saved to {output_path}")
+        return
 
     # Condition A: just return zero-shot results
     if args.condition == 'A':

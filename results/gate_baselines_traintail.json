@@ -1,0 +1,3025 @@
+{
+  "arm": "moirai",
+  "baselines": [
+    "fitted",
+    "constant",
+    "persistence",
+    "seasonal_naive",
+    "ar",
+    "dlinear",
+    "ridge_tuned",
+    "mlp",
+    "gbm"
+  ],
+  "cells": {
+    "base_ETTh1_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.5304933922064059,
+        "n_windows": 300,
+        "r2_task": -0.3779066127375772,
+        "zs_test": 0.7309703531347957
+      },
+      "constant": {
+        "info": {
+          "train_windows": 7882
+        },
+        "linear_test": 1.583128810281396,
+        "n_windows": 300,
+        "r2_task": 0.538274871641766,
+        "zs_test": 0.7309703531347957
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.49668984580086356,
+        "n_windows": 300,
+        "r2_task": -0.47168370626981093,
+        "zs_test": 0.7309703531347957
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.8212186403639236,
+        "n_windows": 300,
+        "r2_task": 0.10989556592277816,
+        "zs_test": 0.7309703531347957
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 7882,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 3.1498604367089813,
+        "n_windows": 300,
+        "r2_task": 0.767935637840982,
+        "zs_test": 0.7309703531347957
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            0.01,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            0.01,
+            1.0
+          ],
+          "avail_windows": 7882,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1577,
+          "n_train_windows": 7882
+        },
+        "linear_test": 0.5981870159463099,
+        "n_windows": 300,
+        "r2_task": -0.22197629445103817,
+        "zs_test": 0.7309703531347957
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 1.2388299838026484,
+        "n_windows": 300,
+        "r2_task": 0.40995103227075036,
+        "zs_test": 0.7309703531347957
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 1577,
+          "sel_mse": 0.46534722394991956,
+          "selected": true
+        },
+        "linear_test": 0.7750298582623031,
+        "n_windows": 300,
+        "r2_task": 0.05684878415690109,
+        "zs_test": 0.7309703531347957
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.6281654864469233,
+        "n_windows": 300,
+        "r2_task": -0.16365889069990947,
+        "zs_test": 0.7309703531347957
+      }
+    },
+    "base_ETTh1_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.35832958312827207,
+        "n_windows": 300,
+        "r2_task": -0.5173217577650828,
+        "zs_test": 0.5437012729314191
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.3637824161165337,
+        "n_windows": 300,
+        "r2_task": 0.6013284329624613,
+        "zs_test": 0.5437012729314191
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.3449155463551563,
+        "n_windows": 300,
+        "r2_task": -0.5763315938550795,
+        "zs_test": 0.5437012729314191
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.45828163685896356,
+        "n_windows": 300,
+        "r2_task": -0.18639113855383105,
+        "zs_test": 0.5437012729314191
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.6401957732209875,
+        "n_windows": 300,
+        "r2_task": 0.6685144043118048,
+        "zs_test": 0.5437012729314191
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.387995491331316,
+        "n_windows": 300,
+        "r2_task": -0.40130822413898426,
+        "zs_test": 0.5437012729314191
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9772010207765972,
+        "n_windows": 300,
+        "r2_task": 0.44361368708013516,
+        "zs_test": 0.5437012729314191
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 1615,
+          "sel_mse": 0.4146056175217152,
+          "selected": true
+        },
+        "linear_test": 0.41951036962178184,
+        "n_windows": 300,
+        "r2_task": -0.2960377437668684,
+        "zs_test": 0.5437012729314191
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5013864717506491,
+        "n_windows": 300,
+        "r2_task": -0.08439557819145582,
+        "zs_test": 0.5437012729314191
+      }
+    },
+    "base_ETTh2_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.16779127027160662,
+        "n_windows": 300,
+        "r2_task": -0.39168668723875966,
+        "zs_test": 0.2335128770718756
+      },
+      "constant": {
+        "info": {
+          "train_windows": 7882
+        },
+        "linear_test": 1.2022280598499204,
+        "n_windows": 300,
+        "r2_task": 0.8057665721917803,
+        "zs_test": 0.2335128770718756
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.20685575807442233,
+        "n_windows": 300,
+        "r2_task": -0.1288681506649798,
+        "zs_test": 0.2335128770718756
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.4257160557413143,
+        "n_windows": 300,
+        "r2_task": 0.4514820995763211,
+        "zs_test": 0.2335128770718756
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 7882,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 1.7419664532176937,
+        "n_windows": 300,
+        "r2_task": 0.865948694568406,
+        "zs_test": 0.2335128770718756
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 7882,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1577,
+          "n_train_windows": 7882
+        },
+        "linear_test": 0.2110413886437266,
+        "n_windows": 300,
+        "r2_task": -0.1064790587882487,
+        "zs_test": 0.2335128770718756
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.27403934498573385,
+        "n_windows": 300,
+        "r2_task": 0.1478855815976644,
+        "zs_test": 0.2335128770718756
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 1577,
+          "sel_mse": 1.6616370903850115,
+          "selected": true
+        },
+        "linear_test": 0.42030394848063174,
+        "n_windows": 300,
+        "r2_task": 0.4444190260024735,
+        "zs_test": 0.2335128770718756
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.21651273151594932,
+        "n_windows": 300,
+        "r2_task": -0.0785179949322008,
+        "zs_test": 0.2335128770718756
+      }
+    },
+    "base_ETTh2_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.1957275188127728,
+        "n_windows": 300,
+        "r2_task": -0.5642658397859608,
+        "zs_test": 0.3061698715848845
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.1549830914964498,
+        "n_windows": 300,
+        "r2_task": 0.7349139794001689,
+        "zs_test": 0.3061698715848845
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.22287561736622855,
+        "n_windows": 300,
+        "r2_task": -0.3737252876871995,
+        "zs_test": 0.3061698715848845
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.2761101880613094,
+        "n_windows": 300,
+        "r2_task": -0.1088684330507228,
+        "zs_test": 0.3061698715848845
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0068321638721485,
+        "n_windows": 300,
+        "r2_task": 0.6959077365909785,
+        "zs_test": 0.3061698715848845
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.2248141385784032,
+        "n_windows": 300,
+        "r2_task": -0.3618799668069308,
+        "zs_test": 0.3061698715848845
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.2957283440114221,
+        "n_windows": 300,
+        "r2_task": -0.035307834994196874,
+        "zs_test": 0.3061698715848845
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 1615,
+          "sel_mse": 1.44156873849936,
+          "selected": true
+        },
+        "linear_test": 0.30839168708790876,
+        "n_windows": 300,
+        "r2_task": 0.007204524622581365,
+        "zs_test": 0.3061698715848845
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.2830363758271394,
+        "n_windows": 300,
+        "r2_task": -0.08173329555305475,
+        "zs_test": 0.3061698715848845
+      }
+    },
+    "base_ETTm2_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.1908779166745139,
+        "n_windows": 300,
+        "r2_task": -0.9745215436672596,
+        "zs_test": 0.3768925586841517
+      },
+      "constant": {
+        "info": {
+          "train_windows": 32967
+        },
+        "linear_test": 0.4722688113263802,
+        "n_windows": 300,
+        "r2_task": 0.20195331632076574,
+        "zs_test": 0.3768925586841517
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.17196534062464353,
+        "n_windows": 300,
+        "r2_task": -1.1916774468339644,
+        "zs_test": 0.3768925586841517
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.16104541364640873,
+        "n_windows": 300,
+        "r2_task": -1.3402874391173718,
+        "zs_test": 0.3768925586841517
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 32967,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 0.34695910008087283,
+        "n_windows": 300,
+        "r2_task": -0.08627373830604723,
+        "zs_test": 0.3768925586841517
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0001
+          ],
+          "avail_windows": 32967,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.17518784062552661,
+        "n_windows": 300,
+        "r2_task": -1.1513625451310845,
+        "zs_test": 0.3768925586841517
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.31036285884422066,
+        "n_windows": 300,
+        "r2_task": -0.21436102273218238,
+        "zs_test": 0.3768925586841517
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 6594,
+          "sel_mse": 1.4687417543139458,
+          "selected": true
+        },
+        "linear_test": 0.157312687513712,
+        "n_windows": 300,
+        "r2_task": -1.3958179384056373,
+        "zs_test": 0.3768925586841517
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 96
+        },
+        "linear_test": 0.33599994163310604,
+        "n_windows": 300,
+        "r2_task": -0.12170423855519075,
+        "zs_test": 0.3768925586841517
+      }
+    },
+    "base_ETTm2_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.16934956849704527,
+        "n_windows": 300,
+        "r2_task": -1.0480242836958795,
+        "zs_test": 0.34683202871536745
+      },
+      "constant": {
+        "info": {
+          "train_windows": 33159
+        },
+        "linear_test": 0.9374340323817342,
+        "n_windows": 300,
+        "r2_task": 0.630019802210324,
+        "zs_test": 0.34683202871536745
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.16424051078164237,
+        "n_windows": 300,
+        "r2_task": -1.1117325260664854,
+        "zs_test": 0.34683202871536745
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.17066292051904358,
+        "n_windows": 300,
+        "r2_task": -1.0322635266086748,
+        "zs_test": 0.34683202871536745
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 33159,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 0.7876289302300683,
+        "n_windows": 300,
+        "r2_task": 0.5596504706676315,
+        "zs_test": 0.34683202871536745
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 33159,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.46582325322680157,
+        "n_windows": 300,
+        "r2_task": 0.2554428609717757,
+        "zs_test": 0.34683202871536745
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.29605373735890445,
+        "n_windows": 300,
+        "r2_task": -0.17151714350731107,
+        "zs_test": 0.34683202871536745
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 6632,
+          "sel_mse": 1.115250909848213,
+          "selected": true
+        },
+        "linear_test": 0.16592278536088917,
+        "n_windows": 300,
+        "r2_task": -1.090321880512028,
+        "zs_test": 0.34683202871536745
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 96
+        },
+        "linear_test": 0.2692139326953698,
+        "n_windows": 300,
+        "r2_task": -0.28831381512422216,
+        "zs_test": 0.34683202871536745
+      }
+    },
+    "base_Weather_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.41418690332305325,
+        "n_windows": 300,
+        "r2_task": -0.8415382582905069,
+        "zs_test": 0.762741028552274
+      },
+      "constant": {
+        "info": {
+          "train_windows": 38772
+        },
+        "linear_test": 1.537718420081178,
+        "n_windows": 300,
+        "r2_task": 0.503978739805947,
+        "zs_test": 0.762741028552274
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.4277916537322024,
+        "n_windows": 300,
+        "r2_task": -0.782973141008847,
+        "zs_test": 0.762741028552274
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.36234306616424794,
+        "n_windows": 300,
+        "r2_task": -1.105024491365672,
+        "zs_test": 0.762741028552274
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 38772,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 3.476204588308244,
+        "n_windows": 300,
+        "r2_task": 0.7805822387100998,
+        "zs_test": 0.762741028552274
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0001,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "avail_windows": 38772,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.41443470821118644,
+        "n_windows": 300,
+        "r2_task": -0.8404371386857845,
+        "zs_test": 0.762741028552274
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 1.0421350279779849,
+        "n_windows": 300,
+        "r2_task": 0.2680976955239749,
+        "zs_test": 0.762741028552274
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 7755,
+          "sel_mse": 0.48676778006563687,
+          "selected": true
+        },
+        "linear_test": 0.35489410592261184,
+        "n_windows": 300,
+        "r2_task": -1.149207371504212,
+        "zs_test": 0.762741028552274
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5443858068503888,
+        "n_windows": 300,
+        "r2_task": -0.40110381085283286,
+        "zs_test": 0.762741028552274
+      }
+    },
+    "base_Weather_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.3591657703604988,
+        "n_windows": 300,
+        "r2_task": -0.7043128142942101,
+        "zs_test": 0.6121308248812497
+      },
+      "constant": {
+        "info": {
+          "train_windows": 38964
+        },
+        "linear_test": 1.3971074645978931,
+        "n_windows": 300,
+        "r2_task": 0.5618584537035385,
+        "zs_test": 0.6121308248812497
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.38937447188443197,
+        "n_windows": 300,
+        "r2_task": -0.5720877178176509,
+        "zs_test": 0.6121308248812497
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.33567516907505474,
+        "n_windows": 300,
+        "r2_task": -0.8235808938979974,
+        "zs_test": 0.6121308248812497
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 38964,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0253764613296308,
+        "n_windows": 300,
+        "r2_task": 0.40301845422949867,
+        "zs_test": 0.6121308248812497
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 38964,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.36667234202191645,
+        "n_windows": 300,
+        "r2_task": -0.6694218645066552,
+        "zs_test": 0.6121308248812497
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9543525450764312,
+        "n_windows": 300,
+        "r2_task": 0.3585904621523003,
+        "zs_test": 0.6121308248812497
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 0.1,
+          "n_sel": 7793,
+          "sel_mse": 0.4247054129250066,
+          "selected": true
+        },
+        "linear_test": 0.33788628999514503,
+        "n_windows": 300,
+        "r2_task": -0.8116474181004656,
+        "zs_test": 0.6121308248812497
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5696334924067463,
+        "n_windows": 300,
+        "r2_task": -0.07460469414280535,
+        "zs_test": 0.6121308248812497
+      }
+    },
+    "large_ETTh1_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.35832958312827207,
+        "n_windows": 300,
+        "r2_task": -0.5034533463971469,
+        "zs_test": 0.5387318108672953
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.3637824161165337,
+        "n_windows": 300,
+        "r2_task": 0.6049723148642934,
+        "zs_test": 0.5387318108672953
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.3449155463551563,
+        "n_windows": 300,
+        "r2_task": -0.5619238290655886,
+        "zs_test": 0.5387318108672953
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.45828163685896356,
+        "n_windows": 300,
+        "r2_task": -0.17554745278412787,
+        "zs_test": 0.5387318108672953
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.6401957732209875,
+        "n_windows": 300,
+        "r2_task": 0.6715442024281386,
+        "zs_test": 0.5387318108672953
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.387995491331316,
+        "n_windows": 300,
+        "r2_task": -0.3885001833881181,
+        "zs_test": 0.5387318108672953
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9772010207765972,
+        "n_windows": 300,
+        "r2_task": 0.44869909116636353,
+        "zs_test": 0.5387318108672953
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 1615,
+          "sel_mse": 0.4146056175217152,
+          "selected": true
+        },
+        "linear_test": 0.41951036962178184,
+        "n_windows": 300,
+        "r2_task": -0.28419188148555175,
+        "zs_test": 0.5387318108672953
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5013864717506491,
+        "n_windows": 300,
+        "r2_task": -0.07448413792707775,
+        "zs_test": 0.5387318108672953
+      }
+    },
+    "large_ETTh2_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.1957275188127728,
+        "n_windows": 300,
+        "r2_task": -0.37590719924912475,
+        "zs_test": 0.2693029022256626
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.1549830914964498,
+        "n_windows": 300,
+        "r2_task": 0.7668339006792375,
+        "zs_test": 0.2693029022256626
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.22287561736622855,
+        "n_windows": 300,
+        "r2_task": -0.20831029166884996,
+        "zs_test": 0.2693029022256626
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.2761101880613094,
+        "n_windows": 300,
+        "r2_task": 0.02465423635195685,
+        "zs_test": 0.2693029022256626
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0068321638721485,
+        "n_windows": 300,
+        "r2_task": 0.7325245339898977,
+        "zs_test": 0.2693029022256626
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.2248141385784032,
+        "n_windows": 300,
+        "r2_task": -0.19789130669708332,
+        "zs_test": 0.2693029022256626
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.2957283440114221,
+        "n_windows": 300,
+        "r2_task": 0.08935714929218574,
+        "zs_test": 0.2693029022256626
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 1615,
+          "sel_mse": 1.44156873849936,
+          "selected": true
+        },
+        "linear_test": 0.30839168708790876,
+        "n_windows": 300,
+        "r2_task": 0.12675044918154255,
+        "zs_test": 0.2693029022256626
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.2830363758271394,
+        "n_windows": 300,
+        "r2_task": 0.04852193843050179,
+        "zs_test": 0.2693029022256626
+      }
+    },
+    "large_Weather_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.3591657703604988,
+        "n_windows": 300,
+        "r2_task": -0.6199916065708238,
+        "zs_test": 0.581845533351552
+      },
+      "constant": {
+        "info": {
+          "train_windows": 38964
+        },
+        "linear_test": 1.3971074645978931,
+        "n_windows": 300,
+        "r2_task": 0.5835355918601328,
+        "zs_test": 0.581845533351552
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.38937447188443197,
+        "n_windows": 300,
+        "r2_task": -0.4943083724406212,
+        "zs_test": 0.581845533351552
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.33567516907505474,
+        "n_windows": 300,
+        "r2_task": -0.7333588747562534,
+        "zs_test": 0.581845533351552
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 38964,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0253764613296308,
+        "n_windows": 300,
+        "r2_task": 0.43255423223090317,
+        "zs_test": 0.581845533351552
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 38964,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.36667234202191645,
+        "n_windows": 300,
+        "r2_task": -0.586826893305125,
+        "zs_test": 0.581845533351552
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9543525450764312,
+        "n_windows": 300,
+        "r2_task": 0.39032432369638226,
+        "zs_test": 0.581845533351552
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 0.1,
+          "n_sel": 7793,
+          "sel_mse": 0.4247054129250066,
+          "selected": true
+        },
+        "linear_test": 0.33788628999514503,
+        "n_windows": 300,
+        "r2_task": -0.7220158099930964,
+        "zs_test": 0.581845533351552
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5696334924067463,
+        "n_windows": 300,
+        "r2_task": -0.021438418048785657,
+        "zs_test": 0.581845533351552
+      }
+    },
+    "small_ETTh1_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.5304933922064059,
+        "n_windows": 300,
+        "r2_task": -0.22317963373483773,
+        "zs_test": 0.6488887131777832
+      },
+      "constant": {
+        "info": {
+          "train_windows": 7882
+        },
+        "linear_test": 1.583128810281396,
+        "n_windows": 300,
+        "r2_task": 0.5901226047029962,
+        "zs_test": 0.6488887131777832
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.49668984580086356,
+        "n_windows": 300,
+        "r2_task": -0.30642637183676236,
+        "zs_test": 0.6488887131777832
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.8212186403639236,
+        "n_windows": 300,
+        "r2_task": 0.2098465849603368,
+        "zs_test": 0.6488887131777832
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 7882,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 3.1498604367089813,
+        "n_windows": 300,
+        "r2_task": 0.7939944558763526,
+        "zs_test": 0.6488887131777832
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            0.01,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            0.01,
+            1.0
+          ],
+          "avail_windows": 7882,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1577,
+          "n_train_windows": 7882
+        },
+        "linear_test": 0.5981870159463099,
+        "n_windows": 300,
+        "r2_task": -0.08475893972935045,
+        "zs_test": 0.6488887131777832
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 1.2388299838026484,
+        "n_windows": 300,
+        "r2_task": 0.4762084211216878,
+        "zs_test": 0.6488887131777832
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 1577,
+          "sel_mse": 0.46534722394991956,
+          "selected": true
+        },
+        "linear_test": 0.7750298582623031,
+        "n_windows": 300,
+        "r2_task": 0.16275649736558717,
+        "zs_test": 0.6488887131777832
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.6281654864469233,
+        "n_windows": 300,
+        "r2_task": -0.03299007535112475,
+        "zs_test": 0.6488887131777832
+      }
+    },
+    "small_ETTh1_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.35832958312827207,
+        "n_windows": 300,
+        "r2_task": -0.36204638411776613,
+        "zs_test": 0.48806151302228945
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.3637824161165337,
+        "n_windows": 300,
+        "r2_task": 0.6421265538735432,
+        "zs_test": 0.48806151302228945
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.3449155463551563,
+        "n_windows": 300,
+        "r2_task": -0.4150174388478769,
+        "zs_test": 0.48806151302228945
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.45828163685896356,
+        "n_windows": 300,
+        "r2_task": -0.06498160469059044,
+        "zs_test": 0.48806151302228945
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.6401957732209875,
+        "n_windows": 300,
+        "r2_task": 0.7024370377056619,
+        "zs_test": 0.48806151302228945
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.387995491331316,
+        "n_windows": 300,
+        "r2_task": -0.2579051146899163,
+        "zs_test": 0.48806151302228945
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9772010207765972,
+        "n_windows": 300,
+        "r2_task": 0.5005515726596159,
+        "zs_test": 0.48806151302228945
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 1615,
+          "sel_mse": 0.4146056175217152,
+          "selected": true
+        },
+        "linear_test": 0.41951036962178184,
+        "n_windows": 300,
+        "r2_task": -0.16340750638014345,
+        "zs_test": 0.48806151302228945
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5013864717506491,
+        "n_windows": 300,
+        "r2_task": 0.026576223091608342,
+        "zs_test": 0.48806151302228945
+      }
+    },
+    "small_ETTh2_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.16779127027160662,
+        "n_windows": 300,
+        "r2_task": -0.4651954560544369,
+        "zs_test": 0.24584700676755994
+      },
+      "constant": {
+        "info": {
+          "train_windows": 7882
+        },
+        "linear_test": 1.2022280598499204,
+        "n_windows": 300,
+        "r2_task": 0.7955071795627111,
+        "zs_test": 0.24584700676755994
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.20685575807442233,
+        "n_windows": 300,
+        "r2_task": -0.18849486741920618,
+        "zs_test": 0.24584700676755994
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.4257160557413143,
+        "n_windows": 300,
+        "r2_task": 0.4225094321625763,
+        "zs_test": 0.24584700676755994
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 7882,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 1.7419664532176937,
+        "n_windows": 300,
+        "r2_task": 0.8588681163673153,
+        "zs_test": 0.24584700676755994
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 7882,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1577,
+          "n_train_windows": 7882
+        },
+        "linear_test": 0.2110413886437266,
+        "n_windows": 300,
+        "r2_task": -0.164923185672319,
+        "zs_test": 0.24584700676755994
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.27403934498573385,
+        "n_windows": 300,
+        "r2_task": 0.10287697271952523,
+        "zs_test": 0.24584700676755994
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 1577,
+          "sel_mse": 1.6616370903850115,
+          "selected": true
+        },
+        "linear_test": 0.42030394848063174,
+        "n_windows": 300,
+        "r2_task": 0.4150732876617529,
+        "zs_test": 0.24584700676755994
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.21651273151594932,
+        "n_windows": 300,
+        "r2_task": -0.13548522087464265,
+        "zs_test": 0.24584700676755994
+      }
+    },
+    "small_ETTh2_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.1957275188127728,
+        "n_windows": 300,
+        "r2_task": -0.32617685707532695,
+        "zs_test": 0.259569305742275
+      },
+      "constant": {
+        "info": {
+          "train_windows": 8074
+        },
+        "linear_test": 1.1549830914964498,
+        "n_windows": 300,
+        "r2_task": 0.7752613803151309,
+        "zs_test": 0.259569305742275
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.22287561736622855,
+        "n_windows": 300,
+        "r2_task": -0.16463751759687328,
+        "zs_test": 0.259569305742275
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.2761101880613094,
+        "n_windows": 300,
+        "r2_task": 0.059906816315526634,
+        "zs_test": 0.259569305742275
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 8074,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0068321638721485,
+        "n_windows": 300,
+        "r2_task": 0.7421920802132458,
+        "zs_test": 0.259569305742275
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 8074,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 1615,
+          "n_train_windows": 8074
+        },
+        "linear_test": 0.2248141385784032,
+        "n_windows": 300,
+        "r2_task": -0.15459511302822726,
+        "zs_test": 0.259569305742275
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.2957283440114221,
+        "n_windows": 300,
+        "r2_task": 0.12227112822080566,
+        "zs_test": 0.259569305742275
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 1615,
+          "sel_mse": 1.44156873849936,
+          "selected": true
+        },
+        "linear_test": 0.30839168708790876,
+        "n_windows": 300,
+        "r2_task": 0.15831289684444927,
+        "zs_test": 0.259569305742275
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.2830363758271394,
+        "n_windows": 300,
+        "r2_task": 0.08291185193523187,
+        "zs_test": 0.259569305742275
+      }
+    },
+    "small_ETTm2_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.1908779166745139,
+        "n_windows": 300,
+        "r2_task": -1.0698433077275165,
+        "zs_test": 0.3950873784217131
+      },
+      "constant": {
+        "info": {
+          "train_windows": 32967
+        },
+        "linear_test": 0.4722688113263802,
+        "n_windows": 300,
+        "r2_task": 0.1634269108051004,
+        "zs_test": 0.3950873784217131
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.17196534062464353,
+        "n_windows": 300,
+        "r2_task": -1.2974826031024942,
+        "zs_test": 0.3950873784217131
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.16104541364640873,
+        "n_windows": 300,
+        "r2_task": -1.4532668734619594,
+        "zs_test": 0.3950873784217131
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 32967,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 0.34695910008087283,
+        "n_windows": 300,
+        "r2_task": -0.13871455837192914,
+        "zs_test": 0.3950873784217131
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0001
+          ],
+          "avail_windows": 32967,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.17518784062552661,
+        "n_windows": 300,
+        "r2_task": -1.2552214640640131,
+        "zs_test": 0.3950873784217131
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.31036285884422066,
+        "n_windows": 300,
+        "r2_task": -0.27298536910313076,
+        "zs_test": 0.3950873784217131
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 6594,
+          "sel_mse": 1.4687417543139458,
+          "selected": true
+        },
+        "linear_test": 0.157312687513712,
+        "n_windows": 300,
+        "r2_task": -1.5114781564409783,
+        "zs_test": 0.3950873784217131
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 96
+        },
+        "linear_test": 0.33599994163310604,
+        "n_windows": 300,
+        "r2_task": -0.1758554971807924,
+        "zs_test": 0.3950873784217131
+      }
+    },
+    "small_ETTm2_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.16934956849704527,
+        "n_windows": 300,
+        "r2_task": -0.9067392044736786,
+        "zs_test": 0.32290546151401683
+      },
+      "constant": {
+        "info": {
+          "train_windows": 33159
+        },
+        "linear_test": 0.9374340323817342,
+        "n_windows": 300,
+        "r2_task": 0.6555432698622937,
+        "zs_test": 0.32290546151401683
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.16424051078164237,
+        "n_windows": 300,
+        "r2_task": -0.9660524676723601,
+        "zs_test": 0.32290546151401683
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.17066292051904358,
+        "n_windows": 300,
+        "r2_task": -0.8920657195596575,
+        "zs_test": 0.32290546151401683
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 33159,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 0.7876289302300683,
+        "n_windows": 300,
+        "r2_task": 0.590028439636295,
+        "zs_test": 0.32290546151401683
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 33159,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.46582325322680157,
+        "n_windows": 300,
+        "r2_task": 0.3068069073898302,
+        "zs_test": 0.32290546151401683
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.29605373735890445,
+        "n_windows": 300,
+        "r2_task": -0.09069881837890859,
+        "zs_test": 0.32290546151401683
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 10000.0,
+          "n_sel": 6632,
+          "sel_mse": 1.115250909848213,
+          "selected": true
+        },
+        "linear_test": 0.16592278536088917,
+        "n_windows": 300,
+        "r2_task": -0.9461188577065147,
+        "zs_test": 0.32290546151401683
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 96
+        },
+        "linear_test": 0.2692139326953698,
+        "n_windows": 300,
+        "r2_task": -0.19943815047418778,
+        "zs_test": 0.32290546151401683
+      }
+    },
+    "small_Electricity7_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.2090133872131467,
+        "n_windows": 300,
+        "r2_task": -0.28602153160961974,
+        "zs_test": 0.26879571635076543
+      },
+      "constant": {
+        "info": {
+          "train_windows": 14197
+        },
+        "linear_test": 1.1237404472196313,
+        "n_windows": 300,
+        "r2_task": 0.7608026684312893,
+        "zs_test": 0.26879571635076543
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.18901405426732723,
+        "n_windows": 300,
+        "r2_task": -0.42209380880535496,
+        "zs_test": 0.26879571635076543
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.23010142833752154,
+        "n_windows": 300,
+        "r2_task": -0.16816187666808236,
+        "zs_test": 0.26879571635076543
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 14197,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 1.4718250546177256,
+        "n_windows": 300,
+        "r2_task": 0.8173725093838824,
+        "zs_test": 0.26879571635076543
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            0.01,
+            1.0,
+            0.0001,
+            1.0
+          ],
+          "avail_windows": 14197,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 2840,
+          "n_train_windows": 14197
+        },
+        "linear_test": 0.3614903695135808,
+        "n_windows": 300,
+        "r2_task": 0.2564235757858355,
+        "zs_test": 0.26879571635076543
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.6788424090301578,
+        "n_windows": 300,
+        "r2_task": 0.6040381202247131,
+        "zs_test": 0.26879571635076543
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 2840,
+          "sel_mse": 0.3386698882178882,
+          "selected": true
+        },
+        "linear_test": 0.22668509817391885,
+        "n_windows": 300,
+        "r2_task": -0.18576703328128863,
+        "zs_test": 0.26879571635076543
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.2764754778186177,
+        "n_windows": 300,
+        "r2_task": 0.027777369365432736,
+        "zs_test": 0.26879571635076543
+      }
+    },
+    "small_Electricity7_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.14583890432752605,
+        "n_windows": 300,
+        "r2_task": -0.4952369709399502,
+        "zs_test": 0.21806372155189127
+      },
+      "constant": {
+        "info": {
+          "train_windows": 14389
+        },
+        "linear_test": 1.1359984412412436,
+        "n_windows": 300,
+        "r2_task": 0.8080422352396673,
+        "zs_test": 0.21806372155189127
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.1372949986735764,
+        "n_windows": 300,
+        "r2_task": -0.5882859802515117,
+        "zs_test": 0.21806372155189127
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.15897102742777708,
+        "n_windows": 300,
+        "r2_task": -0.37171989814911965,
+        "zs_test": 0.21806372155189127
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 14389,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 0.9515770557056847,
+        "n_windows": 300,
+        "r2_task": 0.7708396600733755,
+        "zs_test": 0.21806372155189127
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            0.0001,
+            0.0001,
+            1.0,
+            0.0001,
+            1.0
+          ],
+          "avail_windows": 14389,
+          "capped": false,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 2878,
+          "n_train_windows": 14389
+        },
+        "linear_test": 0.2084603729353565,
+        "n_windows": 300,
+        "r2_task": -0.04606798156075809,
+        "zs_test": 0.21806372155189127
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.5845570567729573,
+        "n_windows": 300,
+        "r2_task": 0.6269590469821538,
+        "zs_test": 0.21806372155189127
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 2878,
+          "sel_mse": 0.3200089962367728,
+          "selected": true
+        },
+        "linear_test": 0.15520159882063414,
+        "n_windows": 300,
+        "r2_task": -0.40503527804443973,
+        "zs_test": 0.21806372155189127
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.19538905367920964,
+        "n_windows": 300,
+        "r2_task": -0.11604881361424146,
+        "zs_test": 0.21806372155189127
+      }
+    },
+    "small_Weather_h192": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.41418690332305325,
+        "n_windows": 300,
+        "r2_task": -0.6178470945085968,
+        "zs_test": 0.6700910781247148
+      },
+      "constant": {
+        "info": {
+          "train_windows": 38772
+        },
+        "linear_test": 1.537718420081178,
+        "n_windows": 300,
+        "r2_task": 0.5642303107162234,
+        "zs_test": 0.6700910781247148
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.4277916537322024,
+        "n_windows": 300,
+        "r2_task": -0.5663958664892323,
+        "zs_test": 0.6700910781247148
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.36234306616424794,
+        "n_windows": 300,
+        "r2_task": -0.8493277247396436,
+        "zs_test": 0.6700910781247148
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 38772,
+          "capped": true,
+          "n_train_windows": 1041,
+          "rows_per_feature": 199872
+        },
+        "linear_test": 3.476204588308244,
+        "n_windows": 300,
+        "r2_task": 0.8072348559752559,
+        "zs_test": 0.6700910781247148
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0001,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.01
+          ],
+          "avail_windows": 38772,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 1,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.41443470821118644,
+        "n_windows": 300,
+        "r2_task": -0.6168797276101974,
+        "zs_test": 0.6700910781247148
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 1.0421350279779849,
+        "n_windows": 300,
+        "r2_task": 0.357001674317706,
+        "zs_test": 0.6700910781247148
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 1000.0,
+          "n_sel": 7755,
+          "sel_mse": 0.48676778006563687,
+          "selected": true
+        },
+        "linear_test": 0.35489410592261184,
+        "n_windows": 300,
+        "r2_task": -0.8881437221468953,
+        "zs_test": 0.6700910781247148
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5443858068503888,
+        "n_windows": 300,
+        "r2_task": -0.23091210257961947,
+        "zs_test": 0.6700910781247148
+      }
+    },
+    "small_Weather_h96": {
+      "ar": {
+        "info": {},
+        "linear_test": 0.3591657703604988,
+        "n_windows": 300,
+        "r2_task": -0.5568053379391991,
+        "zs_test": 0.5591511885022691
+      },
+      "constant": {
+        "info": {
+          "train_windows": 38964
+        },
+        "linear_test": 1.3971074645978931,
+        "n_windows": 300,
+        "r2_task": 0.5997793994585803,
+        "zs_test": 0.5591511885022691
+      },
+      "dlinear": {
+        "info": {
+          "channel_independent": true,
+          "channel_shared_weights": true,
+          "individual": false,
+          "kernel": 25,
+          "lam": 0.0001
+        },
+        "linear_test": 0.38937447188443197,
+        "n_windows": 300,
+        "r2_task": -0.4360242616732912,
+        "zs_test": 0.5591511885022691
+      },
+      "fitted": {
+        "info": {},
+        "linear_test": 0.33567516907505474,
+        "n_windows": 300,
+        "r2_task": -0.6657508210780005,
+        "zs_test": 0.5591511885022691
+      },
+      "gbm": {
+        "info": {
+          "avail_windows": 38964,
+          "capped": true,
+          "n_train_windows": 2083,
+          "rows_per_feature": 199968
+        },
+        "linear_test": 1.0253764613296308,
+        "n_windows": 300,
+        "r2_task": 0.45468692759222884,
+        "zs_test": 0.5591511885022691
+      },
+      "mlp": {
+        "info": {
+          "alpha_grid": [
+            0.0001,
+            0.01,
+            1.0
+          ],
+          "alpha_per_channel": [
+            1.0,
+            0.01,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "avail_windows": 38964,
+          "capped": true,
+          "channel_independent": true,
+          "channels_hitting_iter_budget": 0,
+          "hidden": [
+            128
+          ],
+          "max_iter": 200,
+          "n_sel": 4000,
+          "n_train_windows": 20000
+        },
+        "linear_test": 0.36667234202191645,
+        "n_windows": 300,
+        "r2_task": -0.5249341835246684,
+        "zs_test": 0.5591511885022691
+      },
+      "persistence": {
+        "info": {},
+        "linear_test": 0.9543525450764312,
+        "n_windows": 300,
+        "r2_task": 0.41410415743430706,
+        "zs_test": 0.5591511885022691
+      },
+      "ridge_tuned": {
+        "info": {
+          "lam": 0.1,
+          "n_sel": 7793,
+          "sel_mse": 0.4247054129250066,
+          "selected": true
+        },
+        "linear_test": 0.33788628999514503,
+        "n_windows": 300,
+        "r2_task": -0.6548501820251522,
+        "zs_test": 0.5591511885022691
+      },
+      "seasonal_naive": {
+        "info": {
+          "clamped": false,
+          "season": 24
+        },
+        "linear_test": 0.5696334924067463,
+        "n_windows": 300,
+        "r2_task": 0.018401839154837396,
+        "zs_test": 0.5591511885022691
+      }
+    }
+  },
+  "graded": {
+    "cells": {
+      "base_ETTh1_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.40995103227075036,
+        "r2_best": -0.47168370626981093,
+        "weakest_baseline": "persistence"
+      },
+      "base_ETTh1_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.44361368708013516,
+        "r2_best": -0.5763315938550795,
+        "weakest_baseline": "persistence"
+      },
+      "base_ETTh2_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "ar",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.4514820995763211,
+        "r2_best": -0.39168668723875966,
+        "weakest_baseline": "fitted"
+      },
+      "base_ETTh2_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "ar",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.6959077365909785,
+        "r2_best": -0.5642658397859608,
+        "weakest_baseline": "gbm"
+      },
+      "base_ETTm2_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "ridge_tuned",
+        "clears_all_admissible": false,
+        "clears_any_admissible": false,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": -0.08627373830604723,
+        "r2_best": -1.3958179384056373,
+        "weakest_baseline": "gbm"
+      },
+      "base_ETTm2_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.5596504706676315,
+        "r2_best": -1.1117325260664854,
+        "weakest_baseline": "gbm"
+      },
+      "base_Weather_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "ridge_tuned",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.2680976955239749,
+        "r2_best": -1.149207371504212,
+        "weakest_baseline": "persistence"
+      },
+      "base_Weather_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "fitted",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.40301845422949867,
+        "r2_best": -0.8235808938979974,
+        "weakest_baseline": "gbm"
+      },
+      "large_ETTh1_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.44869909116636353,
+        "r2_best": -0.5619238290655886,
+        "weakest_baseline": "persistence"
+      },
+      "large_ETTh2_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "ar",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.7325245339898977,
+        "r2_best": -0.37590719924912475,
+        "weakest_baseline": "gbm"
+      },
+      "large_Weather_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "fitted",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.43255423223090317,
+        "r2_best": -0.7333588747562534,
+        "weakest_baseline": "gbm"
+      },
+      "small_ETTh1_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.4762084211216878,
+        "r2_best": -0.30642637183676236,
+        "weakest_baseline": "persistence"
+      },
+      "small_ETTh1_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.5005515726596159,
+        "r2_best": -0.4150174388478769,
+        "weakest_baseline": "persistence"
+      },
+      "small_ETTh2_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "ar",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.4225094321625763,
+        "r2_best": -0.4651954560544369,
+        "weakest_baseline": "fitted"
+      },
+      "small_ETTh2_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "ar",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.7421920802132458,
+        "r2_best": -0.32617685707532695,
+        "weakest_baseline": "gbm"
+      },
+      "small_ETTm2_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "ridge_tuned",
+        "clears_all_admissible": false,
+        "clears_any_admissible": false,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": -0.13871455837192914,
+        "r2_best": -1.5114781564409783,
+        "weakest_baseline": "gbm"
+      },
+      "small_ETTm2_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.590028439636295,
+        "r2_best": -0.9660524676723601,
+        "weakest_baseline": "gbm"
+      },
+      "small_Electricity7_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.6040381202247131,
+        "r2_best": -0.42209380880535496,
+        "weakest_baseline": "persistence"
+      },
+      "small_Electricity7_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "dlinear",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.7708396600733755,
+        "r2_best": -0.5882859802515117,
+        "weakest_baseline": "gbm"
+      },
+      "small_Weather_h192": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp"
+        ],
+        "best_baseline": "ridge_tuned",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [
+          "gbm"
+        ],
+        "n_admissible": 7,
+        "r2_any": 0.357001674317706,
+        "r2_best": -0.8881437221468953,
+        "weakest_baseline": "persistence"
+      },
+      "small_Weather_h96": {
+        "admissible": [
+          "fitted",
+          "persistence",
+          "seasonal_naive",
+          "ar",
+          "dlinear",
+          "ridge_tuned",
+          "mlp",
+          "gbm"
+        ],
+        "best_baseline": "fitted",
+        "clears_all_admissible": false,
+        "clears_any_admissible": true,
+        "inadmissible": [],
+        "n_admissible": 8,
+        "r2_any": 0.45468692759222884,
+        "r2_best": -0.6657508210780005,
+        "weakest_baseline": "gbm"
+      }
+    },
+    "n_clearing_all_admissible": 0,
+    "n_clearing_any_admissible": 19,
+    "n_scored": 21,
+    "threshold": 0.2
+  },
+  "per_rung": {
+    "ar": 0,
+    "constant": 20,
+    "dlinear": 0,
+    "fitted": 3,
+    "gbm": 9,
+    "mlp": 3,
+    "persistence": 12,
+    "ridge_tuned": 2,
+    "seasonal_naive": 0
+  },
+  "split": "traintail",
+  "threshold": 0.2,
+  "traintail_frac": 0.2,
+  "union": [
+    "base_ETTh1_h192",
+    "base_ETTh1_h96",
+    "base_ETTh2_h192",
+    "base_ETTh2_h96",
+    "base_ETTm2_h96",
+    "base_Weather_h192",
+    "base_Weather_h96",
+    "large_ETTh1_h96",
+    "large_ETTh2_h96",
+    "large_Weather_h96",
+    "small_ETTh1_h192",
+    "small_ETTh1_h96",
+    "small_ETTh2_h192",
+    "small_ETTh2_h96",
+    "small_ETTm2_h96",
+    "small_Electricity7_h192",
+    "small_Electricity7_h96",
+    "small_Weather_h192",
+    "small_Weather_h96"
+  ],
+  "window_meta": {
+    "base_ETTh1_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1612,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "base_ETTh1_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "base_ETTh2_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1612,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "base_ETTh2_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "base_ETTm2_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 33446,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 7883,
+      "traintail_cut_index": 33446,
+      "traintail_frac": 0.2
+    },
+    "base_ETTm2_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 33446,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 8075,
+      "traintail_cut_index": 33446,
+      "traintail_frac": 0.2
+    },
+    "base_Weather_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 39251,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 9334,
+      "traintail_cut_index": 39251,
+      "traintail_frac": 0.2
+    },
+    "base_Weather_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 39251,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 9526,
+      "traintail_cut_index": 39251,
+      "traintail_frac": 0.2
+    },
+    "large_ETTh1_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "large_ETTh2_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "large_Weather_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 39251,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 9526,
+      "traintail_cut_index": 39251,
+      "traintail_frac": 0.2
+    },
+    "small_ETTh1_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1612,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "small_ETTh1_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "small_ETTh2_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1612,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "small_ETTh2_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 8361,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 1804,
+      "traintail_cut_index": 8361,
+      "traintail_frac": 0.2
+    },
+    "small_ETTm2_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 33446,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 7883,
+      "traintail_cut_index": 33446,
+      "traintail_frac": 0.2
+    },
+    "small_ETTm2_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 33446,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 8075,
+      "traintail_cut_index": 33446,
+      "traintail_frac": 0.2
+    },
+    "small_Electricity7_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 14676,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 3190,
+      "traintail_cut_index": 14676,
+      "traintail_frac": 0.2
+    },
+    "small_Electricity7_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 14676,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 3382,
+      "traintail_cut_index": 14676,
+      "traintail_frac": 0.2
+    },
+    "small_Weather_h192": {
+      "extended_lookback": 288,
+      "n_train_head_steps": 39251,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 9334,
+      "traintail_cut_index": 39251,
+      "traintail_frac": 0.2
+    },
+    "small_Weather_h96": {
+      "extended_lookback": 192,
+      "n_train_head_steps": 39251,
+      "n_traintail_eval": 300,
+      "n_traintail_windows": 9526,
+      "traintail_cut_index": 39251,
+      "traintail_frac": 0.2
+    }
+  }
+}

@@ -26,7 +26,7 @@ reads it as permission to skip the frozen-encoder control would be drawing the
 opposite of our recommendation: our prescription is to \emph{run} that control,
 because we found the observational shortcuts unreliable.  Domains where a
 pre-trained checkpoint holds a large, well-established advantage --- which these
-benchmarks do not, on 27 of the 32 cells we screened --- are exactly where the
+benchmarks do not, on 24 of the 31 cells we screened --- are exactly where the
 question remains open.
 
 \textbf{Broader impact.}  This is a diagnostic study on public forecasting
@@ -104,8 +104,9 @@ replication.
 
 \textbf{What the two-cell check found, and why we report it rather than a
 tolerance.}  \texttt{scripts/rerun\_two\_cells.sh} retrains one Moirai cell
-(Small/ETTh2 $h{=}96$, $n{=}500$, seed 42, condition~B) and one non-Moirai cell
-(TimesFM/ETTh1 $h{=}24$, $n{=}1{,}000$, seed 42, condition~B) from the raw CSVs
+(Small/ETTh2 $h{=}96$, $n{=}500$, seed 42, full fine-tuning~(B)) and one non-Moirai
+cell (TimesFM/ETTh1 $h{=}24$, $n{=}1{,}000$, seed 42, the same condition) from the raw
+CSVs
 and diffs every stored field.  \textbf{TimesFM reproduces exactly}: all nine
 fields, including CKA and weight drift, are bit-identical.  \textbf{Moirai
 reproduces its MSEs to within a few percent but not its forgetting percentage}:
@@ -152,6 +153,15 @@ first condition-B or condition-D run of that arm was launched; the scorer,
 no decisions of its own.  Both are in the release, and the commit that added
 the registration precedes the runs it scores, so the ordering is checkable from
 the history rather than asserted by us.
+
+\textbf{The figures check themselves.}  Both generated figures read their values
+from \texttt{scripts/cell\_matrix.py} and \emph{assert} at draw time every count the
+body quotes from them---the number of gate-passing cells, the number of degradation
+cells, the number of sign reversals and the sign of each correlation.  A run record
+that moved would fail the figure rather than change it silently, which is the one
+staleness path the table emitters do not cover.  (This sentence used to sit in the
+caption of Figure~\ref{fig:screen}; it is a statement about the release, and the body
+has no page to spare for it.)
 
 \textbf{What we release.}  The analysis and experiment scripts, the per-run JSON
 records behind every table, the emitter for every table and the one-command

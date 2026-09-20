@@ -18,7 +18,8 @@ TimesFM 0.25-0.56) and a reader must be able to see that the pooled left-panel t
 between-backbone.
 
 NO HARD-CODED NUMBERS. Everything is read from results/value_axis.json, written by
-scripts/value_axis.py --json, which in turn reads the graded ladder from results/gate_baselines.json.
+scripts/value_axis.py --json, which in turn reads the graded ladder from results/gate_baselines_val.json -- the SELECTION-split
+ladder, so the value axis and the held-out y-axis do not share windows.
 The assertions below are the point of that: this script is a data-integrity check that happens to
 draw, and it fails loudly rather than drawing a figure that disagrees with the text.
 
@@ -64,7 +65,7 @@ thr = J["gate_threshold"]
 # Data-integrity assertions. Each mirrors a sentence in the paper; a failure here means the figure
 # and the text have diverged, which is the failure mode this project has hit most often.
 assert len(cells) == J["n_scored"] == 31, f"expected 31 scored cells, got {len(cells)}"
-assert anyv.sum() == J["n_value_cells"] == 15, f"expected 15 value-cells, got {anyv.sum()}"
+assert anyv.sum() == J["n_value_cells"] == 20, f"expected 20 value-cells, got {anyv.sum()}"
 assert J["n_clearing_all"] == 0, f"body claims no cell clears every rung; json says {J['n_clearing_all']}"
 assert (val < thr)[~anyv].all(), "a cell marked no-value scores at or above the threshold"
 assert len(J["baselines"]) == 9, f"body claims an eight-rung ladder plus the floor; got {J['baselines']}"
