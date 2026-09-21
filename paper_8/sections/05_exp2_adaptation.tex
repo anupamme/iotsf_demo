@@ -102,13 +102,28 @@ Clause~(i) removes 24 of the 31 outright: they have no measured pre-trained
 advantage, so a worse post-fine-tuning score is benign replacement rather than
 damage.  Of the seven that survive it, four fail clause~(ii) in the strongest
 possible way---full fine-tuning \emph{improves} MSE, by 8--42\% with every seed
-agreeing.  That leaves three, and all three fail the unanimity requirement cell by cell
-(\S\ref{sec:forecasting:results}): both $h{=}192$ cells satisfy clauses~(i)
-and~(iii) and fail only~(ii), and only Moirai-Small/ETTh2 has a positive mean
-forg.$_\text{B}$, so it remains the closest the matrix comes.
-Nor does replacing the count with inference: aggregated over the 20 value-cells
-with clustered resampling, $\denc{=}{+}0.7$ with CI $[-11.1,{+}14.1]$ and 10 of 20
-positive, so the contrast straddles zero rather than favouring either regime
+agreeing.  That leaves three, and all three fail clause~(ii) cell by cell
+(\S\ref{sec:forecasting:results}); Moirai-Small/ETTh2 at $h{=}192$ remains the
+closest the matrix comes.
+% Round 7. This paragraph used to give only the 20-cell aggregate, which is an average over cells that
+% disagree and so cannot say which cells are decisive. The per-cell adjusted calls can, and they make a
+% sharper statement against our own screen than the conjunction count could: the screen rejects both
+% cells where preservation decisively wins and admits two where adaptation decisively wins. The
+% aggregate is kept as the last sentence because two registered claims match its wording.
+\textbf{Per-cell inference sharpens this rather than rescuing it.}  Paired
+$95\%$ intervals on $\denc$, Benjamini--Hochberg adjusted across the 31 cells,
+call \textbf{2 cells freezing-better, 4 adaptation-better and 25
+inconclusive}---and the two where freezing decisively wins are
+Moirai-Small/ETTh1 at both horizons, which the screen \emph{rejects}, while two
+of the four where adaptation decisively wins \emph{pass} it, at $+0.925$ and
+$+0.875$.  The interval form of the definition returns zero
+cells, as the registered form does.  \textbf{What the inconclusive calls cost is
+itself reportable}: the survivors' own dispersion gives minimum detectable
+effects of $4.7$--$14.7$~pp, and Moirai-Small/ETTh2 $h{=}96$ and
+Moirai-Base/ETTm2 $h{=}192$ would need 182 and 212 paired seeds, so we report
+those two as \emph{unresolvable under this design} rather than as absent.
+Aggregated over the 20 value-cells with clustered resampling, $\denc{=}{+}0.7$
+with CI $[-11.1,{+}14.1]$ and 10 of 20 positive
 (Appendix~\ref{app:pairedinference}).
 Changing the gate's \emph{estimator} does admit cells: six of the ladder's eight
 rungs admit none, persistence admits three and GBM one.  All four rest on a
@@ -117,13 +132,10 @@ ridge's error on the same windows, so a \emph{weaker} baseline is what manufactu
 a degradation cell (Appendix~\ref{app:baselines}).
 
 \textbf{What we are and are not saying.}  Not that fine-tuning never damages a
-pre-trained capability, but that across 32 screened cells on six standard
-benchmarks and three backbones we could not construct one instance that
-survives its own definition---fixed before the corrected gate was computed.
-These benchmarks are the wrong place to look: on no cell does the advantage
-survive every admissible rung of an eight-baseline ladder, and on the seven that
-clear our ridge gate, fine-tuning on 500--1{,}000 samples usually improves on it.
-\S\ref{sec:limitations} states what a cell would have to look like to settle
-the question, and Appendix~\ref{app:corrections} records that this is a change of
-conclusion rather than of emphasis.
+pre-trained capability, but that across 32 screened cells we could not construct
+one instance that survives its own definition.  These benchmarks are the wrong
+place to look: on no cell does the advantage survive every admissible rung of an
+eight-baseline ladder, and on the seven that clear our ridge gate, fine-tuning on
+500--1{,}000 samples usually improves on it (\S\ref{sec:limitations},
+Appendix~\ref{app:corrections}).
 

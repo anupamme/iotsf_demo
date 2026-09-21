@@ -50,8 +50,7 @@ split chooses checkpoints and early stopping \textbf{and is where we score
 $\Vb{b}$}; the \emph{held-out} split is disjoint from both and is where every
 outcome is scored.  So a cell's admission cannot borrow the windows that later
 judge it.  We also report the retrospective variant---$\Vb{b}$ on the held-out
-windows themselves---which admits two fewer cells and changes no conclusion, though
-two subsidiary readings did rest on it and are withdrawn
+windows themselves---which admits two fewer cells and changes no conclusion
 (Appendices~\ref{app:gatecorrection},~\ref{app:corrections}).
 
 \textbf{The estimand, named once.} For a cell with $S$ paired seeds,
@@ -74,18 +73,30 @@ the intervention changed---so it enters only as a candidate \emph{predictor} of
 $\denc$.  That asymmetry is why a CKA-to-outcome association would not license a
 CKA-based decision rule even had we found one.
 
-\textbf{Definition (degradation of a demonstrated capability).} A cell counts as
-degradation when all three clauses hold: (i)~$\Vb{b} \ge
-0.20$ on selection windows, so there is a measured pre-trained advantage over $b$;
-(ii)~full fine-tuning ends worse than not fine-tuning at all, forg.$_\text{B} >
-0$, in \emph{every} seed; and (iii)~the frozen encoder ends better,
-forg.$_\text{D} < 0$, in \emph{every} seed, which localises the loss to encoder
-weight updates rather than to the data or the epoch budget. Clauses (ii) and
-(iii) require unanimity because at three to ten seeds an exact sign-flip test
-cannot reach $p{<}0.05$ on 28 of our 31 cells; every cell also carries a paired
-interval, an effect size and two $p$-values
-(Appendix~\ref{app:pairedinference}). The definition is fixed for the whole
-paper.
+% Round 7: the registered clauses are UNCHANGED -- moving a pre-registered definition after seeing
+% outcomes is the thing the registration exists to prevent -- but a unanimity conjunction is a count
+% of agreeing seeds, not an effect with an uncertainty, and the reviewer is right that a headline
+% cannot rest on it. So the interval form is stated beside it and made primary, and both are reported.
+% The "unanimity because an exact test cannot reach p<0.05 on 28 of 31 cells" justification is deleted
+% from here rather than reworded: app:pairedinference argues it at length under its own heading, and
+% those lines are what pays for the sentences added here.
+\textbf{Definition (degradation of a demonstrated capability), and its interval
+form.} A cell counts as degradation when all three clauses hold: (i)~$\Vb{b} \ge
+0.20$ on selection windows, so there is a measured pre-trained advantage over
+$b$; (ii)~full fine-tuning ends worse than not fine-tuning at all,
+forg.$_\text{B} > 0$; and (iii)~the frozen encoder ends better,
+forg.$_\text{D} < 0$, localising the loss to encoder weight updates rather than
+to the data or the epoch budget. \textbf{Clauses (ii) and (iii) are reported two
+ways}: as pre-registered, each holds in \emph{every} seed; and---primary from
+this revision---as a paired interval, the $95\%$ CI on
+$\text{B}{-}\text{ZS}$ lying entirely above zero and the CI on
+$\text{D}{-}\text{ZS}$ entirely below, propagating the zero-shot reference's own
+error and adjusted for multiplicity (Appendix~\ref{app:pairedinference}).
+Intervals are primary because unanimity measures agreement among seeds rather
+than the size of an effect or our confidence in it; the registered form stays
+because retiring a criterion after seeing its outcome is not a choice we get to
+make. \textbf{Both return the same count}, so nothing in this paper turns on
+which is read. The definition is fixed for the whole paper.
 
 \textbf{Conditions.} \textbf{B}~NLL-only fine-tune (baseline: how much does
 unconstrained fine-tuning drift and forget?); \textbf{C}~NLL$+$SupCon

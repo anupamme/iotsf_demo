@@ -6,24 +6,24 @@ $\Delta_\text{enc}={L_\text{full}}-{L_\text{frozen}}$ per seed, in percent of th
 zero-shot reference, so a positive value means allowing the encoder to adapt made the cell
 \emph{worse}.  B and D share a seed, an initialisation and a window sample, so this
 contrast is paired by construction.
-$d$ is paired Cohen's $d$; dispersion is SEM, matching the body convention
-(\S\ref{sec:method}) and not the population std the stored JSON fields use.
+$d$ is paired Cohen's $d$.  The SEM column was dropped when $q$ was added---nine columns
+overrun the textwidth and the interval states the same dispersion---so \texttt{sem} lives
+in \texttt{results/paired\_inference.json}, on the body's convention (\S\ref{sec:method}).
 Each row names its own $n$, which is not constant down the column
 (Table~\ref{tab:heldout_all}).
+\textbf{$q$ is the decision column, adjusted for the 31 tests}:
+Benjamini--Hochberg within this contrast, with the three-way call---freeze-decisive,
+adapt-decisive, inconclusive---read off $q{<}0.05$ and the sign of $\denc$, and bolded
+where decisive.  BH runs on $p_t$, not $p_\text{exact}$, because 24 cells have an
+exact floor of $0.25$ and a step-up procedure there would reject nothing at any effect
+size.
 \textbf{Two tests, because neither alone is adequate at these seed counts.}
-$p_\text{exact}$ enumerates all $2^N$ sign assignments, so it assumes nothing---but its
-resolution is fixed by $N$: the smallest two-sided value an $N$-seed cell can produce is
-$2/2^N$, which is $0.25$ at $N{=}3$ and $0.0625$ at $N{=}5$.  The 24 cells at
-$N{=}3$ therefore \emph{cannot} reach $p<0.05$ however large or consistent their
-effect, and a non-significant exact $p$ on those cells is a statement about seed budget
-rather than about the effect.  The CI and $p_t$ are the paired $t$ versions, which do
-resolve at $N{=}3$ and pay for it with a normality assumption on three points that cannot
-be checked.  Where the two agree the reading does not rest on that assumption; where they
-disagree, the evidence is assumption-dependent and is treated as such in the text.
-We do \emph{not} report a percentile bootstrap interval here: every resample mean lies
-within the range of the observations, so at $N{=}3$ with all seeds on one side of zero such
-an interval excludes zero by construction, restating the sign count it was meant to improve
-on.  It is kept in \texttt{results/paired\_inference.json} for the larger cells.
+$p_\text{exact}$ assumes nothing, but its resolution is fixed by $N$: the 24 cells at
+$N{=}3$ cannot reach $p<0.05$ at any effect size, their smallest attainable value being
+$0.25$.  $p_t$ and the interval do resolve there, and pay for it with a normality
+assumption on three points that cannot be checked.  Both are shown so that a reading
+resting on that assumption is visible as one; the text states why no bootstrap interval
+is reported.
 In the two summary rows the last column is \emph{not} an effect size: it gives the number
 of cells whose mean $\Delta_\text{enc}$ is positive, out of the cells in that row.
 $\dagger$ marks cells clearing the gate threshold under at least one admissible baseline
@@ -33,45 +33,45 @@ head/decoder mismatch; their $\Delta_\text{enc}$ is unaffected.}
 \label{tab:paired_inference}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}l r rr r rr r@{}}
+\begin{tabular}{@{}l r r r rrr r@{}}
 \toprule
-Cell & $N$ & $\Delta_\text{enc}$ & SEM & $95\%$ CI ($t$) & $p_t$ & $p_\text{exact}$ & $d$ \\
+Cell & $N$ & $\Delta_\text{enc}$ & $95\%$ CI ($t$) & $p_t$ & $q$ & $p_\text{exact}$ & $d$ \\
 \midrule
-Chronos / ETTh1 ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$39.2 & 13.9 & [$-$98.9, $+$20.5] & 0.106 & 0.250 & $-$1.63 \\
-Chronos / ETTh2 ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$12.9 & 0.6 & [$-$15.5, $-$10.4] & 0.002 & 0.250 & $-$12.57 \\
-Chronos / Weather ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$21.6 & 3.2 & [$-$35.5, $-$7.6] & 0.022 & 0.250 & $-$3.84 \\
-Moirai-B / ETTh2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$20.2 & 1.1 & [$-$24.9, $-$15.5] & 0.003 & 0.250 & $-$10.66 \\
-Moirai-B / ETTh2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$22.3 & 2.9 & [$-$34.7, $-$10.0] & 0.016 & 0.250 & $-$4.50 \\
-Moirai-B / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$37.5 & 8.2 & [$+$2.1, $+$72.9] & 0.045 & 0.250 & $+$2.63 \\
-Moirai-B / ETTm2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$1.3 & 3.4 & [$-$13.4, $+$16.0] & 0.740 & 1.000 & $+$0.22 \\
-Moirai-B / ETTm2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$7.0 & 2.4 & [$-$3.2, $+$17.3] & 0.098 & 0.250 & $+$1.70 \\
-Moirai-L / ETTh2 ($h{=}96$, $n{=}$500)\textsuperscript{$\dagger$} & 3 & $-$20.8 & 1.4 & [$-$26.6, $-$15.0] & 0.004 & 0.250 & $-$8.87 \\
-Moirai-L / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$28.2 & 4.9 & [$+$7.3, $+$49.1] & 0.028 & 0.250 & $+$3.35 \\
-Moirai-S / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$22.1 & 2.3 & [$+$15.6, $+$28.6] & 0.001 & 0.062 & $+$4.21 \\
-Moirai-S / ETTh2 ($h{=}192$, $n{=}$500)\textsuperscript{$\dagger$} & 10 & $+$6.1 & 3.4 & [$-$1.5, $+$13.7] & 0.101 & 0.100 & $+$0.58 \\
-Moirai-S / ETTh2 ($h{=}96$, $n{=}$500)\textsuperscript{$\dagger$} & 10 & $+$2.8 & 3.7 & [$-$5.6, $+$11.2] & 0.472 & 0.557 & $+$0.24 \\
-Moirai-S / ETTm2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$4.7 & 3.2 & [$-$4.2, $+$13.6] & 0.217 & 0.312 & $+$0.65 \\
-Moirai-S / ETTm2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$2.6 & 3.4 & [$-$6.9, $+$12.1] & 0.495 & 0.562 & $+$0.34 \\
-Moirai-S / Electricity7 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$3.2 & 1.5 & [$-$9.9, $+$3.4] & 0.170 & 0.250 & $-$1.22 \\
-Moirai-S / Weather ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$53.1 & 10.2 & [$+$9.2, $+$97.0] & 0.035 & 0.250 & $+$3.00 \\
-TimesFM / ETTh1 ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$1.4 & 2.8 & [$-$13.5, $+$10.6] & 0.658 & 0.750 & $-$0.30 \\
-TimesFM / ETTh2 ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$7.1 & 3.1 & [$-$20.5, $+$6.2] & 0.148 & 0.250 & $-$1.33 \\
-TimesFM / Weather ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$1.6 & 1.5 & [$-$8.1, $+$4.8] & 0.387 & 0.500 & $-$0.63 \\
-Chronos / Electricity ($h{=}24$, $n{=}$8000)\textsuperscript{$\ddagger$} & 3 & $-$2.7 & 1.9 & [$-$10.7, $+$5.4] & 0.287 & 0.500 & $-$0.83 \\
-Chronos / ETTm2 ($h{=}24$, $n{=}$8000)\textsuperscript{$\ddagger$} & 3 & $-$29.5 & 6.4 & [$-$57.1, $-$1.9] & 0.044 & 0.250 & $-$2.66 \\
-Moirai-B / ETTh1 ($h{=}192$, $n{=}$1000) & 3 & $+$47.0 & 13.8 & [$-$12.4, $+$106.3] & 0.077 & 0.250 & $+$1.97 \\
-Moirai-B / Weather ($h{=}192$, $n{=}$1000) & 3 & $+$12.5 & 8.7 & [$-$25.1, $+$50.1] & 0.288 & 0.500 & $+$0.83 \\
-Moirai-B / Weather ($h{=}96$, $n{=}$1000) & 3 & $+$9.4 & 2.0 & [$+$1.0, $+$17.8] & 0.040 & 0.250 & $+$2.78 \\
-Moirai-L / Weather ($h{=}96$, $n{=}$1000) & 3 & $+$12.0 & 7.5 & [$-$20.3, $+$44.3] & 0.251 & 0.250 & $+$0.92 \\
-Moirai-S / ETTh1 ($h{=}192$, $n{=}$1000) & 5 & $+$13.5 & 1.7 & [$+$8.8, $+$18.2] & 0.001 & 0.062 & $+$3.53 \\
-Moirai-S / ILI ($h{=}24$, $n{=}$452) & 10 & $-$38.6 & 1.3 & [$-$41.6, $-$35.6] & 0.000 & 0.002 & $-$9.15 \\
-Moirai-S / Electricity7 ($h{=}192$, $n{=}$1000) & 3 & $-$2.6 & 2.1 & [$-$11.7, $+$6.4] & 0.338 & 0.500 & $-$0.72 \\
-Moirai-S / Weather ($h{=}192$, $n{=}$1000) & 3 & $+$62.1 & 13.6 & [$+$3.6, $+$120.6] & 0.045 & 0.250 & $+$2.64 \\
-TimesFM / ETTm2 ($h{=}24$, $n{=}$1000) & 3 & $-$7.7 & 2.6 & [$-$18.9, $+$3.5] & 0.097 & 0.250 & $-$1.71 \\
+Chronos / ETTh1 ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$39.2 & [$-$98.9, $+$20.5] & 0.106 & 0.173 & 0.250 & $-$1.63 \\
+Chronos / ETTh2 ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$12.9 & [$-$15.5, $-$10.4] & 0.002 & \textbf{0.016} & 0.250 & $-$12.57 \\
+Chronos / Weather ($h{=}24$, $n{=}$8000)\textsuperscript{$\dagger$}\textsuperscript{$\ddagger$} & 3 & $-$21.6 & [$-$35.5, $-$7.6] & 0.022 & 0.085 & 0.250 & $-$3.84 \\
+Moirai-B / ETTh2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$20.2 & [$-$24.9, $-$15.5] & 0.003 & \textbf{0.018} & 0.250 & $-$10.66 \\
+Moirai-B / ETTh2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$22.3 & [$-$34.7, $-$10.0] & 0.016 & 0.071 & 0.250 & $-$4.50 \\
+Moirai-B / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$37.5 & [$+$2.1, $+$72.9] & 0.045 & 0.099 & 0.250 & $+$2.63 \\
+Moirai-B / ETTm2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$1.3 & [$-$13.4, $+$16.0] & 0.740 & 0.740 & 1.000 & $+$0.22 \\
+Moirai-B / ETTm2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$7.0 & [$-$3.2, $+$17.3] & 0.098 & 0.173 & 0.250 & $+$1.70 \\
+Moirai-L / ETTh2 ($h{=}96$, $n{=}$500)\textsuperscript{$\dagger$} & 3 & $-$20.8 & [$-$26.6, $-$15.0] & 0.004 & \textbf{0.022} & 0.250 & $-$8.87 \\
+Moirai-L / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$28.2 & [$+$7.3, $+$49.1] & 0.028 & 0.098 & 0.250 & $+$3.35 \\
+Moirai-S / ETTh1 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$22.1 & [$+$15.6, $+$28.6] & 0.001 & \textbf{0.011} & 0.062 & $+$4.21 \\
+Moirai-S / ETTh2 ($h{=}192$, $n{=}$500)\textsuperscript{$\dagger$} & 10 & $+$6.1 & [$-$1.5, $+$13.7] & 0.101 & 0.173 & 0.100 & $+$0.58 \\
+Moirai-S / ETTh2 ($h{=}96$, $n{=}$500)\textsuperscript{$\dagger$} & 10 & $+$2.8 & [$-$5.6, $+$11.2] & 0.472 & 0.522 & 0.557 & $+$0.24 \\
+Moirai-S / ETTm2 ($h{=}192$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$4.7 & [$-$4.2, $+$13.6] & 0.217 & 0.306 & 0.312 & $+$0.65 \\
+Moirai-S / ETTm2 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 5 & $+$2.6 & [$-$6.9, $+$12.1] & 0.495 & 0.529 & 0.562 & $+$0.34 \\
+Moirai-S / Electricity7 ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$3.2 & [$-$9.9, $+$3.4] & 0.170 & 0.251 & 0.250 & $-$1.22 \\
+Moirai-S / Weather ($h{=}96$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $+$53.1 & [$+$9.2, $+$97.0] & 0.035 & 0.099 & 0.250 & $+$3.00 \\
+TimesFM / ETTh1 ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$1.4 & [$-$13.5, $+$10.6] & 0.658 & 0.680 & 0.750 & $-$0.30 \\
+TimesFM / ETTh2 ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$7.1 & [$-$20.5, $+$6.2] & 0.148 & 0.230 & 0.250 & $-$1.33 \\
+TimesFM / Weather ($h{=}24$, $n{=}$1000)\textsuperscript{$\dagger$} & 3 & $-$1.6 & [$-$8.1, $+$4.8] & 0.387 & 0.445 & 0.500 & $-$0.63 \\
+Chronos / Electricity ($h{=}24$, $n{=}$8000)\textsuperscript{$\ddagger$} & 3 & $-$2.7 & [$-$10.7, $+$5.4] & 0.287 & 0.358 & 0.500 & $-$0.83 \\
+Chronos / ETTm2 ($h{=}24$, $n{=}$8000)\textsuperscript{$\ddagger$} & 3 & $-$29.5 & [$-$57.1, $-$1.9] & 0.044 & 0.099 & 0.250 & $-$2.66 \\
+Moirai-B / ETTh1 ($h{=}192$, $n{=}$1000) & 3 & $+$47.0 & [$-$12.4, $+$106.3] & 0.077 & 0.158 & 0.250 & $+$1.97 \\
+Moirai-B / Weather ($h{=}192$, $n{=}$1000) & 3 & $+$12.5 & [$-$25.1, $+$50.1] & 0.288 & 0.358 & 0.500 & $+$0.83 \\
+Moirai-B / Weather ($h{=}96$, $n{=}$1000) & 3 & $+$9.4 & [$+$1.0, $+$17.8] & 0.040 & 0.099 & 0.250 & $+$2.78 \\
+Moirai-L / Weather ($h{=}96$, $n{=}$1000) & 3 & $+$12.0 & [$-$20.3, $+$44.3] & 0.251 & 0.338 & 0.250 & $+$0.92 \\
+Moirai-S / ETTh1 ($h{=}192$, $n{=}$1000) & 5 & $+$13.5 & [$+$8.8, $+$18.2] & 0.001 & \textbf{0.014} & 0.062 & $+$3.53 \\
+Moirai-S / ILI ($h{=}24$, $n{=}$452) & 10 & $-$38.6 & [$-$41.6, $-$35.6] & 0.000 & \textbf{0.000} & 0.002 & $-$9.15 \\
+Moirai-S / Electricity7 ($h{=}192$, $n{=}$1000) & 3 & $-$2.6 & [$-$11.7, $+$6.4] & 0.338 & 0.403 & 0.500 & $-$0.72 \\
+Moirai-S / Weather ($h{=}192$, $n{=}$1000) & 3 & $+$62.1 & [$+$3.6, $+$120.6] & 0.045 & 0.099 & 0.250 & $+$2.64 \\
+TimesFM / ETTm2 ($h{=}24$, $n{=}$1000) & 3 & $-$7.7 & [$-$18.9, $+$3.5] & 0.097 & 0.173 & 0.250 & $-$1.71 \\
 \midrule
 \multicolumn{8}{l}{\emph{Mean of cell means, $95\%$ CI from resampling (backbone, dataset) clusters:}} \\
-\quad 20 value-cells / 11 clusters & & $+$0.7 & & [$-$11.1, $+$14.1] & & & 10/20 \\
-\quad all 31 cells / 15 clusters & & $+$2.9 & & [$-$12.7, $+$15.1] & & & 16/31 \\
+\quad 20 value-cells / 11 clusters & & $+$0.7 & [$-$11.1, $+$14.1] & & & & 10/20 \\
+\quad all 31 cells / 15 clusters & & $+$2.9 & [$-$12.7, $+$15.1] & & & & 16/31 \\
 \bottomrule
 \end{tabular}
 \end{table}

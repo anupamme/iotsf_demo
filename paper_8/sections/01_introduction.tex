@@ -57,13 +57,13 @@ in for the second; a fifth section asks whether the whole screen works
 31 cells carrying a selection-split gate: seven clear
 $\Vb{\text{ridge}}{\geq}0.20$; CKA is measured on all 31 and filters none (dashed
 box); the fine-tune-versus-frozen comparison is scored on held-out windows, on which
-4 of the 31 reverse sign; and \emph{none} satisfies the three-clause degradation
-definition of \S\ref{sec:method}, four of the seven survivors being \emph{improved}
-by full fine-tuning in every seed.  \textbf{(b)}~The same 31 cells as CKA against
+4 of the 31 reverse sign; and \emph{none} shows decisive evidence of harmful
+adaptation under either form of the \S\ref{sec:method} definition, four of the
+seven survivors being \emph{improved} by full fine-tuning in every seed.  \textbf{(b)}~The same 31 cells as CKA against
 held-out $\denc$ (positive ${=}$ freezing better): \textbf{measured drift does not
 reliably predict the value of encoder adaptation}.  No cut on CKA separates the cells
 adaptation helped from the cells it hurt---the best threshold misplaces five of the
-31---and the labelled pairs are the running example above.
+31.
 Within Moirai, the only backbone with enough cells to ask, neither CKA
 ($\rho{=}{+}0.17$, clustered CI $[-0.47,{+}0.72]$) nor the gate score
 ($\rho{=}{-}0.29$, $[-0.71,{+}0.71]$) orders $\denc$; both span zero
@@ -93,11 +93,9 @@ its ETTh2 cells and two of its four on ETTm2.  Where the advantage does exist,
 letting the encoder adapt usually \emph{helps}: full fine-tuning improves MSE on
 five of the seven, by 31--42\% on the three ETTh2 cells, and the two whose mean
 shows harm carry only 4/10 and 5/10 seeds agreeing on the sign.  And \textbf{no
-cell in the matrix} meets the definition of damaging a demonstrated capability
-that we fixed in advance---clear the screen, end worse than zero-shot in
-\emph{every} seed under full fine-tuning, and end better in \emph{every} seed with
-the encoder frozen.  The single candidate, Moirai-Small on ETTh2 at $h{=}192$,
-splits 5/10 on the sign of the harm (\S\ref{sec:analysis:degradation}).
+cell shows decisive evidence of harm}: on multiplicity-adjusted paired intervals
+only 2 of the 31 favour freezing, and both are cells the screen
+\emph{rejects} (\S\ref{sec:analysis:degradation}).
 
 \textbf{Contributions.}
 
@@ -116,16 +114,11 @@ splits 5/10 on the sign of the harm (\S\ref{sec:analysis:degradation}).
     $[-0.469,{+}0.717]$, on three backbones and with no actionable threshold
     (\S\ref{sec:exp3}).
 
-  \item \textbf{Two measurement choices that decide the result}, boxed in
-    \S\ref{sec:method}.  The frozen-encoder comparison must be scored on held-out
-    rather than selection windows, and the linear baseline must be \emph{fitted}
-    rather than the per-window trend extrapolation a constant predictor beats
-    (17 of 21 Moirai cells flip either way, 16 of them to gate-fail).  Both move
-    results \emph{against} our own earlier conclusion
-    (\S\ref{sec:analysis:heldout}, Appendix~\ref{app:gatecorrection}).
-
-  \item \textbf{Zero cells meet a pre-registered definition of degradation}, so
-    the value gate we proposed has no positive instance to predict: TP~0, FP~8 on
+  \item \textbf{No cell shows decisive evidence of harmful encoder adaptation}
+    (2 freezing-better, 4 adaptation-better, 25 inconclusive at a
+    multiplicity-adjusted $q{<}0.05$; zero under the pre-registered unanimity
+    criterion), so the value gate we proposed has no positive instance to
+    predict: TP~0, FP~8 on
     eight cells whose predictions were frozen in git before those cells were
     trained, and $\rho{=}{-}0.293$ against the intervention outcome within
     Moirai---a direction, not an interval claim (\S\ref{sec:exp4}).  A

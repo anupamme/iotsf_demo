@@ -87,15 +87,20 @@ regression \emph{fit on the target data} and scored on windows disjoint from
 every outcome we report, only \textbf{7 of the 31} scored cells show the
 pre-trained model beating that baseline, and all seven are Moirai on two of the
 six datasets.  On those seven, full fine-tuning \emph{improves} MSE in five.
-\textbf{No cell meets a degradation definition we fixed in advance}, under any
-fine-tuning protocol we evaluated.
+\textbf{No cell shows decisive evidence of harmful encoder adaptation}: under
+multiplicity-adjusted paired intervals the 31 cells split \textbf{2
+freezing-better, 4 adaptation-better, 25 inconclusive}, and \emph{both} cells
+where freezing decisively wins are cells our own screen rejects.  A
+pre-registered unanimity criterion returns zero under every protocol we
+evaluated.
 The outcome nonetheless spans $-51.8\%$ to $+46.1\%$ against zero-shot, and CKA
 \textbf{does not provide a reliable ordering} of it: within Moirai, the only
 backbone with enough cells to ask, $\rho{=}{+}0.168$ (clustered CI
 $[-0.469,{+}0.717]$), and no cut on CKA separates the cells encoder adaptation
-helped from the cells it hurt.  Under an analysis fixed before it was run, CKA adds
-\textbf{no} out-of-sample predictive information beyond backbone identity: across
-15 leave-one-cluster-out folds it \emph{lowers} $R^2$ from $+0.201$ to $+0.176$.
+helped from the cells it hurt.  Under an analysis fixed before it was run, we find
+\textbf{no evidence} that CKA improves out-of-sample prediction beyond backbone
+identity: across 15 leave-one-cluster-out folds it \emph{lowers} $R^2$ from
+$+0.201$ to $+0.176$.
 Two measurement choices decide this: the frozen-encoder comparison must be scored
 on \textbf{held-out} windows---4 of 31 cells otherwise reverse sign, every one of
 them flattering the frozen encoder, and two of the four are cells that pass the

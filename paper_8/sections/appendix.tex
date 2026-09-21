@@ -2454,10 +2454,70 @@ Resolve}
 % ============================================================
 
 A unanimity count is not inference.  This appendix reports $\denc$ per cell as a
-paired estimate with an interval, an effect size and two $p$-values, and then
-states plainly what the matrix's seed counts can and cannot establish.
+paired estimate with an interval, an effect size, two $p$-values and a
+multiplicity-adjusted $q$; states the three-way call the body is built on; and
+then says plainly what the matrix's seed counts can and cannot resolve.
 
 \input{tables/paired_inference}
+
+\textbf{The call, and why it has three outcomes.}  Thirty-one cells are tested,
+so we adjust: Benjamini--Hochberg across the cells within this contrast gives the
+$q$ column, and a cell is called decisive only at $q{<}0.05$.  That yields
+\textbf{2 cells where freezing is decisively better, 4 where adapting is
+decisively better, and 25 inconclusive}.  The third category is the substantive
+addition.  Our published criterion recorded a cell with no measurable effect and a
+cell with a large effect its seeds disagreed about identically, as ``not
+degrading''; under the interval rule the second says \emph{inconclusive}, which is
+what it is, and the minimum detectable effect below is what separates the two.
+
+\textbf{Where the decisive cells sit relative to the screen.}  Both cells where
+freezing is decisively better---Moirai-Small/ETTh1 at $h{=}96$ ($\denc{=}{+}22.1$,
+$q{=}0.011$) and $h{=}192$ ($+13.5$, $q{=}0.014$)---\textbf{fail} the screen, at
+$\Vb{\text{ridge}}$ of $-0.177$ and $-0.347$.  Two of the four cells where adapting
+is decisively better---Moirai-Base/ETTh2 $h{=}192$ ($-20.2$, $q{=}0.018$) and
+Moirai-Large/ETTh2 $h{=}96$ ($-20.8$, $q{=}0.022$)---\textbf{pass} it.  So on this
+matrix the screen admits cells where adaptation decisively wins and rejects the
+only cells where preservation decisively wins.  That is a sharper statement against
+the screen than the unanimity tally could make, and it is stated here because it
+counts against our own instrument.
+
+\textbf{Both degradation criteria are reported, and both return zero.}  Clause (i)
+of the definition in \S\ref{sec:method} is unchanged.  Replacing the unanimity
+clauses (ii) and (iii) with interval clauses---the CI on
+$\Delta_\text{FT}{=}\text{B}{-}\text{ZS}$ entirely above zero, the CI on
+$\Delta_\text{frz}{=}\text{D}{-}\text{ZS}$ entirely below---selects
+\textbf{zero cells}, exactly as the pre-registered unanimity version does.  The two
+rules can disagree in principle, in either direction, so the agreement is a result
+and not a tautology; \texttt{scripts/paired\_inference.py} computes both and
+cross-checks the unanimity list against \texttt{cell\_matrix.degradation\_cells},
+which is the definition of record, rather than trusting two spellings of one rule
+to stay in step.
+
+\textbf{The zero-shot reference's own error is propagated, and only where it
+belongs.}  On the 21 Moirai cells the zero-shot denominator is a per-cell mean over
+condition-A seeds rather than each seed's own measurement, so the B$-$ZS and D$-$ZS
+intervals above are widened by that mean's SEM,
+$\text{se}{=}\sqrt{\text{se}_\text{within}^2+\text{se}_\text{ZS}^2}$.  $\denc$ is
+\emph{not} widened and must not be: the reference cancels from its numerator and
+survives only as a common scale factor.  That asymmetry is one of the reasons
+$\denc$ is the estimand.  The widening is material on 13 cells and is nominally
+zero on 8, where the reference ran a single condition-A seed---on those the
+reference's error is \emph{unestimated}, not zero, and we say so rather than let a
+$0.00$ read as a check that passed.
+
+\input{tables/power_mde}
+
+\textbf{What these seed counts could have detected.}  Table~\ref{tab:power_mde}
+turns ``the interval is wide'' into a number for the seven cells the screen admits,
+which are the only cells about which we make a preservation recommendation.  At the
+multiplicity-adjusted level the call actually uses, \textbf{4 of the 7 are
+unresolvable within our feasibility cap of 20 paired seeds}: they would need 29,
+36, 182 and 212.  Two of the remaining three are already decisive.  So on the cells
+where a practitioner would consult this screen, the honest summary is that our
+design settles two of seven and cannot settle four of seven at any budget we could
+run---which is a limitation of this matrix, not evidence that the effects are
+absent, and it is the reason \S\ref{sec:method} reports an interval rather than a
+sign count.
 
 \textbf{The exact test's resolution is set by $N$ alone.} A sign-flip permutation
 test on $N$ paired differences has $2^N$ assignments, so its smallest attainable

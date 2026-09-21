@@ -12,8 +12,9 @@ We set out to measure how much fine-tuning damages a foundation model's
 pre-trained capability, and on these benchmarks it is mostly not
 \emph{measurably} there to damage: no cell beats every admissible rung of an
 eight-baseline ladder, four of the seven that beat a fitted ridge are
-\emph{improved} by full fine-tuning in every seed, and no cell meets a degradation
-definition fixed in advance.
+\emph{improved} by full fine-tuning in every seed, and no cell shows decisive
+evidence of harmful encoder adaptation---2 of 31 favour freezing at a
+multiplicity-adjusted $q{<}0.05$, and both are cells the screen rejects.
 % The break between this paragraph and the next is closed on 21 Sep 2026: each paragraph break in this
 % section costs a printed line, as the comment above records, and \S\ref{sec:exp4:poscontrol} needs
 % them. Two paragraphs -- the result and why no cheap diagnostic replaces the intervention, then the
@@ -23,11 +24,10 @@ The reason no cheap diagnostic rescues this is structural rather than statistica
 CKA tells us that the representation changed; only the intervention---fine-tune,
 then fine-tune again with the encoder frozen---tells us whether that change was
 valuable, and \textbf{across the cells we evaluate the former does not reliably
-predict the latter}.  There is no association to work with either: $\denc$ spans
-$-51.8\%$ to $+46.1\%$
-(\S\ref{sec:exp3}), and under an analysis fixed before it was run, CKA adds no
-out-of-sample predictive information once backbone identity, horizon and $n$ are
-known (Appendix~\ref{app:loco}).  The claim we would defend outside this setting is
+predict the latter}.  There is no association to work with either: under an
+analysis fixed before it was run we find no evidence that CKA improves
+out-of-sample prediction once backbone identity, horizon and $n$ are known
+(\S\ref{sec:exp3}, Appendix~\ref{app:loco}).  The claim we would defend outside this setting is
 that methodological one: \textbf{a post-treatment similarity statistic cannot be
 assumed to identify the value of a treatment that changed the representation.}
 % The clause cut from here on 21 Sep 2026 -- "drift is measured AFTER the treatment and on the object
@@ -43,9 +43,8 @@ effort on LoRA, EWC or L2-SP; if they do, settle the question against a frozen
 encoder scored on windows you did not select on---in that order, because
 \textbf{a forgetting result measured on cells with no measurable pre-trained
 advantage is a statement about the benchmark}.  We do \emph{not} claim that drift
-is generally unpredictive across backbones, which three cannot establish;
-Appendix~\ref{app:claims} states all three of our claims with their evidence,
-their strength and the three readings we do \emph{not} make.
+is generally unpredictive across backbones, which three cannot establish
+(Appendix~\ref{app:claims}).
 % The two POSITIVE claims were enumerated here as well -- CKA-does-not-identify, and
 % the-screen-locates-cells -- and are cut on 21 Sep 2026 for \S\ref{sec:exp4:poscontrol}'s last two
 % lines. Both are stated in the sentences immediately above (the bold spine sentence and the bold

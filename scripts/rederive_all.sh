@@ -88,7 +88,7 @@ run "r2task"                       "$PY" scripts/emit_r2task.py
 # staleness hole the sweep reports as clean.
 run "degradation_sensitivity"      "$PY" scripts/degradation_sensitivity.py --latex
 run "clustered_* (4 tables)"       "$PY" scripts/clustered_inference.py --latex
-run "paired_inference"             "$PY" scripts/paired_inference.py
+run "paired_inference (+power_mde)"  "$PY" scripts/paired_inference.py
 run "heldout_decomposition"        "$PY" scripts/heldout_decomposition.py
 run "crossbackbone"                "$PY" scripts/emit_crossbackbone.py
 run "mitigation_spectrum"          "$PY" scripts/emit_mitigation_spectrum.py

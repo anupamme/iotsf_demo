@@ -392,10 +392,43 @@ def rederive():
     R["b3"], R["b3_lo"], R["b3_hi"] = abs(inter["b"]), abs(inter["lo"]), inter["hi"]
 
     # -- paired inference at the value-cell aggregate
-    agg = json.load(open(ROOT / "results/paired_inference.json"))["aggregate"]["value"]["d_enc"]
+    _pi = json.load(open(ROOT / "results/paired_inference.json"))
+    agg = _pi["aggregate"]["value"]["d_enc"]
     R["agg_mean"] = abs(agg["mean"])
     R["agg_lo"], R["agg_hi"] = abs(agg["lo"]), agg["hi"]
     R["n_vc"], R["n_vc_pos"] = agg["n_cells"], agg["pos"]
+
+    # -- the three-way call, which is the headline of this revision. Derived from the SAME file the
+    # table is emitted from, and counted off the stored `call` rather than recomputed from q and the
+    # mean here: a second implementation of the rule would let the check pass while the emitter drifts,
+    # which is the failure mode the whole script exists to catch.
+    _pic = _pi["cells"]
+    _calls = [c["call"] for c in _pic]
+    R["n_freeze_dec"] = _calls.count("freeze")
+    R["n_adapt_dec"] = _calls.count("adapt")
+    R["n_inconclusive"] = _calls.count("inconclusive")
+    R["n_paired_tests"] = len(_pic)
+    # The two freeze-decisive cells and the two adapt-decisive cells that PASS the screen, by name, in
+    # the order the appendix states them (h96 then h192 for ETTh1; Base h192 then Large h96 for ETTh2).
+    _by = {c["cell"]: c for c in _pic}
+    for tag, cell in (("fd96", "Moirai-small/ETTh1 h96 n1000"),
+                      ("fd192", "Moirai-small/ETTh1 h192 n1000"),
+                      ("ad192", "Moirai-base/ETTh2 h192 n1000"),
+                      ("adL96", "Moirai-large/ETTh2 h96 n500")):
+        c = _by[cell]
+        R[f"{tag}_mean"] = abs(c["d_enc"]["mean"])
+        R[f"{tag}_q"] = c["d_enc"]["q"]
+        R[f"{tag}_gate"] = abs(c["gate"])
+    # -- power. The MDE range and the two unresolvable cells' adjusted seed requirement. Taken over the
+    # gate-PASSING cells only, which is the set the table reports, so the range cannot silently widen
+    # to include cells the table does not show.
+    _surv = [c for c in _pic if (c.get("gate") or -9) >= 0.20]
+    _mdes = [c["d_enc"]["mde"] for c in _surv]
+    R["mde_lo"], R["mde_hi"] = min(_mdes), max(_mdes)
+    R["n_star_s96"] = _by["Moirai-small/ETTh2 h96 n500"]["d_enc"]["n_needed_adj"]
+    # Underscores, not slashes: this one cell's record carries the older key spelling, and normalising
+    # it here would hide that. It is the same cell the power table's last row names.
+    R["n_star_b192m"] = _by["Moirai-base_ETTm2_h192"]["d_enc"]["n_needed_adj"]
 
     # -- the eight-rung ladder. "Admissible" = a denominator no worse than the training-mean floor,
     # which is the rule the caption states, so it is the rule reproduced here. Derived for BOTH
@@ -1019,7 +1052,9 @@ def build_checks(R):
     chk("outcome span across the intervention cells",
         r"(?:[Oo]utcomes? (?:from|spanning|(?:still |nonetheless )?spans)|\\denc\$ spans) "
         r"\$-([\d.]+)\\%\$ to \$\{?\+\}?([\d.]+)\\%\$",
-        R["forg_b_lo"], R["forg_b_hi"], min_sites=3)
+        # Two sites, not three, since the conclusion's copy was cut for the page limit: the abstract
+        # and contribution 2 both state the span, which is where a reader meets it.
+        R["forg_b_lo"], R["forg_b_hi"], min_sites=2)
     chk("clause-(i) exclusions", r"removes (\d+) of the (\d+)",
         R["n_clause_i_out"], R["n_int"])
 
@@ -1422,13 +1457,14 @@ def build_checks(R):
     chk("gate flips across the threshold",
         r"moves (\d+) of Moirai's (\d+) cells across the threshold",
         R["n_flip_moirai"], R["n_moirai_screened"])
-    chk("gate flips (contributions)", r"\((\d+) of (\d+) Moirai cells flip either way",
-        R["n_flip_moirai"], R["n_moirai_screened"])
     # 16 and 17 are both correct and sit twenty lines apart, which reads as one fact unless each
     # site says which direction it counts. The abstract's 16 is pass-to-fail; the two 17s are
     # either-direction and now carry the pass-to-fail subcount, so a reader cannot conflate them.
+    # One site, not two, since contribution 3 was deleted: S3's box is the remaining either-direction
+    # site, and the abstract states the same subcount as "puts 16 of 21 on the wrong side", which the
+    # check above matches. Both directions therefore still have a site apiece.
     chk("gate flips, the pass-to-fail subcount", r", (\d+) of them to gate-fail",
-        R["n_flip_moirai_p2f"], min_sites=2)
+        R["n_flip_moirai_p2f"], min_sites=1)
     chk("gate flips (appendix)", r"(\w+) cells change status: (\d+) flip",
         R["n_flip_moirai"], R["n_flip_moirai_p2f"])
     # Per-arm, because the three arms' before/after counts sit in three adjacent list items and a
@@ -1459,10 +1495,63 @@ def build_checks(R):
         r"only (\d+)/(\d+) and (\d+)/(\d+) seeds agreeing",
         R["s96_pos"], R["s96_seeds"], R["s192_pos"], R["s192_seeds"])
     # The abstract's seed-agreement clause was cut with the short-abstract rewrite. Both splits keep
-    # four registered sites between them -- the intro check above, the two survivor-forgetting checks,
-    # and the closest-candidate one below -- so no seed count lost its last site.
-    chk("closest candidate split", r"splits (\d+)/(\d+) on the sign",
-        R["s192_pos"], R["s192_seeds"])
+    # three registered sites between them -- the intro check above and the two survivor-forgetting
+    # checks -- so no seed count lost its last site.
+
+    # --- the three-way call (round 7's headline). FOUR phrasings, registered separately and on
+    # purpose: this paper's recurring failure has been a reworded restatement drifting away from a
+    # corrected count while one canonical site kept the check green. Coverage is per phrasing.
+    chk("the three-way call (abstract)",
+        r"the (\d+) cells split \\textbf\{(\d+) freezing-better, (\d+) adaptation-better, "
+        r"(\d+) inconclusive\}",
+        R["n_paired_tests"], R["n_freeze_dec"], R["n_adapt_dec"], R["n_inconclusive"])
+    chk("the three-way call (contributions)",
+        r"\((\d+) freezing-better, (\d+) adaptation-better, (\d+) inconclusive at a",
+        R["n_freeze_dec"], R["n_adapt_dec"], R["n_inconclusive"])
+    chk("the three-way call (S5.3)",
+        r"call \\textbf\{(\d+) cells freezing-better, (\d+) adaptation-better and "
+        r"(\d+) inconclusive\}",
+        R["n_freeze_dec"], R["n_adapt_dec"], R["n_inconclusive"])
+    chk("the three-way call (appendix)",
+        r"\\textbf\{(\d+) cells where freezing is decisively better, (\d+) where adapting is "
+        r"decisively better, and (\d+) inconclusive\}",
+        R["n_freeze_dec"], R["n_adapt_dec"], R["n_inconclusive"])
+    chk("the conclusion's freeze-decisive count", r"(\d+) of (\d+) favour freezing",
+        R["n_freeze_dec"], R["n_paired_tests"])
+    # The number of tests BH adjusts over, at both sites that name it. If a cell is added or dropped
+    # this is the number that must move first, and every q in the table moves with it.
+    chk("the BH test count", r"adjusted across the (\d+) cells", R["n_paired_tests"])
+    chk("the BH test count (appendix)", r"(?:Thirty-one|\d+) cells are tested,\s*so we adjust",
+        min_sites=1)
+
+    # --- where the decisive cells sit relative to the screen. This is the round's sharpest claim
+    # against our own instrument, so every number in it is pinned, including the two gate values --
+    # which is what the over-broad ILI pattern used to swallow.
+    chk("the two freeze-decisive cells",
+        r"Moirai-Small/ETTh1 at \$h\{=\}96\$ \(\$\\denc\{=\}\{\+\}([\d.]+)\$, "
+        r"\$q\{=\}([\d.]+)\$\) and \$h\{=\}192\$ \(\$\+([\d.]+)\$, "
+        r"\$q\{=\}([\d.]+)\$\)",
+        R["fd96_mean"], R["fd96_q"], R["fd192_mean"], R["fd192_q"])
+    chk("the two freeze-decisive cells' gate values",
+        r"\\Vb\{\\text\{ridge\}\}\$ of \$-([\d.]+)\$ and \$-([\d.]+)\$",
+        R["fd96_gate"], R["fd192_gate"])
+    chk("the two adapt-decisive cells that pass the screen",
+        r"Moirai-Base/ETTh2 \$h\{=\}192\$ \(\$-([\d.]+)\$, \$q\{=\}([\d.]+)\$\) and\s*"
+        r"Moirai-Large/ETTh2 \$h\{=\}96\$ \(\$-([\d.]+)\$, \$q\{=\}([\d.]+)\$\)",
+        R["ad192_mean"], R["ad192_q"], R["adL96_mean"], R["adL96_q"])
+    chk("the adapt-decisive passers' gate values",
+        r"decisively wins \\emph\{pass\} it, at \$\+([\d.]+)\$ and\s*\$\+([\d.]+)\$",
+        R["ad192_gate"], R["adL96_gate"])
+
+    # --- power. The MDE range is over the gate-passing cells only, and the two unresolvable cells are
+    # named at two sites (S5.3 and limitations item 3) because the concession is the point of reporting
+    # them at all: an unresolvable cell reported as "no effect" is the error this table exists to stop.
+    chk("the MDE range over the survivors",
+        r"minimum detectable\s*effects of \$([\d.]+)\$--\$([\d.]+)\$~pp",
+        R["mde_lo"], R["mde_hi"])
+    chk("the two unresolvable cells' adjusted seed requirement",
+        r"would need ([\d.]+) and\s*([\d.]+) paired seeds",
+        R["n_star_s96"], R["n_star_b192m"], min_sites=2)
 
     # --- the gate values quoted cell by cell
     g, vg = R["gate_of"], R["vgate_of"]
