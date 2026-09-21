@@ -14,6 +14,106 @@ condition form, $\text{B}{-}\text{D}$, because they compare conditions directly
 same quantity the body calls $\denc$; the two are interchangeable throughout.
 
 % ============================================================
+\section{What This Paper Claims, and What It Does Not}
+\label{app:claims}
+% ============================================================
+% Added 21 Sep 2026. The distinction between these three claims has been in the conclusion's last
+% paragraph since round five, and a reviewer still read the paper as asserting the broad version. That
+% is a fair reading of where we put it: a scope restriction stated once, in one sentence, at the end of
+% nine pages, after a title that invites the broad version, is a restriction most readers will not
+% reach. So it is a table now, in one place, with each claim's evidence and strength beside it -- and
+% the three readings we do NOT make are rows of the same table rather than a trailing disclaimer,
+% because they are the three a reader is most likely to supply unprompted.
+%
+% ON THE NUMBERS. Every figure in this table is written in the SAME words as a site the body already
+% carries, so the patterns in scripts/check_paper_numbers.py that pin the body pin this table too. That
+% is deliberate and it is the opposite of the usual instinct to reword for variety: a restatement in
+% fresh words is a site no check reaches, and this project has already had ten tables drift that way.
+
+Three claims of unequal strength are made in this paper, and they are not
+interchangeable.  \textbf{C1} is a null in \emph{prediction}, established out of
+sample under an analysis registered before it was run.  \textbf{C2} is a positive
+claim about what the screen does, at an operating point we chose rather than
+derived.  \textbf{C3} is methodological, and it is the only one of the three we
+would defend outside these benchmarks.
+
+\begin{table}[ht]
+\centering\small
+\caption{The paper's three claims with their evidence and their strength, and then
+the three readings we do \emph{not} claim.  The rows are ordered by how far each
+travels: C1 holds for the cells we evaluate, C2 for the screen at the threshold we
+state, C3 for any study that reads a post-treatment similarity statistic as
+evidence about a treatment's value.  The three N rows are not hedges---each is a
+proposition this paper's own evidence is insufficient to support, and two of them
+would be supported by results we report if the scope restriction were dropped.}
+\label{tab:claims}
+\begin{tabular}{@{}p{0.04\textwidth}p{0.26\textwidth}p{0.31\textwidth}p{0.29\textwidth}@{}}
+\toprule
+& Claim & Evidence & Strength and scope \\
+\midrule
+C1 & CKA magnitude does not identify whether encoder adaptation
+     contributed, in the cells we evaluate.
+   & within Moirai, the only arm with enough cells to ask, $\rho{=}{+}0.168$,
+     clustered CI $[-0.469,{+}0.717]$, and no cut on CKA separates the cells
+     encoder adaptation helped from the ones it hurt
+     (\S\ref{sec:exp3}).  Out of sample, with the ladder fixed in advance,
+     leave-one-cluster-out $R^2$ over the 15 clusters \emph{falls} when CKA is
+     added: it \emph{lowers} $R^2$ from $+0.201$ to $+0.176$
+     (Appendix~\ref{app:loco}).
+   & A null in \emph{prediction}, not evidence of no relationship.  The
+     in-sample slope is $+43$~pp per unit CKA with a cluster interval of
+     $[-31, +107]$, which admits a moderate positive relationship.  Scope: the 31
+     intervention cells; the within-backbone form is Moirai only. \\
+\addlinespace
+C2 & The screen locates cells where no advantage over a fitted baseline is
+     measurable under a definition we state.
+   & only 7 of 31 cells show a pre-trained advantage over a lookback-96 ridge
+     \emph{fit on the target data} (\S\ref{sec:forecasting}), and no cell beats
+     every admissible rung of the eight-baseline ladder
+     (Appendix~\ref{app:baselines}).
+   & Positive, but at a prespecified operating point of $0.20$ we chose and did
+     not derive, and $\Vb{b}$ is a property of the model--baseline pair rather
+     than of the checkpoint (\S\ref{sec:method}).  A cell the screen fails is one
+     where \emph{this} ladder finds no advantage. \\
+\addlinespace
+C3 & A post-treatment similarity statistic cannot be assumed to identify the
+     value of a treatment that changed the representation.
+   & Structural rather than statistical: the statistic is measured after the
+     treatment and on the object the treatment altered
+     (\S\ref{sec:method}).  Our results are consistent with it; they are not what
+     establishes it.
+   & The one claim we would defend outside these benchmarks.  It licenses no
+     threshold and predicts no effect size---it says a similarity statistic is
+     the wrong instrument for this question whatever its value. \\
+\midrule
+N1 & \emph{Not claimed:} that drift is generally unpredictive across time-series
+     foundation models.
+   & Three backbones cannot establish it, and pooled across backbones the same
+     correlation is in fact clearly positive---which we report rather than set
+     aside (\S\ref{sec:exp3}).
+   & Would require a backbone sample this paper does not have.  C1 is a
+     statement about our cells. \\
+\addlinespace
+N2 & \emph{Not claimed:} that fine-tuning does not harm time-series foundation
+     models.
+   & No cell met a degradation definition fixed in advance, under any protocol we
+     ran; that is a statement about these benchmarks and these protocols
+     (Appendix~\ref{app:defsensitivity}).
+   & A zero count at a stated definition, not a safety guarantee.  Loosening the
+     definition produces degradation cells, and we show which
+     (Appendix~\ref{app:defsensitivity}). \\
+\addlinespace
+N3 & \emph{Not claimed:} that mitigation methods are unnecessary.
+   & LoRA, L2-SP and EWC were run as a full spectrum on one cell only, and we
+     report what they did there (\S\ref{sec:exp2},
+     Appendices~\ref{app:full_tables},~\ref{app:loravaluecells}).
+   & One cell does not generalise in either direction.  Our claim is about the
+     \emph{diagnostic} that would trigger mitigation, not about mitigation. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
 \section{Extended Limitations and Future Work}
 \label{app:limitations}
 % (Summary in main body, \S\ref{sec:limitations}.)
@@ -189,13 +289,69 @@ LUFL, LULL, OT) recorded hourly from electrical transformers.
 We use the standard chronological split: 12 months training,
 4 months validation, 4 months test.
 
-\textbf{Training protocol.}
-For NLL training, we concatenate context (96 timesteps) and target
-(96 or 192 timesteps) as input to Moirai's \texttt{\_val\_loss}
-with fixed patch size 32.
-For evaluation, we use extended lookback sequences
-(context\_length $+$ prediction\_length timesteps) with
-\texttt{patch\_size='auto'} and take the median of 20 forecast samples.
+% Added 21 Sep 2026: a reviewer read this appendix's old phrase "extended lookback sequences
+% (context_length + prediction_length timesteps)" as describing target leakage, and said the point had
+% to be made unambiguous before acceptance. figA_window_layout.py extracts the two window builders from
+% scripts/finetune_forecasting.py by AST, feeds them arange(T) so the values they return ARE timestep
+% indices, and asserts target-start = input-end + 1 on both window sets before drawing. So the diagram
+% is derived from the code that produced the numbers rather than from the paragraph beside it.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figA_window_layout.pdf}
+\caption{\textbf{Which timesteps Moirai is given, and which it is asked to
+predict}, at $h{=}96$; $h{=}192$ is the same layout with $h$ substituted.  Both
+rows are the index arrays that \texttt{make\_train\_sequences} and
+\texttt{make\_eval\_sequences} return for window~$i$, drawn to one shared scale.
+At evaluation the model input is the $96{+}h$ steps \emph{preceding} the forecast
+window and the target is the $h$ steps strictly after it: the two are disjoint and
+consecutive, so no target value reaches the model.  The figure is generated from
+those functions' output and asserts that disjointness at draw time.}
+\label{fig:windowlayout}
+\end{figure}
+
+\textbf{Window construction, and exactly which values Moirai is given.}
+An earlier version of this appendix described the evaluation windows as
+``extended lookback sequences (context\_length $+$ prediction\_length
+timesteps)'', which reads as though the forecast target were part of the
+model input.  It is not, and because the training and evaluation window
+sets differ the arithmetic is worth writing out.  Let $x_1,\dots,x_T$ be
+the series and $h$ the horizon.  Both window sets are built by two
+functions in \texttt{scripts/finetune\_forecasting.py}, named here so that
+this paragraph and the code can be checked against each other.
+
+\emph{Training} (\texttt{make\_train\_sequences}): window $i$ has context
+$x_i,\dots,x_{i+95}$ and target $x_{i+96},\dots,x_{i+95+h}$.  The two are
+concatenated into one $96{+}h$ tensor and passed to Moirai's
+\texttt{\_val\_loss} with fixed patch size 32, which is the interface's
+required calling convention: \texttt{\_val\_loss} splits the tensor at
+\texttt{context\_length} and marks the latter part with
+\texttt{prediction\_mask}, and the module then substitutes its learned
+\texttt{mask\_encoding} at every masked position and zeroes the
+corresponding observed flags.  The target values are therefore scored by
+the likelihood and never conditioned on.
+
+\emph{Evaluation} (\texttt{make\_eval\_sequences}): window $i$ has input
+$x_i,\dots,x_{i+95+h}$ --- that is, $96{+}h$ steps of \emph{history} ---
+and target $x_{i+96+h},\dots,x_{i+95+2h}$.  The input's last index is
+$i+95+h$ and the target's first is $i+96+h$, so the two windows are
+disjoint and consecutive and no target value appears anywhere in the model
+input.  Only the input is passed, as \texttt{past\_target} with
+\texttt{past\_observed\_target} all ones; the point prediction is the
+median of 20 forecast samples with \texttt{patch\_size='auto'}.
+``Extended lookback'' thus means a longer \emph{history}, not
+history-plus-target.  Figure~\ref{fig:windowlayout} draws both layouts
+from the index arrays those two functions actually return rather than from
+this description, and asserts the disjointness at draw time, so the figure
+cannot drift from the implementation.
+
+The one asymmetry this does introduce is between models: Moirai is given
+$96{+}h$ steps of history where the fitted baseline of
+Appendix~\ref{app:gatecorrection} is given 96.  That direction favours the
+pre-trained model --- more context lowers $\text{MSE}_{\text{ZS}}$, raises
+$\Vb{b}$ and so admits \emph{more} cells --- and
+Appendix~\ref{app:baselines:matchedlb} measures it rather than arguing it, by
+giving the baseline the same $96{+}h$ history.
+
 All data is fed to Moirai in raw scale (Moirai's internal
 PackedStdScaler handles instance normalization); predictions and targets
 are then normalized using training-set mean and standard deviation
@@ -336,32 +492,6 @@ source (\texttt{results/gate\_val\_side.json}, via
 \end{table}
 
 
-% Moved here from S7 for page room. It belongs beside the threshold sweep in any case: the two tables
-% are the same eight cells, one per-cell and one swept over the operating point.
-\begin{table}[ht]
-\centering
-\caption{\textbf{The pre-registered prospective test.} Predictions frozen in
-git before any condition-B or -D run for these cells existed. ``Degradation''
-applies the paper's own definition unchanged: gate-passing $\wedge$
-forg$_\text{B}{>}0$ in every seed $\wedge$ forg$_\text{D}{<}0$ in every seed.
-gate$_\text{pre}$ is the frozen predictor's score, on the pre-correction
-denominator; gate$_\text{val}$ is the corrected selection-split gate of
-\S\ref{sec:forecasting}.}
-\label{tab:prospective}
-\input{tables/prospective}
-\end{table}
-
-\begin{table}[ht]
-\centering
-\caption{Gate threshold sensitivity on the eight pre-registered cells
-(\S\ref{sec:analysis:prospective}). The predictor and the outcome definition
-are both as pre-registered; only the threshold moves. Bold is the operating
-point used in the paper.}
-\label{tab:gate_sensitivity}
-\input{tables/gate_sensitivity}
-\end{table}
-
-
 \paragraph{The mitigation spectrum, cell by cell.}
 Table~\ref{tab:mitigation_spectrum} reports five strategies spanning
 unconstrained fine-tuning to full freezing, all on Moirai/ETTh2. The body
@@ -413,6 +543,86 @@ drift monotone in $n$, outcome not.}
 The joint trajectory is plotted in Fig.~\ref{fig:dissociation}; panels~(a)
 and~(d) carry the claim: a monotone drift curve beside a non-monotone
 outcome curve.
+
+% ============================================================
+\section{The Pre-Registered Prospective Test, in Full}
+\label{app:prospective2}
+% ============================================================
+% The complete record of the arm S7 now states in one paragraph. Moved here 21 Sep 2026 because four
+% body paragraphs on an arm with ZERO positive instances invited exactly the reading a reviewer took
+% from it -- that the arm refutes the gate. It does not. It measures the gate's false-positive
+% behaviour, and about the gate's sensitivity it is silent, because sensitivity has an empty positive
+% class in its denominator. The prose below is the body's own, moved rather than rewritten: this file
+% is scanned by scripts/check_paper_numbers.py, so every registered claim still reaches its sentence,
+% which a reworded restatement would not.
+
+\textbf{What was registered, and when.} Predictions were written to
+\texttt{results/v47\_prospective/preregistration.json} and committed to git at
+a named revision before any outcome run for those cells existed; the scoring
+script reads that file and the finished runs and decides nothing.
+Two rules were registered against each other: the \textbf{gate rule},
+gate$_\text{pre}\!\geq\!0.20 \Rightarrow$ at risk, which is the paper's own
+criterion frozen \emph{before} the baseline correction and therefore graded on
+trend-denominator scores rather than re-derived after seeing the outcomes; and a
+\textbf{dataset rule}, dataset ${\in}$ \{ETTh1, Weather\} $\Rightarrow$
+degradation, a \emph{post hoc} pattern read off the original Moirai cells and
+registered as a competitor so the gate is graded against something.
+Eight cells were then run (Weather, ETTm2, Electricity7, ETTh1
+$\times$ Small/Base/Large, 3 seeds each) and scored by the pre-registered
+outcome definition, unchanged (Table~\ref{tab:prospective}).
+
+\textbf{Result: the outcome the gate was registered to predict never occurs.}
+None of the eight cells degraded.  The gate flagged all eight, giving
+\textbf{TP~0, FP~8, FN~0}: precision $0.00$, while \textbf{sensitivity and
+specificity are both unestimable}---sensitivity has an empty positive class in its
+denominator, and specificity is $0/8$ only because every prediction was positive.
+The competing dataset rule scores no better, for the same reason.  \textbf{What
+``prospective'' does and does not mean here:} the predictions were frozen before
+these cells were \emph{trained}, so they are prospective with respect to the
+intervention---but the datasets and their splits already existed, so this is not a
+test on newly collected data.  Nor is the empty positive class an artefact of the
+corrected gate: only one of the eight clears $0.20$ on either corrected split
+(base/ETTm2 $h{=}192$, $+0.21$ on selection windows) and it fails clause~(ii) in 0
+of 3 seeds (Appendix~\ref{app:corrections}).  \textbf{Nor is the $0.20$ threshold
+what fails}: re-scoring the same predictor against the same outcome at thresholds
+from $0.10$ to $0.60$, moving nothing else, gives precision $0.00$ at every one,
+with 8, 8, 6, 5, 3 and 2 cells flagged (Table~\ref{tab:gate_sensitivity})---the
+problem is not the cutoff but that the predicted class is empty.
+
+\textbf{What a zero-prevalence test licenses.} With no positive instance the arm
+is informative in one direction only. It establishes that the gate's positive
+predictions are wrong here, at every threshold swept, and that the error is not an
+artefact of the operating point. It establishes \emph{nothing} about whether the
+gate would detect degradation if degradation existed: that is a claim about
+sensitivity, and $0/0$ is not a rate. A reader who takes this arm as a refutation
+of the gate is reading past the prevalence. The regime the arm cannot reach is
+one a positive control has to construct deliberately.
+% PENDING: when the positive control lands, this last sentence takes a
+% \ref{sec:exp4:poscontrol}. Written without the ref rather than with a forward one, because a
+% known-dangling \ref makes "0 undefined references" stop being a gate that means anything.
+
+\begin{table}[ht]
+\centering
+\caption{\textbf{The pre-registered prospective test.} Predictions frozen in
+git before any condition-B or -D run for these cells existed. ``Degradation''
+applies the paper's own definition unchanged: gate-passing $\wedge$
+forg$_\text{B}{>}0$ in every seed $\wedge$ forg$_\text{D}{<}0$ in every seed.
+gate$_\text{pre}$ is the frozen predictor's score, on the pre-correction
+denominator; gate$_\text{val}$ is the corrected selection-split gate of
+\S\ref{sec:forecasting}.}
+\label{tab:prospective}
+\input{tables/prospective}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Gate threshold sensitivity on the eight pre-registered cells
+(\S\ref{sec:analysis:prospective}). The predictor and the outcome definition
+are both as pre-registered; only the threshold moves. Bold is the operating
+point used in the paper.}
+\label{tab:gate_sensitivity}
+\input{tables/gate_sensitivity}
+\end{table}
 
 % ============================================================
 \section{The Strict-Freeze Control}
@@ -2048,6 +2258,75 @@ windows, and in both cases the quantity that moved was the baseline rather than 
 pre-trained model.  A gate-pass count is a statement about a baseline \emph{and} a
 window set, and this paper's counts should be read as such.  What survives all three
 is the negative claim, which is the one the paper's conclusions rest on.
+
+% Added 21 Sep 2026. A reviewer asked whether the gate's negative verdict is an artifact of the context
+% asymmetry -- Moirai gets 96+h steps of history, the baseline the last 96 -- and whether the extended
+% lookback leaks the target. The leakage question is settled by Figure \ref{fig:windowlayout}; this
+% subsection settles the asymmetry question by measurement instead of by argument.
+\subsection{Matching the lookback: is the verdict an artifact of the context asymmetry?}
+\label{app:baselines:matchedlb}
+
+Moirai is evaluated with $96{+}h$ steps of history (Figure~\ref{fig:windowlayout})
+while the baseline is given the last $96$, and \S\ref{sec:forecasting} argues that
+this favours the pre-trained model.  An argument is not a measurement, so here is
+the measurement: the same ridge map, the same windows, the same fitting region,
+the same normalisation and the same $\lambda$, given all $96{+}h$ available steps
+instead of the last $96$.  Only the integer passed to the fit changes, so the two
+columns of Tables~\ref{tab:matchedlbval} and~\ref{tab:matchedlb} differ in the
+baseline's information set and in nothing else; the numerator is the same stored
+$\text{MSE}_\text{ZS}$, and the \texttt{fitted} column reproduces the published
+denominator on all 21 Moirai cells of each split to a relative tolerance of
+$10^{-6}$ before anything is reported.
+
+\textbf{The effect is small and its sign depends on the split, because a matched
+map is not automatically a stronger one.}  On the selection windows---the split
+every admission decision is made on---the matched map is the stronger of the two
+on \textbf{12 of 21} cells, and the count clearing $0.20$ falls from
+\textbf{7 to 6}: \textbf{Moirai-Base/ETTm2 $h{=}192$} is the one cell that flips,
+from $+0.211$ to $+0.125$.  On the held-out windows the direction reverses.  There
+the matched map is stronger on only \textbf{7 of 21}, the count rises from
+\textbf{5 to 7}, and the two cells that flip do so \emph{into} the survivor set
+(Moirai-Small and Moirai-Base on ETTm2 at $h{=}192$).  The reason is visible in
+the two MSE columns: the matched map estimates $(96{+}h){\times}F$ inputs from the
+same training windows, which fits the training region better and generalises to
+the held-out region worse.  So giving the baseline the model's full history moves
+the count by one or two cells in whichever direction the extra parameters happen
+to pay off, and no reading in this paper turns on either move.
+
+\textbf{Why this is reported as its own axis rather than as a ninth rung, and what
+the separation does not hide.}  The ladder above varies the estimator
+\emph{family} at a fixed lookback, and its rungs feed the graded
+$\Vbest$ that \S\ref{sec:exp3} uses as a covariate; a rung that
+varies the \emph{information set} instead would move that minimum for reasons
+belonging to a different question.  The separation protects no count, and we
+checked rather than asserted that: folding the matched column into the graded
+minimum leaves the number of cells clearing $0.20$ against every admissible rung
+at \textbf{0 of 21 on both splits}, changes \textbf{no} cell's graded verdict, and
+makes the matched map the strongest admissible rival on \textbf{0} cells on the
+selection split and \textbf{3} on the held-out split.
+
+\begin{table}[ht]
+\centering
+\caption{\textbf{The gate with the baseline given Moirai's full $96{+}h$ history,
+on the \emph{selection} windows.}  The same fitted ridge in both columns; only how
+many of the available past steps it may use differs.  MSE ratio is
+$\text{MSE}_{96+h}/\text{MSE}_{96}$, so below $1$ means the extra history made the
+baseline stronger.  Bold clears $0.20$.  Generated by
+\texttt{scripts/matched\_lookback\_gate.py --split val}.}
+\label{tab:matchedlbval}
+\input{tables/matched_lookback_val}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{\textbf{The same comparison on the \emph{held-out} windows.}  The
+direction reverses: the matched map is stronger on 7 of 21 cells here against 12
+of 21 on the selection windows, because the larger design matrix generalises away
+from its fit region worse.  Generated by
+\texttt{scripts/matched\_lookback\_gate.py --split test}.}
+\label{tab:matchedlb}
+\input{tables/matched_lookback}
+\end{table}
 
 % ============================================================
 \section{Is the Zero a Property of the Runs or of the Definition?}

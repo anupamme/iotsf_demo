@@ -20,18 +20,33 @@ import score_prospective  # noqa: E402
 OUT = ROOT / "paper_8/tables/gate_sensitivity.tex"
 
 
-def main():
+GRID = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60]
+PRIMARY = 0.20
+
+
+def sweep():
+    """(scored cells, [(thr, flagged, tp, fp, fn, precision, recall)]) at every threshold in GRID.
+
+    Module-level since 21 Sep 2026 so scripts/check_paper_numbers.py can DERIVE the counts S7 states
+    -- TP 0, FP 8, FN 0, precision 0.00, and the six flagged counts -- rather than take the body's
+    word for them. They were hand-typed and matched by no pattern until then, which is the one failure
+    mode this repository has already had ten times.
+    """
     _pre, rows = score_prospective.load()
     scored = [r for r in rows if r.get("status") == "scored"]
-    grid = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60]
     out = []
-    for thr in grid:
+    for thr in GRID:
         tp = sum(1 for r in scored if r["gate_val"] >= thr and r["degraded"])
         fp = sum(1 for r in scored if r["gate_val"] >= thr and not r["degraded"])
         fn = sum(1 for r in scored if r["gate_val"] < thr and r["degraded"])
         prec = tp / (tp + fp) if tp + fp else float("nan")
         rec = tp / (tp + fn) if tp + fn else float("nan")
         out.append((thr, tp + fp, tp, fp, fn, prec, rec))
+    return scored, out
+
+
+def main():
+    scored, out = sweep()
 
     print(f"{'thr':>6}{'flagged':>9}{'TP':>4}{'FP':>4}{'FN':>4}{'prec':>8}{'recall':>8}")
     for thr, n, tp, fp, fn, prec, rec in out:
@@ -45,7 +60,7 @@ def main():
              r"\begin{tabular}{@{}ccccccc@{}}", r"\toprule",
              r"Threshold & Flagged & TP & FP & FN & Precision & Recall \\", r"\midrule"]
         for thr, n, tp, fp, fn, prec, rec in out:
-            bold = r"\textbf" if abs(thr - 0.20) < 1e-9 else ""
+            bold = r"\textbf" if abs(thr - PRIMARY) < 1e-9 else ""
             L.append(f"{bold}{{${thr:.2f}$}} & {n} & {tp} & {fp} & {fn} & "
                      f"${prec:.2f}$ & ${rec:.2f}$ \\\\")
         L += [r"\bottomrule", r"\end{tabular}", r"\end{center}"]

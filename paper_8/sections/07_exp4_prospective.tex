@@ -3,12 +3,17 @@
 \label{sec:exp4}
 % ============================================================
 
+% This finding was a bold run-in inside a section named after the prospective arm, so a reader
+% skimming headings could not see that it is here at all. It is now a heading of its own: the claim it
+% makes is the one result in the paper that changes what a practitioner should do tomorrow, and the
+% run-in it replaces said the same words. The label is unchanged -- eight cross-references resolve to
+% it. The prospective arm below needed its own heading in turn, or it would read as part of this one.
+\subsection{Held-Out Scoring Is a Precondition, Not a Refinement}
 \label{sec:analysis:heldout}
 % The mechanism paragraph that used to follow this one -- the decomposition into the frozen and adapted
 % arms and the exchangeability ratio -- now sits beside Table \ref{tab:heldout_decomp} in the appendix,
 % which is the table it describes and which had no prose of its own. The finding itself stays here, and
 % it is also one of the two lessons in the box at the end of S3.
-\textbf{Held-out scoring is a precondition, not a refinement.}
 Every number in this paper is scored on windows disjoint from the ones used
 for early stopping.  Scoring
 $\denc$ on the selection windows instead \textbf{reverses its
@@ -21,50 +26,31 @@ cells nobody would have looked at, and the reversals are driven by the frozen ar
 which a distribution shift between the splits penalises more heavily than the
 adapted arm because it cannot adapt to one.
 
+\subsection{A Pre-Registered Prospective Test at Zero Prevalence}
 \label{sec:analysis:prospective}
-\textbf{A pre-registered prospective test with no positive instance.}
+% Four paragraphs until 21 Sep 2026, and their length was itself making a claim the arm cannot
+% support: a reviewer read the space they occupied as a refutation of the gate. The full record --
+% both registered rules, the eight cells, the threshold sweep and the corrected-gate check -- moved
+% verbatim to Appendix \ref{app:prospective2}, which is scanned by scripts/check_paper_numbers.py, so
+% every registered number still has its sentence. What is left here is the arm's one result and the
+% bound its prevalence puts on it.
 Everything above is retrospective: the cells were run, then read, and a
 diagnostic that only explains cells it has seen is worth little, so we tested
-ours forward.  \textbf{Predictions were written to
-\texttt{results/v47\_prospective/preregistration.json} and committed to git at
-a named revision before any outcome run for those cells existed}; the scoring
-script reads that file and the finished runs and decides nothing.
-% The two registered rules were an itemize; folded into one sentence for page room, with nothing
-% dropped -- both rules, the pre-correction denominator and the reason for registering a competitor
-% are all still stated. The itemize cost four printed lines of its own.
-Two rules were registered against each other: the \textbf{gate rule},
-gate$_\text{pre}\!\geq\!0.20 \Rightarrow$ at risk, which is the paper's own
-criterion frozen \emph{before} the baseline correction and therefore graded on
-trend-denominator scores rather than re-derived after seeing the outcomes; and a
-\textbf{dataset rule}, dataset ${\in}$ \{ETTh1, Weather\} $\Rightarrow$
-degradation, a \emph{post hoc} pattern read off the original Moirai cells and
-registered as a competitor so the gate is graded against something.
-Eight cells were then run (Weather, ETTm2, Electricity7, ETTh1
-$\times$ Small/Base/Large, 3 seeds each) and scored by the pre-registered
-outcome definition, unchanged (Appendix Table~\ref{tab:prospective}).
-% The eight-row per-cell table moved to the appendix, beside the threshold sweep over the same eight
-% cells, which is the table it is read against. It was 14 printed lines of a 9-page body and every
-% claim the body makes from it -- TP 0, FP 8, the one cell that clears a corrected gate, the seed
-% counts -- is stated in the two paragraphs below and registered in check_paper_numbers.py.
-
-\textbf{Result: the outcome the gate was registered to predict never occurs.}
-None of the eight cells degraded.  The gate flagged all eight, giving
-\textbf{TP~0, FP~8, FN~0}: precision $0.00$, while \textbf{sensitivity and
-specificity are both unestimable}---sensitivity has an empty positive class in its
-denominator, and specificity is $0/8$ only because every prediction was positive.
-The competing dataset rule scores no better, for the same reason.  \textbf{What
-``prospective'' does and does not mean here:} the predictions were frozen before
-these cells were \emph{trained}, so they are prospective with respect to the
-intervention---but the datasets and their splits already existed, so this is not a
-test on newly collected data.  Nor is the empty positive class an artefact of the
-corrected gate: only one of the eight clears $0.20$ on either corrected split
-(base/ETTm2 $h{=}192$, $+0.21$ on selection windows) and it fails clause~(ii) in 0
-of 3 seeds (Appendix~\ref{app:corrections}).  \textbf{Nor is the $0.20$ threshold
-what fails}: re-scoring the same predictor against the same outcome at thresholds
-from $0.10$ to $0.60$, moving nothing else, gives precision $0.00$ at every one,
-with 8, 8, 6, 5, 3 and 2 cells flagged (Appendix
-Table~\ref{tab:gate_sensitivity})---the problem is not the cutoff but that the
-predicted class is empty.
+ours forward.  Predictions for eight unrun cells were committed to git before any
+outcome run for them existed, and the scoring script reads that file and the
+finished runs and decides nothing (Appendix~\ref{app:prospective2}).
+\textbf{The outcome the gate was registered to predict never occurs.}  None of
+the eight cells degraded; the gate flagged all eight, giving \textbf{TP~0, FP~8,
+FN~0}: precision $0.00$, while \textbf{sensitivity and specificity are both
+unestimable}.  \textbf{That makes this a test at zero prevalence, and the
+prevalence bounds what it can say}: it establishes that the gate's positive
+predictions are wrong here, and that this is not an artefact of the $0.20$
+operating point---re-scoring the same predictor against the same outcome at
+every threshold we swept, moving nothing else, gives precision $0.00$ at all of
+them---and it establishes nothing about the gate's \emph{sensitivity}, which an
+empty positive class cannot estimate.  It is not a demonstration that the gate
+cannot work; it is a demonstration that these benchmarks supply nothing for it
+to work on.
 
 \textbf{The gate does not provide a reliable ordering, and there is no actionable
 threshold.}

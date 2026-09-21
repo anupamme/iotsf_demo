@@ -460,6 +460,29 @@ def rederive():
     R["pro_clearing_forg_pos"] = pro_rows[clearing[0]]["forg_b_pos"]
     R["pro_clearing_seeds"] = pro_rows[clearing[0]]["seeds"]
 
+    # -- the confusion counts and the threshold sweep. S7 has stated TP 0, FP 8, FN 0, precision 0.00
+    # and the six flagged counts as hand-typed literals since the arm was added, matched by no pattern
+    # here. Derived now from the emitter's own sweep, which is the same function that writes
+    # tables/gate_sensitivity.tex, so the table and the prose cannot disagree.
+    import gate_threshold_sensitivity as gts
+    with contextlib.redirect_stdout(io.StringIO()):
+        _pro_scored, _sweep = gts.sweep()
+    _primary = [r for r in _sweep if abs(r[0] - gts.PRIMARY) < 1e-9]
+    assert len(_primary) == 1, f"the primary threshold {gts.PRIMARY} is not on the sweep grid"
+    _thr, R["pro_flagged"], R["pro_tp"], R["pro_fp"], R["pro_fn"], R["pro_prec"], _rec = _primary[0]
+    R["pro_flagged_by_threshold"] = [r[1] for r in _sweep]
+    R["pro_n_thresholds"] = len(_sweep)
+    R["pro_threshold_grid"] = [f"{g:.2f}" for g in gts.GRID]
+    # "gives precision 0.00 at every one" is a claim about all six rungs, not just the printed one, and
+    # it cannot be captured as a group. Asserted instead, which is this file's convention for a claim
+    # a pattern cannot hold.
+    assert all(r[5] == 0.0 or r[5] != r[5] for r in _sweep), (
+        "S7 says precision is 0.00 at every threshold from 0.10 to 0.60; the sweep now gives "
+        + ", ".join(f"{r[0]:.2f}:{r[5]:.2f}" for r in _sweep))
+    assert R["pro_tp"] == 0 and R["pro_fn"] == 0, (
+        "S7's zero-prevalence reading assumes an empty positive class; the sweep now gives "
+        f'TP {R["pro_tp"]}, FN {R["pro_fn"]}')
+
     # -- how many rungs admit a degradation cell, and how many cells each admitting rung admits. The
     # body sentence that reports this was hand-counted wrong once ("five of the eight" when six of the
     # eight admit none), which is exactly the arithmetic a derived check exists to stop.
@@ -491,6 +514,42 @@ def rederive():
     R["surv_strongest_hi_test"] = abs(min(lad_test["surv_lo"], lad_test["surv_hi"]))
     R["surv_strongest_lo_test"] = abs(max(lad_test["surv_lo"], lad_test["surv_hi"]))
     R["below_floor_val"] = lad_val["below_floor"]
+
+    # -- the matched-lookback column (Appendix app:baselines:matchedlb, added 21 Sep 2026). Read from
+    # the emitter's own summary block rather than recounted here: the emitter is the one place that
+    # decides what "stronger" and "flips" mean, and a second implementation of the comparison is how
+    # the body and the table would come to disagree about the same 21 cells. The two splits are kept
+    # apart under explicit _val/_test suffixes because the effect REVERSES between them -- a single
+    # unsuffixed record would let the prose quote whichever direction reads better.
+    for tag, fname in (("val", "results/matched_lookback_val.json"),
+                       ("test", "results/matched_lookback.json")):
+        d = json.load(open(ROOT / fname))
+        assert d["selfcheck_passed"], (
+            f"{fname} records a failed self-check: its `fitted` column does not reproduce the "
+            f"published denominator, so neither column may be quoted")
+        s = d["summary"]
+        R[f"mlb_n_{tag}"] = s["n_scored"]
+        R[f"mlb_pass_nominal_{tag}"] = s["n_pass_nominal"]
+        R[f"mlb_pass_matched_{tag}"] = s["n_pass_matched"]
+        R[f"mlb_stronger_{tag}"] = s["n_matched_stronger"]
+        R[f"mlb_rung_clearing_after_{tag}"] = d["as_ladder_rung"]["n_clearing_after"]
+        R[f"mlb_rung_strongest_{tag}"] = d["as_ladder_rung"]["n_matched_strongest"]
+        if tag == "val":
+            # The one cell that flips on the split the body's count comes from, and both its values.
+            # Named from the record, so a different cell flipping fails here rather than in review.
+            flips = s["flips_to_fail"]
+            assert flips == ["base_ETTm2_h192"], (
+                f"the selection-split matched-lookback flip is now {flips}; the appendix names "
+                f"Moirai-Base/ETTm2 h=192 explicitly")
+            R["mlb_flip_before"] = d["per_cell"][flips[0]]["r2_nominal"]
+            R["mlb_flip_after"] = d["per_cell"][flips[0]]["r2_matched"]
+    # The appendix says the folded-in count is "0 of 21 on BOTH splits", and the registered check can
+    # only pin one of them. Asserted here so the word "both" is covered rather than assumed.
+    assert R["mlb_rung_clearing_after_val"] == R["mlb_rung_clearing_after_test"], (
+        f"the folded-in ladder count differs between splits "
+        f"({R['mlb_rung_clearing_after_val']} vs {R['mlb_rung_clearing_after_test']}); the appendix "
+        f"states one number for both")
+    assert R["mlb_n_val"] == R["mlb_n_test"], "the two splits no longer score the same 21 cells"
 
     # -- the third window set. Derived through emit_traintail_ladder.analyse() rather than re-counted
     # here, so the body, the table and this check cannot disagree: the emitter is the one place that
@@ -722,7 +781,7 @@ def build_checks(R):
     # (selection split)" and "union count (retrospective)" below, each anchored on wording only its
     # own split uses.
     chk("intervention-cell count", r"(?:all |the )(\d+) intervention cells",
-        R["n_int"], min_sites=2)
+        R["n_int"], min_sites=3)
     chk("intervention-cell count (paired run)", r"(\d+) cells that carry a paired", R["n_int"])
     chk("intervention-cell count (every denominator)",
         r"every\s+denominator below is (\d+)", R["n_int"])
@@ -733,7 +792,7 @@ def build_checks(R):
     # one cell of difference -- TimesFM/Electricity, no paired run and so no selection reference --
     # is why these two numbers must not share a record.
     chk("gate-passing count", r"only (\d+) of (\d+) cells show a pre-trained advantage",
-        R["n_gate_pass"], R["n_val_scored"])
+        R["n_gate_pass"], R["n_val_scored"], min_sites=2)
     # The conclusion used to open by re-enumerating the screen ("7 of 31 cells beat a lookback-96
     # regression fit ... all seven on one backbone and two datasets"). Cut for page room: it was the
     # fourth restatement of a count the abstract, the intro lead and S4 all pin above, and the
@@ -830,6 +889,14 @@ def build_checks(R):
     chk("reversals overlapping the survivors",
         r"(\w+) of the four are among the (\w+) gate-passing cells",
         R["n_rev_gate_pass"], R["n_gate_pass"])
+    # The abstract acquired this overlap on 21 Sep 2026, because it is what makes the held-out
+    # correction practical rather than pedantic: the reversals hit cells a reader would have acted on.
+    # It says "cells that pass the screen" and not "gate-passing cells" -- the abstract does not use
+    # the word gate -- so it is a site the check above cannot reach and needs its own pattern. This is
+    # the exact shape of failure this file has had before: a restatement in fresh words that no
+    # pattern matched, left to drift.
+    chk("reversals overlapping the survivors (abstract)",
+        r"and (\w+) of the four are cells that pass the screen", R["n_rev_gate_pass"])
     # S5.1 carried the survivor count as a SPELLED-OUT word in six places (title, lead, both
     # sub-headings, the "among the five" comparison, the sweep aside) and every one of them was still
     # the test-side five after the selection-split flip, because no pattern reached a bare word. These
@@ -1025,15 +1092,17 @@ def build_checks(R):
     # its scope with a clause first ("within Moirai, the only backbone...", "within Moirai at either
     # level"), so requiring anything other than an immediate "($" separates them without loosening
     # what the check is for -- a bare "$\rho{=}{+}0.168$" with no named scope still matches nothing.
+    # 5, not 4, since 21 Sep 2026: the claims table (app:claims) states C1's evidence in the body's
+    # own words on purpose, so this pattern now pins that row too.
     chk("within-Moirai CKA rho",
         r"within(?:-backbone|\s+Moirai(?! \(\$))[^$]{0,70}\$\\rho\{=\}\{\+\}([\d.]+)",
-        R["cka_rho"], min_sites=4)
+        R["cka_rho"], min_sites=5)
     # A "label after symbol" variant ("$\rho{=}{+}0.168$ within backbone") existed only in the
     # conclusion, whose copy of this statistic was removed on 20 Sep 2026; the conclusion now points
     # at S6. The check is retired rather than loosened -- the value is still pinned at six prose sites
     # by the three checks around this comment, so retiring it costs no coverage.
-    chk("within-Moirai CKA rho (body)",
-        r"cells to ask, \$?\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"])
+    chk("within-Moirai CKA rho (body and the claims table)",
+        r"cells to ask, \$?\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"], min_sites=2)
     # The preceding {+}rho is required and non-capturing: since the flip, the gate's own clustered
     # CI is printed in the same shape a few words away in Figure 1's caption, and without this the
     # gate's interval would be checked against CKA's numbers.
@@ -1045,7 +1114,7 @@ def build_checks(R):
         # 4, not 5: the conclusion's copy of this CI was removed on 20 Sep 2026 to pay for the
         # selection-split prose, and it now points at S6 where the interval is stated with the
         # clustering rationale. Lowering the floor to match a deliberate deletion, not to a failure.
-        R["cka_lo"], R["cka_hi"], min_sites=4)
+        R["cka_lo"], R["cka_hi"], min_sites=5)
     # Figure 1's caption was rewritten with the panel (b) axis flip: it now names CKA first and the
     # gate second, in that order, because CKA is the axis. Both rhos are still printed, and both are
     # still checked -- this one and "gate rho, primary, clustered CI in the figure caption" below.
@@ -1176,6 +1245,35 @@ def build_checks(R):
         r"clause~\(ii\) in (\d+) of (\d+) seeds",
         R["n_pro_clearing_corrected"], R["n_pro"], R["pro_clearing_gate"],
         R["pro_clearing_forg_pos"], R["pro_clearing_seeds"])
+    # The confusion counts, in one pattern with the precision beside them: the failure being guarded is
+    # one of the four moving alone, which is exactly what "TP 0, FP 8" invites when the cell count
+    # changes and nobody re-derives the precision.
+    chk("prospective confusion counts and precision",
+        r"\\textbf\{TP~(\d+), FP~(\d+), FN~(\d+)\}: precision \$([\d.]+)\$",
+        R["pro_tp"], R["pro_fp"], R["pro_fn"], R["pro_prec"])
+    # Three further phrasings of the same two facts, in S1's lead and in the corrections appendix.
+    # Registered separately because coverage here is per PHRASING, not per fact: the intro's "TP~0,
+    # FP~8" and the appendix's "TP~0, FP~8, precision~0.00" are different strings, and the pattern
+    # above reaches neither. The appendix's parenthetical "(precision 0.25, TP 2, FP 6, recall 1.00)"
+    # is the SUPERSEDED reading and is deliberately not matched by any of these -- it is a historical
+    # statement about a number that was wrong, and registering it would force it to track the
+    # correction it exists to record.
+    chk("prospective confusion counts (S1 lead)",
+        r"TP~(\d+), FP~(\d+) on eight cells", R["pro_tp"], R["pro_fp"])
+    chk("prospective confusion counts and precision (corrections appendix)",
+        r"\\textbf\{TP~(\d+), FP~(\d+), precision~([\d.]+)\}",
+        R["pro_tp"], R["pro_fp"], R["pro_prec"])
+    chk("prospective threshold sweep, flagged counts (slash form)",
+        r"\$" + r"/".join([r"(\d+)"] * 6) + r"\$ cells flagged",
+        *R["pro_flagged_by_threshold"])
+    # The grid itself, so adding or removing a rung in the emitter cannot leave the appendix listing
+    # the old set beside counts derived from the new one.
+    chk("threshold sweep grid",
+        r"every\} threshold in \$\\\{" + r", ".join([r"([\d.]+)"] * 6) + r"\\\}\$",
+        *R["pro_threshold_grid"])
+    chk("prospective threshold sweep, flagged counts",
+        r"with " + r", ".join([r"(\d+)"] * 5) + r" and (\d+) cells flagged",
+        *R["pro_flagged_by_threshold"])
     chk("rungs admitting a degradation cell",
         r"(\w+) of the ladder's eight rungs admit none, persistence admits (\w+) and GBM (\w+)",
         R["n_rungs_no_degradation"], R["n_degradation_persistence"], R["n_degradation_gbm"])
@@ -1200,6 +1298,42 @@ def build_checks(R):
         r"no cell of the (\d+) clears \$0\.20\$ against every admissible rung\}, and (\d+) "
         r"clear it against at least one",
         R["n_screened"], R["n_union_test"])
+
+    # --- the matched-lookback column. Both splits are registered, and the check on each names its
+    # own split in the pattern, because the effect reverses: 7 -> 6 on the selection windows and
+    # 5 -> 7 on the held-out ones. A pattern that spanned both would agree with either direction.
+    chk("matched-lookback self-check denominator",
+        r"on all (\d+) Moirai cells of each split", R["mlb_n_val"])
+    chk("matched-lookback stronger count (body)",
+        r"stronger denominator on \\textbf\{(\d+) of (\d+)\} cells",
+        R["mlb_stronger_val"], R["mlb_n_val"])
+    chk("matched-lookback survivor count (body)",
+        r"takes that (\w+) to \\textbf\{(\w+)\}",
+        R["mlb_pass_nominal_val"], R["mlb_pass_matched_val"])
+    chk("matched-lookback stronger count (appendix, selection)",
+        r"stronger of the two on \\textbf\{(\d+) of (\d+)\}",
+        R["mlb_stronger_val"], R["mlb_n_val"])
+    chk("matched-lookback survivor count (appendix, selection)",
+        r"clearing \$0\.20\$ falls from \\textbf\{(\d+) to (\d+)\}",
+        R["mlb_pass_nominal_val"], R["mlb_pass_matched_val"])
+    chk("matched-lookback flipped cell's two values",
+        r"one cell that flips, from \$\+([\d.]+)\$ to \$\+([\d.]+)\$",
+        R["mlb_flip_before"], R["mlb_flip_after"])
+    chk("matched-lookback stronger count (appendix, held-out)",
+        r"matched map is stronger on only \\textbf\{(\d+) of (\d+)\}",
+        R["mlb_stronger_test"], R["mlb_n_test"])
+    chk("matched-lookback survivor count (appendix, held-out)",
+        r"the count rises from \\textbf\{(\d+) to (\d+)\}",
+        R["mlb_pass_nominal_test"], R["mlb_pass_matched_test"])
+    # The disclosure. Registered so that "the separation protects no count" cannot survive the day the
+    # numbers stop supporting it -- which is the whole reason the column is reported on its own axis.
+    chk("matched-lookback as a ladder rung (both splits)",
+        r"every admissible rung at \\textbf\{(\d+) of (\d+) on both splits\}",
+        R["mlb_rung_clearing_after_val"], R["mlb_n_val"])
+    chk("matched-lookback strongest-rival counts",
+        r"strongest admissible rival on \\textbf\{(\d+)\} cells on the selection split and "
+        r"\\textbf\{(\d+)\} on the held-out split",
+        R["mlb_rung_strongest_val"], R["mlb_rung_strongest_test"])
 
     # --- the unfitted-baseline correction
     # The abstract stopped saying "correcting the estimator MOVES n of m" when its provenance clause was
@@ -1368,11 +1502,12 @@ def build_checks(R):
     chk("LOCO b1 and its cluster interval",
         r"\$([+-]\d+)\$~pp per unit CKA with a cluster(?:-bootstrap)? interval of "
         r"\$\[([+-]\d+), ([+-]\d+)\]\$",
-        R["loco_b1"], R["loco_b1_lo"], R["loco_b1_hi"], min_sites=2)
-    chk("LOCO fold count (S6)", r"leave-one-cluster-out \$R\^2\$ over the (\d+) clusters",
-        R["loco_folds"])
-    chk("LOCO in the abstract", r"it \\emph\{lowers\} \$R\^2\$ from \$([+-][\d.]+)\$ to \$([+-][\d.]+)\$",
-        R["loco_r2_m2"], R["loco_r2_m3"])
+        R["loco_b1"], R["loco_b1_lo"], R["loco_b1_hi"], min_sites=3)
+    chk("LOCO fold count (S6 and the claims table)",
+        r"leave-one-cluster-out \$R\^2\$ over the (\d+) clusters", R["loco_folds"], min_sites=2)
+    chk("LOCO two-rung form (abstract and the claims table)",
+        r"it \\emph\{lowers\} \$R\^2\$ from \$([+-][\d.]+)\$ to \$([+-][\d.]+)\$",
+        R["loco_r2_m2"], R["loco_r2_m3"], min_sites=2)
     chk("LOCO fold count (abstract)", r"across\s+(\d+) leave-one-cluster-out folds", R["loco_folds"])
     chk("LOCO ladder (appendix restatement)",
         r"buys\s+\$R\^2_\\text\{LOCO\}\{=\}\{\+\}([\d.]+)\$; adding horizon and \$\\log n\$ takes it to "
