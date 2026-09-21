@@ -82,6 +82,37 @@ DIR_NOTES = {
 }
 
 
+def rel_to_root(p) -> str:
+    """A path as recorded in the trace: repo-relative if it is inside the repo, absolute otherwise.
+
+    Not cosmetic. results/manifest_trace.json is committed and SHIPS IN THE SUPPLEMENTARY BUNDLE, and
+    the sweep's interpreter is $PY = <repo>/.venv12/bin/python -- whose absolute form contains the home
+    directory, i.e. the author's name. The first version stored str(PY) and the bundle's anonymity gate
+    (check_anonymity.py --tree, allowlist disabled) refused to write the zip, naming 21 occurrences.
+    That is the gate working, but a de-identification that depends on a gate catching it is one release
+    away from being an author-identifying artifact, so the identifier is not written in the first place.
+    /opt/homebrew/bin/python3 is outside the repo and identifies nobody, so it is left absolute.
+    """
+    # NOT p.resolve() first. .venv12/bin/python is a SYMLINK to an interpreter outside the repository,
+    # so resolving it lands in /opt/homebrew, relative_to(ROOT) raises, and the fallback returns the
+    # absolute path -- which is how the first version of this function left every one of the 21
+    # identifiers in place while looking like it had removed them. The question here is where the path
+    # POINTS FROM, not where it ends up.
+    p = Path(p)
+    for cand in (p, Path(os.path.abspath(p))):
+        try:
+            return str(cand.relative_to(ROOT))
+        except ValueError:
+            continue
+    return str(p)
+
+
+def abs_interp(interp: str) -> Path:
+    """The inverse of rel_to_root, for actually invoking the thing."""
+    p = Path(interp)
+    return p if p.is_absolute() else ROOT / p
+
+
 def sweep_invocations():
     """Every TIER A `run <label> <argv...>` line in rederive_all.sh, with $PY/$PYFIG resolved.
 
@@ -142,9 +173,9 @@ def sweep_invocations():
             continue
         interp = argv[0]
         if interp in ("$PY", "${PY}"):
-            interp = str(PY)
+            interp = rel_to_root(PY)
         elif interp in ("$PYFIG", "${PYFIG}"):
-            interp = str(PYFIG)
+            interp = rel_to_root(PYFIG)
         script = argv[1] if len(argv) > 1 else None
         if not script or not script.endswith(".py"):
             continue
@@ -158,7 +189,7 @@ def sweep_invocations():
                      "were renamed, or their run lines moved; re-read the guard before trusting this.")
     # check_paper_numbers.py is invoked by the sweep outside a `run` line (captured, not run), and it
     # reads more records than any single emitter. Omitting it would mislabel directories as orphans.
-    out.append(dict(label="check_paper_numbers", interp=str(PY),
+    out.append(dict(label="check_paper_numbers", interp=rel_to_root(PY),
                     script="scripts/check_paper_numbers.py", args=[]))
     return out, skipped
 
@@ -211,13 +242,14 @@ def trace_all(invocations):
     traces = []
     with tempfile.TemporaryDirectory() as td:
         for i, inv in enumerate(invocations):
-            if not Path(inv["interp"]).exists():
+            interp = abs_interp(inv["interp"])
+            if not interp.exists():
                 traces.append(dict(inv, status="interpreter missing", opened=[]))
                 print(f"  {inv['label']:34s} SKIPPED (no {inv['interp']})")
                 continue
             tf = Path(td) / f"t{i}.json"
             proc = subprocess.run(
-                [inv["interp"], str(TRACER), str(tf), inv["script"], *inv["args"]],
+                [str(interp), str(TRACER), str(tf), inv["script"], *inv["args"]],
                 cwd=ROOT, env=env, capture_output=True, text=True)
             if not tf.exists():
                 traces.append(dict(inv, status=f"tracer produced nothing (rc={proc.returncode})",
@@ -259,7 +291,18 @@ def main():
         print(f"  not traced ({len(untraced)}): the optional-tier lines {untraced} -- they need the "
               "gitignored benchmark CSVs, and their results/ opens are covered by the --from-json path")
         traces = trace_all(invocations)
-        TRACE.write_text(json.dumps(dict(traces=traces, untraced_optional_tier=untraced), indent=2))
+        blob = json.dumps(dict(traces=traces, untraced_optional_tier=untraced), indent=2)
+        # This file is committed and ships in the supplementary bundle, so it is checked for the one
+        # identifier it is structurally prone to carrying -- the home-directory name, which arrives
+        # inside any absolute path above the repo. Checked here rather than left to the bundle's
+        # anonymity gate: that gate runs once, at release, and a de-identification that only holds
+        # because someone ran the last step is not one.
+        home = Path.home().name
+        assert home not in blob and str(ROOT) not in blob, (
+            f"the trace records an absolute path above the repository ({home!r}); every path in it must "
+            "be repo-relative (see rel_to_root) or this file carries the author's home directory into "
+            "the supplementary bundle")
+        TRACE.write_text(blob)
         print(f"wrote {TRACE.relative_to(ROOT)}")
 
     failed = [t["label"] for t in traces if t["status"] != "ok"]

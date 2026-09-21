@@ -107,7 +107,7 @@ These are what a clean clone re-derives every table and figure from.
 |---|---|---|---|---|
 | `results/forecasting_finetune` | CANONICAL | 3 | yes | -- |
 | `results/forecasting_finetune_20ep` | CANONICAL | 61 | yes | `emit_mitigation_spectrum.py:read` |
-| `results/positive_control` | CANONICAL | 10 | yes | `emit_positive_control.py:main`, `emit_positive_control.py:read_cell` |
+| `results/positive_control` | CANONICAL | 13 | yes | `emit_positive_control.py:main`, `emit_positive_control.py:read_cell` |
 | `results/test_b` | CANONICAL | 1 | yes | -- |
 | `results/v10_electricity_gate` | CANONICAL | 1 | yes | -- |
 | `results/v10_electricity_sweep` | CANONICAL | 1 | yes | -- |

@@ -2,7 +2,7 @@
   "traces": [
     {
       "label": "heldout_all + strictfreeze",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/cell_matrix.py",
       "args": [
         "--latex"
@@ -208,6 +208,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -1630,6 +1633,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -4479,7 +4491,7 @@
     },
     {
       "label": "r2task",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_r2task.py",
       "args": [],
       "status": "ok",
@@ -4499,7 +4511,7 @@
     },
     {
       "label": "degradation_sensitivity",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/degradation_sensitivity.py",
       "args": [
         "--latex"
@@ -4705,6 +4717,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -6127,6 +6142,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -8976,7 +9000,7 @@
     },
     {
       "label": "clustered_* (4 tables)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/clustered_inference.py",
       "args": [
         "--latex"
@@ -9182,6 +9206,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -10605,6 +10632,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -13454,7 +13490,7 @@
     },
     {
       "label": "paired_inference",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/paired_inference.py",
       "args": [],
       "status": "ok",
@@ -13658,6 +13694,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -15082,6 +15121,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -17931,7 +17979,7 @@
     },
     {
       "label": "heldout_decomposition",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/heldout_decomposition.py",
       "args": [],
       "status": "ok",
@@ -18135,6 +18183,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -19557,6 +19608,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -22552,7 +22612,7 @@
     },
     {
       "label": "crossbackbone",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_crossbackbone.py",
       "args": [],
       "status": "ok",
@@ -22756,6 +22816,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -24178,6 +24241,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -27027,7 +27099,7 @@
     },
     {
       "label": "mitigation_spectrum",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_mitigation_spectrum.py",
       "args": [],
       "status": "ok",
@@ -27231,6 +27303,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -28712,6 +28787,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -31312,7 +31396,7 @@
     },
     {
       "label": "gate_sensitivity",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/gate_threshold_sensitivity.py",
       "args": [
         "--latex"
@@ -31518,6 +31602,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -32942,6 +33029,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -35792,7 +35888,7 @@
     },
     {
       "label": "prospective",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/score_prospective.py",
       "args": [
         "--latex"
@@ -35998,6 +36094,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -37422,6 +37521,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -40272,7 +40380,7 @@
     },
     {
       "label": "drift_metrics (--report)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/drift_metric_battery.py",
       "args": [
         "--report"
@@ -40290,7 +40398,7 @@
     },
     {
       "label": "gate_baseline_family",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/gate_baseline_sensitivity.py",
       "args": [
         "--from-json",
@@ -40497,6 +40605,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -41920,6 +42031,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -44769,7 +44889,7 @@
     },
     {
       "label": "gate_baseline_family (val)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/gate_baseline_sensitivity.py",
       "args": [
         "--split",
@@ -44978,6 +45098,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -46401,6 +46524,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -49250,7 +49382,7 @@
     },
     {
       "label": "matched_lookback (val)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/matched_lookback_gate.py",
       "args": [
         "--split",
@@ -49275,7 +49407,7 @@
     },
     {
       "label": "matched_lookback (test)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/matched_lookback_gate.py",
       "args": [
         "--split",
@@ -49300,7 +49432,7 @@
     },
     {
       "label": "gate_splitcompare (3 splits)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_traintail_ladder.py",
       "args": [
         "--latex"
@@ -49326,7 +49458,7 @@
     },
     {
       "label": "value_axis (+ interaction)",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/value_axis.py",
       "args": [
         "--json",
@@ -49533,6 +49665,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -50956,6 +51091,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -53806,7 +53950,7 @@
     },
     {
       "label": "cka_loco",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/cka_fixed_effects.py",
       "args": [
         "--loco",
@@ -54014,6 +54158,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -55437,6 +55584,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -58286,7 +58442,7 @@
     },
     {
       "label": "sample_sweep",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_sample_sweep.py",
       "args": [],
       "status": "ok",
@@ -58402,7 +58558,7 @@
     },
     {
       "label": "positive_control",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/emit_positive_control.py",
       "args": [],
       "status": "ok",
@@ -58418,6 +58574,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json"
       ],
       "sites": {
@@ -58449,6 +58608,15 @@
           "emit_positive_control.py:read_cell"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "emit_positive_control.py:read_cell"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "emit_positive_control.py:read_cell"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "emit_positive_control.py:read_cell"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "emit_positive_control.py:read_cell"
         ],
         "results/positive_control/preregistration.json": [
@@ -58662,6 +58830,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -60084,6 +60255,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -63153,6 +63333,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -64575,6 +64758,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -67628,6 +67820,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -69050,6 +69245,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
@@ -71969,7 +72173,7 @@
     },
     {
       "label": "check_paper_numbers",
-      "interp": "/Users/mediratta/code/paper_writing/iotsf_demo/.venv12/bin/python",
+      "interp": ".venv12/bin/python",
       "script": "scripts/check_paper_numbers.py",
       "args": [],
       "status": "ok",
@@ -72173,6 +72377,9 @@
         "results/positive_control/lr0.0001_B_s456/condition_B_h192_s456.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json",
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json",
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
         "results/preregister_loco.json",
         "results/statistics.json",
@@ -73611,6 +73818,15 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/lr0.0001_B_s456/retention_A_final_state.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/condition_D_h192_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_best_encoder.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/positive_control/lr0.0001_D_s42/retention_A_final_state.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
