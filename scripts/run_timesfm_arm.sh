@@ -25,7 +25,11 @@
 # Timings from the smoke test (64 windows, batch 8): B ~1.2 s/step, D ~0.35 s/step. At 1000 windows
 # and batch 16 that is ~55 min per B run and ~20 min per D run, so ~3.7 h per cell.
 set -uo pipefail
-cd /Users/mediratta/code/paper_writing/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 PY=.venv-probe/bin/python
 export PYTORCH_ENABLE_MPS_FALLBACK=1
 export HF_HUB_OFFLINE=1

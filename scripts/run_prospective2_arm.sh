@@ -18,7 +18,11 @@
 # SEED PAIRING: B and D for the SAME seed run back to back, because cell_matrix.py pairs on seed;
 # truncating this script therefore leaves complete pairs, never half a cell.
 set -uo pipefail
-cd /Users/mediratta/code/paper_writing/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 PY=.venv-probe/bin/python
 export PYTORCH_ENABLE_MPS_FALLBACK=1     # Moirai's sampling path hits aten::poisson
 OUT=results/v48_prospective2

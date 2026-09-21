@@ -50,7 +50,11 @@
 # 21 min/seed, h192 27 min; base/ETTh2 n=1000 took 46 min at h96 and 63 min at h192):
 # Whatever is missing at write-up time is stated explicitly rather than quietly dropped.
 set -uo pipefail
-cd /Users/mediratta/code/paper_writing/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 PY=.venv-probe/bin/python
 export PYTORCH_ENABLE_MPS_FALLBACK=1
 export HF_HUB_OFFLINE=1

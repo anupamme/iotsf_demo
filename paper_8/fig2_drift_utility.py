@@ -15,6 +15,7 @@ Secondary encoding (marker shape + direct labels + dark edges) satisfies the
 CVD-floor-band and light-surface contrast relief rules.
 """
 import numpy as np
+from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 
@@ -126,7 +127,7 @@ for spine in ("left", "bottom"):
     ax.spines[spine].set_color(BASELINE)
 
 fig.tight_layout()
-out = "/Users/mediratta/code/paper_writing/iotsf_demo/paper_8/fig2_drift_utility.png"
+out = str(Path(__file__).resolve().parent / "fig2_drift_utility.png")  # beside this script, not an absolute home path
 fig.savefig(out, dpi=200, bbox_inches="tight", facecolor=SURFACE)
 fig.savefig(out.replace(".png", ".pdf"), bbox_inches="tight", facecolor=SURFACE)
 print("saved:", out)

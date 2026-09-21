@@ -1,7 +1,7 @@
 {
-  "encoder_dir": "/Users/mediratta/code/iotsf_demo/results/v21_etth1_n10k/seed303",
+  "encoder_dir": "<repo>/results/v21_etth1_n10k/seed303",
   "zero_shot": false,
-  "data_path": "/Users/mediratta/code/iotsf_demo/data/forecasting/ETTh1.csv",
+  "data_path": "<repo>/data/forecasting/ETTh1.csv",
   "horizon": 96,
   "features": "M",
   "n_probe_train": 300,

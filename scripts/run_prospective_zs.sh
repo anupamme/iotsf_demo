@@ -2,7 +2,11 @@
 # Condition A (zero-shot only, no training) for the 8 prospective cells.
 # Feeds the VALIDATION-side gate that the pre-registration is computed from.
 set -uo pipefail
-cd /Users/mediratta/code/paper_writing/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 PY=.venv-probe/bin/python
 # Moirai's sampling path hits aten::poisson, unimplemented on MPS -- same fallback the
 # TimesFM runner sets. Without it every run dies at the zero-shot evaluation.

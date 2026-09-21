@@ -192,6 +192,29 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted
                 Xtr, ytr = windows(fit_vals)
                 coef = fit_linear_map((Xtr - mu) / sd, (ytr - mu) / sd, lookback)
                 pred_n = apply_linear_map(coef, (X - mu) / sd, lookback, h)
+            elif baseline == "fitted_matched":
+                # THE MATCHED-LOOKBACK RUNG, added 21 Sep 2026 because a reviewer asked whether the
+                # gate's verdict is an artifact of the context asymmetry noted in this docstring:
+                # Moirai is given ext_lb = lookback + h steps of history, the baseline the last
+                # `lookback` of them. Everything here is byte-identical to the `fitted` branch except
+                # the number passed to fit_linear_map/apply_linear_map -- same windows, same fitting
+                # region, same normalisation, same lam -- so the two columns differ in the baseline's
+                # INFORMATION SET and in nothing else. fit_linear_map already documents that it uses
+                # the last `lookback` steps of a (N, >=lookback, D) context, which is why passing
+                # ext_lb needs no new window construction.
+                #
+                # It is deliberately NOT in gate_baselines.NAMES. The ladder there varies the
+                # estimator FAMILY at fixed lookback and its rungs feed graded_value()'s
+                # min-over-admissible score, which fig_value_axis and cka_fixed_effects read; folding
+                # a different axis into that minimum would silently move the value score of every
+                # cell in the paper. scripts/matched_lookback_gate.py reports this column separately
+                # and states what folding it in would do.
+                Xtr, ytr = windows(fit_vals)
+                coef = fit_linear_map((Xtr - mu) / sd, (ytr - mu) / sd, ext_lb)
+                pred_n = apply_linear_map(coef, (X - mu) / sd, ext_lb, h)
+                binfo = dict(lookback_used=int(ext_lb), lookback_nominal=int(lookback),
+                             n_features=int(ext_lb * tr.shape[1]),
+                             n_fit_windows=int(len(Xtr)))
             elif baseline == "trend":
                 pred_n = (linear_forecast(X, h, lookback) - mu) / sd
             else:

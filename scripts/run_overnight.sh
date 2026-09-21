@@ -6,7 +6,11 @@
 set -euo pipefail
 
 PYTHON=/opt/homebrew/Caskroom/miniconda/base/envs/iotsf/bin/python
-REPO=/Users/mediratta/code/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
 LOG_DIR=/tmp/overnight_runs
 mkdir -p "$LOG_DIR"
 

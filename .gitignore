@@ -115,3 +115,8 @@ paper_8/*review_map.md
 # paths from this machine, so it is noise in a diff and leaks local layout.
 *.fls
 *.fdb_latexmk
+
+# The extra-identifier list for scripts/check_anonymity.py. Untracked by design: it is the one file
+# in the tree that writes the author's identifiers down, so shipping it would defeat the check that
+# reads it.
+.anonymity_terms

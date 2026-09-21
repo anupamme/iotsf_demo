@@ -18,6 +18,7 @@ early-stopped run (mean best epoch 4.2). Means +/- 1 SD.
 No dual axis (dataviz rule): two panels, one measure each.
 """
 import numpy as np
+from pathlib import Path
 import matplotlib.pyplot as plt
 
 # ---- ink / chrome (dataviz reference, light surface) ----
@@ -97,7 +98,7 @@ axB.set_xticks(n)
 axB.set_xticklabels([f"{v//1000}k" if v >= 1000 else str(v) for v in n])
 axB.minorticks_off()
 
-out = "/Users/mediratta/code/paper_writing/iotsf_demo/paper_8/fig2_dissociation_sweep.png"
+out = str(Path(__file__).resolve().parent / "fig2_dissociation_sweep.png")  # beside this script, not an absolute home path
 fig.savefig(out, dpi=200, bbox_inches="tight", facecolor=SURFACE)
 fig.savefig(out.replace(".png", ".pdf"), bbox_inches="tight", facecolor=SURFACE)
 print("saved:", out)

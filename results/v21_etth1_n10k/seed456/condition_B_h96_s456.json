@@ -29,7 +29,7 @@
     "final_epoch_cka": 0.3589642643928528,
     "final_epoch_weight_drift": 27.488573513752723,
     "final_epoch_forgetting_pct": 14.06982685946664,
-    "best_encoder_path": "/Users/mediratta/code/iotsf_demo/results/v21_etth1_n10k/seed456/best_encoder.pt"
+    "best_encoder_path": "<repo>/results/v21_etth1_n10k/seed456/best_encoder.pt"
   },
   "linear_probe": {
     "pretrained_r2": -24.808697430241004,

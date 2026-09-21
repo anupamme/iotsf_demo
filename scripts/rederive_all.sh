@@ -166,6 +166,12 @@ if [ -x "$PYFIG" ] && "$PYFIG" -c 'import matplotlib' 2>/dev/null; then
   # repository location that no longer exists, so nobody would have noticed the figure going stale.
   run "dissociation_trajectory"    "$PYFIG" scripts/plot_dissociation_trajectory.py
   run "n5k_trajectories"           "$PYFIG" scripts/analyse_n5k_trajectories.py
+  # The WORKSHOP version's only figure (workshop/main.tex:293 \includegraphics's it). Not a main-paper
+  # artifact, but it was \includegraphics'd by a tracked document with no emitter line, which is the
+  # same staleness hole as any other -- the workshop build would have kept shipping an old figure
+  # silently. paper_8/fig2_drift_utility.py writes a figure NO document includes, so it is deliberately
+  # not here: an emitter line for an unused output is noise that trains you to skim this list.
+  run "fig2_dissociation_sweep (wkshp)" "$PYFIG" paper_8/fig2_dissociation_sweep.py
 else
   echo "  SKIPPED: $PYFIG has no matplotlib. The figures are NOT re-derived."
   fail=$((fail + 1))
@@ -241,7 +247,8 @@ changed=$(git -C "$ROOT" status --porcelain paper_8/tables/ paper_8/fig1_diagnos
             paper_8/fig_value_axis.pdf paper_8/figA_gate_scatter.pdf \
             paper_8/figA_freeze_boundary.pdf paper_8/figA_window_layout.pdf \
             paper_8/figures/dissociation_trajectory.pdf \
-            paper_8/figures/n5k_trajectories.pdf | sed 's/^/    /')
+            paper_8/figures/n5k_trajectories.pdf \
+            paper_8/fig2_dissociation_sweep.pdf | sed 's/^/    /')
 if [ -z "$changed" ]; then
   echo "  nothing changed: every \\input-ed table and figure in the PDF matches the run records."
 else

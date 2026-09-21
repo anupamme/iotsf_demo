@@ -3,7 +3,7 @@
 #
 # Prerequisites:
 #   - Both GPU instances running with SSH access
-#   - Key at /Users/mediratta/keys/nips_east_1.pem
+#   - Key at $KEY (default $HOME/keys/nips_east_1.pem); override to point at your own
 #
 # Usage:
 #   bash scripts/deploy_chronos_experiment.sh GPU1_HOST GPU2_HOST
@@ -15,7 +15,9 @@
 
 set -e
 
-KEY="/Users/mediratta/keys/nips_east_1.pem"
+# Overridable and $HOME-relative: a literal home directory here names the author, and
+# this file is tracked in a public repository.
+KEY="${KEY:-$HOME/keys/nips_east_1.pem}"
 SSH_OPTS="-i $KEY -o StrictHostKeyChecking=no -o ConnectTimeout=10"
 GPU1="${1:?Usage: $0 GPU1_HOST GPU2_HOST}"
 GPU2="${2:?Usage: $0 GPU1_HOST GPU2_HOST}"

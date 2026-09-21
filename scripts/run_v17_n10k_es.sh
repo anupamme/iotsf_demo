@@ -4,7 +4,11 @@
 # Empirical clock: ~1.5h/seed on MPS → ~9h total.
 
 set -u
-cd /Users/mediratta/code/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 source /opt/homebrew/Caskroom/miniconda/base/etc/profile.d/conda.sh
 conda activate iotsf
 

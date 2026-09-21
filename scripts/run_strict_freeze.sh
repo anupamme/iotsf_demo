@@ -21,7 +21,11 @@
 # the window closes, what is lost is the h=192 half of each pair, never a whole cell. Whatever is
 # missing at write-up time is stated explicitly, not silently dropped.
 set -uo pipefail
-cd /Users/mediratta/code/paper_writing/iotsf_demo
+# Repo root derived from this script's own location, not hard-coded: the absolute path
+# that used to be here named a home directory (a deanonymisation vector in a
+# supplementary bundle) and broke outright when the repository moved -- two of these
+# runners still pointed at a location that has not existed since July.
+cd "$(dirname "$0")/.." || exit 1
 PY=.venv-probe/bin/python
 export PYTORCH_ENABLE_MPS_FALLBACK=1
 export HF_HUB_OFFLINE=1
