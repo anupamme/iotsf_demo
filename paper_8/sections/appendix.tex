@@ -601,6 +601,24 @@ one a positive control has to construct deliberately.
 % \ref{sec:exp4:poscontrol}. Written without the ref rather than with a forward one, because a
 % known-dangling \ref makes "0 undefined references" stop being a gate that means anything.
 
+% Moved here VERBATIM from the body of S7 on 21 Sep 2026, to fund the positive control's body
+% paragraphs. Not reworded: two claims registered in scripts/check_paper_numbers.py match only this
+% wording, and a restatement would silently drop their sites while the checker still reported clean.
+\textbf{The gate does not provide a reliable ordering, and there is no actionable
+threshold.}
+Within Moirai ($n{=}22$ cells from six series, the only arm with enough cells to
+ask), the gate's continuous score correlates \emph{negatively} with held-out
+$\denc$: Spearman $\rho{=}{-}0.293$, and neither cells nor series exclude zero, so
+we report the direction and not the interval (Appendix~\ref{app:clustered}).
+The sign is the wrong one---higher measured pre-trained value goes with encoder
+adaptation helping \emph{more}, not less, the opposite of what a preservation
+heuristic needs---but the sharper point is that the magnitude is not stable:
+scoring the same gate on the held-out windows instead gives $\rho{=}{-}0.518$
+on the same cells.
+An ordering that nearly doubles when the gate changes split is not one a
+practitioner can set a threshold on, and no other quantity we measured orders
+$\denc$ either (Appendix~\ref{app:predictor}).
+
 \begin{table}[ht]
 \centering
 \caption{\textbf{The pre-registered prospective test.} Predictions frozen in

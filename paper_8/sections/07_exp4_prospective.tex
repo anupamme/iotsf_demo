@@ -52,21 +52,14 @@ empty positive class cannot estimate.  It is not a demonstration that the gate
 cannot work; it is a demonstration that these benchmarks supply nothing for it
 to work on.
 
-\textbf{The gate does not provide a reliable ordering, and there is no actionable
-threshold.}
-Within Moirai ($n{=}22$ cells from six series, the only arm with enough cells to
-ask), the gate's continuous score correlates \emph{negatively} with held-out
-$\denc$: Spearman $\rho{=}{-}0.293$, and neither cells nor series exclude zero, so
-we report the direction and not the interval (Appendix~\ref{app:clustered}).
-The sign is the wrong one---higher measured pre-trained value goes with encoder
-adaptation helping \emph{more}, not less, the opposite of what a preservation
-heuristic needs---but the sharper point is that the magnitude is not stable:
-scoring the same gate on the held-out windows instead gives $\rho{=}{-}0.518$
-on the same cells.
-An ordering that nearly doubles when the gate changes split is not one a
-practitioner can set a threshold on, and no other quantity we measured orders
-$\denc$ either (Appendix~\ref{app:predictor}).
-
+% The ordering paragraph that stood here moved VERBATIM to Appendix \ref{app:prospective2} on
+% 21 Sep 2026, to fund the positive control in \S\ref{sec:exp4:poscontrol} on a 9-page body with no
+% slack. Verbatim rather than reworded because two registered claims in
+% scripts/check_paper_numbers.py match only that wording. The claim itself is not lost from the body:
+% the abstract, \S\ref{sec:intro} and \S\ref{sec:drift} each state that the gate supplies no reliable
+% ordering, and rho=-0.293 appears in \S\ref{sec:intro}. What the body no longer carries is the
+% second-order point about the coefficient's instability across splits, which is a detail about a
+% quantity the paper does not ask a reader to act on.
 \textbf{What survives.} Not the gate as a predictor of harm, nor as a screen for
 when preservation is worth the effort---here it fired eight times and was wrong
 eight times---but the gate as a \emph{disqualifier}: a cell that fails it cannot
