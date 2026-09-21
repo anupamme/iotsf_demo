@@ -336,6 +336,10 @@ def main():
           f" at lr~$={'$, $='.join(f'{x:g}' for x in lrs)}$, {', '.join(conds)}" +
           r"} did not complete; training diverged and the run is reported as a divergence "
           r"rather than a number (see text).\\[3pt]")
+    # Seven columns overran \linewidth by 6.5pt at the default 6pt tabcolsep, and an Overfull \hbox is
+    # a gate this paper checks. Narrowing the inter-column padding rather than shrinking the font keeps
+    # the dispersions legible; the group scopes it to this table so no later table inherits it.
+    A(r"{\setlength{\tabcolsep}{4pt}")
     A(r"\begin{tabular}{@{}llrrrrr@{}}")
     A(r"\toprule")
     A(r"& & task B & \multicolumn{2}{c}{retention on task A (\%)} & CKA on & $\ell_2$ \\")
@@ -355,7 +359,7 @@ def main():
     if L[-1] == r"\addlinespace":
         L.pop()
     A(r"\bottomrule")
-    A(r"\end{tabular}")
+    A(r"\end{tabular}}")
     OUT_TEX.write_text("\n".join(L) + "\n")
 
     # ------------------------------------------------------------------ stdout

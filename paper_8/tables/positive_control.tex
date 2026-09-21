@@ -2,6 +2,7 @@
 % Every threshold, the grid and the outcome sentence come from
 % results/positive_control/preregistration.json, committed before the first run.
 \textbf{Diverged, not omitted: 3 run(s) at lr~$=0.1$, frozen encoder} did not complete; training diverged and the run is reported as a divergence rather than a number (see text).\\[3pt]
+{\setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llrrrrr@{}}
 \toprule
 & & task B & \multicolumn{2}{c}{retention on task A (\%)} & CKA on & $\ell_2$ \\
@@ -19,4 +20,4 @@ $0.01$ & frozen encoder & $+$85.3{\scriptsize$\pm$1.0} & $+$3.4{\scriptsize$\pm$
 \addlinespace
 $0.1$$^{\dagger}$ & full fine-tune & $+$84.1{\scriptsize$\pm$1.9} & $-$23.3{\scriptsize$\pm$2.0} & $-$23.3{\scriptsize$\pm$2.0} & 0.063{\scriptsize$\pm$0.016} & 2794.83{\scriptsize$\pm$40.24} \\
 \bottomrule
-\end{tabular}
+\end{tabular}}

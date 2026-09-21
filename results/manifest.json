@@ -1152,11 +1152,12 @@
         "scripts/value_axis.py"
       ],
       "sites": [
+        "emit_positive_control.py:diverged_cells",
         "emit_positive_control.py:main",
         "emit_positive_control.py:read_cell"
       ],
       "in_matrix": true,
-      "n_json": 13,
+      "n_json": 64,
       "note": null
     },
     {

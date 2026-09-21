@@ -22,9 +22,13 @@ reverses in the same direction}: from ``the frozen encoder was better'' to
 ``full fine-tuning was better'' (Appendix Table~\ref{tab:heldout_decomp}).  The largest
 is Chronos/ETTh1, which moves from $+6.8$ to $-39.2$, a 46-point swing.  Two
 of the four are among the seven gate-passing cells, so this is not confined to
-cells nobody would have looked at, and the reversals are driven by the frozen arm,
-which a distribution shift between the splits penalises more heavily than the
-adapted arm because it cannot adapt to one.
+cells nobody would have looked at.
+% The mechanism clause that closed this paragraph -- the reversals are driven by the frozen arm, which
+% a distribution shift between the splits penalises more heavily -- is cut on 21 Sep 2026 to fund
+% \S\ref{sec:exp4:poscontrol}. It is not lost: the paragraph beside Table \ref{tab:heldout_decomp} in
+% app:full_tables states it at length, with the per-arm decomposition the clause was summarising, and
+% this sentence already points there. No registered claim had a site here -- the clause carried no
+% number -- so this is a deletion rather than a move.
 
 \subsection{A Pre-Registered Prospective Test at Zero Prevalence}
 \label{sec:analysis:prospective}
@@ -34,20 +38,19 @@ adapted arm because it cannot adapt to one.
 % verbatim to Appendix \ref{app:prospective2}, which is scanned by scripts/check_paper_numbers.py, so
 % every registered number still has its sentence. What is left here is the arm's one result and the
 % bound its prevalence puts on it.
-Everything above is retrospective: the cells were run, then read, and a
-diagnostic that only explains cells it has seen is worth little, so we tested
-ours forward.  Predictions for eight unrun cells were committed to git before any
-outcome run for them existed, and the scoring script reads that file and the
-finished runs and decides nothing (Appendix~\ref{app:prospective2}).
+Everything above is retrospective, and a diagnostic that only explains cells it
+has seen is worth little, so we tested ours forward: predictions for eight unrun
+cells were committed to git before any outcome run for them existed, and the
+scoring script decides nothing (Appendix~\ref{app:prospective2}).
 \textbf{The outcome the gate was registered to predict never occurs.}  None of
 the eight cells degraded; the gate flagged all eight, giving \textbf{TP~0, FP~8,
 FN~0}: precision $0.00$, while \textbf{sensitivity and specificity are both
 unestimable}.  \textbf{That makes this a test at zero prevalence, and the
 prevalence bounds what it can say}: it establishes that the gate's positive
-predictions are wrong here, and that this is not an artefact of the $0.20$
-operating point---re-scoring the same predictor against the same outcome at
-every threshold we swept, moving nothing else, gives precision $0.00$ at all of
-them---and it establishes nothing about the gate's \emph{sensitivity}, which an
+predictions are wrong here---and not merely at the $0.20$ operating point, since
+re-scoring the same predictor at every threshold we swept gives precision $0.00$
+at all of them (Appendix~\ref{app:prospective2})---and it establishes nothing
+about the gate's \emph{sensitivity}, which an
 empty positive class cannot estimate.  It is not a demonstration that the gate
 cannot work; it is a demonstration that these benchmarks supply nothing for it
 to work on.
@@ -64,3 +67,46 @@ to work on.
 when preservation is worth the effort---here it fired eight times and was wrong
 eight times---but the gate as a \emph{disqualifier}: a cell that fails it cannot
 supply evidence about damage to pre-trained features, and 24 of our 31 fail it.
+
+\subsection{A Pre-Registered Positive Control: We Could Not Construct Forgetting}
+\label{sec:exp4:poscontrol}
+% The reviewer-critical addition. Everything above establishes that these benchmarks contain no
+% degradation cell; the obvious objection is that a diagnostic cannot be shown to fail at detection
+% when there is nothing to detect. This subsection answers it with an engineered regime, and it is
+% written to be readable as a NULL: the pre-registration fixed all three outcomes in advance, and the
+% one that fired is the one that says the control failed to construct. The full ladder, both
+% checkpoints and the divergence are in Appendix \ref{app:poscontrol}.
+A null about a detector is only as good as the
+regime it was measured in: \textbf{a diagnostic cannot be shown to fail at
+ordering damage if there is no damage to order}.  So we tried to build the
+damage.  Task A is the strongest capability the screen admits
+(Moirai-Small/ETTh2, $h{=}192$, $\Vb{\text{ridge}}{=}{+}0.932$); task B is a
+synthetic series, fixed by hash before any run, whose correct forecast is the
+\emph{negation} of the seasonal-naive prior that is task A's own strongest
+admissible rung.  We fine-tuned on B and measured A, over
+$\text{lr}\in\{10^{-4},10^{-3},10^{-2}\}\times\{$full fine-tune, frozen
+encoder$\}\times3$ seeds, with all three outcomes and the destruction threshold
+registered beforehand and committed before the first run
+(Appendix~\ref{app:poscontrol}).
+
+\textbf{The pre-registered outcome that fired is the third: destruction was not
+achieved.}  Task B was learned in \textbf{21 of 21} runs (minimum $+56.6\%$
+against a registered $20\%$), so this is genuine conflicting learning and not
+weight thrashing.  The registered rule was
+retention$_A\!\geq\!50\%$ in a majority of seeds under full fine-tuning; the
+maximum over all 21 runs was $+26.7\%$, in one seed, against an evaluator noise
+floor of $0.48$~pp.  We took the single declared ladder extension to
+$\text{lr}{=}10^{-1}$ and then stopped, as registered.
+
+\textbf{The attempt nonetheless buys a sharper dissociation than the benchmark
+cells can supply.}  At that top rung the representation is driven almost to
+orthogonality---CKA on task A's inputs $0.063$, $\ell_2$ weight drift $2795$,
+against $0.999$ and $7.2$ at the gentlest rung---and task A gets \emph{better},
+by $23.3\pm2.0\%$ in every seed; across all 21 runs the correlation between CKA
+and retention is $\rho{=}{+}0.466$, the wrong sign.  \textbf{A representation can
+be moved most of the way to orthogonality by training measurably in conflict with
+a capability, and the capability survives.}  So CKA's failure on the benchmark
+cells is not a power problem.  The limit: a retention loss is hard to
+\emph{construct} here, not impossible, and task A is worth
+only $+0.081$ over seasonal-naive, so this tests \emph{detection} rather than the
+value of what is lost.

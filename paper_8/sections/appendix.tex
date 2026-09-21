@@ -233,14 +233,28 @@ list until the page limit took the recap; each is stated where it arises and non
 is withdrawn.  \emph{(a)}~The forgetting sign at $n{=}10$k is protocol-dependent:
 item~(2) above gives the four protocols and their four signs on the same cell.
 \emph{(b)}~The ILI cell is small, ${\approx}450$ windows, which is why
-\S\ref{sec:analysis:ili} calls it a case study and not a pillar.  \emph{(c)}~Two
+Appendix~\ref{app:ili_gate} calls it a case study and not a pillar.  \emph{(c)}~Two
 pre-registered predictions were falsified rather than confirmed: ILI's CKA
 prediction of $0.90$--$0.95$, against the measured value
-\S\ref{sec:analysis:ili} reports, and the prospective value-gate predictor, which
+Appendix~\ref{app:ili_gate} reports, and the prospective value-gate predictor, which
 scored precision $0.00$ at every threshold in $[0.10, 0.60]$
 (\S\ref{sec:analysis:prospective}).  We report both as failures of our own
 diagnostic, which is what the pre-registration was for.  Values are not repeated
 here: a recap that retypes them is how the two of them drift apart.
+
+% Moved from body item (6) on 21 Sep 2026 to fund \S\ref{sec:exp4:poscontrol}. The body keeps the
+% CLAIM -- our negative result is about identifying damage from similarity alone, not about CKA's
+% validity as a measure of similarity -- and these are the two illustrations of it, which the body's
+% "full detail is in this appendix" pointer now actually covers.
+\textbf{(7) Why similarity is not mechanism, in two directions.}  A representation
+can drift far and still carry the task information in a transformed basis, so a
+low CKA need not mean a capability was lost; and a small drift can destroy one
+critical direction, so a high CKA need not mean one was kept.  Both directions are
+consistent with the positive control of Appendix~\ref{app:poscontrol}, where CKA
+on task~A's inputs falls to $0.063$ while task~A itself \emph{improves}.  Our
+negative claim is about \emph{identifying} damage from similarity alone
+(\S\ref{sec:limitations}, item~6), not about CKA's validity as a measure of
+similarity, which we do not dispute.
 
 % ============================================================
 \section{uni2ts PackedStdScaler Patch Details}
@@ -596,10 +610,9 @@ artefact of the operating point. It establishes \emph{nothing} about whether the
 gate would detect degradation if degradation existed: that is a claim about
 sensitivity, and $0/0$ is not a rate. A reader who takes this arm as a refutation
 of the gate is reading past the prevalence. The regime the arm cannot reach is
-one a positive control has to construct deliberately.
-% PENDING: when the positive control lands, this last sentence takes a
-% \ref{sec:exp4:poscontrol}. Written without the ref rather than with a forward one, because a
-% known-dangling \ref makes "0 undefined references" stop being a gate that means anything.
+one a positive control has to construct deliberately
+(\S\ref{sec:exp4:poscontrol}, Appendix~\ref{app:poscontrol})---and which, on
+these benchmarks, we could not construct.
 
 % Moved here VERBATIM from the body of S7 on 21 Sep 2026, to fund the positive control's body
 % paragraphs. Not reworded: two claims registered in scripts/check_paper_numbers.py match only this
@@ -2565,6 +2578,17 @@ panel of Figure~\ref{fig:valueaxis} is that row: every point lies left of the
 $0.20$ line, and the cells that improve most under encoder adaptation are not the
 ones with the least to lose.
 
+% Moved VERBATIM from S6 on 21 Sep 2026 to fund \S\ref{sec:exp4:poscontrol}. It is this appendix's own
+% one-sentence summary, which the body restated until now, and it is the paper's ONLY site for the
+% claim registered as "cells with nothing to lose" -- hence verbatim rather than reworded. Its closing
+% cross-reference pointed here and is dropped; the paragraph now sits in the section it pointed at.
+\textbf{Not an artefact of cells with nothing to lose.}  Drift might fail to order
+$\denc$ only because 11 of the 31 cells beat no rung of the ladder; grading the
+screen rather than dichotomising it says otherwise---the relation is no stronger on
+the cells with a measured advantage than on the cells without, and the estimated
+interaction has the wrong sign for the objection and an interval far too wide to
+settle it.
+
 % ============================================================
 \section{Cross-Cell Statistics, and a Pooled Analysis We Do Not License}
 \label{app:crosscell}
@@ -3360,6 +3384,20 @@ Moirai cells and removes every degradation instance the paper had.
 \subsection{ILI: gate check and withdrawn frozen control}
 \label{app:ili_gate}
 
+% Moved VERBATIM from S6 on 21 Sep 2026 to fund \S\ref{sec:exp4:poscontrol}: the body carried this
+% summary and pointed here for the detail, which made it a restatement of the section it introduced.
+% \label{sec:analysis:ili} moved with it and was then deleted -- the three \S\ref sites that used it
+% (the introduction and two sentences in app:limitations) now point at this appendix by name, so no
+% reference resolves to a section that no longer discusses ILI. The trailing pointer to this section
+% is dropped for the same reason as in app:valueaxis.
+\textbf{ILI: a small-data external case study.}
+Moirai-Small on ILI (weekly influenza, $h{=}24$, 10 seeds) restructures heavily
+and improves, yet \textbf{gate-fails decisively} at
+$\Vb{\text{ridge}}{=}{-}1.625$; at ${\approx}450$ windows it is a case study
+rather than a pillar, and its pre-registered CKA prediction was
+\textbf{falsified}.  An IoT anomaly-detection negative control behaves the same
+way (Appendix~\ref{app:cnn_detail}).
+
 The cell is Moirai-Small on national influenza-like illness: 966 weekly
 observations, 7~features, $h{=}24$, lookback$=$104, split 579/193/194
 chronologically.
@@ -3552,3 +3590,112 @@ result from the other.
 \textbf{Why we report this.} A negative result about one's own tooling is
 cheap to bury and expensive to discover downstream. The re-analysis code and
 both split protocols are released with the paper.
+
+% ============================================================
+\section{The Pre-Registered Positive Control, in Full}
+\label{app:poscontrol}
+% ============================================================
+% The complete record of the arm S7.3 states in three paragraphs. Written so the arm can be read as a
+% null without a reader having to trust us: the registration fixed all three outcome sentences and the
+% destruction threshold before the first run, scripts/emit_positive_control.py quotes the sentence that
+% fired rather than composing one, and Table \ref{tab:poscontrol} is generated from the 21 run records.
+
+\textbf{What was registered, and when.}
+% \allowbreak after the slash: the path is 45 characters of \texttt and TeX will not hyphenate it, so
+% without a break point it overran \linewidth by 6.4pt and tripped the Overfull gate.
+\texttt{results/positive\_control/\allowbreak preregistration.json} was committed at a named
+revision before any run of this arm existed, and it fixed: task A, chosen from the
+run records as $\arg\max\Vb{\text{ridge}}$ over the seven gate-passing cells
+(Moirai-Small/ETTh2, $h{=}192$, $\Vb{\text{ridge}}{=}{+}0.932$); task B by
+SHA-256, with its generator (\texttt{scripts/make\_conflicting\_series.py}); the
+grid; the primary readout; \emph{which checkpoint is primary}; \emph{where CKA is
+measured}; two falsifiable validity conditions; and all three outcome sentences.
+
+\textbf{Task B, and why its construction matters.} $x_j(t) = a_j\,(-1)^{\lfloor
+t/P\rfloor}\,s_j(t \bmod P) + \sigma_j\varepsilon$, with $s_j$ a three-harmonic
+unit-variance periodic shape and $P{=}192{=}h$.  The correct forecast is
+therefore the \emph{negation} of the previous period, so the seasonal-naive
+prior---which is task A's own strongest admissible baseline rung---is maximally
+wrong on task B: seasonal-naive loses to its own negation by $200.9\times$.  This
+is what makes learning B a genuine conflict with A rather than the addition of an
+unrelated skill, and it is the reason a null here is informative.
+
+\textbf{Where CKA is measured, and why it differs from the main matrix.} On
+\textbf{task A's} inputs, not task B's.  In the main matrix the two coincide,
+because a cell trains and is evaluated on one series; here they cannot, and
+measuring drift on the series being trained \emph{on} would answer a different
+question than ``did the representation supporting A change''.  This was the
+design choice we expected to be probed, so it is registered and stated rather
+than buried.
+
+\textbf{Both checkpoints, and the noise floor that makes them readable.} The
+early-stopped state is primary, for comparability with the main matrix, which
+early-stops the same way; the final-epoch state is reported beside it as the
+maximal-destruction bound, because early stopping is on task B's validation loss
+and can halt before damage to A has finished developing.  Early stopping fired in
+few runs, so the two states are frequently \emph{identical}---and then the gap
+between their two retention numbers is not redundancy but a direct read of the
+evaluator's own sampling noise, since Moirai's forecast is the median of 20
+samples.  Over the $17$ identical-state pairs that gap is at most $0.48$~pp and
+$0.20$~pp on average.  \textbf{Every retention number in this arm should be read
+against that floor}, which is why the emitter computes it across all such pairs
+rather than asserting a tolerance.
+
+\textbf{The validity conditions, both of which hold.} (i) Task B must actually be
+learned---destruction without learning is weight thrashing, not forgetting. It
+was, in \textbf{21 of 21} runs, by at least $+56.6\%$ against a registered $20\%$
+threshold. (ii) The frozen encoder should preserve task A; if it does not, the
+damage is not in the encoder. It does: retention stays inside $+5\%$ at all three
+completed rungs ($+1.3\pm0.4$, $+4.2\pm2.2$, $+3.4\pm9.4$), against a destruction
+threshold of $+50\%$.
+
+\textbf{The outcome, quoted from the registration.} Destruction was not achieved:
+the registered rule was retention$_A\!\geq\!50\%$ in a majority of seeds at some
+rung under condition B, and no rung meets it---the per-rung maxima are $-7.1$,
+$+26.7$, $+4.9$ and $-20.1$.  The registered sentence for this outcome reads:
+``the positive control failed to construct\ldots deliberately adversarial
+fine-tuning did not destroy the capability---itself a finding about TSFM
+robustness, and a reason the main matrix's null is unsurprising.''  Across all 21
+runs Spearman $\rho$ between CKA on task A's inputs and retention is $+0.466$
+($p{=}0.03$, $n{=}21$): a positive coefficient is the wrong sign for a
+preservation heuristic, so the ordering fails here as it does retrospectively.
+
+\textbf{The declared extension, and the three runs that diverged.} The stopping
+rule permitted one extension to $\text{lr}{=}10^{-1}$ if destruction was not
+achieved at $10^{-2}$, and then a stop.  Condition B completed all three seeds
+and supplies the ladder's sharpest row.  Condition D diverged in 3 of 3: with the
+encoder frozen every gradient lands on the decoder, and its likelihood head
+leaves the domain its distribution requires---two seeds on the negative
+binomial's \texttt{total\_count}, one on a categorical's \texttt{logits}.
+\textbf{We do not re-run them.}  Guarding the evaluation call and retrying would
+be re-running the declared extension after seeing its outcome, which is the thing
+a pre-registration exists to prevent; the divergence is reported as the result
+for that rung.  It is also not load-bearing: condition D's role is to localise
+damage in the encoder, and there is no damage anywhere in the ladder to localise.
+
+\textbf{What this arm cannot show}, as registered: that the capability at stake
+was valuable against a strong baseline (task A beats seasonal-naive by only
+$+0.081$, and does not clear the full admissible ladder, so this tests
+\emph{detection} of a retention loss rather than the value of what is lost); that
+anything here generalises beyond one backbone, one series and one synthetic task
+B; or that a sign-inverting target task resembles a deployment scenario.  It also
+cannot show that a retention loss is impossible on these benchmarks---only that
+we could not construct one, having tried four learning-rate rungs spanning three
+orders of magnitude with a task built to conflict.
+
+\begin{table}[ht]
+\centering
+\caption{\textbf{The pre-registered positive control: 21 runs, no destruction.}
+Task A is Moirai-Small/ETTh2 $h{=}192$; task B is the anti-persistent synthetic
+series, fixed by SHA-256 before any run. ``task B learned'' is the MSE reduction
+on B's own held-out windows (registered validity threshold $20\%$).
+``retention on task A'' is $100(\text{MSE}_A(\theta_\text{FT}) -
+\text{MSE}_A(\theta_\text{ZS}))/\text{MSE}_A(\theta_\text{ZS})$, so
+\emph{positive is worse} and the registered destruction threshold is $+50\%$ in a
+majority of seeds under full fine-tuning. CKA is measured on \textbf{task A's}
+inputs. $\pm$ is the SEM over 3 seeds. $^{\dagger}$ marks the single declared
+ladder extension. Read every retention number against the $0.48$~pp evaluator
+noise floor derived in the text.}
+\label{tab:poscontrol}
+\input{tables/positive_control}
+\end{table}

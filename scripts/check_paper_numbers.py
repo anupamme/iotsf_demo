@@ -750,6 +750,79 @@ def rederive():
         f'Appendix app:loco assert the dR2 <= 0 branch; switch to the branch the registration '
         f'pre-wrote for a positive dR2 instead of editing the number.')
     assert _loco["branch"] == "dR2 <= 0", f'unexpected branch: {_loco["branch"]!r}'
+
+    # -- the pre-registered positive control. Read from the emitter's JSON, like the LOCO ladder and
+    # for the same reason: the retention numbers come out of 21 stored run records through
+    # emit_positive_control.py's own scaling, and a second implementation here would disagree with
+    # Table tab:poscontrol in the last decimal. What is registered here is every number the body and
+    # app:poscontrol state, plus three asserts on the claims no captured group can carry.
+    _pc = json.load(open(ROOT / "results/positive_control.json"))
+    R["pc_v_ridge"] = _pc["task_a"]["v_ridge_selection"]
+    R["pc_v_rung"] = _pc["task_a"]["v_best_admissible_rung"]
+    R["pc_sn_ratio"] = _pc["task_b"]["seasonal_naive_over_its_negation"]
+    R["pc_horizon"] = _pc["task_a"]["horizon"]
+    _val = _pc["validity_taskb_learned"]
+    R["pc_n_runs"] = _val["n_runs"]
+    R["pc_n_learned"] = _val["n_meeting"]
+    R["pc_learn_min"] = _val["min_pct"]
+    R["pc_learn_thresh"] = _val["threshold"]
+    _des = _pc["destruction"]["primary"]
+    R["pc_ret_max"] = max(v["max"] for v in _des["per_rung"].values())
+    # The per-rung maxima app:poscontrol lists, in ascending learning rate so the tuple order in the
+    # prose is the ladder's order rather than a dict's.
+    for lr, key in (("0.0001", "r1"), ("0.001", "r2"), ("0.01", "r3"), ("0.1", "r4")):
+        R[f"pc_max_{key}"] = _des["per_rung"][lr]["max"]
+    R["pc_des_thresh"] = _pc["destruction"]["threshold_pct"]
+    R["pc_noise_max"] = _pc["evaluator_noise_pp"]["max"]
+    R["pc_noise_mean"] = _pc["evaluator_noise_pp"]["mean"]
+    R["pc_noise_pairs"] = _pc["evaluator_noise_pp"]["n_identical_state_pairs"]
+    R["pc_rho"] = _pc["cka_ordering"]["primary"]["rho"]
+    R["pc_rho_p"] = _pc["cka_ordering"]["primary"]["p"]
+    R["pc_rho_n"] = _pc["cka_ordering"]["primary"]["n"]
+    _top, _bot = _pc["by_rung"]["0.1"]["B"], _pc["by_rung"]["0.0001"]["D"]
+    R["pc_top_cka"] = _top["cka_task_a"]["mean"]
+    R["pc_top_drift"] = _top["drift"]["mean"]
+    R["pc_top_ret"] = abs(_top["retention_primary"]["mean"])
+    R["pc_top_ret_sem"] = _top["retention_primary"]["sem"]
+    R["pc_bot_cka"] = _bot["cka_task_a"]["mean"]
+    R["pc_bot_drift"] = _bot["drift"]["mean"]
+    # The three frozen-encoder rungs app:poscontrol quotes for validity condition (ii).
+    for lr, key in (("0.0001", "r1"), ("0.001", "r2"), ("0.01", "r3")):
+        R[f"pc_d_{key}"] = _pc["by_rung"][lr]["D"]["retention_primary"]["mean"]
+        R[f"pc_d_{key}_sem"] = _pc["by_rung"][lr]["D"]["retention_primary"]["sem"]
+    R["pc_n_diverged"] = len(_pc["diverged_cells"])
+    # The extension was registered as one rung under BOTH conditions, so its per-condition seed count
+    # is half the planned total. app:poscontrol's "diverged in 3 of 3" is a per-condition fraction and
+    # would read as 3 of 6 if this took the planned count directly.
+    R["pc_ext_seeds"] = _pc["extension_runs_planned"] // 2
+    R["pc_seeds"] = _pc["by_rung"]["0.0001"]["B"]["n_runs"]
+    assert _pc["extension_lr"] == 0.1, (
+        f'both sites write the declared extension as lr = 10^-1; the emitter now reports '
+        f'{_pc["extension_lr"]}')
+    # Which outcome fired IS the section's thesis, and the body states it in words ("the third",
+    # "destruction was not achieved") that no captured group can check. Three asserts instead.
+    # str(), because the emitter carries the outcome as the registration's own key, which is a JSON
+    # object key and therefore a string. `== 3` compared int to str and failed while the outcome was
+    # in fact 3 -- an assert that fires on the branch it is meant to permit is worse than none.
+    assert str(_pc["outcome"]) == "3", (
+        f'S7.3 and app:poscontrol are written for registered outcome 3, but the emitter now reports '
+        f'outcome {_pc["outcome"]} ({_pc["outcome_key"]}). Rewrite to the branch the registration '
+        f'pre-wrote for that outcome instead of editing numbers.')
+    assert not _pc["outcome_provisional"], (
+        'the positive control is still provisional -- the table carries a PARTIAL GRID banner -- so '
+        'the body must not state the outcome as final')
+    assert _val["all_meet"], (
+        '"task B was learned in every run" is false, so the arm measures weight thrashing rather '
+        'than forgetting and the registered validity condition has failed')
+    # Condition D preserving task A at every rung it completed is app:poscontrol's validity condition
+    # (ii); "inside +5%" is a quantifier over three rungs, so it is an assert.
+    assert all(R[f"pc_d_{k}"] < 5.0 for k in ("r1", "r2", "r3")), (
+        '"retention stays inside +5% at all three completed rungs" is false: '
+        f'{[round(R[f"pc_d_{k}"], 1) for k in ("r1", "r2", "r3")]}')
+    # Every seed at the top rung improves task A -- that is what licenses "in every seed".
+    assert _des["per_rung"]["0.1"]["max"] < 0, (
+        f'"task A gets better in every seed at the top rung" is false: the worst seed is '
+        f'{_des["per_rung"]["0.1"]["max"]:+.1f}%')
     return R
 
 
@@ -1540,6 +1613,85 @@ def build_checks(R):
     chk("the spine sentence in Figure 1's caption",
         r"measured drift does not\s+reliably predict the value of encoder adaptation")
     chk("the ordering claim, verbatim", r"does not provide a reliable ordering", min_sites=4)
+
+    # --- the pre-registered positive control (S7.3 and app:poscontrol), added 21 Sep 2026.
+    # Registered per PHRASING, not per fact, for the reason this file exists: the body and the appendix
+    # state most of these numbers twice in different words, and a single pattern spanning both would
+    # keep matching while one restatement drifted. Where the two DO share wording verbatim -- the task
+    # A identifier, the destruction rule -- one check with min_sites=2 is the stronger version of the
+    # same guarantee, because it also fails if one of the two sites is deleted.
+    chk("positive control: task A, with its gate value",
+        r"Moirai-Small/ETTh2, \$h\{=\}(\d+)\$, \$\\Vb\{\\text\{ridge\}\}\{=\}\{\+\}([\d.]+)\$",
+        R["pc_horizon"], R["pc_v_ridge"], min_sites=2)
+    chk("positive control: task A in the table caption",
+        r"Task A is Moirai-Small/ETTh2 \$h\{=\}(\d+)\$", R["pc_horizon"])
+    chk("positive control: validity condition (i), as the body phrases it",
+        r"learned in \\textbf\{(\d+) of (\d+)\} runs \(minimum \$\+([\d.]+)\\%\$ against a "
+        r"registered \$(\d+)\\%\$\)",
+        R["pc_n_learned"], R["pc_n_runs"], R["pc_learn_min"], R["pc_learn_thresh"])
+    chk("positive control: validity condition (i), as the appendix phrases it",
+        r"in \\textbf\{(\d+) of (\d+)\} runs, by at least \$\+([\d.]+)\\%\$ against a registered "
+        r"\$(\d+)\\%\$ threshold",
+        R["pc_n_learned"], R["pc_n_runs"], R["pc_learn_min"], R["pc_learn_thresh"])
+    chk("positive control: the registered validity threshold in the table caption",
+        r"registered validity threshold \$(\d+)\\%\$", R["pc_learn_thresh"])
+    # The destruction rule, quoted in the same words in both sections. This is the sentence the whole
+    # arm turns on -- the rederivation above asserts outcome 3 -- so the threshold is checked where it
+    # is stated rather than inferred from the outcome key.
+    chk("positive control: the registered destruction rule",
+        r"retention\$_A\\!\\geq\\!(\d+)\\%\$ in a majority", R["pc_des_thresh"], min_sites=2)
+    chk("positive control: the destruction threshold restated",
+        r"destruction threshold (?:is|of) \$\+(\d+)\\%\$", R["pc_des_thresh"], min_sites=2)
+    chk("positive control: the worst retention anywhere, and the noise floor it beats",
+        r"maximum over all (\d+) runs was \$\+([\d.]+)\\%\$, in one seed, against an evaluator "
+        r"noise floor of \$([\d.]+)\$~pp",
+        R["pc_n_runs"], R["pc_ret_max"], R["pc_noise_max"])
+    chk("positive control: the per-rung retention maxima",
+        r"per-rung maxima are \$([+-][\d.]+)\$, \$([+-][\d.]+)\$, \$([+-][\d.]+)\$ and "
+        r"\$([+-][\d.]+)\$",
+        R["pc_max_r1"], R["pc_max_r2"], R["pc_max_r3"], R["pc_max_r4"])
+    # The dissociation the arm buys even though it failed to destroy anything: the top rung against the
+    # gentlest one, all four numbers in one sentence so none can move alone.
+    chk("positive control: the top rung against the gentlest",
+        r"CKA on task A's inputs \$([\d.]+)\$, \$\\ell_2\$ weight drift \$(\d+)\$, against "
+        r"\$([\d.]+)\$ and \$([\d.]+)\$ at the gentlest rung",
+        R["pc_top_cka"], R["pc_top_drift"], R["pc_bot_cka"], R["pc_bot_drift"])
+    chk("positive control: task A improves at the top rung",
+        r"\\emph\{better\}, by \$([\d.]+)\\pm([\d.]+)\\%\$ in every seed",
+        R["pc_top_ret"], R["pc_top_ret_sem"])
+    chk("positive control: CKA-vs-retention rho (body)",
+        r"correlation between CKA and retention is \$\\rho\{=\}\{\+\}([\d.]+)\$", R["pc_rho"])
+    chk("positive control: CKA-vs-retention rho (appendix, with p and n)",
+        r"retention is \$\+([\d.]+)\$ \(\$p\{=\}([\d.]+)\$, \$n\{=\}(\d+)\$\)",
+        R["pc_rho"], R["pc_rho_p"], R["pc_rho_n"])
+    chk("positive control: task B's period equals the horizon",
+        r"\$P\{=\}(\d+)\{=\}h\$", R["pc_horizon"])
+    chk("positive control: why task B conflicts",
+        r"loses to its own negation by \$([\d.]+)\\times\$", R["pc_sn_ratio"])
+    chk("positive control: the evaluator noise floor and the pairs it is derived from",
+        r"Over the \$(\d+)\$ identical-state pairs that gap is at most \$([\d.]+)\$~pp and "
+        r"\$([\d.]+)\$~pp on average",
+        R["pc_noise_pairs"], R["pc_noise_max"], R["pc_noise_mean"])
+    chk("positive control: the noise floor in the table caption",
+        r"against the \$([\d.]+)\$~pp evaluator\s+noise floor", R["pc_noise_max"])
+    chk("positive control: validity condition (ii), the three frozen-encoder rungs",
+        r"completed rungs \(\$\+([\d.]+)\\pm([\d.]+)\$, \$\+([\d.]+)\\pm([\d.]+)\$, "
+        r"\$\+([\d.]+)\\pm([\d.]+)\$\)",
+        R["pc_d_r1"], R["pc_d_r1_sem"], R["pc_d_r2"], R["pc_d_r2_sem"],
+        R["pc_d_r3"], R["pc_d_r3_sem"])
+    chk("positive control: the diverged extension cells",
+        r"Condition D diverged in (\d+) of (\d+)", R["pc_n_diverged"], R["pc_ext_seeds"])
+    chk("positive control: run count and seeds in the table caption",
+        r"positive control: (\d+) runs, no destruction", R["pc_n_runs"])
+    chk("positive control: the seed count in the table caption",
+        r"\$\\pm\$ is the SEM over (\d+) seeds", R["pc_seeds"])
+    # What task A is worth, stated once in each section in different words. This is the arm's own
+    # stated limit -- it tests DETECTION of a loss, not the value of what is lost -- so both phrasings
+    # are registered, and both must move if the cell's margin over the ladder ever changes.
+    chk("positive control: task A's margin over the ladder (body)",
+        r"worth\s+only \$\+([\d.]+)\$ over seasonal-naive", R["pc_v_rung"])
+    chk("positive control: task A's margin over the ladder (appendix)",
+        r"task A beats seasonal-naive by only\s+\$\+([\d.]+)\$", R["pc_v_rung"])
     # "no cell clears the strongest admissible rung" is now registered per split, beside the rest of
     # the ladder: "no cell clears every admissible rung (selection split)" for the body's 31 and
     # "union count (retrospective)" for the appendix's 32. A single pattern here matched both and

@@ -14,32 +14,44 @@ pre-trained capability, and on these benchmarks it is mostly not
 eight-baseline ladder, four of the seven that beat a fitted ridge are
 \emph{improved} by full fine-tuning in every seed, and no cell meets a degradation
 definition fixed in advance.
-
+% The break between this paragraph and the next is closed on 21 Sep 2026: each paragraph break in this
+% section costs a printed line, as the comment above records, and \S\ref{sec:exp4:poscontrol} needs
+% them. Two paragraphs -- the result and why no cheap diagnostic replaces the intervention, then the
+% advice -- rather than three. The break before "The advice therefore inverts" is the one that carries
+% structure for a skimming reader, so it is the one kept.
 The reason no cheap diagnostic rescues this is structural rather than statistical.
 CKA tells us that the representation changed; only the intervention---fine-tune,
 then fine-tune again with the encoder frozen---tells us whether that change was
 valuable, and \textbf{across the cells we evaluate the former does not reliably
-predict the latter}.  Drift is measured \emph{after} the treatment and on the object
-the treatment altered, so even a strong association would not license a decision
-rule---and there is none to work with: $\denc$ spans $-51.8\%$ to $+46.1\%$
+predict the latter}.  There is no association to work with either: $\denc$ spans
+$-51.8\%$ to $+46.1\%$
 (\S\ref{sec:exp3}), and under an analysis fixed before it was run, CKA adds no
 out-of-sample predictive information once backbone identity, horizon and $n$ are
 known (Appendix~\ref{app:loco}).  The claim we would defend outside this setting is
 that methodological one: \textbf{a post-treatment similarity statistic cannot be
 assumed to identify the value of a treatment that changed the representation.}
+% The clause cut from here on 21 Sep 2026 -- "drift is measured AFTER the treatment and on the object
+% the treatment altered, so even a strong association would not license a decision rule" -- restated
+% the bold sentence two lines below it, which says the same thing in the general form the paper wants
+% defended, and S3's post-treatment paragraph beside Eq. 1 argues it at length. Cut for
+% \S\ref{sec:exp4:poscontrol}'s lines; the clause was the one whole sentence in this section that
+% added no claim its neighbours do not.
 
 The advice therefore inverts the literature's.  Check that
 the pre-trained features beat a baseline fitted on your own data before spending
 effort on LoRA, EWC or L2-SP; if they do, settle the question against a frozen
 encoder scored on windows you did not select on---in that order, because
 \textbf{a forgetting result measured on cells with no measurable pre-trained
-advantage is a statement about the benchmark}.  We claim that CKA magnitude does
-not identify whether encoder adaptation contributed in the cells we evaluate, and
-that the screen locates cells where no advantage over a fitted baseline is
-measurable under a definition we state; we do \emph{not} claim that drift is
-generally unpredictive across time-series foundation models, which three backbones
-cannot establish.  All three claims, their evidence, their strength and the three
-readings we do not make are tabulated in Appendix~\ref{app:claims}.
+advantage is a statement about the benchmark}.  We do \emph{not} claim that drift
+is generally unpredictive across backbones, which three cannot establish;
+Appendix~\ref{app:claims} states all three of our claims with their evidence,
+their strength and the three readings we do \emph{not} make.
+% The two POSITIVE claims were enumerated here as well -- CKA-does-not-identify, and
+% the-screen-locates-cells -- and are cut on 21 Sep 2026 for \S\ref{sec:exp4:poscontrol}'s last two
+% lines. Both are stated in the sentences immediately above (the bold spine sentence and the bold
+% benchmark-selection sentence) and tabulated with their evidence and strength in app:claims, which is
+% the section a reviewer asking for the three claims to be separated was pointed at. The DISCLAIMER is
+% what is kept, because nothing else in the body says which reading we decline.
 % The closing line -- "the cheap rule we hoped to report rests on a premise these benchmarks do not
 % supply" -- is cut for the one printed line S5's treatment paragraph needs. It restated the
 % benchmark-selection lesson three sentences above it rather than adding a claim, and it was the only
