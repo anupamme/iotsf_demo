@@ -1,0 +1,43 @@
+{
+  "path": "data/synthetic/antipersistent_v1.csv",
+  "sha256": "31df53e30092709acf6b1496273fc1ca79ccf5aa39b2333c0b7190687c53675c",
+  "generator": "scripts/make_conflicting_series.py",
+  "seed": 20260921,
+  "n_timesteps": 17420,
+  "period": 192,
+  "horizon": 192,
+  "lookback": 96,
+  "n_harmonics": 3,
+  "noise_frac": 0.1,
+  "columns": [
+    "HUFL",
+    "HULL",
+    "MUFL",
+    "MULL",
+    "LUFL",
+    "LULL",
+    "OT"
+  ],
+  "start": "2016-07-01 00:00:00",
+  "freq": "h",
+  "amplitudes": [
+    11.250489,
+    3.455306,
+    7.589177,
+    6.515915,
+    10.707868,
+    11.159643,
+    8.316639
+  ],
+  "construction": "x[j,t] = a[j] * (-1)**(t//P) * s[j](t mod P) + sigma[j]*noise; s[j] a 3-harmonic unit-variance periodic shape, P=192 = h",
+  "anti_persistence": {
+    "mse_seasonal_naive": 3.976321555021578,
+    "mse_negated_seasonal_naive": 0.01979368763548282,
+    "mse_persistence": 2.006655139554205,
+    "mse_climatology": 0.9990923113323865,
+    "n_windows": 461,
+    "horizon": 192,
+    "seasonal_naive_lag": 192
+  },
+  "seasonal_naive_over_its_negation": 200.8884
+}

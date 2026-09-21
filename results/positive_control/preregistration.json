@@ -1,0 +1,192 @@
+{
+  "registered_by": "scripts/preregister_positive_control.py",
+  "git_head": "4c31ba69e84eeb83ab5e9e038a7c8806bb7d2fc0",
+  "purpose": "Construct a regime where fine-tuning demonstrably destroys a pre-trained capability, and test whether CKA detects the damage.",
+  "task_a": {
+    "cell": "small_ETTh2_h192",
+    "model_size": "small",
+    "dataset": "ETTh2",
+    "horizon": 192,
+    "v_ridge_selection": 0.9318906022423123,
+    "zeroshot_mse_selection": 0.15710351566910988,
+    "ridge_baseline_mse_selection": 2.30663492618208,
+    "n_windows": 300,
+    "v_best_admissible_rung": 0.08131834168283258,
+    "strongest_admissible_rung": "seasonal_naive",
+    "clears_all_admissible_rungs": false,
+    "selection_rule": "argmax V_ridge over the 7 cells clearing 0.20 on the selection split",
+    "data_path": "data/forecasting/ETTh2.csv",
+    "margin_caveat": "V_ridge is +0.932 but the margin over the strongest admissible rung (seasonal_naive) is only +0.081 and the cell does not clear the ladder; this arm tests DETECTION of a retention loss, not the value of what is lost"
+  },
+  "task_b": {
+    "path": "data/synthetic/antipersistent_v1.csv",
+    "sha256": "31df53e30092709acf6b1496273fc1ca79ccf5aa39b2333c0b7190687c53675c",
+    "generator": "scripts/make_conflicting_series.py",
+    "seed": 20260921,
+    "construction": "x[j,t] = a[j] * (-1)**(t//P) * s[j](t mod P) + sigma[j]*noise; s[j] a 3-harmonic unit-variance periodic shape, P=192 = h",
+    "seasonal_naive_over_its_negation": 200.8884,
+    "why": "the correct forecast is the NEGATION of the last period, so the seasonal-naive prior -- the strongest admissible rung on task A's own cell -- is maximally wrong; learning B requires overwriting the prior"
+  },
+  "grid": {
+    "learning_rates": [
+      0.0001,
+      0.001,
+      0.01
+    ],
+    "conditions": [
+      "B",
+      "D"
+    ],
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "epochs": 20,
+    "max_train_samples": 1000,
+    "batch_size": 16,
+    "n_runs": 18,
+    "runs": [
+      {
+        "condition": "B",
+        "lr": 0.0001,
+        "seed": 42
+      },
+      {
+        "condition": "B",
+        "lr": 0.0001,
+        "seed": 123
+      },
+      {
+        "condition": "B",
+        "lr": 0.0001,
+        "seed": 456
+      },
+      {
+        "condition": "D",
+        "lr": 0.0001,
+        "seed": 42
+      },
+      {
+        "condition": "D",
+        "lr": 0.0001,
+        "seed": 123
+      },
+      {
+        "condition": "D",
+        "lr": 0.0001,
+        "seed": 456
+      },
+      {
+        "condition": "B",
+        "lr": 0.001,
+        "seed": 42
+      },
+      {
+        "condition": "B",
+        "lr": 0.001,
+        "seed": 123
+      },
+      {
+        "condition": "B",
+        "lr": 0.001,
+        "seed": 456
+      },
+      {
+        "condition": "D",
+        "lr": 0.001,
+        "seed": 42
+      },
+      {
+        "condition": "D",
+        "lr": 0.001,
+        "seed": 123
+      },
+      {
+        "condition": "D",
+        "lr": 0.001,
+        "seed": 456
+      },
+      {
+        "condition": "B",
+        "lr": 0.01,
+        "seed": 42
+      },
+      {
+        "condition": "B",
+        "lr": 0.01,
+        "seed": 123
+      },
+      {
+        "condition": "B",
+        "lr": 0.01,
+        "seed": 456
+      },
+      {
+        "condition": "D",
+        "lr": 0.01,
+        "seed": 42
+      },
+      {
+        "condition": "D",
+        "lr": 0.01,
+        "seed": 123
+      },
+      {
+        "condition": "D",
+        "lr": 0.01,
+        "seed": 456
+      }
+    ],
+    "declared_extension_lr": 0.1,
+    "stopping_rule": "if destruction is not achieved at lr=1e-2 we may add lr=1e-1 ONCE and then stop and report whatever it shows"
+  },
+  "primary_readout": {
+    "name": "retention_A",
+    "formula": "100 * (MSE_A(theta_FT) - MSE_A(theta_ZS)) / MSE_A(theta_ZS)",
+    "windows": "task A's HELD-OUT windows, built by make_eval_sequences at lookback 96, h=192",
+    "sign": "POSITIVE means the capability got worse, i.e. damage",
+    "contrast": "retention_A(B) - retention_A(D), on the same 100/L_ZS scaling as Eq. 1, so it is directly comparable to Delta_enc in the main matrix"
+  },
+  "primary_checkpoint": {
+    "which": "the early-stopped checkpoint",
+    "why": "comparability with the main matrix, which early-stops on task B's validation MSE",
+    "also_reported": "the FINAL-epoch state, as the maximal-destruction bound: early stopping on task B can halt before destruction of task A completes, so the final state is the fairer test of whether damage is constructible at all"
+  },
+  "cka": {
+    "measured_on": "TASK A's inputs",
+    "why": "this differs from the main matrix, where task A and task B coincide and the distinction is empty. Here it is the whole question: CKA must be asked whether the representation of the capability being lost has changed. Measuring it on task B's inputs would answer a different question -- whether the model adapted to B -- and would be trivially yes.",
+    "ordering_test": "Spearman rho between CKA and retention_A across all runs",
+    "ordering_threshold": -0.5
+  },
+  "thresholds": {
+    "destruction_pct": 50.0,
+    "destruction_rule": "retention_A >= 50% in a MAJORITY of seeds at some rung under condition B",
+    "taskb_learned_pct": 20.0,
+    "taskb_learned_rule": "MSE on task B's own held-out windows falls by at least 20% vs zero-shot",
+    "cka_ordering_rho": -0.5
+  },
+  "validity_conditions": [
+    {
+      "name": "task B is actually learned",
+      "rule": "MSE_B(theta_FT) < MSE_B(theta_ZS) by >= 20%",
+      "if_violated": "any collapse on task A is weight thrashing rather than forgetting, and must be reported as such rather than as a positive control"
+    },
+    {
+      "name": "condition D preserves task A",
+      "rule": "retention_A(D) is small relative to retention_A(B) at the same rung",
+      "falsifiable": true,
+      "if_violated": "the damage is not located in the encoder, which is what already happens on Chronos/ETTh1 in Sec. 6; the frozen-encoder control would then be uninformative here too and we say so"
+    }
+  ],
+  "outcomes_fixed_in_advance": {
+    "1_destruction_and_cka_orders_it": "CKA has a domain of validity: it detects damage when the effect is large and engineered, and fails to order the small-effect benign regime these benchmarks produce. Claim A narrows explicitly to the benign regime, and the paper gains its positive control -- the negative result is then about effect size, not about CKA being blind.",
+    "2_destruction_but_cka_does_not_order_it": "The strongest form of the negative claim: CKA fails to order damage even when the damage is large, engineered and known to be present, so its failure on the benchmark cells is not a power problem.",
+    "3_destruction_not_achieved": "The positive control failed to construct. We report the full ladder and the failure, and state that deliberately adversarial fine-tuning did not destroy the capability -- itself a finding about TSFM robustness, and a reason the main matrix's null is unsurprising. One declared extension to lr=1e-1, then stop."
+  },
+  "what_this_cannot_show": [
+    "that the destroyed capability was valuable against a strong baseline (it was +0.081 over seasonal-naive)",
+    "that anything generalises beyond one backbone, one series and one synthetic task B",
+    "that a sign-inverting target task resembles a deployment scenario"
+  ]
+}
