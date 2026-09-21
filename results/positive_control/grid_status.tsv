@@ -53,3 +53,15 @@ lr0.01_D_s123	retention_best_encoder	ok	132
 lr0.01_D_s456	finetune	ok	1741
 lr0.01_D_s456	retention_final_state	ok	133
 lr0.01_D_s456	retention_best_encoder	ok	132
+lr0.1_B_s42	finetune	ok	1807
+lr0.1_B_s42	retention_final_state	ok	135
+lr0.1_B_s42	retention_best_encoder	ok	132
+lr0.1_B_s123	finetune	ok	1801
+lr0.1_B_s123	retention_final_state	ok	134
+lr0.1_B_s123	retention_best_encoder	ok	131
+lr0.1_B_s456	finetune	ok	1802
+lr0.1_B_s456	retention_final_state	ok	134
+lr0.1_B_s456	retention_best_encoder	ok	132
+lr0.1_D_s42	finetune	FAILED(rc=1)	232
+lr0.1_D_s123	finetune	FAILED(rc=1)	82
+lr0.1_D_s456	finetune	FAILED(rc=1)	80

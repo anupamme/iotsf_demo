@@ -85,6 +85,44 @@ def read_cell(lr, cond, seed, horizon):
     return row
 
 
+def diverged_cells():
+    """Cells whose run FAILED, with the reason read out of the runner's own log.
+
+    A cell with no record is ambiguous -- never launched, or launched and crashed -- and the two are not
+    the same fact. The registered grid completed 18/18, but the declared lr=1e-1 extension's THREE
+    frozen-encoder cells diverged numerically: with the encoder frozen every gradient lands on the
+    decoder, and its likelihood head leaves the domain its distribution requires. That is a result about
+    the rung, not an absence of one, and reporting it as "missing" would read as work not done.
+
+    Derived, never hand-typed: the failing cells come from the status file the runner appends a verdict
+    to, and the reason from the exception in that cell's log. If a future failure has a different cause
+    this reports THAT cause, rather than a sentence about the negative binomial that has stopped
+    being true.
+    """
+    tsv = PC / "grid_status.tsv"
+    if not tsv.exists():
+        return {}
+    out = {}
+    for line in tsv.read_text().splitlines()[1:]:
+        parts = line.split("\t")
+        if len(parts) < 3 or not parts[2].startswith("FAILED"):
+            continue
+        cell, stage = parts[0], parts[1]
+        log = ROOT / f"logs/pc_{cell}.log"
+        reason = "the runner recorded a failure; its log is not present"
+        if log.exists():
+            # The LAST exception line, not the first: training catches and skips individual bad batches
+            # (logged as warnings), and the run dies later on the uncaught one. The first match would be
+            # a survived batch, which is the opposite of the fatal cause.
+            hits = [ln.strip() for ln in log.read_text(errors="replace").splitlines()
+                    if ln.startswith(("ValueError:", "RuntimeError:", "TypeError:", "AssertionError:",
+                                      "KeyError:", "OSError:", "torch.OutOfMemoryError:"))]
+            if hits:
+                reason = hits[-1][:300]
+        out[cell] = dict(stage=stage, status=parts[2], reason=reason)
+    return out
+
+
 def dispersion(xs):
     """std at both ddofs and the SEM, every time.
 
@@ -117,16 +155,34 @@ def main():
     ext = [(ext_lr, c, s) for c in g["conditions"] for s in g["seeds"]]
     ext_present = [k for k in ext if cell_dir(*k).exists()]
 
-    rows, missing = [], []
+    # A cell with no record is separated into "diverged" (the runner recorded a failure, and the reason
+    # is read from its log) and "missing" (no record and no recorded failure -- never launched). Both are
+    # reported, but only the second makes the outcome provisional: a recorded divergence IS a result.
+    failed = diverged_cells()
+    rows, missing, diverged = [], [], {}
     for lr, cond, seed in planned + ext_present:
+        name = f"lr{lr}_{cond}_s{seed}"
         r = read_cell(lr, cond, seed, hz)
         if r is None:
-            missing.append(f"lr{lr}_{cond}_s{seed}")
+            if name in failed:
+                diverged[name] = dict(failed[name], registered=(lr, cond, seed) in planned,
+                                      lr=lr, condition=cond, seed=seed)
+            else:
+                missing.append(name)
             continue
         r["registered"] = (lr, cond, seed) in planned
         rows.append(r)
     incomplete = [r["dir"] for r in rows if r[f"retention_A_{primary_ck}"] is None
                   or r[f"retention_A_{bound_ck}"] is None]
+    # Provisionality is about the REGISTERED grid only. The extension is optional by the stopping rule,
+    # so an extension cell that diverged does not make the registered ladder's verdict partial -- and
+    # calling it partial would be its own error, since it would mark a complete 18/18 as unfinished.
+    reg_missing = [f"lr{lr}_{c}_s{s}" for (lr, c, s) in planned
+                   if f"lr{lr}_{c}_s{s}" in missing]
+    reg_diverged = [k for k, v in diverged.items() if v["registered"]]
+    reg_unscored = [r["dir"] for r in rows if r["registered"] and (
+        r[f"retention_A_{primary_ck}"] is None or r[f"retention_A_{bound_ck}"] is None)]
+    n_reg_rows = sum(1 for r in rows if r["registered"])
 
     if not rows:
         sys.exit("no positive-control runs found; run scripts/run_positive_control.sh first")
@@ -211,8 +267,11 @@ def main():
         task_a=reg["task_a"], task_b=reg["task_b"],
         primary_checkpoint=primary_ck, bound_checkpoint=bound_ck,
         n_registered_runs=len(planned), n_runs_found=len(rows),
+        n_registered_runs_found=n_reg_rows,
         extension_taken=bool(ext_present), extension_lr=ext_lr,
+        extension_runs_found=len(rows) - n_reg_rows, extension_runs_planned=len(ext),
         missing_cells=missing, cells_without_retention=incomplete,
+        diverged_cells=diverged,
         rows=rows, by_rung=by_rung,
         validity_taskb_learned=dict(rule=thr["taskb_learned_rule"], threshold=thr["taskb_learned_pct"],
                                     n_meeting=n_learned, n_runs=len(rows), all_meet=taskb_ok,
@@ -231,7 +290,7 @@ def main():
         # A one-cell grid can satisfy "destruction not achieved" trivially. The outcome is therefore
         # marked provisional until every registered cell has a retention score, so that a reader (or a
         # later script) cannot lift `outcome` out of this file and treat a partial ladder as a verdict.
-        outcome_provisional=bool(missing or incomplete),
+        outcome_provisional=bool(reg_missing or reg_unscored or reg_diverged),
         what_this_cannot_show=reg["what_this_cannot_show"],
     )
     OUT_JSON.write_text(json.dumps(out, indent=2))
@@ -259,11 +318,24 @@ def main():
     # failure this table can cause, and it disappears by itself when the last cell lands.
     # Plain text, NOT \multicolumn: this file is \input inside a table environment but OUTSIDE the
     # tabular, and \multicolumn there is a LaTeX error rather than a marker anybody would see.
-    if missing or incomplete:
+    # Registered and extension runs are counted against their OWN denominators. The first version printed
+    # len(rows) over len(planned), so once the extension ran it read "21 of 18 registered runs present" --
+    # a fraction over one, in bold, in the PDF, on the one table whose job is to say how much of the
+    # ladder exists.
+    if reg_missing or reg_unscored or reg_diverged:
         A(r"\textbf{PARTIAL GRID: " +
-          f"{len(rows)} of {len(planned)} registered runs present" +
-          (f", {len(incomplete)} unscored" if incomplete else "") +
+          f"{n_reg_rows} of {len(planned)} registered runs present" +
+          (f", {len(reg_unscored)} unscored" if reg_unscored else "") +
           r". The outcome is provisional.}\\[3pt]")
+    if diverged:
+        # Stated in the table, not only in prose: a reader comparing the rows will notice a rung with one
+        # condition and no other, and the reason has to be where the gap is.
+        lrs = sorted({v["lr"] for v in diverged.values()})
+        conds = sorted({COND_NAME[v["condition"]] for v in diverged.values()})
+        A(r"\textbf{" + f"Diverged, not omitted: {len(diverged)} run(s)" +
+          f" at lr~$={'$, $='.join(f'{x:g}' for x in lrs)}$, {', '.join(conds)}" +
+          r"} did not complete; training diverged and the run is reported as a divergence "
+          r"rather than a number (see text).\\[3pt]")
     A(r"\begin{tabular}{@{}llrrrrr@{}}")
     A(r"\toprule")
     A(r"& & task B & \multicolumn{2}{c}{retention on task A (\%)} & CKA on & $\ell_2$ \\")
@@ -288,11 +360,14 @@ def main():
 
     # ------------------------------------------------------------------ stdout
     print(f"wrote {OUT_JSON.relative_to(ROOT)} and {OUT_TEX.relative_to(ROOT)}")
-    print(f"  runs found {len(rows)}/{len(planned)} registered"
-          f"{f' + {len(ext_present)} extension' if ext_present else ''}")
+    print(f"  runs found {n_reg_rows}/{len(planned)} registered"
+          f"{f' + {len(rows) - n_reg_rows}/{len(ext)} extension (lr={ext_lr:g})' if ext_present else ''}")
     if missing:
         print(f"  MISSING {len(missing)}: {', '.join(missing[:6])}"
               f"{' ...' if len(missing) > 6 else ''}")
+    for name, v in sorted(diverged.items()):
+        print(f"  DIVERGED {name} ({'registered' if v['registered'] else 'extension'}, {v['stage']}): "
+              f"{v['reason'][:110]}")
     if incomplete:
         print(f"  NO RETENTION SCORE for {len(incomplete)}: {', '.join(incomplete[:4])}")
     print(f"  task B learned in {n_learned}/{len(rows)} runs "
@@ -307,7 +382,8 @@ def main():
         print(f"  evaluator noise floor: max {max(noise):.2f} pp over "
               f"{len(noise)} identical-state pairs")
     print(f"  REGISTERED OUTCOME {outcome}: {key}"
-          + ("   [PROVISIONAL -- grid incomplete]" if (missing or incomplete) else ""))
+          + ("   [PROVISIONAL -- registered grid incomplete]"
+             if (reg_missing or reg_unscored or reg_diverged) else ""))
     return 0
 
 

@@ -29,11 +29,43 @@
   "primary_checkpoint": "best_encoder",
   "bound_checkpoint": "final_state",
   "n_registered_runs": 18,
-  "n_runs_found": 18,
-  "extension_taken": false,
+  "n_runs_found": 21,
+  "n_registered_runs_found": 18,
+  "extension_taken": true,
   "extension_lr": 0.1,
+  "extension_runs_found": 3,
+  "extension_runs_planned": 6,
   "missing_cells": [],
   "cells_without_retention": [],
+  "diverged_cells": {
+    "lr0.1_D_s42": {
+      "stage": "finetune",
+      "status": "FAILED(rc=1)",
+      "reason": "ValueError: Expected parameter total_count (Tensor of shape (8, 63, 128)) of distribution NegativeBinomial(total_count: torch.Size([8, 63, 128]), logits: torch.Size([8, 63, 128])) to satisfy the constraint GreaterThan(lower_bound=0.0), but found invalid values:",
+      "registered": false,
+      "lr": 0.1,
+      "condition": "D",
+      "seed": 42
+    },
+    "lr0.1_D_s123": {
+      "stage": "finetune",
+      "status": "FAILED(rc=1)",
+      "reason": "ValueError: Expected parameter total_count (Tensor of shape (8, 63, 128)) of distribution NegativeBinomial(total_count: torch.Size([8, 63, 128]), logits: torch.Size([8, 63, 128])) to satisfy the constraint GreaterThan(lower_bound=0.0), but found invalid values:",
+      "registered": false,
+      "lr": 0.1,
+      "condition": "D",
+      "seed": 123
+    },
+    "lr0.1_D_s456": {
+      "stage": "finetune",
+      "status": "FAILED(rc=1)",
+      "reason": "ValueError: Expected parameter logits (Tensor of shape (8, 252, 128, 4)) of distribution Categorical(logits: torch.Size([8, 252, 128, 4])) to satisfy the constraint IndependentConstraint(Real(), 1), but found invalid values:",
+      "registered": false,
+      "lr": 0.1,
+      "condition": "D",
+      "seed": 456
+    }
+  },
   "rows": [
     {
       "lr": 0.0001,
@@ -466,6 +498,78 @@
       "mse_A_zeroshot_final_state": 0.3183067301282833,
       "mse_A_finetuned_final_state": 0.2910172739816348,
       "registered": true
+    },
+    {
+      "lr": 0.1,
+      "condition": "B",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.1_B_s42",
+      "taskb_learned_pct": 87.87448223876585,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.24881850203459574,
+      "cka_on_task_b_inputs": 0.11247152835130692,
+      "weight_drift": 2872.4797611135346,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -22.67946871525325,
+      "cka_on_task_a_best_encoder": 0.09339912235736847,
+      "mse_A_zeroshot_best_encoder": 0.31902194120340505,
+      "mse_A_finetuned_best_encoder": 0.24666945985338518,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -22.534221114172485,
+      "cka_on_task_a_final_state": 0.09339912235736847,
+      "mse_A_zeroshot_final_state": 0.31891648235904035,
+      "mse_A_finetuned_final_state": 0.24705113705471332,
+      "registered": false
+    },
+    {
+      "lr": 0.1,
+      "condition": "B",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.1_B_s123",
+      "taskb_learned_pct": 82.54679670361445,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.3971453968165447,
+      "cka_on_task_b_inputs": 0.04627951234579086,
+      "weight_drift": 2774.310354096148,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -27.03130404781743,
+      "cka_on_task_a_best_encoder": 0.05460222065448761,
+      "mse_A_zeroshot_best_encoder": 0.3197925159251551,
+      "mse_A_finetuned_best_encoder": 0.23334842862326147,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -27.073932260369254,
+      "cka_on_task_a_final_state": 0.05460222065448761,
+      "mse_A_zeroshot_final_state": 0.31930868616642355,
+      "mse_A_finetuned_final_state": 0.232859268772251,
+      "registered": false
+    },
+    {
+      "lr": 0.1,
+      "condition": "B",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.1_B_s456",
+      "taskb_learned_pct": 82.01069180731946,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.38421868533804504,
+      "cka_on_task_b_inputs": 0.01973353512585163,
+      "weight_drift": 2737.685697191979,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -20.14242332835662,
+      "cka_on_task_a_best_encoder": 0.040433574467897415,
+      "mse_A_zeroshot_best_encoder": 0.31817863250486383,
+      "mse_A_finetuned_best_encoder": 0.25408974540535806,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -20.32864129817548,
+      "cka_on_task_a_final_state": 0.040433574467897415,
+      "mse_A_zeroshot_final_state": 0.3192350685059702,
+      "mse_A_finetuned_final_state": 0.2543389165314068,
+      "registered": false
     }
   ],
   "by_rung": {
@@ -747,13 +851,106 @@
         "n_runs": 3
       },
       "delta_enc_like": -16.767873251958232
+    },
+    "0.1": {
+      "B": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 84.14399024989991,
+          "std_ddof0": 2.6469202197022024,
+          "std_ddof1": 3.24180196406297,
+          "sem": 1.8716552366112134
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": -23.284398697142432,
+          "std_ddof0": 2.8447172799162366,
+          "std_ddof1": 3.4840528991364423,
+          "sem": 2.0115188791873213
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": -23.31226489090574,
+          "std_ddof0": 2.80817279027345,
+          "std_ddof1": 3.4392952228688167,
+          "sem": 1.9856780227459054
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.06281163915991783,
+          "std_ddof0": 0.022388735708773106,
+          "std_ddof1": 0.027420489236261596,
+          "sem": 0.015831226841866868
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.0594948586076498,
+          "std_ddof0": 0.03899630648738219,
+          "std_ddof1": 0.04776052637363589,
+          "sem": 0.027574552758456904
+        },
+        "drift": {
+          "n": 3,
+          "mean": 2794.8252708005534,
+          "std_ddof0": 56.909321279052484,
+          "std_ddof1": 69.69939937089576,
+          "sem": 40.2409669891419
+        },
+        "n_runs": 3
+      },
+      "D": {
+        "taskb_learned": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "retention_primary": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "retention_bound": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "cka_task_a": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "cka_task_b": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "drift": {
+          "n": 0,
+          "mean": null,
+          "std_ddof0": null,
+          "std_ddof1": null,
+          "sem": null
+        },
+        "n_runs": 0
+      },
+      "delta_enc_like": null
     }
   },
   "validity_taskb_learned": {
     "rule": "MSE on task B's own held-out windows falls by at least 20% vs zero-shot",
     "threshold": 20.0,
-    "n_meeting": 18,
-    "n_runs": 18,
+    "n_meeting": 21,
+    "n_runs": 21,
     "all_meet": true,
     "min_pct": 56.57433265932301,
     "max_pct": 99.33307857249595
@@ -780,6 +977,12 @@
           "n_over": 0,
           "majority": false,
           "max": 4.938943513741548
+        },
+        "0.1": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": -20.14242332835662
         }
       },
       "achieved": false,
@@ -804,6 +1007,12 @@
           "n_over": 0,
           "majority": false,
           "max": 4.727479261694626
+        },
+        "0.1": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": -20.32864129817548
         }
       },
       "achieved": false,
@@ -814,22 +1023,22 @@
     "rule": "Spearman rho between CKA and retention_A across all runs",
     "threshold": -0.5,
     "primary": {
-      "n": 18,
-      "rho": 0.20743034055727552,
-      "p": 0.4088537259590217,
+      "n": 21,
+      "rho": 0.46623376623376617,
+      "p": 0.03314052796877135,
       "orders": false
     },
     "bound": {
-      "n": 18,
-      "rho": 0.2053663570691434,
-      "p": 0.4136353714020946,
+      "n": 21,
+      "rho": 0.464935064935065,
+      "p": 0.03369923102896563,
       "orders": false
     }
   },
   "evaluator_noise_pp": {
-    "n_identical_state_pairs": 14,
+    "n_identical_state_pairs": 17,
     "max": 0.48444152520698225,
-    "mean": 0.2153673197112738,
+    "mean": 0.19936683878878134,
     "why": "the two checkpoints are the same state whenever early stopping did not fire, so any difference between their retention numbers is the sampled forecast's own noise"
   },
   "outcome": "3",
