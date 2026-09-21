@@ -120,3 +120,7 @@ paper_8/*review_map.md
 # in the tree that writes the author's identifiers down, so shipping it would defeat the check that
 # reads it.
 .anonymity_terms
+
+# The supplementary bundle is a build artifact: scripts/make_supplementary.py regenerates it
+# from "git archive" at a named commit, so committing it would store the repo inside itself.
+supplementary.zip
