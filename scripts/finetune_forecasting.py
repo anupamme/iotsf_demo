@@ -358,6 +358,54 @@ def compute_fisher_diagonal(model, data_loader, horizon, device, n_samples=200):
 
 
 # ---------------------------------------------------------------------------
+# Window construction
+#
+# These two were nested inside main() until 21 Sep 2026. They are module-level now because two other
+# things need the EXACT index arithmetic rather than a restatement of it: scripts/eval_retention.py,
+# which scores a fine-tuned checkpoint on a different dataset's windows, and
+# paper_8/figA_window_layout.py, which draws the appendix's input/target diagram from the indices
+# these functions actually return. A reviewer asked whether the extended-lookback evaluation leaks
+# target values into the model input; the answer has to be checkable against the code that produced
+# the numbers, not against a sentence that paraphrases it.
+#
+# Neither function closes over anything -- every input is an argument -- so lifting them changes no
+# behaviour. Verified by re-running every emitter and diffing the md5 of each table and figure.
+# ---------------------------------------------------------------------------
+
+def make_train_sequences(data, ctx_len, hz):
+    """Create (context, target) pairs for NLL training.
+
+    Window i:  context = data[i : i+ctx_len]
+               target  = data[i+ctx_len : i+ctx_len+hz]
+    The target begins exactly where the context ends, so no target step is in the context.
+    """
+    X, y = [], []
+    total = ctx_len + hz
+    for i in range(len(data) - total + 1):
+        X.append(data[i:i+ctx_len])
+        y.append(data[i+ctx_len:i+total])
+    return np.array(X), np.array(y)
+
+
+def make_eval_sequences(data, ext_lb, hz):
+    """Create extended-lookback sequences for inference evaluation.
+
+    Window i:  input  = data[i : i+ext_lb]              <- ext_lb PAST steps, ext_lb = lookback + hz
+               target = data[i+ext_lb : i+ext_lb+hz]    <- the hz steps STRICTLY AFTER the input
+
+    "Extended lookback" means a longer HISTORY, not history-plus-target: the input's last index is
+    i+ext_lb-1 and the target's first is i+ext_lb, so the two windows are disjoint and consecutive.
+    The model is given only `input` (as past_target) and forecasts hz steps ahead.
+    """
+    X, y = [], []
+    total = ext_lb + hz
+    for i in range(len(data) - total + 1):
+        X.append(data[i:i+ext_lb])
+        y.append(data[i+ext_lb:i+total])
+    return np.array(X), np.array(y)
+
+
+# ---------------------------------------------------------------------------
 # Evaluation
 # ---------------------------------------------------------------------------
 
@@ -649,6 +697,15 @@ def main():
                         help="Comma-separated MLP hidden-layer depths to sweep (e.g. '1,2,5'). Each depth k uses hidden_layer_sizes=(64,)*k. Emits r2_delta_mlp_k{k} fields.")
     parser.add_argument('--save-best-encoder', action='store_true',
                         help="When --early-stopping is set, also persist best_state to {results_dir}/best_encoder.pt for future re-probing.")
+    # --save-best-encoder is gated inside the early-stopping branch, which makes it useless for the
+    # positive control: that arm early-stops on TASK B's validation MSE, so the restored checkpoint is
+    # the one that stopped before destruction of task A finished, and the state we most need to score
+    # is the one early stopping throws away. This flag saves the END-OF-TRAINING weights
+    # unconditionally, before any restore, so both checkpoints can be scored on task A.
+    parser.add_argument('--save-final-state', action='store_true',
+                        help="Persist the end-of-training state dict to {results_dir}/final_state.pt, "
+                             "unconditionally and BEFORE any early-stopping restore. Independent of "
+                             "--early-stopping and --save-best-encoder.")
     parser.add_argument('--deterministic', action='store_true',
                         help="Enable deterministic training: fixed seeds for DataLoader workers, PYTHONHASHSEED, and torch.use_deterministic_algorithms(True, warn_only=True).")
     # The value gate's numerator on a THIRD region, used for nothing else. The paper's primary gate
@@ -730,25 +787,9 @@ def main():
     # For TRAINING (NLL loss): use context_length (96) + prediction_length (96) = 192
     #   This matches the IoT fine-tuning pattern in moirai_detector.py
     # For EVALUATION (forward/inference): use extended_lookback (192) for patch_size='auto'
+    # Both builders are module-level (see above) so that the retention evaluator and the appendix's
+    # window-layout figure read the SAME index arithmetic this run used, rather than a restatement.
     extended_lookback = lookback + horizon  # for evaluation
-
-    def make_train_sequences(data, ctx_len, hz):
-        """Create (context, target) pairs for NLL training."""
-        X, y = [], []
-        total = ctx_len + hz
-        for i in range(len(data) - total + 1):
-            X.append(data[i:i+ctx_len])
-            y.append(data[i+ctx_len:i+total])
-        return np.array(X), np.array(y)
-
-    def make_eval_sequences(data, ext_lb, hz):
-        """Create extended lookback sequences for inference evaluation."""
-        X, y = [], []
-        total = ext_lb + hz
-        for i in range(len(data) - total + 1):
-            X.append(data[i:i+ext_lb])
-            y.append(data[i+ext_lb:i+total])
-        return np.array(X), np.array(y)
 
     X_train, y_train = make_train_sequences(train_vals, lookback, horizon)
     X_val_eval, y_val_eval_raw = make_eval_sequences(val_vals, extended_lookback, horizon)
@@ -1061,6 +1102,18 @@ def main():
     final_epoch_drift = history['weight_drift'][-1]
     final_epoch_forgetting = (final_epoch_val_mse - zeroshot_metrics['mse']) / zeroshot_metrics['mse'] * 100
 
+    # Save the end-of-training weights HERE, above the restore, or they are gone: the restore below
+    # overwrites model.state_dict() in place. The positive control needs this state specifically --
+    # early stopping on task B's val MSE can halt before damage to task A completes, so the
+    # final-epoch state is the maximal-destruction bound the pre-registration asks for.
+    final_state_path = None
+    if args.save_final_state:
+        final_state_path = Path(args.results_dir) / 'final_state.pt'
+        final_state_path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save({k: v.detach().cpu().clone() for k, v in model.state_dict().items()},
+                   final_state_path)
+        logger.info(f"Saved end-of-training state to {final_state_path}")
+
     # If early stopping is enabled, restore encoder weights to best-val-MSE checkpoint.
     early_stopping_info = {'enabled': bool(args.early_stopping)}
     if args.early_stopping and best_state is not None:
@@ -1244,6 +1297,12 @@ def main():
         'early_stopping': early_stopping_info,
         'linear_probe': probe_results,
         'history': history,
+        # Where the end-of-training weights went, so scripts/eval_retention.py can find them without
+        # reconstructing the path convention. None when --save-final-state was not passed, which is
+        # every run in the main matrix.
+        'final_state_path': str(final_state_path) if final_state_path else None,
+        'lr': args.lr,
+        'data_path': args.data_path,
     }
 
     output_path = results_dir / f'condition_{args.condition}_h{horizon}_s{args.seed}.json'
