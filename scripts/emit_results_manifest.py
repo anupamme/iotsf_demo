@@ -59,28 +59,69 @@ SUPERSEDED = {
     "results/v5_etth2_sweep": (
         "the original ETTh2 sweep, scored against an UNFITTED linear baseline; every gate value it "
         "reports is superseded by the fitted-baseline correction"),
-    "results/v47_prospective": (
-        "prospective batch 1 (n=8), superseded as the primary prospective arm by v48_prospective2; "
-        "retained because its pre-registration is the one batch 2 reuses"),
+    # results/v47_prospective was listed here until 21 Sep 2026, as "superseded as the primary
+    # prospective arm by v48_prospective2". That was never true, and the trace is what showed it: v47
+    # is opened by seven targeted call sites including score_prospective.py:load, it holds a record the
+    # matrix loader keeps, and all EIGHT cells the prospective arm scores are inside it. v48 holds
+    # condition-A references for six DIFFERENT cells and nothing else. Labelling the directory the
+    # pre-registered prospective test is scored from "do not read as current" was the single most
+    # misleading line in a file whose whole purpose is to stop a reader being misled.
 }
 
-ORPHAN_NOTES = {
+# Hand-written notes for directories a reader would otherwise have to guess about, whatever label
+# they end up with. Named DIR_NOTES rather than ORPHAN_NOTES because two of the three entries are now
+# SCANNED, not ORPHAN, and a dict whose name disagrees with its contents is how the labels drifted.
+DIR_NOTES = {
     "results/frozen_diffts_crosseval": "abandoned IoT anomaly arm (F1/recall on stealth attacks)",
     "results/unfrozen_diffts_crosseval": "abandoned IoT anomaly arm (F1/recall on stealth attacks)",
+    "results/v48_prospective2": (
+        "a SECOND prospective batch that was never run: six condition-A zero-shot references and "
+        "nothing else -- no condition B or D run, and not even the registration file "
+        "scripts/preregister_prospective2.py would write. The prospective arm the paper reports is "
+        "batch 1, in results/v47_prospective, and none of these six cells is among its eight"),
 }
 
 
 def sweep_invocations():
-    """Every `run <label> <argv...>` line in rederive_all.sh, with $PY/$PYFIG resolved.
+    """Every TIER A `run <label> <argv...>` line in rederive_all.sh, with $PY/$PYFIG resolved.
 
     Parsed out of the sweep so the manifest traces what the sweep actually runs, flags included. A
     restated list here would drift from the sweep, which is the failure mode this whole file exists to
     prevent.
+
+    TIER A ONLY, and the exclusion is load-bearing twice over. The sweep's `run` lines inside
+    `if [ "$WITH_DATA" = 1 ]` refit the whole baseline ladder from the benchmark CSVs -- hours, not
+    minutes, and the CSVs are gitignored, so tracing them makes this script unrunnable on the clean
+    clone whose directory layout it exists to document. It would also buy nothing: the two recompute
+    lines differ from their --from-json counterparts (traced above) only in reading data/*.csv and
+    WRITING the ladder JSON that --from-json READS, so every results/ directory they touch is already
+    labelled by the cheap path. The first version of this parser was line-based and blind to the
+    guard: it spent 65 minutes on one recompute line before anyone noticed it was in the list at all.
     """
     out = []
+    # `if` depth, and the depth at which an optional-tier guard opened. Depth is tracked rather than a
+    # bare in/out flag because the WITH_DATA guard CONTAINS a nested `if` (the data_manifest hash
+    # check) whose `fi` would otherwise be read as closing the guard -- leaving the rest of the guard
+    # looking like top level. The matplotlib guard must NOT be skipped, which is why only `if [ "$WITH_`
+    # arms the skip, and `skipped` is asserted non-empty below so a renamed guard fails loudly instead
+    # of quietly restoring the hours-long recompute to the trace.
+    depth, guard_depth, skipped = 0, None, []
     for raw in SWEEP.read_text().splitlines():
         s = raw.strip()
+        if s.startswith("if ") or s == "if":
+            depth += 1
+            if s.startswith('if [ "$WITH_') and guard_depth is None:
+                guard_depth = depth
+            continue
+        if s == "fi":
+            if guard_depth == depth:
+                guard_depth = None
+            depth -= 1
+            continue
         if not s.startswith("run ") or s.startswith("#"):
+            continue
+        if guard_depth is not None:
+            skipped.append(shlex.split(s)[1] if len(shlex.split(s)) > 1 else s)
             continue
         try:
             toks = shlex.split(s)
@@ -108,11 +149,60 @@ def sweep_invocations():
         if not script or not script.endswith(".py"):
             continue
         out.append(dict(label=label, interp=interp, script=script, args=argv[2:]))
+    # Both asserts are about the PARSE, not the sweep: they fire if this function stopped understanding
+    # the file it reads. An unbalanced depth means an `if`/`fi` form it does not recognise appeared; an
+    # empty `skipped` means the optional-tier guards stopped matching, which would silently put the
+    # hours-long CSV recompute back in the trace and make this script need the gitignored benchmark data.
+    assert depth == 0, f"unbalanced if/fi while parsing {SWEEP.name}: depth {depth} at EOF"
+    assert skipped, (f"no optional-tier `run` lines found in {SWEEP.name}. Either the TIER B/D guards "
+                     "were renamed, or their run lines moved; re-read the guard before trusting this.")
     # check_paper_numbers.py is invoked by the sweep outside a `run` line (captured, not run), and it
     # reads more records than any single emitter. Omitting it would mislabel directories as orphans.
     out.append(dict(label="check_paper_numbers", interp=str(PY),
                     script="scripts/check_paper_numbers.py", args=[]))
-    return out
+    return out, skipped
+
+
+def classify_sites(site_dirs):
+    """Split call sites into whole-tree SCANS and targeted reads, by how much of the tree each opened.
+
+    The distinction is the whole basis of the CANONICAL label, so the threshold must not be a guess
+    that happens to work. It isn't: the distribution is sharply bimodal -- the recursive scan in
+    cell_matrix.moirai_cells() opens into every directory that exists, and every other call site opens
+    into single digits, because it was given a path. The assert below states that as a requirement.
+    If some future call site opens into, say, 40% of the tree, it is neither a scan nor a targeted
+    read and no threshold can classify it honestly, so this fails and asks for a human rather than
+    bucketing it and quietly changing what CANONICAL means.
+    """
+    n = len({d for ds in site_dirs.values() for d in ds})
+    scans = {s for s, ds in site_dirs.items() if len(ds) >= 0.5 * n}
+    ambiguous = {s: len(ds) for s, ds in site_dirs.items() if 0.1 * n < len(ds) < 0.5 * n}
+    assert not ambiguous, (
+        f"call site(s) opened into a middling share of the {n} directories: {ambiguous}. The "
+        "scan/targeted split assumes a bimodal distribution and this is neither; read the call site "
+        "and decide what it is before trusting any label in this file.")
+    return scans, {s for s in site_dirs if s not in scans}
+
+
+def survived_the_filter():
+    """Directories holding at least one record the main matrix's loader ACCEPTED.
+
+    The second of the two observations behind CANONICAL, and it is needed because the first cannot see
+    the paper's core. Every cell in the main matrix arrives through cell_matrix.moirai_cells(), which
+    is a whole-tree scan -- so on call-site evidence alone the 31 scored cells would look no different
+    from the abandoned IoT records sitting in the same tree, which the same scan also opens and then
+    throws away. What separates them is the filter: a paired B/D record with both final_val_mse and
+    test_mse survives, anything else does not. So the loader is asked what it KEPT rather than what it
+    touched -- its return value is keyed by directory, so this reads its verdict rather than
+    reimplementing its predicate, which would be a second copy free to drift from the first.
+    """
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import io                                     # noqa: PLC0415 - local to keep the import cost here
+    import contextlib                             # noqa: PLC0415
+    with contextlib.redirect_stdout(io.StringIO()):
+        import cell_matrix                        # noqa: PLC0415
+        kept = {k[0] for k in cell_matrix.moirai_cells()}
+    return {f"results/{d}" for d in kept}
 
 
 def trace_all(invocations):
@@ -138,7 +228,7 @@ def trace_all(invocations):
                 continue
             t = json.loads(tf.read_text())
             traces.append(dict(inv, status=t["status"], error=t.get("error"),
-                               opened=t["opened"]))
+                               opened=t["opened"], sites=t.get("sites", {})))
             n_dirs = len({p.split("/")[1] for p in t["opened"]
                           if p.startswith("results/") and len(p.split("/")) > 2})
             flag = "" if t["status"] == "ok" else f"  [{t['status']}]"
@@ -160,12 +250,16 @@ def main():
     if a.from_trace or a.check:
         if not TRACE.exists():
             sys.exit(f"{TRACE.relative_to(ROOT)} missing; run without --from-trace first")
-        traces = json.load(open(TRACE))["traces"]
+        stored = json.load(open(TRACE))
+        traces = stored["traces"]
+        untraced = stored.get("untraced_optional_tier", [])
     else:
-        invocations = sweep_invocations()
+        invocations, untraced = sweep_invocations()
         print(f"tracing {len(invocations)} registered emitters for the files they open under results/")
+        print(f"  not traced ({len(untraced)}): the optional-tier lines {untraced} -- they need the "
+              "gitignored benchmark CSVs, and their results/ opens are covered by the --from-json path")
         traces = trace_all(invocations)
-        TRACE.write_text(json.dumps(dict(traces=traces), indent=2))
+        TRACE.write_text(json.dumps(dict(traces=traces, untraced_optional_tier=untraced), indent=2))
         print(f"wrote {TRACE.relative_to(ROOT)}")
 
     failed = [t["label"] for t in traces if t["status"] != "ok"]
@@ -173,6 +267,8 @@ def main():
     # dir -> the emitters that opened something inside it
     readers = defaultdict(set)
     top_readers = defaultdict(set)
+    site_dirs = defaultdict(set)            # "file.py:function" -> directories it opened into
+    dir_sites = defaultdict(set)            # directory -> the call sites that opened into it
     for t in traces:
         for p in t["opened"]:
             parts = p.split("/")
@@ -182,21 +278,48 @@ def main():
                 top_readers[parts[1]].add(t["script"])
             else:
                 readers[f"results/{parts[1]}"].add(t["script"])
+        for p, ss in t.get("sites", {}).items():
+            parts = p.split("/")
+            if len(parts) < 3 or parts[0] != "results":
+                continue
+            for s in ss:
+                site_dirs[s].add(parts[1])
+                dir_sites[f"results/{parts[1]}"].add(s)
+
+    # Without call-site attribution every directory falls through to SCANNED and the counts still look
+    # entirely reasonable -- which is how this shipped once already, after trace_all() aggregated the
+    # per-invocation traces and silently dropped the `sites` key. A label that degrades quietly into a
+    # different, plausible label is worse than one that breaks, so the degradation is made loud here.
+    assert site_dirs, (
+        "the trace carries no call-site attribution, so every directory would be labelled SCANNED and "
+        "the CANONICAL count would silently collapse to the matrix loader's filter alone. Re-run "
+        "without --from-trace to regenerate results/manifest_trace.json with scripts/_trace_opens.py.")
+    scans, targeted_sites = classify_sites(site_dirs)
+    targeted = {d for d, ss in dir_sites.items() if ss - scans}
+    survived = survived_the_filter()
+    canonical = targeted | survived
 
     dirs = sorted(f"results/{d.name}" for d in RESULTS.iterdir() if d.is_dir())
     rows, counts = [], defaultdict(int)
     for d in dirs:
         who = sorted(readers.get(d, ()))
+        # Order matters: SUPERSEDED wins over everything (it is a statement about the numbers having
+        # been corrected, not about who reads the directory), and SCANNED must be checked before
+        # ORPHAN or every scanned directory would read as untouched.
         if d in SUPERSEDED:
             label = "SUPERSEDED"
-        elif who:
+        elif d in canonical:
             label = "CANONICAL"
+        elif who:
+            label = "SCANNED"
         else:
             label = "ORPHAN"
         counts[label] += 1
         rows.append(dict(path=d, label=label, readers=who,
+                         sites=sorted(dir_sites.get(d, set()) - scans),
+                         in_matrix=d in survived,
                          n_json=len(list((ROOT / d).rglob("*.json"))),
-                         note=ORPHAN_NOTES.get(d)))
+                         note=DIR_NOTES.get(d)))
 
     top = sorted(p.name for p in RESULTS.glob("*.json"))
     top_rows = [dict(name=n, readers=sorted(top_readers.get(n, ()))) for n in top]
@@ -209,19 +332,36 @@ def main():
     A("")
     A("Labels are derived by **observation**: each emitter `scripts/rederive_all.sh` runs is executed")
     A("with the flags that file gives it, under an audit hook recording every file it opens under")
-    A("`results/` (`scripts/_trace_opens.py`). A directory is CANONICAL when a registered emitter")
-    A("opened a file inside it. A recursive glob is not a dependency; an open is.")
+    A("`results/` **and the call site that opened it** (`scripts/_trace_opens.py`).")
     A("")
-    A("`emit_results_manifest.py` is itself one of the sweep's `run` lines and is the one invocation")
-    A("NOT traced: tracing it would be self-referential. Every other `run` line is traced, including")
-    A("the figure scripts and the two TIER B recompute variants of the baseline ladder.")
+    A("Two observations decide CANONICAL, and it takes both. Almost every emitter imports")
+    A("`cell_matrix`, whose `moirai_cells()` globs `results/**/*.json` and opens all of them in order")
+    A("to *reject* the ones that are not paired B/D records -- so \"an emitter opened it\" is true of")
+    A("nearly every directory here, including ones nothing uses. A directory is CANONICAL when either")
+    A("a **targeted read** names it (a call site that was not that whole-tree scan) or a record inside")
+    A("it **survived the scan's filter** (the loader is asked what it kept, not what it touched). The")
+    A("second is what the main matrix arrives by; the first is what every other arm arrives by.")
     A("")
-    A(f"- **CANONICAL** ({counts['CANONICAL']}): a registered emitter reads it. A number in the paper")
-    A("  depends on it.")
+    A("Two kinds of `run` line are deliberately NOT traced, and the count above reflects that.")
+    A("`emit_results_manifest.py` is itself one of the sweep's `run` lines: tracing it would be")
+    A(f"self-referential. And the {len(untraced)} line(s) inside the sweep's optional-tier guards")
+    A(f"({', '.join(f'`{u}`' for u in untraced) or 'none'}) refit the baseline ladder from the")
+    A("benchmark CSVs, which are gitignored -- so tracing them would make this file impossible to")
+    A("regenerate from a clean clone, which is the situation it exists to document. Nothing is lost:")
+    A("those lines differ from their `--from-json` counterparts (traced) only in reading `data/*.csv`")
+    A("and writing the ladder JSON that `--from-json` reads, so they reach no `results/` directory the")
+    A("traced path does not. Every other `run` line is traced, figure scripts included.")
+    A("")
+    A(f"- **CANONICAL** ({counts['CANONICAL']}): a targeted read names it, or a record in it survived")
+    A("  the matrix loader's filter. These are the directories the paper's numbers come from.")
     A(f"- **SUPERSEDED** ({counts['SUPERSEDED']}): published, then corrected. Kept as the audit trail")
     A("  behind the corrections appendix. Do not read as current.")
-    A(f"- **ORPHAN** ({counts['ORPHAN']}): no registered emitter opens anything in it. Exploratory or")
-    A("  pre-protocol runs; no number in the paper depends on them.")
+    A(f"- **SCANNED** ({counts['SCANNED']}): opened only by the whole-tree scan, and nothing inside it")
+    A("  survived that scan's filter. Being read and rejected is not being used. This is the honest")
+    A("  limit of what tracing can show: it rules out the main matrix, and a targeted arm would have")
+    A("  shown up as a call site, so nothing here is known to be load-bearing -- but the evidence is")
+    A("  absence of a positive signal, not proof of irrelevance.")
+    A(f"- **ORPHAN** ({counts['ORPHAN']}): never opened at all, by any emitter, at any call site.")
     A("")
     A(f"{len(dirs)} directories, {len(top)} top-level JSON records, {len(traces)} registered emitters"
       f" traced.")
@@ -249,20 +389,42 @@ def main():
     A("")
     A("## Every directory")
     A("")
-    A("| directory | label | .json | read by |")
-    A("|---|---|---|---|")
-    order = {"CANONICAL": 0, "SUPERSEDED": 1, "ORPHAN": 2}
+    # "read by" used to list every emitter whose process opened anything inside the directory, which
+    # was sixteen identical names on almost every row -- a column that is the same everywhere carries
+    # no information. What a reader needs is the two things that decide the label: whether the matrix
+    # loader kept a record from here, and which targeted call sites named it.
+    A("| directory | label | .json | in the matrix | named by (targeted call sites) |")
+    A("|---|---|---|---|---|")
+    order = {"CANONICAL": 0, "SUPERSEDED": 1, "SCANNED": 2, "ORPHAN": 3}
     for r in sorted(rows, key=lambda r: (order[r["label"]], r["path"])):
-        who = ", ".join(f"`{Path(w).name}`" for w in r["readers"]) or "--"
+        who = ", ".join(f"`{s}`" for s in r["sites"]) or "--"
         note = f" _{r['note']}_" if r["note"] else ""
-        A(f"| `{r['path']}` | {r['label']} | {r['n_json']} | {who}{note} |")
+        A(f"| `{r['path']}` | {r['label']} | {r['n_json']} | {'yes' if r['in_matrix'] else '--'} "
+          f"| {who}{note} |")
     A("")
     A("## The two `crosseval` directories")
     A("")
-    A("`results/frozen_diffts_crosseval` and `results/unfrozen_diffts_crosseval` are from an abandoned")
+    # The previous version of this file said "nothing references them" in prose while the table two
+    # sections above labelled both CANONICAL, read by sixteen emitters -- the document contradicted
+    # itself, and the prose was the part that was right. The claim is now read back out of the derived
+    # labels, and asserted, so the two cannot disagree again.
+    cross = {r["path"]: r["label"] for r in rows if "crosseval" in r["path"]}
+    assert cross and all(v in ("SCANNED", "ORPHAN") for v in cross.values()), (
+        f"the crosseval directories came out {cross}. This section says no number depends on them; "
+        "either that is no longer true, or the labelling changed. Do not ship the two disagreeing.")
+    A(", ".join(f"`{p}` ({v})" for p, v in sorted(cross.items())) + " are from an abandoned")
     A("IoT anomaly-detection arm (F1 and recall on stealth attacks), not from the forecasting work this")
-    A("paper reports. Nothing references them. They are named here because they are the two directories")
-    A("most likely to be mistaken for a forecasting experiment.")
+    A("paper reports. The whole-tree scan opens the record each one holds and rejects it, which is why")
+    A("they are listed as scanned rather than untouched. They are named here because they are the two")
+    A("directories most likely to be mistaken for a forecasting experiment.")
+    A("")
+    A("## The whole-tree scans")
+    A("")
+    A("These call sites open into half the tree or more; an open from one of them is not evidence that")
+    A("a directory is used. Every other call site was given its path and is listed per directory above.")
+    A("")
+    for s in sorted(scans):
+        A(f"- `{s}` -- opened into {len(site_dirs[s])} directories")
     A("")
     body = "\n".join(L) + "\n"
 
@@ -279,7 +441,9 @@ def main():
                                         failed_emitters=failed), indent=2))
     print(f"\nwrote {OUT.relative_to(ROOT)} and {OUT_JSON.relative_to(ROOT)}")
     print(f"  {counts['CANONICAL']} canonical, {counts['SUPERSEDED']} superseded, "
-          f"{counts['ORPHAN']} orphan  ({len(dirs)} dirs)")
+          f"{counts['SCANNED']} scanned, {counts['ORPHAN']} orphan  ({len(dirs)} dirs)")
+    print(f"  {len(scans)} whole-tree scan site(s), {len(targeted_sites)} targeted; "
+          f"{len(survived)} dir(s) hold a record the matrix loader kept")
     if failed:
         print(f"  WARNING: {len(failed)} emitter(s) failed while tracing: {', '.join(failed)}")
         return 1
