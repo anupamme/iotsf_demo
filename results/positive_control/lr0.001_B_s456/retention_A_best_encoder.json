@@ -1,0 +1,18 @@
+{
+  "state": "results/positive_control/lr0.001_B_s456/best_encoder.pt",
+  "task_a_data": "data/forecasting/ETTh2.csv",
+  "model_size": "small",
+  "horizon": 192,
+  "lookback": 96,
+  "features": "M",
+  "n_eval_windows": 300,
+  "n_features": 7,
+  "mse_zeroshot": 0.32043725903861836,
+  "mae_zeroshot": 0.38196164882906913,
+  "mse_finetuned": 0.4059126282574449,
+  "mae_finetuned": 0.4427558934168196,
+  "retention_A_pct": 26.674603782116748,
+  "cka_on_task_a_inputs": 0.2562010586261749,
+  "weight_drift": 43.852557220271606,
+  "cka_measured_on": "task A's held-out inputs -- NOT task B's; see the pre-registration"
+}

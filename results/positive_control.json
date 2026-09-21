@@ -1,0 +1,844 @@
+{
+  "registration": "results/positive_control/preregistration.json",
+  "registration_git_head": "4c31ba69e84eeb83ab5e9e038a7c8806bb7d2fc0",
+  "task_a": {
+    "cell": "small_ETTh2_h192",
+    "model_size": "small",
+    "dataset": "ETTh2",
+    "horizon": 192,
+    "v_ridge_selection": 0.9318906022423123,
+    "zeroshot_mse_selection": 0.15710351566910988,
+    "ridge_baseline_mse_selection": 2.30663492618208,
+    "n_windows": 300,
+    "v_best_admissible_rung": 0.08131834168283258,
+    "strongest_admissible_rung": "seasonal_naive",
+    "clears_all_admissible_rungs": false,
+    "selection_rule": "argmax V_ridge over the 7 cells clearing 0.20 on the selection split",
+    "data_path": "data/forecasting/ETTh2.csv",
+    "margin_caveat": "V_ridge is +0.932 but the margin over the strongest admissible rung (seasonal_naive) is only +0.081 and the cell does not clear the ladder; this arm tests DETECTION of a retention loss, not the value of what is lost"
+  },
+  "task_b": {
+    "path": "data/synthetic/antipersistent_v1.csv",
+    "sha256": "31df53e30092709acf6b1496273fc1ca79ccf5aa39b2333c0b7190687c53675c",
+    "generator": "scripts/make_conflicting_series.py",
+    "seed": 20260921,
+    "construction": "x[j,t] = a[j] * (-1)**(t//P) * s[j](t mod P) + sigma[j]*noise; s[j] a 3-harmonic unit-variance periodic shape, P=192 = h",
+    "seasonal_naive_over_its_negation": 200.8884,
+    "why": "the correct forecast is the NEGATION of the last period, so the seasonal-naive prior -- the strongest admissible rung on task A's own cell -- is maximally wrong; learning B requires overwriting the prior"
+  },
+  "primary_checkpoint": "best_encoder",
+  "bound_checkpoint": "final_state",
+  "n_registered_runs": 18,
+  "n_runs_found": 18,
+  "extension_taken": false,
+  "extension_lr": 0.1,
+  "missing_cells": [],
+  "cells_without_retention": [],
+  "rows": [
+    {
+      "lr": 0.0001,
+      "condition": "B",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.0001_B_s42",
+      "taskb_learned_pct": 98.99017478881326,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.024467699300536137,
+      "cka_on_task_b_inputs": 0.6844061017036438,
+      "weight_drift": 7.645618516098751,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -13.483831684631237,
+      "cka_on_task_a_best_encoder": 0.7579932808876038,
+      "mse_A_zeroshot_best_encoder": 0.3183086016695758,
+      "mse_A_finetuned_best_encoder": 0.2753884055827469,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -13.459121620843877,
+      "cka_on_task_a_final_state": 0.7579932808876038,
+      "mse_A_zeroshot_final_state": 0.31848590445745123,
+      "mse_A_finetuned_final_state": 0.27562049923127824,
+      "registered": true
+    },
+    {
+      "lr": 0.0001,
+      "condition": "B",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.0001_B_s123",
+      "taskb_learned_pct": 98.97765665375343,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.024824161113442426,
+      "cka_on_task_b_inputs": 0.640283465385437,
+      "weight_drift": 7.65837465092774,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -11.864548712025904,
+      "cka_on_task_a_best_encoder": 0.7662148475646973,
+      "mse_A_zeroshot_best_encoder": 0.31964527195101083,
+      "mse_A_finetuned_best_encoder": 0.2817208029546955,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -11.478672082288979,
+      "cka_on_task_a_final_state": 0.7662148475646973,
+      "mse_A_zeroshot_final_state": 0.3185783895809007,
+      "mse_A_finetuned_final_state": 0.282009820915872,
+      "registered": true
+    },
+    {
+      "lr": 0.0001,
+      "condition": "B",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.0001_B_s456",
+      "taskb_learned_pct": 98.94302015683527,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.02551184405571377,
+      "cka_on_task_b_inputs": 0.7008324265480042,
+      "weight_drift": 7.585375651942262,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -7.10018173632115,
+      "cka_on_task_a_best_encoder": 0.8628657460212708,
+      "mse_A_zeroshot_best_encoder": 0.3191419407674985,
+      "mse_A_finetuned_best_encoder": 0.29648228297618373,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -7.23798830621477,
+      "cka_on_task_a_final_state": 0.8628657460212708,
+      "mse_A_zeroshot_final_state": 0.3200715130670457,
+      "mse_A_finetuned_final_state": 0.29690477437972823,
+      "registered": true
+    },
+    {
+      "lr": 0.0001,
+      "condition": "D",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.0001_D_s42",
+      "taskb_learned_pct": 56.57433265932301,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.9426990119042354,
+      "cka_on_task_b_inputs": 0.9974565505981445,
+      "weight_drift": 7.296429158975086,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 0.7825578461927052,
+      "cka_on_task_a_best_encoder": 0.9989519119262695,
+      "mse_A_zeroshot_best_encoder": 0.3192842098179717,
+      "mse_A_finetuned_best_encoder": 0.3217827934535566,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 0.7578229320185368,
+      "cka_on_task_a_final_state": 0.9989519119262695,
+      "mse_A_zeroshot_final_state": 0.31955321366784734,
+      "mse_A_finetuned_final_state": 0.3219748612010245,
+      "registered": true
+    },
+    {
+      "lr": 0.0001,
+      "condition": "D",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.0001_D_s123",
+      "taskb_learned_pct": 58.41231383991309,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.8991558221218383,
+      "cka_on_task_b_inputs": 0.997099757194519,
+      "weight_drift": 7.10908814629205,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 1.9416524856223318,
+      "cka_on_task_a_best_encoder": 0.9987037777900696,
+      "mse_A_zeroshot_best_encoder": 0.31921814444662217,
+      "mse_A_finetuned_best_encoder": 0.3254162514828275,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 1.8036963829294737,
+      "cka_on_task_a_final_state": 0.9987037777900696,
+      "mse_A_zeroshot_final_state": 0.3189415252367921,
+      "mse_A_finetuned_final_state": 0.3246942619911482,
+      "registered": true
+    },
+    {
+      "lr": 0.0001,
+      "condition": "D",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.0001_D_s456",
+      "taskb_learned_pct": 56.805037234366615,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.9313260709681885,
+      "cka_on_task_b_inputs": 0.9975147843360901,
+      "weight_drift": 7.158761777127197,
+      "best_epoch": 17,
+      "epochs": 20,
+      "early_stopping_fired": true,
+      "retention_A_best_encoder": 1.043736736021052,
+      "cka_on_task_a_best_encoder": 0.9989851117134094,
+      "mse_A_zeroshot_best_encoder": 0.31915683122991767,
+      "mse_A_finetuned_best_encoder": 0.32248798832298503,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 1.0087977964815413,
+      "cka_on_task_a_final_state": 0.9989703297615051,
+      "mse_A_zeroshot_final_state": 0.3193790155739868,
+      "mse_A_finetuned_final_state": 0.3226009040455216,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "B",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.001_B_s42",
+      "taskb_learned_pct": 99.33307857249595,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.01593460381511585,
+      "cka_on_task_b_inputs": 0.2884042263031006,
+      "weight_drift": 40.90134022913713,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -17.470176590050112,
+      "cka_on_task_a_best_encoder": 0.17176662385463715,
+      "mse_A_zeroshot_best_encoder": 0.31833656672041244,
+      "mse_A_finetuned_best_encoder": 0.2627226063636537,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -17.68779448112984,
+      "cka_on_task_a_final_state": 0.17176662385463715,
+      "mse_A_zeroshot_final_state": 0.319076295104429,
+      "mse_A_finetuned_final_state": 0.2626387357883542,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "B",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.001_B_s123",
+      "taskb_learned_pct": 99.31255517082354,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.016689176284549995,
+      "cka_on_task_b_inputs": 0.3311157524585724,
+      "weight_drift": 42.3682195085036,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 16.743414432775953,
+      "cka_on_task_a_best_encoder": 0.2745019495487213,
+      "mse_A_zeroshot_best_encoder": 0.3193364947843663,
+      "mse_A_finetuned_best_encoder": 0.37280432754121273,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 16.81458791937067,
+      "cka_on_task_a_final_state": 0.2745019495487213,
+      "mse_A_zeroshot_final_state": 0.31919744311243886,
+      "mse_A_finetuned_final_state": 0.37286917782096307,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "B",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.001_B_s456",
+      "taskb_learned_pct": 99.300004963497,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.017148309704522316,
+      "cka_on_task_b_inputs": 0.3202703297138214,
+      "weight_drift": 43.852557220271606,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 26.674603782116748,
+      "cka_on_task_a_best_encoder": 0.2562010586261749,
+      "mse_A_zeroshot_best_encoder": 0.32043725903861836,
+      "mse_A_finetuned_best_encoder": 0.4059126282574449,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 27.15904530732373,
+      "cka_on_task_a_final_state": 0.2562010586261749,
+      "mse_A_zeroshot_final_state": 0.3194162038152052,
+      "mse_A_finetuned_final_state": 0.4061665953283103,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "D",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.001_D_s42",
+      "taskb_learned_pct": 81.02566239343719,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.42200941530690533,
+      "cka_on_task_b_inputs": 0.9548453092575073,
+      "weight_drift": 24.885399790800644,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 1.849629606532639,
+      "cka_on_task_a_best_encoder": 0.9725694060325623,
+      "mse_A_zeroshot_best_encoder": 0.3196005823548976,
+      "mse_A_finetuned_best_encoder": 0.3255120093487845,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 1.8944807040857068,
+      "cka_on_task_a_final_state": 0.9725694060325623,
+      "mse_A_zeroshot_final_state": 0.3186244030625578,
+      "mse_A_finetuned_final_state": 0.3246606808970862,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "D",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.001_D_s123",
+      "taskb_learned_pct": 78.79720829149804,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.4568813979817219,
+      "cka_on_task_b_inputs": 0.9901193380355835,
+      "weight_drift": 26.403550283721074,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 8.687496470234992,
+      "cka_on_task_a_best_encoder": 0.9808861017227173,
+      "mse_A_zeroshot_best_encoder": 0.32037780664559967,
+      "mse_A_finetuned_best_encoder": 0.34821061728935243,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 9.097322666021624,
+      "cka_on_task_a_final_state": 0.9808861017227173,
+      "mse_A_zeroshot_final_state": 0.3189109880809473,
+      "mse_A_finetuned_final_state": 0.34792334968406885,
+      "registered": true
+    },
+    {
+      "lr": 0.001,
+      "condition": "D",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.001_D_s456",
+      "taskb_learned_pct": 78.99953467512616,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.4595821715850129,
+      "cka_on_task_b_inputs": 0.977483868598938,
+      "weight_drift": 26.30613724338788,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 2.0543832198704655,
+      "cka_on_task_a_best_encoder": 0.9706949591636658,
+      "mse_A_zeroshot_best_encoder": 0.31899826734427134,
+      "mse_A_finetuned_best_encoder": 0.3255517142202696,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 1.8913363586277492,
+      "cka_on_task_a_final_state": 0.9706949591636658,
+      "mse_A_zeroshot_final_state": 0.31946213151369496,
+      "mse_A_finetuned_final_state": 0.32550423495906067,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "B",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.01_B_s42",
+      "taskb_learned_pct": 93.36043941495586,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.14297488926166896,
+      "cka_on_task_b_inputs": 0.2768309414386749,
+      "weight_drift": 432.4147699344959,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": 4.938943513741548,
+      "cka_on_task_a_best_encoder": 0.34241920709609985,
+      "mse_A_zeroshot_best_encoder": 0.3180000627621947,
+      "mse_A_finetuned_best_encoder": 0.3337059062356822,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 4.727479261694626,
+      "cka_on_task_a_final_state": 0.34241920709609985,
+      "mse_A_zeroshot_final_state": 0.31932626628176647,
+      "mse_A_finetuned_final_state": 0.33442234929738074,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "B",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.01_B_s123",
+      "taskb_learned_pct": 96.86786777824528,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.06998359809768916,
+      "cka_on_task_b_inputs": 0.38258302211761475,
+      "weight_drift": 486.9074637131046,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -28.127275000714054,
+      "cka_on_task_a_best_encoder": 0.4128236472606659,
+      "mse_A_zeroshot_best_encoder": 0.3194928324266412,
+      "mse_A_finetuned_best_encoder": 0.22962820484242932,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -27.891264091001815,
+      "cka_on_task_a_final_state": 0.4128236472606659,
+      "mse_A_zeroshot_final_state": 0.31930582113810924,
+      "mse_A_finetuned_final_state": 0.2302473913065373,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "B",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.01_B_s456",
+      "taskb_learned_pct": 97.08051519931342,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.06050827257050782,
+      "cka_on_task_b_inputs": 0.18436773121356964,
+      "weight_drift": 449.32622219060215,
+      "best_epoch": 20,
+      "epochs": 20,
+      "early_stopping_fired": false,
+      "retention_A_best_encoder": -16.942233180813712,
+      "cka_on_task_a_best_encoder": 0.08071310073137283,
+      "mse_A_zeroshot_best_encoder": 0.3196367253777189,
+      "mse_A_finetuned_best_encoder": 0.2654831260327086,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -16.476607204363813,
+      "cka_on_task_a_final_state": 0.08071310073137283,
+      "mse_A_zeroshot_final_state": 0.3187499550851722,
+      "mse_A_finetuned_final_state": 0.2662307770217023,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "D",
+      "seed": 42,
+      "dir": "results/positive_control/lr0.01_D_s42",
+      "taskb_learned_pct": 86.96703028463261,
+      "taskb_mse_zeroshot": 2.350079069416788,
+      "taskb_mse_finetuned": 0.29883042619098205,
+      "cka_on_task_b_inputs": 0.929323136806488,
+      "weight_drift": 81.09123196004681,
+      "best_epoch": 18,
+      "epochs": 20,
+      "early_stopping_fired": true,
+      "retention_A_best_encoder": -2.717377566966254,
+      "cka_on_task_a_best_encoder": 0.9407528042793274,
+      "mse_A_zeroshot_best_encoder": 0.31931908481232923,
+      "mse_A_finetuned_best_encoder": 0.31064197963459705,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -2.2741161831329704,
+      "cka_on_task_a_final_state": 0.9404458999633789,
+      "mse_A_zeroshot_final_state": 0.3187791788083704,
+      "mse_A_finetuned_final_state": 0.3115297699146309,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "D",
+      "seed": 123,
+      "dir": "results/positive_control/lr0.01_D_s123",
+      "taskb_learned_pct": 83.58460429808655,
+      "taskb_mse_zeroshot": 2.3500340068588996,
+      "taskb_mse_finetuned": 0.3787234796350059,
+      "cka_on_task_b_inputs": 0.9125106930732727,
+      "weight_drift": 81.848330601423,
+      "best_epoch": 19,
+      "epochs": 20,
+      "early_stopping_fired": true,
+      "retention_A_best_encoder": 21.76357608027154,
+      "cka_on_task_a_best_encoder": 0.7916159629821777,
+      "mse_A_zeroshot_best_encoder": 0.31893476631673473,
+      "mse_A_finetuned_best_encoder": 0.38834637683051354,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": 22.0091419216136,
+      "cka_on_task_a_final_state": 0.791711688041687,
+      "mse_A_zeroshot_final_state": 0.3194094517463649,
+      "mse_A_finetuned_final_state": 0.3897087312922703,
+      "registered": true
+    },
+    {
+      "lr": 0.01,
+      "condition": "D",
+      "seed": 456,
+      "dir": "results/positive_control/lr0.01_D_s456",
+      "taskb_learned_pct": 85.36396417830898,
+      "taskb_mse_zeroshot": 2.3559978128437997,
+      "taskb_mse_finetuned": 0.3281366739606378,
+      "cka_on_task_b_inputs": 0.9591445326805115,
+      "weight_drift": 71.33706050893565,
+      "best_epoch": 19,
+      "epochs": 20,
+      "early_stopping_fired": true,
+      "retention_A_best_encoder": -8.873143425216808,
+      "cka_on_task_a_best_encoder": 0.9678155183792114,
+      "mse_A_zeroshot_best_encoder": 0.3201286263582025,
+      "mse_A_finetuned_best_encoder": 0.29172315419626277,
+      "n_eval_windows_A": 300,
+      "retention_A_final_state": -8.573320499899696,
+      "cka_on_task_a_final_state": 0.9677852988243103,
+      "mse_A_zeroshot_final_state": 0.3183067301282833,
+      "mse_A_finetuned_final_state": 0.2910172739816348,
+      "registered": true
+    }
+  ],
+  "by_rung": {
+    "0.0001": {
+      "B": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 98.97028386646734,
+          "std_ddof0": 0.019944227628055203,
+          "std_ddof1": 0.024426590501327047,
+          "sem": 0.014102698601325927
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": -10.81618737765943,
+          "std_ddof0": 2.7094947599365997,
+          "std_ddof1": 3.318439811294735,
+          "sem": 1.9159021183405864
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": -10.725260669782541,
+          "std_ddof0": 2.59503969102186,
+          "std_ddof1": 3.178261552636637,
+          "sem": 1.8349701629698003
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.7956912914911906,
+          "std_ddof0": 0.047617952116940296,
+          "std_ddof1": 0.05831984264139289,
+          "sem": 0.0336709768481048
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.6751739978790283,
+          "std_ddof0": 0.025566488224990615,
+          "std_ddof1": 0.03131242533305071,
+          "sem": 0.018078237195016885
+        },
+        "drift": {
+          "n": 3,
+          "mean": 7.629789606322917,
+          "std_ddof0": 0.03183425044129959,
+          "std_ddof1": 0.0389888349625771,
+          "sem": 0.022510214361033783
+        },
+        "n_runs": 3
+      },
+      "D": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 57.263894577867575,
+          "std_ddof0": 0.8174987263249568,
+          "std_ddof1": 1.001227372435647,
+          "sem": 0.5780588929957425
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": 1.2559823559453631,
+          "std_ddof0": 0.49642807345503426,
+          "std_ddof1": 0.6079977369788603,
+          "sem": 0.3510276571114283
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": 1.1901057038098506,
+          "std_ddof0": 0.44580805793144956,
+          "std_ddof1": 0.5460011325765872,
+          "sem": 0.31523390087093317
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.9988802671432495,
+          "std_ddof0": 0.0001255306743547476,
+          "std_ddof1": 0.0001537430496183048,
+          "sem": 8.876359108316226e-05
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.9973570307095846,
+          "std_ddof0": 0.0001834666876654556,
+          "std_ddof1": 0.00022469988478946926,
+          "sem": 0.00012973053897007798
+        },
+        "drift": {
+          "n": 3,
+          "mean": 7.188093027464777,
+          "std_ddof0": 0.07924395010788195,
+          "std_ddof1": 0.09705362148343936,
+          "sem": 0.05603393448929177
+        },
+        "n_runs": 3
+      },
+      "delta_enc_like": -12.072169733604794
+    },
+    "0.001": {
+      "B": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 99.31521290227215,
+          "std_ddof0": 0.013632401485518609,
+          "std_ddof1": 0.016696213804139996,
+          "sem": 0.009639563534267773
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": 8.649280541614196,
+          "std_ddof0": 18.909021852240308,
+          "std_ddof1": 23.1587275365628,
+          "sem": 13.370697577323732
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": 8.76194624852152,
+          "std_ddof0": 19.17365446234542,
+          "std_ddof1": 23.48283496859201,
+          "sem": 13.557821090452155
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.23415654400984445,
+          "std_ddof0": 0.04474451366644178,
+          "std_ddof1": 0.05480061363588544,
+          "sem": 0.031639149034435134
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.3132634361584981,
+          "std_ddof0": 0.018127162576349547,
+          "std_ddof1": 0.02220114939826565,
+          "sem": 0.012817839581407772
+        },
+        "drift": {
+          "n": 3,
+          "mean": 42.37403898597078,
+          "std_ddof0": 1.204836318600635,
+          "std_ddof1": 1.4756171020724502,
+          "sem": 0.8519479311023447
+        },
+        "n_runs": 3
+      },
+      "D": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 79.6074684533538,
+          "std_ddof0": 1.0062105578671405,
+          "std_ddof1": 1.2323512202878502,
+          "sem": 0.7114983087693542
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": 4.1971697655460325,
+          "std_ddof0": 3.1762405919237113,
+          "std_ddof1": 3.8900843752643506,
+          "sem": 2.24594126122923
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": 4.2943799095783595,
+          "std_ddof0": 3.396193635329627,
+          "std_ddof1": 4.159470737122717,
+          "sem": 2.401471549764172
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.9747168223063151,
+          "std_ddof0": 0.004428949774255117,
+          "std_ddof1": 0.005424333521669891,
+          "sem": 0.0031317404189104225
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.9741495052973429,
+          "std_ddof0": 0.014592298437404219,
+          "std_ddof1": 0.017871842673026314,
+          "sem": 0.010318313178186383
+        },
+        "drift": {
+          "n": 3,
+          "mean": 25.865029105969867,
+          "std_ddof0": 0.6938431722231032,
+          "std_ddof1": 0.8497808667303168,
+          "sem": 0.49062121215894194
+        },
+        "n_runs": 3
+      },
+      "delta_enc_like": 4.452110776068164
+    },
+    "0.01": {
+      "B": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 95.76960746417153,
+          "std_ddof0": 1.7057496393947398,
+          "std_ddof1": 2.08910812272676,
+          "sem": 1.2061471370225285
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": -13.376854889262072,
+          "std_ddof0": 13.732628869055683,
+          "std_ddof1": 16.818966778100027,
+          "sem": 9.710434996827424
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": -13.21346401122367,
+          "std_ddof0": 13.514971503274243,
+          "std_ddof1": 16.552392035638604,
+          "sem": 9.556527997508166
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.27865198502937955,
+          "std_ddof0": 0.1428846801598554,
+          "std_ddof1": 0.17499727922621042,
+          "sem": 0.10103472626870469
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.28126056492328644,
+          "std_ddof0": 0.0809816504326973,
+          "std_ddof1": 0.09918186104427247,
+          "sem": 0.05726267417263877
+        },
+        "drift": {
+          "n": 3,
+          "mean": 456.21615194606755,
+          "std_ddof0": 22.77376806530913,
+          "std_ddof1": 27.892055640248913,
+          "sem": 16.10348583214973
+        },
+        "n_runs": 3
+      },
+      "D": {
+        "taskb_learned": {
+          "n": 3,
+          "mean": 85.30519958700937,
+          "std_ddof0": 1.3814946848754048,
+          "std_ddof1": 1.6919785301558914,
+          "sem": 0.9768642598485713
+        },
+        "retention_primary": {
+          "n": 3,
+          "mean": 3.39101836269616,
+          "std_ddof0": 13.232196117541735,
+          "std_ddof1": 16.206064332206935,
+          "sem": 9.356575604704068
+        },
+        "retention_bound": {
+          "n": 3,
+          "mean": 3.7205684128603114,
+          "std_ddof0": 13.185192060158435,
+          "std_ddof1": 16.148496353992144,
+          "sem": 9.323338716985054
+        },
+        "cka_task_a": {
+          "n": 3,
+          "mean": 0.9000614285469055,
+          "std_ddof0": 0.07747434790421896,
+          "std_ddof1": 0.09488631026009987,
+          "sem": 0.054782636771079016
+        },
+        "cka_task_b": {
+          "n": 3,
+          "mean": 0.9336594541867574,
+          "std_ddof0": 0.01928352466822801,
+          "std_ddof1": 0.02361739793976545,
+          "sem": 0.013635511058082098
+        },
+        "drift": {
+          "n": 3,
+          "mean": 78.09220769013515,
+          "std_ddof0": 4.786600022837653,
+          "std_ddof1": 5.862363829373278,
+          "sem": 3.3846373349761874
+        },
+        "n_runs": 3
+      },
+      "delta_enc_like": -16.767873251958232
+    }
+  },
+  "validity_taskb_learned": {
+    "rule": "MSE on task B's own held-out windows falls by at least 20% vs zero-shot",
+    "threshold": 20.0,
+    "n_meeting": 18,
+    "n_runs": 18,
+    "all_meet": true,
+    "min_pct": 56.57433265932301,
+    "max_pct": 99.33307857249595
+  },
+  "destruction": {
+    "rule": "retention_A >= 50% in a MAJORITY of seeds at some rung under condition B",
+    "threshold_pct": 50.0,
+    "primary": {
+      "per_rung": {
+        "0.0001": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": -7.10018173632115
+        },
+        "0.001": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": 26.674603782116748
+        },
+        "0.01": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": 4.938943513741548
+        }
+      },
+      "achieved": false,
+      "rungs_achieving": []
+    },
+    "bound": {
+      "per_rung": {
+        "0.0001": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": -7.23798830621477
+        },
+        "0.001": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": 27.15904530732373
+        },
+        "0.01": {
+          "n_seeds": 3,
+          "n_over": 0,
+          "majority": false,
+          "max": 4.727479261694626
+        }
+      },
+      "achieved": false,
+      "rungs_achieving": []
+    }
+  },
+  "cka_ordering": {
+    "rule": "Spearman rho between CKA and retention_A across all runs",
+    "threshold": -0.5,
+    "primary": {
+      "n": 18,
+      "rho": 0.20743034055727552,
+      "p": 0.4088537259590217,
+      "orders": false
+    },
+    "bound": {
+      "n": 18,
+      "rho": 0.2053663570691434,
+      "p": 0.4136353714020946,
+      "orders": false
+    }
+  },
+  "evaluator_noise_pp": {
+    "n_identical_state_pairs": 14,
+    "max": 0.48444152520698225,
+    "mean": 0.2153673197112738,
+    "why": "the two checkpoints are the same state whenever early stopping did not fire, so any difference between their retention numbers is the sampled forecast's own noise"
+  },
+  "outcome": "3",
+  "outcome_key": "3_destruction_not_achieved",
+  "outcome_text_as_registered": "The positive control failed to construct. We report the full ladder and the failure, and state that deliberately adversarial fine-tuning did not destroy the capability -- itself a finding about TSFM robustness, and a reason the main matrix's null is unsurprising. One declared extension to lr=1e-1, then stop.",
+  "outcome_provisional": false,
+  "what_this_cannot_show": [
+    "that the destroyed capability was valuable against a strong baseline (it was +0.081 over seasonal-naive)",
+    "that anything generalises beyond one backbone, one series and one synthetic task B",
+    "that a sign-inverting target task resembles a deployment scenario"
+  ]
+}
