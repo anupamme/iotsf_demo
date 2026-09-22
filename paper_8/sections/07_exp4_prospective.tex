@@ -14,13 +14,21 @@
 % arms and the exchangeability ratio -- now sits beside Table \ref{tab:heldout_decomp} in the appendix,
 % which is the table it describes and which had no prose of its own. The finding itself stays here, and
 % it is also one of the two lessons in the box at the end of S3.
-Every number in this paper is scored on windows disjoint from the ones used
-for early stopping.  Scoring
+% The topic sentence -- "every number in this paper is scored on windows disjoint from the ones used for
+% early stopping" -- is cut as the third statement of one protocol fact: S3's three-splits paragraph
+% defines it as the protocol, the abstract states it as a headline measurement choice, and the box at the
+% end of S3 states it as a lesson. This subsection's content is what happens when you DON'T, which the
+% sentence below says on its own.
+Scoring
 $\denc$ on the selection windows instead \textbf{reverses its
 sign in 4 of the 31 intervention cells}, and \emph{every one of the four
-reverses in the same direction}: from ``the frozen encoder was better'' to
-``full fine-tuning was better'' (Appendix Table~\ref{tab:heldout_decomp}).  The largest
-is Chronos/ETTh1, which moves from $+6.8$ to $-39.2$, a 46-point swing.  Two
+reverses in the same direction}, toward full fine-tuning
+(Appendix Table~\ref{tab:heldout_decomp}).
+% The largest reversal -- Chronos/ETTh1, +6.8 to -39.2, a 46-point swing -- is cut here. It is a row of
+% tab:heldout_decomp, which this sentence points at, and the claim in this paragraph is the direction of
+% all four reversals rather than the size of the biggest one. The clause that follows is the one a
+% reviewer needs, because it says the reversals reach cells the screen admits.
+Two
 of the four are among the seven gate-passing cells, so this is not confined to
 cells nobody would have looked at.
 % The mechanism clause that closed this paragraph -- the reversals are driven by the frozen arm, which
@@ -83,11 +91,10 @@ damage.  Task A is the strongest capability the screen admits
 (Moirai-Small/ETTh2, $h{=}192$, $\Vb{\text{ridge}}{=}{+}0.932$); task B is a
 synthetic series, fixed by hash before any run, whose correct forecast is the
 \emph{negation} of the seasonal-naive prior that is task A's own strongest
-admissible rung.  We fine-tuned on B and measured A, over
-$\text{lr}\in\{10^{-4},10^{-3},10^{-2}\}\times\{$full fine-tune, frozen
-encoder$\}\times3$ seeds, with all three outcomes and the destruction threshold
-registered beforehand and committed before the first run
-(Appendix~\ref{app:poscontrol}).
+admissible rung.  We fine-tuned on B and measured A over
+$\text{lr}\in\{10^{-4},10^{-3},10^{-2}\}$ crossed with both conditions at 3 seeds,
+with all three outcomes and the destruction threshold committed before the first
+run (Appendix~\ref{app:poscontrol}).
 
 \textbf{The pre-registered outcome that fired is the third: destruction was not
 achieved.}  Task B was learned in \textbf{21 of 21} runs (minimum $+56.6\%$
@@ -96,7 +103,7 @@ weight thrashing.  The registered rule was
 retention$_A\!\geq\!50\%$ in a majority of seeds under full fine-tuning; the
 maximum over all 21 runs was $+26.7\%$, in one seed, against an evaluator noise
 floor of $0.48$~pp.  We took the single declared ladder extension to
-$\text{lr}{=}10^{-1}$ and then stopped, as registered.
+$\text{lr}{=}10^{-1}$ and stopped there, as registered.
 
 \textbf{The attempt nonetheless buys a sharper dissociation than the benchmark
 cells can supply.}  At that top rung the representation is driven almost to

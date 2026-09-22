@@ -13,14 +13,14 @@ and all seven are Moirai: five on ETTh2 and two on ETTm2.  The gate is scored on
 selection windows, which exist for 31 of the 32---TimesFM/Electricity has no
 paired frozen-encoder run, so it is screened but carries neither a gate nor an
 intervention row---and every denominator below is 31.
-Figure~\ref{fig:screen}a is this screen emptying; the figure itself is in
-\S\ref{sec:intro}, because panel~(b) is the paper's claim rather than this
-section's.
-
-\textbf{Setup} follows \S\ref{sec:method}: $h{\in}\{96,192\}$ for Moirai and $h{=}24$
-elsewhere, $n{=}500$ or $n{=}1{,}000$ samples, 3--10 seeds per cell, and every gate
-value scored on \emph{selection} windows against a baseline fit on the cell's own
-training split.
+Figure~\ref{fig:screen}a is this screen emptying.
+% Two cuts here, both funding Phase B's added lines and neither losing a fact.
+% (1) The clause explaining why Figure 1 is declared in S1 rather than here was about the paper's
+% layout, not its evidence, and the figure's own comment block records the reason for a future editor.
+% (2) The "Setup follows S3" paragraph restated S3 and this section's own opening: the horizons, the two
+% sample sizes, the 3--10 seeds and the selection-split scoring are all in S3's training-details and
+% three-splits paragraphs, and the sentence above already says the gate is scored on selection windows.
+% No registered claim had a site in either.
 
 \textbf{Moirai: 7 of 21} (Appendix Table~\ref{tab:r2task}).  ETTh2 clears at
 every capacity---Small $h{=}96$ ($+0.874$) and $h{=}192$ ($+0.932$), Base
@@ -34,9 +34,11 @@ Moirai-Small and \emph{further} behind the baseline on both ETTh1 and Weather.
 \textbf{Chronos-T5-Small: 0 of 5} and \textbf{TimesFM-2.5: 0 of 4}
 (\S\ref{sec:forecasting:nonmoirai}, Appendix Table~\ref{tab:crossbackbone}).
 All nine cells fall in a narrow band about zero, $-0.275$ to $+0.082$, and none
-reaches the threshold.  Within a band that narrow the dataset \emph{ordering} is
-not stable across splits (Appendix~\ref{app:corrections}).  What holds on both splits is the dataset
-contrast: ETTh2, where Moirai clears the gate at every capacity, is where
+reaches the threshold.
+% C2: the split-instability of the within-band ORDERING is a provenance fact about a quantity this
+% paper does not ask a reader to act on, and app:corrections is its record. Cut here; the sentence
+% after it is what the reader needs and it now states its own scope.
+The dataset contrast holds on both splits: ETTh2, where Moirai clears the gate at every capacity, is where
 Chronos is \emph{below} the fitted baseline ($-0.184$ on selection, $-0.325$ on
 held-out), so the advantage is not a property of the dataset alone.
 

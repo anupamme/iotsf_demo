@@ -24,9 +24,10 @@ seven survivors below---and 15 cells rest on the ordinary freeze alone
 
 The seven cells Experiment 1 admits are the entire evidence base for a claim
 about damage to valuable features, and they do not support one (Appendix
-Table~\ref{tab:gate_survivors}); the drift comparisons of
-\S\ref{sec:forecasting:nonmoirai} use all 31 cells that carry a paired
-frozen-encoder run.
+Table~\ref{tab:gate_survivors}).
+% The clause naming the drift analyses' 31-cell scope is cut here, not lost: S4's "One rung of eight"
+% paragraph states that the 20-cell union rather than the seven is what every drift analysis runs on,
+% and S6 opens on the same scope. Three statements of one scope is two too many on a 9-page body.
 
 \textbf{On four of the seven, full fine-tuning improves the checkpoint in every
 seed.} On
@@ -64,10 +65,12 @@ they do not.}  Whatever harm exists is confined to Small at $n{\leq}1$k, while
 the largest spread across seeds sits at the $n{=}5$k crossover
 (Table~\ref{tab:sample_sweep}, Figure~\ref{fig:dissociation} and
 Appendix~\ref{app:n5k_trajectories} for that bimodal cell and the
-protocol comparison).  This sweep predates held-out scoring and is scored on one
-split throughout, which is why its $n{=}500$ value ($+14.0{\pm}3.9$) differs
-from the held-out mean above ($+9.71{\pm}10.58$);
-\S\ref{sec:analysis:heldout} is about exactly that gap.
+protocol comparison).
+% C2: the sweep's split-protocol provenance -- that it predates held-out scoring, is scored on one split
+% throughout, and so reads +14.0+-3.9 at n=500 where the held-out mean above reads +9.71+-10.58 -- is a
+% correction record, and app:corrections and app:n5k_trajectories are where it belongs. The body keeps
+% the sweep's CLAIM (drift monotone, forgetting not) and S7.1 keeps the general finding that selection-
+% split scoring reverses signs. Both numbers stay registered at their appendix sites.
 
 \textbf{What mitigation is for.} Five strategies spanning unconstrained
 fine-tuning to full freezing---LoRA, EWC, L2-SP, frozen encoder, strict
@@ -75,9 +78,11 @@ freeze---are reported in Appendix~\ref{app:full_tables}, on
 Moirai-Small/ETTh2, the one cell where we ran the whole spectrum: weight
 anchoring does not help there and LoRA does, but extending LoRA to eight
 further value-cells leaves full fine-tuning ahead on four of them
-(Appendix~\ref{app:loravaluecells}).  The screen bounds what any of it can be
-for: on 24 of the 31 cells there is no demonstrated advantage to protect
-(\S\ref{sec:forecasting:results}).
+(Appendix~\ref{app:loravaluecells}).
+% The closing sentence -- that the screen bounds what mitigation can be for, on 24 of 31 cells -- is the
+% third statement of the 24/31 count in the body: S5.3's clause (i) walk makes it as the reason 24 cells
+% leave, and S7.2 makes it as the gate's surviving use. Cut here rather than there, because those two
+% are the sentences the count is doing work in.
 
 % ============================================================
 \subsection{No Robust Degradation Instance Survives a Prespecified Definition}

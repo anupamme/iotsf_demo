@@ -62,21 +62,27 @@ in for the second; a fifth section asks whether the whole screen works
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig1_diagnostic_flow.pdf}
-\caption{\textbf{The whole paper.} \textbf{(a)}~The four layers as a funnel over the
-31 cells carrying a selection-split gate: seven clear
-$\Vb{\text{ridge}}{\geq}0.20$; CKA is measured on all 31 and filters none (dashed
-box); the fine-tune-versus-frozen comparison is scored on held-out windows, on which
-4 of the 31 reverse sign; and \emph{none} shows decisive evidence of harmful
-adaptation under either form of the \S\ref{sec:method} definition, four of the
-seven survivors being \emph{improved} by full fine-tuning in every seed.  \textbf{(b)}~The same 31 cells as CKA against
-held-out $\denc$ (positive ${=}$ freezing better): \textbf{measured drift does not
-reliably predict the value of encoder adaptation}.  No cut on CKA separates the cells
-adaptation helped from the cells it hurt---the best threshold misplaces five of the
-31.
-Within Moirai, the only backbone with enough cells to ask, neither CKA
-($\rho{=}{+}0.17$, clustered CI $[-0.47,{+}0.72]$) nor the gate score
-($\rho{=}{-}0.29$, $[-0.71,{+}0.71]$) orders $\denc$; both span zero
-(Appendix~\ref{app:clustered}).  Filled markers clear the gate.}
+% Round 7 (C1/C2): the caption was 11 printed lines, and most of them RE-TYPED numbers the panels
+% themselves print -- the funnel's boxes and tags carry 7 of 31, "CKA measured on all 31", the 4-of-31
+% reversal and the 0-cell verdict; panel (b) prints the best cut's 5 misplacements and both clustered
+% rhos in its own text block. Hand-typed copies of computed numbers are exactly the failure mode this
+% project keeps hitting, so they are deleted rather than re-verified, and the caption now carries the
+% claim, the two things no panel can say (what a filled marker means, what rho is clustered on) and the
+% running example. The figure script asserts the Moirai-Base ordering it draws, so the claim below is
+% checked at build time and not by a chk() on this caption.
+\caption{\textbf{The whole paper}, with every count in both panels computed from
+\texttt{cell\_matrix} at build time rather than typed here.  \textbf{(a)}~The four
+layers of \S\ref{sec:method} as a funnel over the 31 cells that carry a
+selection-split gate: CKA filters none of them, and no cell meets either form of
+the degradation definition.  \textbf{(b)}~The same cells as CKA against held-out
+$\denc$ (positive ${=}$ freezing better): \textbf{measured drift does not
+reliably predict the value of encoder adaptation}, and no cut on CKA separates the
+cells adaptation helped from the cells it hurt.  The labelled pairs are the paper's
+running example---Moirai-Base's two \emph{least} drifted cells are its only two
+that degrade, and its two most drifted improve the most (\S\ref{sec:exp3}).  Filled
+markers clear the gate; each $\rho$ is clustered by dataset${\times}$horizon within
+Moirai, the only backbone with enough cells to ask
+(Appendix~\ref{app:clustered}).}
 \label{fig:screen}
 \end{figure}
 

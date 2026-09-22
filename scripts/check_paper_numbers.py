@@ -888,7 +888,12 @@ def build_checks(R):
     # own split uses.
     chk("intervention-cell count", r"(?:all |the )(\d+) intervention cells",
         R["n_int"], min_sites=3)
-    chk("intervention-cell count (paired run)", r"(\d+) cells that carry a paired", R["n_int"])
+    # "intervention-cell count (paired run)" is retired on 22 Sep 2026 (C2). Its only site was S5.1's
+    # clause naming the drift analyses' 31-cell scope, which was the THIRD statement of one scope (S4's
+    # "One rung of eight" paragraph and S6's opening state it too) and was cut for the page limit. The
+    # number keeps three prose checks: "intervention-cell count" at 3 sites, "(every denominator)" at
+    # S4's site, and "(conclusion)". Retired rather than retargeted, because no surviving sentence
+    # phrases 31 as the PAIRED-run count -- and inventing a sentence to satisfy a chk is backwards.
     chk("intervention-cell count (every denominator)",
         r"every\s+denominator below is (\d+)", R["n_int"])
     chk("intervention-cell count (pooled)", r"Pooled across all (\d+) cells", R["n_int"])
@@ -1081,8 +1086,16 @@ def build_checks(R):
         R["n_heldout_rev"], R["n_int"])
 
     # --- the decomposition behind the reversals
-    chk("largest reversal", r"moves from \$\+([\d.]+)\$ to \$-([\d.]+)\$, a (\d+)-point swing",
-        R["chron_val"], R["chron_test"], R["chron_swing"])
+    # The body sentence naming the largest reversal (Chronos/ETTh1, +6.8 to -39.2, a 46-point swing) is
+    # cut on 22 Sep 2026 (C2) from S7.1, which spills onto page 10. It was the size of one row of
+    # tab:heldout_decomp, in a paragraph whose claim is the DIRECTION of all four reversals. So the chk
+    # follows the prose: the held-out value keeps a prose site in app:randominit, where the four
+    # below-floor Chronos cells are given with their outcome span, and chron_val/chron_swing are now
+    # carried by tab:heldout_decomp alone -- which scripts/heldout_decomposition.py emits from the run
+    # records, so they are derived at build time rather than typed. A hand-typed copy is what this chk
+    # existed to police; with no copy left there is nothing to police.
+    chk("largest reversal (held-out, appendix)", r"outcomes span \$-([\d.]+)\$ to",
+        R["chron_test"])
     chk("reversal mechanism",
         r"\(\$\\Delta\$ frozen \$\+([\d.]+)\$ against \$\\Delta\$ adapted \$\+([\d.]+)\$",
         R["chron_dd"], R["chron_db"])
@@ -1220,14 +1233,18 @@ def build_checks(R):
     chk("within-Moirai CKA clustered CI",
         r"\{\+\}[\d.]+\$[^$]{0,25}?clustered CI \$\[-([\d.]+),\{\+\}([\d.]+)\]\$",
         # 4, not 5: the conclusion's copy of this CI was removed on 20 Sep 2026 to pay for the
-        # selection-split prose, and it now points at S6 where the interval is stated with the
-        # clustering rationale. Lowering the floor to match a deliberate deletion, not to a failure.
-        R["cka_lo"], R["cka_hi"], min_sites=5)
-    # Figure 1's caption was rewritten with the panel (b) axis flip: it now names CKA first and the
-    # gate second, in that order, because CKA is the axis. Both rhos are still printed, and both are
-    # still checked -- this one and "gate rho, primary, clustered CI in the figure caption" below.
-    chk("within-Moirai CKA rho (figure caption)",
-        r"neither CKA \(\$\\rho\{=\}\{\+\}([\d.]+)", R["cka_rho"])
+        # selection-split prose, and Figure 1's caption stopped re-typing it on 22 Sep 2026 (C1/C2)
+        # because panel (b) prints both clustered rhos in its own text block. Four remain -- the intro's
+        # contribution 2, S6, the abstract and app:claims. Lowering the floor twice now to match
+        # deliberate deletions; each is recorded at the site it left.
+        R["cka_lo"], R["cka_hi"], min_sites=4)
+    # "within-Moirai CKA rho (figure caption)" and "gate rho, primary, clustered CI in the figure
+    # caption" are both retired on 22 Sep 2026 (C1/C2). The caption was 11 printed lines, most of them
+    # re-typing numbers the panels themselves render: fig1_diagnostic_flow.py computes both clustered
+    # rhos from cell_matrix and prints them ON panel (b), so the caption's copies were hand-typed
+    # duplicates of build-time output -- the exact drift failure this checker exists for. They are
+    # deleted, not re-verified. Both rhos keep prose coverage elsewhere: "within-Moirai CKA rho" and
+    # "gate rho within Moirai" (min_sites=3) still run, and the figure's own asserts cover the panel.
     chk("Moirai cell count", r"\$n\{=\}(\d+)\$ cells from six series", R["n_moirai"])
     # The intro's second copy of this denominator went with the restructure into five paragraphs; it
     # was attached to the retrospective rho, which S7 states with the same denominator two lines from
@@ -1267,11 +1284,10 @@ def build_checks(R):
         r"primary\. Neither resampling level supports an interval claim: cells give "
         r"\$\[-([\d.]+), \+([\d.]+)\]\$ and the six clusters give \$\[-([\d.]+), \+([\d.]+)\]\$",
         R["gate_celllo"], R["gate_cellhi"], R["gate_lo"], R["gate_hi"])
-    # The caption states "clustered CI" once and lets it govern both intervals, so the gate's copy of
-    # the words is gone while the interval itself is unchanged; the pattern follows that.
-    chk("gate rho, primary, clustered CI in the figure caption",
-        r"gate score\s+\(\$\\rho\{=\}\{-\}([\d.]+)\$, \$\[-([\d.]+),\{\+\}([\d.]+)\]\$\)",
-        R["gate_rho"], R["gate_lo"], R["gate_hi"])
+    # Retired 22 Sep 2026 (C1/C2) with the CKA caption chk above: the caption no longer prints either
+    # rho or either interval, because panel (b) computes and draws both. The gate's clustered interval
+    # keeps its prose site in app:clustered, pinned by "gate rho, primary, both resampling levels"
+    # directly above, and the rho itself by "gate rho within Moirai" at 3 sites.
     # the withdrawn cross-backbone ordering claim, both splits
     chk("cross-backbone dataset ordering, both splits",
         r"identically on the held-out windows \(\$\\rho\{=\}\{\+\}([\d.]+)\$\) and disagree on the "
@@ -1643,10 +1659,13 @@ def build_checks(R):
     # rather than from a table: the fewest cells any single CKA cut misplaces. It is in the caption
     # only, so without this it would be the one load-bearing figure number with no prose check.
     # Round 7 (B3): the conclusion now quantifies what the shortcut costs with this same number, in the
-    # same wording, so the floor rises to 2. It is the figure-script number, so a caption-only claim has
-    # become a body claim and a rewrite of either site now has to keep both honest.
+    # same wording, so the floor rose to 2 -- a caption-only claim had become a body claim.
+    # Back to 1 on 22 Sep 2026 (C1/C2): the CAPTION site is the one that went, not the conclusion's, and
+    # it went because panel (b) prints the miscut count itself. So the check now guards the body sentence
+    # that ASSERTS the cost, which is the site a rewrite could make dishonest; the drawn number is
+    # guarded by the figure script's own assert.
     chk("Figure 1: the best CKA cut", r"the best threshold\s+misplaces (\w+) of the (\d+)",
-        R["n_miscut"], R["n_int"], min_sites=2)
+        R["n_miscut"], R["n_int"], min_sites=1)
 
     # -- the pre-registered LOCO ladder, quoted in S6, in the abstract and in Appendix app:loco. Each
     # number is registered where it is PHRASED, not once per fact: S6 quotes the four rungs in one
