@@ -1,0 +1,394 @@
+{
+ "arxiv:2409.12915": {
+  "got": {
+   "title": "Exploring {Representations} and {Interventions} in {Time} {Series} {Foundation} {Models}",
+   "author": "Wili\u0144ski, Micha\u0142 and Goswami, Mononito and Potosnak, Willa and \u017bukowska, Nina and Dubrawski, Artur",
+   "year": "2025",
+   "doi": "10.48550/arXiv.2409.12915",
+   "url": "http://arxiv.org/abs/2409.12915",
+   "note": "arXiv:2409.12915 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "wilinski_exploring_2025"
+  },
+  "err": null
+ },
+ "arxiv:2002.05709": {
+  "got": {
+   "title": "A {Simple} {Framework} for {Contrastive} {Learning} of {Visual} {Representations}",
+   "author": "Chen, Ting and Kornblith, Simon and Norouzi, Mohammad and Hinton, Geoffrey",
+   "year": "2020",
+   "doi": "10.48550/arXiv.2002.05709",
+   "url": "http://arxiv.org/abs/2002.05709",
+   "note": "arXiv:2002.05709 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "chen_simple_2020"
+  },
+  "err": null
+ },
+ "arxiv:2006.07733": {
+  "got": null,
+  "err": "Error: 501 Server Error: Not Implemented for url: https://t0guvf0w17.execute-api.us-east-1.amazonaws.com/Prod/search"
+ },
+ "arxiv:2403.01742": {
+  "got": {
+   "title": "Diffusion-{TS}: {Interpretable} {Diffusion} for {General} {Time} {Series} {Generation}",
+   "author": "Yuan, Xinyu and Qiao, Yan",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2403.01742",
+   "url": "http://arxiv.org/abs/2403.01742",
+   "note": "arXiv:2403.01742 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "yuan_diffusion_ts_2024"
+  },
+  "err": null
+ },
+ "arxiv:2402.02592": {
+  "got": {
+   "title": "Unified {Training} of {Universal} {Time} {Series} {Forecasting} {Transformers}",
+   "author": "Woo, Gerald and Liu, Chenghao and Kumar, Akshat and Xiong, Caiming and Savarese, Silvio and Sahoo, Doyen",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2402.02592",
+   "url": "http://arxiv.org/abs/2402.02592",
+   "note": "arXiv:2402.02592 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "woo_unified_2024"
+  },
+  "err": null
+ },
+ "arxiv:2004.11362": {
+  "got": {
+   "title": "Supervised {Contrastive} {Learning}",
+   "author": "Khosla, Prannay and Teterwak, Piotr and Wang, Chen and Sarna, Aaron and Tian, Yonglong and Isola, Phillip and Maschinot, Aaron and Liu, Ce and Krishnan, Dilip",
+   "year": "2021",
+   "doi": "10.48550/arXiv.2004.11362",
+   "url": "http://arxiv.org/abs/2004.11362",
+   "note": "arXiv:2004.11362 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "khosla_supervised_2021"
+  },
+  "err": null
+ },
+ "arxiv:2201.07284": {
+  "got": {
+   "title": "{TranAD}: {Deep} {Transformer} {Networks} for {Anomaly} {Detection} in {Multivariate} {Time} {Series} {Data}",
+   "author": "Tuli, Shreshth and Casale, Giuliano and Jennings, Nicholas R.",
+   "year": "2022",
+   "doi": "10.48550/arXiv.2201.07284",
+   "url": "http://arxiv.org/abs/2201.07284",
+   "note": "arXiv:2201.07284 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "tuli_tranad_2022"
+  },
+  "err": null
+ },
+ "arxiv:2110.02642": {
+  "got": {
+   "title": "Anomaly {Transformer}: {Time} {Series} {Anomaly} {Detection} with {Association} {Discrepancy}",
+   "author": "Xu, Jiehui and Wu, Haixu and Wang, Jianmin and Long, Mingsheng",
+   "year": "2022",
+   "doi": "10.48550/arXiv.2110.02642",
+   "url": "http://arxiv.org/abs/2110.02642",
+   "note": "arXiv:2110.02642 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "xu_anomaly_2022"
+  },
+  "err": null
+ },
+ "arxiv:2211.14730": {
+  "got": {
+   "title": "A {Time} {Series} is {Worth} 64 {Words}: {Long}-term {Forecasting} with {Transformers}",
+   "author": "Nie, Yuqi and Nguyen, Nam H. and Sinthong, Phanwadee and Kalagnanam, Jayant",
+   "year": "2023",
+   "doi": "10.48550/arXiv.2211.14730",
+   "url": "http://arxiv.org/abs/2211.14730",
+   "note": "arXiv:2211.14730 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "nie_time_2023"
+  },
+  "err": null
+ },
+ "arxiv:2310.10688": {
+  "got": {
+   "title": "A decoder-only foundation model for time-series forecasting",
+   "author": "Das, Abhimanyu and Kong, Weihao and Sen, Rajat and Zhou, Yichen",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2310.10688",
+   "url": "http://arxiv.org/abs/2310.10688",
+   "note": "arXiv:2310.10688 [cs.CL]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "das_decoder_only_2024"
+  },
+  "err": null
+ },
+ "arxiv:2403.07815": {
+  "got": {
+   "title": "Chronos: {Learning} the {Language} of {Time} {Series}",
+   "author": "Ansari, Abdul Fatir and Stella, Lorenzo and Turkmen, Caner and Zhang, Xiyuan and Mercado, Pedro and Shen, Huibin and Shchur, Oleksandr and Rangapuram, Syama Sundar and Arango, Sebastian Pineda and Kapoor, Shubham and Zschiegner, Jasper and Maddix, Danielle C. and Wang, Hao and Mahoney, Michael W. and Torkkola, Kari and Wilson, Andrew Gordon and Bohlke-Schneider, Michael and Wang, Yuyang",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2403.07815",
+   "url": "http://arxiv.org/abs/2403.07815",
+   "note": "arXiv:2403.07815 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "ansari_chronos_2024"
+  },
+  "err": null
+ },
+ "arxiv:2402.03885": {
+  "got": {
+   "title": "{MOMENT}: {A} {Family} of {Open} {Time}-series {Foundation} {Models}",
+   "author": "Goswami, Mononito and Szafer, Konrad and Choudhry, Arjun and Cai, Yifu and Li, Shuo and Dubrawski, Artur",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2402.03885",
+   "url": "http://arxiv.org/abs/2402.03885",
+   "note": "arXiv:2402.03885 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "goswami_moment_2024"
+  },
+  "err": null
+ },
+ "arxiv:1412.6572": {
+  "got": {
+   "title": "Explaining and {Harnessing} {Adversarial} {Examples}",
+   "author": "Goodfellow, Ian J. and Shlens, Jonathon and Szegedy, Christian",
+   "year": "2015",
+   "doi": "10.48550/arXiv.1412.6572",
+   "url": "http://arxiv.org/abs/1412.6572",
+   "note": "arXiv:1412.6572 [stat.ML]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "goodfellow_explaining_2015"
+  },
+  "err": null
+ },
+ "arxiv:1706.06083": {
+  "got": {
+   "title": "Towards {Deep} {Learning} {Models} {Resistant} to {Adversarial} {Attacks}",
+   "author": "Madry, Aleksander and Makelov, Aleksandar and Schmidt, Ludwig and Tsipras, Dimitris and Vladu, Adrian",
+   "year": "2019",
+   "doi": "10.48550/arXiv.1706.06083",
+   "url": "http://arxiv.org/abs/1706.06083",
+   "note": "arXiv:1706.06083 [stat.ML]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "madry_towards_2019"
+  },
+  "err": null
+ },
+ "doi:10.1109/MPRV.2018.03367731": {
+  "got": {
+   "title": "N-{BaIoT}\u2014{Network}-{Based} {Detection} of {IoT} {Botnet} {Attacks} {Using} {Deep} {Autoencoders}",
+   "author": "Meidan, Yair and Bohadana, Michael and Mathov, Yael and Mirsky, Yisroel and Shabtai, Asaf and Breitenbacher, Dominik and Elovici, Yuval",
+   "year": "2018",
+   "doi": "10.1109/MPRV.2018.03367731",
+   "url": "https://ieeexplore.ieee.org/document/8490192/",
+   "journal": "IEEE Pervasive Computing",
+   "_type": "article",
+   "_key": "meidan_n_baiotnetwork_based_2018"
+  },
+  "err": null
+ },
+ "doi:10.1073/pnas.1611835114": {
+  "got": {
+   "title": "Overcoming catastrophic forgetting in neural networks",
+   "author": "Kirkpatrick, James and Pascanu, Razvan and Rabinowitz, Neil and Veness, Joel and Desjardins, Guillaume and Rusu, Andrei A. and Milan, Kieran and Quan, John and Ramalho, Tiago and Grabska-Barwinska, Agnieszka and Hassabis, Demis and Clopath, Claudia and Kumaran, Dharshan and Hadsell, Raia",
+   "year": "2017",
+   "doi": "10.1073/pnas.1611835114",
+   "url": "https://pnas.org/doi/full/10.1073/pnas.1611835114",
+   "journal": "Proceedings of the National Academy of Sciences",
+   "_type": "article",
+   "_key": "kirkpatrick_overcoming_2017"
+  },
+  "err": null
+ },
+ "doi:10.1109/TPAMI.2017.2773081": {
+  "got": {
+   "title": "Learning without {Forgetting}",
+   "author": "Li, Zhizhong and Hoiem, Derek",
+   "year": "2018",
+   "doi": "10.1109/TPAMI.2017.2773081",
+   "url": "https://ieeexplore.ieee.org/document/8107520/",
+   "journal": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+   "_type": "article",
+   "_key": "li_learning_2018"
+  },
+  "err": null
+ },
+ "arxiv:1905.00414": {
+  "got": {
+   "title": "Similarity of {Neural} {Network} {Representations} {Revisited}",
+   "author": "Kornblith, Simon and Norouzi, Mohammad and Lee, Honglak and Hinton, Geoffrey",
+   "year": "2019",
+   "doi": "10.48550/arXiv.1905.00414",
+   "url": "http://arxiv.org/abs/1905.00414",
+   "note": "arXiv:1905.00414 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "kornblith_similarity_2019"
+  },
+  "err": null
+ },
+ "doi:10.18653/v1/N19-1419": {
+  "got": {
+   "title": "A {Structural} {Probe} for {Finding} {Syntax} in {Word} {Representations}",
+   "author": "Hewitt, John and Manning, Christopher D.",
+   "year": "2019",
+   "doi": "10.18653/v1/N19-1419",
+   "url": "https://aclanthology.org/N19-1419",
+   "booktitle": "Proceedings of the 2019 {Conference} of the {North} {American} {Chapter} of the {Association} for {Computational} {Linguistics}: {Human} {Language} {Technologies}, {Volume} 1 ({Long} and {Short} {Papers})",
+   "publisher": "Association for Computational Linguistics",
+   "_type": "inproceedings",
+   "_key": "hewitt_structural_2019"
+  },
+  "err": null
+ },
+ "doi:10.18653/v1/2020.acl-main.420": {
+  "got": {
+   "title": "Information-{Theoretic} {Probing} for {Linguistic} {Structure}",
+   "author": "Pimentel, Tiago and Valvoda, Josef and Hall Maudslay, Rowan and Zmigrod, Ran and Williams, Adina and Cotterell, Ryan",
+   "year": "2020",
+   "doi": "10.18653/v1/2020.acl-main.420",
+   "url": "https://www.aclweb.org/anthology/2020.acl-main.420",
+   "booktitle": "Proceedings of the 58th {Annual} {Meeting} of the {Association} for {Computational} {Linguistics}",
+   "publisher": "Association for Computational Linguistics",
+   "_type": "inproceedings",
+   "_key": "pimentel_information_theoretic_2020"
+  },
+  "err": null
+ },
+ "arxiv:2202.10054": {
+  "got": {
+   "title": "Fine-{Tuning} can {Distort} {Pretrained} {Features} and {Underperform} {Out}-of-{Distribution}",
+   "author": "Kumar, Ananya and Raghunathan, Aditi and Jones, Robbie and Ma, Tengyu and Liang, Percy",
+   "year": "2022",
+   "doi": "10.48550/arXiv.2202.10054",
+   "url": "http://arxiv.org/abs/2202.10054",
+   "note": "arXiv:2202.10054 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "kumar_fine_tuning_2022"
+  },
+  "err": null
+ },
+ "arxiv:2106.15831": {
+  "got": {
+   "title": "The {Evolution} of {Out}-of-{Distribution} {Robustness} {Throughout} {Fine}-{Tuning}",
+   "author": "Andreassen, Anders and Bahri, Yasaman and Neyshabur, Behnam and Roelofs, Rebecca",
+   "year": "2021",
+   "doi": "10.48550/arXiv.2106.15831",
+   "url": "http://arxiv.org/abs/2106.15831",
+   "note": "arXiv:2106.15831 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "andreassen_evolution_2021"
+  },
+  "err": null
+ },
+ "arxiv:2008.11687": {
+  "got": {
+   "title": "What is being transferred in transfer learning?",
+   "author": "Neyshabur, Behnam and Sedghi, Hanie and Zhang, Chiyuan",
+   "year": "2021",
+   "doi": "10.48550/arXiv.2008.11687",
+   "url": "http://arxiv.org/abs/2008.11687",
+   "note": "arXiv:2008.11687 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "neyshabur_what_2021"
+  },
+  "err": null
+ },
+ "doi:10.1609/aaai.v37i9.26317": {
+  "got": {
+   "title": "Are {Transformers} {Effective} for {Time} {Series} {Forecasting}?",
+   "author": "Zeng, Ailing and Chen, Muxi and Zhang, Lei and Xu, Qiang",
+   "year": "2023",
+   "doi": "10.1609/aaai.v37i9.26317",
+   "url": "https://ojs.aaai.org/index.php/AAAI/article/view/26317",
+   "journal": "Proceedings of the AAAI Conference on Artificial Intelligence",
+   "_type": "article",
+   "_key": "zeng_are_2023"
+  },
+  "err": null
+ },
+ "arxiv:2310.08278": {
+  "got": {
+   "title": "Lag-{Llama}: {Towards} {Foundation} {Models} for {Probabilistic} {Time} {Series} {Forecasting}",
+   "author": "Rasul, Kashif and Ashok, Arjun and Williams, Andrew Robert and Ghonia, Hena and Bhagwatkar, Rishika and Khorasani, Arian and Bayazi, Mohammad Javad Darvishi and Adamopoulos, George and Riachi, Roland and Hassen, Nadhir and Bilo\u0161, Marin and Garg, Sahil and Schneider, Anderson and Chapados, Nicolas and Drouin, Alexandre and Zantedeschi, Valentina and Nevmyvaka, Yuriy and Rish, Irina",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2310.08278",
+   "url": "http://arxiv.org/abs/2310.08278",
+   "note": "arXiv:2310.08278 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "rasul_lag_llama_2024"
+  },
+  "err": null
+ },
+ "arxiv:2402.02368": {
+  "got": {
+   "title": "Timer: {Generative} {Pre}-trained {Transformers} {Are} {Large} {Time} {Series} {Models}",
+   "author": "Liu, Yong and Zhang, Haoran and Li, Chenyu and Huang, Xiangdong and Wang, Jianmin and Long, Mingsheng",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2402.02368",
+   "url": "http://arxiv.org/abs/2402.02368",
+   "note": "arXiv:2402.02368 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "liu_timer_2024"
+  },
+  "err": null
+ },
+ "arxiv:2310.01728": {
+  "got": {
+   "title": "Time-{LLM}: {Time} {Series} {Forecasting} by {Reprogramming} {Large} {Language} {Models}",
+   "author": "Jin, Ming and Wang, Shiyu and Ma, Lintao and Chu, Zhixuan and Zhang, James Y. and Shi, Xiaoming and Chen, Pin-Yu and Liang, Yuxuan and Li, Yuan-Fang and Pan, Shirui and Wen, Qingsong",
+   "year": "2024",
+   "doi": "10.48550/arXiv.2310.01728",
+   "url": "http://arxiv.org/abs/2310.01728",
+   "note": "arXiv:2310.01728 [cs.LG]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "jin_time_llm_2024"
+  },
+  "err": null
+ },
+ "doi:10.52202/075280-1877": {
+  "got": {
+   "title": "One {Fits} {All}: {Power} {General} {Time} {Series} {Analysis} by {Pretrained} {LM}",
+   "author": "Zhou, Tian and Niu, Peisong and Wang, Xue and Sun, Liang and Jin, Rong",
+   "year": "2023",
+   "doi": "10.52202/075280-1877",
+   "url": "http://www.proceedings.com/075280-1877.html",
+   "booktitle": "Advances in {Neural} {Information} {Processing} {Systems} 36",
+   "publisher": "Neural Information Processing Systems Foundation, Inc. (NeurIPS)",
+   "_type": "inproceedings",
+   "_key": "zhou_one_2023"
+  },
+  "err": null
+ },
+ "arxiv:2308.08747": {
+  "got": {
+   "title": "An {Empirical} {Study} of {Catastrophic} {Forgetting} in {Large} {Language} {Models} {During} {Continual} {Fine}-tuning",
+   "author": "Luo, Yun and Yang, Zhen and Meng, Fandong and Li, Yafu and Zhou, Jie and Zhang, Yue",
+   "year": "2025",
+   "doi": "10.48550/arXiv.2308.08747",
+   "url": "http://arxiv.org/abs/2308.08747",
+   "note": "arXiv:2308.08747 [cs.CL]",
+   "publisher": "arXiv",
+   "_type": "misc",
+   "_key": "luo_empirical_2025"
+  },
+  "err": null
+ }
+}

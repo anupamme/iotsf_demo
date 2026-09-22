@@ -5,12 +5,12 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[Andreassen et~al.(2023)Andreassen, Bahri, Neyshabur, and
+\bibitem[Andreassen et~al.(2022)Andreassen, Bahri, Neyshabur, and
   Roelofs]{andreassen2023evolution}
 Anders Andreassen, Yasaman Bahri, Behnam Neyshabur, and Rebecca Roelofs.
 \newblock The evolution of out-of-distribution robustness throughout
   fine-tuning.
-\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2023.
+\newblock \emph{Transactions on Machine Learning Research (TMLR)}, 2022.
 \newblock URL \url{https://arxiv.org/abs/2106.15831}.
 
 \bibitem[Ansari et~al.(2024)]{ansari2024chronos}
@@ -98,7 +98,7 @@ Yong Liu, Haoran Zhang, Chenyu Li, Xiangdong Huang, Jianmin Wang, and Mingsheng
 
 \bibitem[Luo et~al.(2023)Luo, Yang, Meng, Li, Zhou, and
   Zhang]{luo2023forgetting}
-Yun Luo, Zhengxuan Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
+Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou, and Yue Zhang.
 \newblock An empirical study of catastrophic forgetting in large language
   models during continual fine-tuning.
 \newblock \emph{arXiv preprint arXiv:2308.08747}, 2023.

@@ -1,0 +1,575 @@
+{
+ "Exploring Representations and Interventions in Time Series Foundation Models": {
+  "hits": [
+   [
+    "Submitted to ICLR 2025",
+    2025,
+    "Exploring Representations and Interventions in Time Series Foundation Models"
+   ],
+   [
+    "ICML 2025 poster",
+    2025,
+    "Exploring Representations and Interventions in Time Series Foundation Models"
+   ]
+  ],
+  "err": null
+ },
+ "Unified Training of Universal Time Series Forecasting Transformers": {
+  "hits": [
+   [
+    "ICML 2024 Oral",
+    2024,
+    "Unified Training of Universal Time Series Forecasting Transformers"
+   ],
+   [
+    "CoRR 2024",
+    2024,
+    "Unified Training of Universal Time Series Forecasting Transformers"
+   ]
+  ],
+  "err": null
+ },
+ "Anomaly Transformer: Time Series Anomaly Detection with Association Discrepancy": {
+  "hits": [
+   [
+    "CoRR 2021",
+    2021,
+    "Anomaly Transformer: Time Series Anomaly Detection with Association Discrepancy"
+   ]
+  ],
+  "err": null
+ },
+ "A Decoder-Only Foundation Model for Time-Series Forecasting": {
+  "hits": [
+   [
+    "Withdrawn by Authors",
+    2023,
+    "A decoder-only foundation model for time-series forecasting"
+   ],
+   [
+    "ICML 2024 Poster",
+    2024,
+    "A decoder-only foundation model for time-series forecasting"
+   ]
+  ],
+  "err": null
+ },
+ "Chronos: Learning the Language of Time Series": {
+  "hits": [
+   [
+    "Accepted by TMLR",
+    2024,
+    "Chronos: Learning the Language of Time Series"
+   ],
+   [
+    "CoRR 2024",
+    2024,
+    "Chronos: Learning the Language of Time Series"
+   ]
+  ],
+  "err": null
+ },
+ "{MOMENT}: A Family of Open Time-series Foundation Models": {
+  "hits": [
+   [
+    "ICML 2024 Poster",
+    2024,
+    "MOMENT: A Family of Open Time-series Foundation Models"
+   ],
+   [
+    "CoRR 2024",
+    2024,
+    "MOMENT: A Family of Open Time-series Foundation Models"
+   ]
+  ],
+  "err": null
+ },
+ "Towards Deep Learning Models Resistant to Adversarial Attacks": {
+  "hits": [
+   [
+    "CoRR 2017",
+    2017,
+    "Towards Deep Learning Models Resistant to Adversarial Attacks"
+   ]
+  ],
+  "err": null
+ },
+ "{N-BaIoT}: Network-based detection of {IoT} botnet attacks using deep autoencoders": {
+  "hits": [
+   [
+    "IEEE Pervasive Comput. 2018",
+    2018,
+    "N-BaIoT - Network-Based Detection of IoT Botnet Attacks Using Deep Autoencoders"
+   ],
+   [
+    "CoRR 2018",
+    2018,
+    "N-BaIoT: Network-based Detection of IoT Botnet Attacks Using Deep Autoencoders"
+   ]
+  ],
+  "err": null
+ },
+ "Overcoming catastrophic forgetting in neural networks": {
+  "hits": [
+   [
+    "CoRR 2019",
+    2019,
+    "Localizing Catastrophic Forgetting in Neural Networks"
+   ]
+  ],
+  "err": null
+ },
+ "Learning without Forgetting": {
+  "hits": [
+   [
+    "IEEE Trans. Pattern Anal. Mach. Intell. 2018",
+    2018,
+    "Learning without Forgetting"
+   ],
+   [
+    "CoRR 2016",
+    2016,
+    "Learning without Forgetting"
+   ]
+  ],
+  "err": null
+ },
+ "The Evolution of Out-of-Distribution Robustness Throughout Fine-Tuning": {
+  "hits": [
+   [
+    "Accepted by TMLR",
+    2022,
+    "The Evolution of Out-of-Distribution Robustness Throughout Fine-Tuning"
+   ]
+  ],
+  "err": null
+ },
+ "Lag-Llama: Towards Foundation Models for Probabilistic Time Series Forecasting": {
+  "hits": [
+   [
+    "R0-FoMo Poster",
+    2023,
+    "Lag-Llama: Towards Foundation Models for Time Series Forecasting"
+   ],
+   [
+    "CoRR 2023",
+    2023,
+    "Lag-Llama: Towards Foundation Models for Time Series Forecasting"
+   ]
+  ],
+  "err": null
+ },
+ "Timer: Generative Pre-trained Transformers Are Large Time Series Models": {
+  "hits": [
+   [
+    "ICML 2024 Poster",
+    2024,
+    "Timer: Generative Pre-trained Transformers Are Large Time Series Models"
+   ]
+  ],
+  "err": null
+ },
+ "Time-{LLM}: Time Series Forecasting by Reprogramming Large Language Models": {
+  "hits": [
+   [
+    "ICLR 2024 poster",
+    2024,
+    "Time-LLM: Time Series Forecasting by Reprogramming Large Language Models"
+   ],
+   [
+    "CoRR 2023",
+    2023,
+    "Time-LLM: Time Series Forecasting by Reprogramming Large Language Models"
+   ]
+  ],
+  "err": null
+ },
+ "One Fits All: Power General Time Series Analysis by Pretrained {LM}": {
+  "hits": [
+   [
+    "NeurIPS 2023",
+    2023,
+    "One Fits All: Power General Time Series Analysis by Pretrained LM"
+   ],
+   [
+    "NeurIPS 2023 spotlight",
+    2023,
+    "One Fits All: Power General Time Series Analysis by Pretrained LM"
+   ]
+  ],
+  "err": null
+ },
+ "arxiv-meta:2409.12915": {
+  "meta": {
+   "title": "Exploring Representations and Interventions in Time Series Foundation Models",
+   "authors": "Micha\u0142 Wili\u0144ski and Mononito Goswami and Willa Potosnak and Nina \u017bukowska and Artur Dubrawski",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": "Accepted at ICML'25"
+  },
+  "err": null
+ },
+ "arxiv-meta:2002.05709": {
+  "meta": {
+   "title": "A Simple Framework for Contrastive Learning of Visual Representations",
+   "authors": "Ting Chen and Simon Kornblith and Mohammad Norouzi and Geoffrey Hinton",
+   "v1": "2020",
+   "journal_ref": null,
+   "comment": "ICML'2020. Code and pretrained models at https://github.com/google-research/simclr"
+  },
+  "err": null
+ },
+ "arxiv-meta:2006.07733": {
+  "meta": {
+   "title": "Bootstrap your own latent: A new approach to self-supervised Learning",
+   "authors": "Jean-Bastien Grill and Florian Strub and Florent Altch\u00e9 and Corentin Tallec and Pierre H. Richemond and Elena Buchatskaya and Carl Doersch and Bernardo Avila Pires and Zhaohan Daniel Guo and Mohammad Gheshlaghi Azar and Bilal Piot and Koray Kavukcuoglu and R\u00e9mi Munos and Michal Valko",
+   "v1": "2020",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2403.01742": {
+  "meta": {
+   "title": "Diffusion-TS: Interpretable Diffusion for General Time Series Generation",
+   "authors": "Xinyu Yuan and Yan Qiao",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2402.02592": {
+  "meta": {
+   "title": "Unified Training of Universal Time Series Forecasting Transformers",
+   "authors": "Gerald Woo and Chenghao Liu and Akshat Kumar and Caiming Xiong and Silvio Savarese and Doyen Sahoo",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2004.11362": {
+  "meta": {
+   "title": "Supervised Contrastive Learning",
+   "authors": "Prannay Khosla and Piotr Teterwak and Chen Wang and Aaron Sarna and Yonglong Tian and Phillip Isola and Aaron Maschinot and Ce Liu and Dilip Krishnan",
+   "v1": "2020",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2201.07284": {
+  "meta": {
+   "title": "TranAD: Deep Transformer Networks for Anomaly Detection in Multivariate Time Series Data",
+   "authors": "Shreshth Tuli and Giuliano Casale and Nicholas R. Jennings",
+   "v1": "2022",
+   "journal_ref": null,
+   "comment": "Accepted in VLDB 2022"
+  },
+  "err": null
+ },
+ "arxiv-meta:2110.02642": {
+  "meta": {
+   "title": "Anomaly Transformer: Time Series Anomaly Detection with Association Discrepancy",
+   "authors": "Jiehui Xu and Haixu Wu and Jianmin Wang and Mingsheng Long",
+   "v1": "2021",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2211.14730": {
+  "meta": {
+   "title": "A Time Series is Worth 64 Words: Long-term Forecasting with Transformers",
+   "authors": "Yuqi Nie and Nam H. Nguyen and Phanwadee Sinthong and Jayant Kalagnanam",
+   "v1": "2022",
+   "journal_ref": null,
+   "comment": "Accepted by ICLR 2023"
+  },
+  "err": null
+ },
+ "arxiv-meta:2310.10688": {
+  "meta": {
+   "title": "A decoder-only foundation model for time-series forecasting",
+   "authors": "Abhimanyu Das and Weihao Kong and Rajat Sen and Yichen Zhou",
+   "v1": "2023",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2403.07815": {
+  "meta": {
+   "title": "Chronos: Learning the Language of Time Series",
+   "authors": "Abdul Fatir Ansari and Lorenzo Stella and Caner Turkmen and Xiyuan Zhang and Pedro Mercado and Huibin Shen and Oleksandr Shchur and Syama Sundar Rangapuram and Sebastian Pineda Arango and Shubham Kapoor and Jasper Zschiegner and Danielle C. Maddix and Hao Wang and Michael W. Mahoney and Kari Torkkola and Andrew Gordon Wilson and Michael Bohlke-Schneider and Yuyang Wang",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": "Code and model checkpoints available at https://github.com/amazon-science/chronos-forecasting"
+  },
+  "err": null
+ },
+ "arxiv-meta:2402.03885": {
+  "meta": {
+   "title": "MOMENT: A Family of Open Time-series Foundation Models",
+   "authors": "Mononito Goswami and Konrad Szafer and Arjun Choudhry and Yifu Cai and Shuo Li and Artur Dubrawski",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": "Accepted at ICML'24. This is a revision. See changelog in the Appendix"
+  },
+  "err": null
+ },
+ "arxiv-meta:1412.6572": {
+  "meta": {
+   "title": "Explaining and Harnessing Adversarial Examples",
+   "authors": "Ian J. Goodfellow and Jonathon Shlens and Christian Szegedy",
+   "v1": "2014",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:1706.06083": {
+  "meta": {
+   "title": "Towards Deep Learning Models Resistant to Adversarial Attacks",
+   "authors": "Aleksander Madry and Aleksandar Makelov and Ludwig Schmidt and Dimitris Tsipras and Adrian Vladu",
+   "v1": "2017",
+   "journal_ref": null,
+   "comment": "ICLR'18"
+  },
+  "err": null
+ },
+ "arxiv-meta:2308.08747": {
+  "meta": {
+   "title": "An Empirical Study of Catastrophic Forgetting in Large Language Models During Continual Fine-tuning",
+   "authors": "Yun Luo and Zhen Yang and Fandong Meng and Yafu Li and Jie Zhou and Yue Zhang",
+   "v1": "2023",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:1905.00414": {
+  "meta": {
+   "title": "Similarity of Neural Network Representations Revisited",
+   "authors": "Simon Kornblith and Mohammad Norouzi and Honglak Lee and Geoffrey Hinton",
+   "v1": "2019",
+   "journal_ref": null,
+   "comment": "ICML 2019"
+  },
+  "err": null
+ },
+ "arxiv-meta:2202.10054": {
+  "meta": {
+   "title": "Fine-Tuning can Distort Pretrained Features and Underperform Out-of-Distribution",
+   "authors": "Ananya Kumar and Aditi Raghunathan and Robbie Jones and Tengyu Ma and Percy Liang",
+   "v1": "2022",
+   "journal_ref": null,
+   "comment": "ICLR (Oral) 2022"
+  },
+  "err": null
+ },
+ "arxiv-meta:2106.15831": {
+  "meta": {
+   "title": "The Evolution of Out-of-Distribution Robustness Throughout Fine-Tuning",
+   "authors": "Anders Andreassen and Yasaman Bahri and Behnam Neyshabur and Rebecca Roelofs",
+   "v1": "2021",
+   "journal_ref": null,
+   "comment": "27 pages, 25 figures"
+  },
+  "err": null
+ },
+ "arxiv-meta:2008.11687": {
+  "meta": {
+   "title": "What is being transferred in transfer learning?",
+   "authors": "Behnam Neyshabur and Hanie Sedghi and Chiyuan Zhang",
+   "v1": "2020",
+   "journal_ref": "NeurIPS 2020",
+   "comment": "Equal contribution, authors ordered randomly"
+  },
+  "err": null
+ },
+ "arxiv-meta:2310.08278": {
+  "meta": {
+   "title": "Lag-Llama: Towards Foundation Models for Probabilistic Time Series Forecasting",
+   "authors": "Kashif Rasul and Arjun Ashok and Andrew Robert Williams and Hena Ghonia and Rishika Bhagwatkar and Arian Khorasani and Mohammad Javad Darvishi Bayazi and George Adamopoulos and Roland Riachi and Nadhir Hassen and Marin Bilo\u0161 and Sahil Garg and Anderson Schneider and Nicolas Chapados and Alexandre Drouin and Valentina Zantedeschi and Yuriy Nevmyvaka and Irina Rish",
+   "v1": "2023",
+   "journal_ref": null,
+   "comment": "First two authors contributed equally. All data, models and code used are open-source. GitHub: https://github.com/time-series-foundation-models/lag-llama"
+  },
+  "err": null
+ },
+ "arxiv-meta:2402.02368": {
+  "meta": {
+   "title": "Timer: Generative Pre-trained Transformers Are Large Time Series Models",
+   "authors": "Yong Liu and Haoran Zhang and Chenyu Li and Xiangdong Huang and Jianmin Wang and Mingsheng Long",
+   "v1": "2024",
+   "journal_ref": null,
+   "comment": null
+  },
+  "err": null
+ },
+ "arxiv-meta:2310.01728": {
+  "meta": {
+   "title": "Time-LLM: Time Series Forecasting by Reprogramming Large Language Models",
+   "authors": "Ming Jin and Shiyu Wang and Lintao Ma and Zhixuan Chu and James Y. Zhang and Xiaoming Shi and Pin-Yu Chen and Yuxuan Liang and Yuan-Fang Li and Shirui Pan and Qingsong Wen",
+   "v1": "2023",
+   "journal_ref": null,
+   "comment": "Accepted by the 12th International Conference on Learning Representations (ICLR 2024)"
+  },
+  "err": null
+ },
+ "Informer: Beyond Efficient Transformer for Long Sequence Time-Series Forecasting": {
+  "hits": [],
+  "err": null
+ },
+ "A Simple Framework for Contrastive Learning of Visual Representations": {
+  "hits": [],
+  "err": null
+ },
+ "Bootstrap Your Own Latent: A New Approach to Self-Supervised Learning": {
+  "hits": [],
+  "err": null
+ },
+ "Diffusion-TS: Interpretable Diffusion for General Time Series Generation": {
+  "hits": [
+   [
+    "ICLR 2024 poster",
+    2024,
+    "Diffusion-TS: Interpretable Diffusion for General Time Series Generation"
+   ],
+   [
+    "CoRR 2024",
+    2024,
+    "Diffusion-TS: Interpretable Diffusion for General Time Series Generation"
+   ]
+  ],
+  "err": null
+ },
+ "Supervised Contrastive Learning": {
+  "hits": [],
+  "err": null
+ },
+ "{CICIoT2023}: A Real-Time Dataset and Benchmark for Large-Scale Attacks in IoT Environment": {
+  "hits": [],
+  "err": null
+ },
+ "{USAD}: UnSupervised Anomaly Detection on Multivariate Time Series": {
+  "hits": [],
+  "err": null
+ },
+ "{TranAD}: Deep Transformer Networks for Anomaly Detection in Multivariate Time Series Data": {
+  "hits": [],
+  "err": null
+ },
+ "A Time Series is Worth 64 Words: Long-term Forecasting with Transformers": {
+  "hits": [],
+  "err": null
+ },
+ "Isolation-Based Anomaly Detection": {
+  "hits": [],
+  "err": null
+ },
+ "Time-series Generative Adversarial Networks": {
+  "hits": [],
+  "err": null
+ },
+ "Variational Autoencoder based Anomaly Detection using Reconstruction Probability": {
+  "hits": [],
+  "err": null
+ },
+ "Time-Series Representation Learning via Temporal and Contextual Contrasting": {
+  "hits": [],
+  "err": null
+ },
+ "Curriculum Learning": {
+  "hits": [],
+  "err": null
+ },
+ "Training Region-based Object Detectors with Online Hard Example Mining": {
+  "hits": [],
+  "err": null
+ },
+ "{Snort}: Network Intrusion Detection System": {
+  "hits": [],
+  "err": null
+ },
+ "{Zeek}: The Network Security Monitor": {
+  "hits": [],
+  "err": null
+ },
+ "An Empirical Comparison of Botnet Detection Methods": {
+  "hits": [],
+  "err": null
+ },
+ "{IDSGAN}: Generative Adversarial Networks for Attack Generation against Intrusion Detection": {
+  "hits": [],
+  "err": null
+ },
+ "{PANDA}: Adapting Pretrained Features for Anomaly Detection and Segmentation": {
+  "hits": [],
+  "err": null
+ },
+ "{FixMatch}: Simplifying Semi-Supervised Learning with Consistency and Confidence": {
+  "hits": [],
+  "err": null
+ },
+ "Explaining and Harnessing Adversarial Examples": {
+  "hits": [],
+  "err": null
+ },
+ "{IoT} Analytics: State of {IoT} -- Spring 2023": {
+  "hits": [],
+  "err": null
+ },
+ "{UNSW-NB15}: A comprehensive data set for network intrusion detection systems": {
+  "hits": [],
+  "err": null
+ },
+ "{LoRA}: Low-Rank Adaptation of Large Language Models": {
+  "hits": [],
+  "err": null
+ },
+ "Parameter-Efficient Transfer Learning for {NLP}": {
+  "hits": [],
+  "err": null
+ },
+ "Explicit Inductive Bias for Transfer Learning with Convolutional Networks": {
+  "hits": [],
+  "err": null
+ },
+ "An Empirical Study of Catastrophic Forgetting in Large Language Models During Continual Fine-tuning": {
+  "hits": [
+   [
+    "IEEE Transactions on Audio, Speech and Language Processing",
+    2025,
+    "An Empirical Study of Catastrophic Forgetting in Large Language Models During Continual Fine-Tuning"
+   ]
+  ],
+  "err": null
+ },
+ "Similarity of Neural Network Representations Revisited": {
+  "hits": [],
+  "err": null
+ },
+ "A Structural Probe for Finding Syntax in Word Representations": {
+  "hits": [],
+  "err": null
+ },
+ "Information-Theoretic Probing for Linguistic Structure": {
+  "hits": [],
+  "err": null
+ },
+ "Fine-Tuning Can Distort Pretrained Features and Underperform Out-of-Distribution": {
+  "hits": [],
+  "err": null
+ },
+ "What is Being Transferred in Transfer Learning?": {
+  "hits": [],
+  "err": null
+ },
+ "Are Transformers Effective for Time Series Forecasting?": {
+  "hits": [],
+  "err": null
+ }
+}

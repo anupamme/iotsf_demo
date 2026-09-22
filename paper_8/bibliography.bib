@@ -37,9 +37,15 @@
   url       = {https://arxiv.org/abs/2006.07733}
 }
 
+% Authors corrected from "Zhang, Xinyu and others" to "Yuan, Xinyu and Qiao, Yan" on 2026-09-22.
+% arXiv 2403.01742 and the ICLR 2024 poster record (OpenReview) both list exactly Xinyu Yuan and
+% Yan Qiao; the given name was right and the surname was not. Venue and year check out. The cite key
+% still says "zhang" and is deliberately left alone: the older paper/ document cites this key in seven
+% places. NB that document's bibliography carries the same wrong name and still prints
+% "Zhang et al.(2024)" until it is rebuilt.
 @inproceedings{zhang2024diffusionts,
   title     = {Diffusion-TS: Interpretable Diffusion for General Time Series Generation},
-  author    = {Zhang, Xinyu and others},
+  author    = {Yuan, Xinyu and Qiao, Yan},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2024},
   url       = {https://arxiv.org/abs/2403.01742}
@@ -312,9 +318,12 @@
   year      = {2018}
 }
 
+% Second author corrected from "Yang, Zhengxuan" to "Yang, Zhen" on 2026-09-22. Verified by arXiv ID
+% round-trip: arXiv 2308.08747 lists Yun Luo, Zhen Yang, Fandong Meng, Yafu Li, Jie Zhou, Yue Zhang.
+% Both spellings share an initial, so a first-author-only or initials-only check passes it.
 @article{luo2023forgetting,
   title   = {An Empirical Study of Catastrophic Forgetting in Large Language Models During Continual Fine-tuning},
-  author  = {Luo, Yun and Yang, Zhengxuan and Meng, Fandong and Li, Yafu and Zhou, Jie and Zhang, Yue},
+  author  = {Luo, Yun and Yang, Zhen and Meng, Fandong and Li, Yafu and Zhou, Jie and Zhang, Yue},
   journal = {arXiv preprint arXiv:2308.08747},
   year    = {2023}
 }
@@ -354,11 +363,16 @@
   url       = {https://arxiv.org/abs/2202.10054}
 }
 
+% Year corrected 2023 to 2022 on 2026-09-22. TMLR's own record is the authority and it says 2022:
+% OpenReview forum Qs3EfpieOh, accepted-by-TMLR, publication date 2022-10-16, canonical BibTeX
+% "andreassen2022the ... year={2022}". The arXiv posting is 2021, so neither the preprint nor the
+% previous 2023 matched the venue. The cite key keeps its 2023 to avoid touching the citation site;
+% the printed year comes from this field.
 @article{andreassen2023evolution,
   title     = {The Evolution of Out-of-Distribution Robustness Throughout Fine-Tuning},
   author    = {Andreassen, Anders and Bahri, Yasaman and Neyshabur, Behnam and Roelofs, Rebecca},
   journal   = {Transactions on Machine Learning Research (TMLR)},
-  year      = {2023},
+  year      = {2022},
   url       = {https://arxiv.org/abs/2106.15831}
 }
 
