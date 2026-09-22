@@ -856,6 +856,142 @@ def rederive():
     assert _des["per_rung"]["0.1"]["max"] < 0, (
         f'"task A gets better in every seed at the top rung" is false: the worst seed is '
         f'{_des["per_rung"]["0.1"]["max"]:+.1f}%')
+
+    # -- Chronos-T5-Small on M4-Monthly. This block is the point of the whole file: app:chronos_detail
+    # was ~140 lines of hand-typed numbers with no run record and no check here, for ten rounds. Every
+    # number that section now states is registered below, and the six runs, the gate ladder and the
+    # diagnostic reproduction of the superseded figure are the only sources.
+    _m4g = json.load(open(ROOT / "results/chronos_m4/gate.json"))
+    _m4sel, _m4ho = _m4g["splits"]["selection"], _m4g["splits"]["heldout"]
+    R["m4_gate"] = _m4sel["primary_r2_task"]
+    R["m4_trend"] = _m4sel["rungs"]["trend"]["r2_task"]
+    R["m4_trend_mse"] = _m4sel["rungs"]["trend"]["baseline_mse"]
+    R["m4_const_mse"] = _m4sel["constant_floor_mse"]
+    R["m4_best_rung"] = _m4sel["rungs"][_m4sel["best_admissible_rung"]]["r2_task"]
+    R["m4_worst_rung"] = _m4sel["worst_case_r2_task"]
+    R["m4_gate_ho"] = _m4ho["primary_r2_task"]
+    R["m4_mlp_ho"] = _m4ho["rungs"]["mlp"]["r2_task"]
+    R["m4_train_windows"] = _m4g["data"]["train_windows_used"]
+    R["m4_dropped"] = _m4g["data"]["degenerate_train_contexts_dropped"]
+    R["m4_series"] = _m4g["data"]["n_series"]
+    R["m4_minlen"] = _m4g["data"]["min_len"]
+    # The two claims the appendix makes in words rather than in digits, and that no captured group
+    # could carry: that the primary gate FAILS, and that the superseded denominator is inadmissible.
+    # If either flips, the section's argument inverts and the numbers would still check out.
+    assert not _m4sel["primary_passes"], (
+        f'app:chronos_detail is written for a gate-FAIL on this cell, but the primary gate is now '
+        f'{_m4sel["primary_r2_task"]:+.4f} at threshold {_m4g["threshold"]}. The registration '
+        f'pre-wrote the gate-clears branch; switch to it rather than editing the number.')
+    assert not _m4sel["rungs"]["trend"]["admissible"], (
+        'app:chronos_detail asserts the superseded trend denominator is worse than the constant '
+        'floor on the selection split; it is no longer')
+    assert _m4sel["best_admissible_rung"] == "seasonal_naive", (
+        f'the appendix names the seasonal naive as the best admissible rung; it is now '
+        f'{_m4sel["best_admissible_rung"]}')
+
+    # The diagnostic reproduction of the superseded 84.5%. Written after the gate and unable to move
+    # it; what it supports is the appendix's claim that the old figure does not reproduce.
+    _m4l = json.load(open(ROOT / "results/chronos_m4/legacy_baseline.json"))
+    R["m4_legacy_pct"] = 100 * _m4l["legacy"]["r2_task"]
+    R["m4_legacy_mse"] = _m4l["legacy"]["baseline_mse"]
+    R["m4_legacy_const"] = _m4l["constant_floor"]["baseline_mse"]
+    R["m4_legacy_fitted_mse"] = _m4l["fitted"]["baseline_mse"]
+    R["m4_legacy_fitted_pct"] = 100 * _m4l["fitted"]["r2_task"]
+    R["m4_legacy_overparam"] = _m4l["legacy"]["n_series_with_fewer_windows_than_coefficients"]
+    R["m4_legacy_minlen"] = _m4l["legacy_selection"]["min_len"]
+    R["m4_legacy_hist_min"] = _m4l["legacy_selection"]["history_min"]
+    R["m4_legacy_hist_max"] = _m4l["legacy_selection"]["history_max"]
+    R["m4_lookback"] = _m4g["lookback"]
+    # "it is not that the denominator was too weak in the ladder's sense" rests on this: on the legacy
+    # window set the legacy estimator is ADMISSIBLE. Stating the opposite would be the easy version of
+    # this paragraph and it would be false.
+    assert _m4l["legacy_admissible"], (
+        'the appendix says the legacy estimator beats the training mean on its own window set; it no '
+        'longer does, so that paragraph now understates the defect and must be rewritten')
+
+    # The six runs, through the emitter's own summary so the prose and Table tab:chronosm4runs cannot
+    # disagree in the last decimal.
+    _m4runs = {}
+    for _c in ("B", "D"):
+        for _s in (42, 43, 44):
+            _m4runs[(_c, _s)] = json.load(open(
+                ROOT / f"results/chronos_m4/cond_{_c}/seed{_s}/condition_{_c}_s{_s}.json"))
+    _fb = [_m4runs[("B", s)]["forgetting_pct"] for s in (42, 43, 44)]
+    _fd = [_m4runs[("D", s)]["forgetting_pct"] for s in (42, 43, 44)]
+    _dd = np.array(_fb) - np.array(_fd)
+    R["m4_forg_b"] = abs(float(np.mean(_fb)))
+    R["m4_forg_d"] = abs(float(np.mean(_fd)))
+    R["m4_denc"] = float(_dd.mean())
+    _sem = float(_dd.std(ddof=1) / np.sqrt(len(_dd)))
+    _t = float(stats.t.ppf(0.975, len(_dd) - 1))
+    R["m4_ci_lo"] = R["m4_denc"] - _t * _sem
+    R["m4_ci_hi"] = R["m4_denc"] + _t * _sem
+    R["m4_mde"] = _t * _sem
+    R["m4_cka_b_lo"] = min(_m4runs[("B", s)]["final_cka"] for s in (42, 43, 44))
+    R["m4_cka_b_hi"] = max(_m4runs[("B", s)]["final_cka"] for s in (42, 43, 44))
+    R["m4_l2_lo"] = min(_m4runs[("B", s)]["weight_drift"] for s in (42, 43, 44))
+    R["m4_l2_hi"] = max(_m4runs[("B", s)]["weight_drift"] for s in (42, 43, 44))
+    R["m4_stop_lo"] = min(_m4runs[("B", s)]["stopped_epoch"] for s in (42, 43, 44))
+    R["m4_stop_hi"] = max(_m4runs[("B", s)]["stopped_epoch"] for s in (42, 43, 44))
+    R["m4_n_train"] = _m4runs[("B", 42)]["n_train_windows"]
+    for _i, _s in enumerate((42, 43, 44), start=1):
+        R[f"m4_best_epoch_{_i}"] = _m4runs[("B", _s)]["best_epoch"]
+    # The cell's configuration, from the record rather than from the caption it is printed in. Every
+    # one of these was a hand-typed constant in the deleted version of the section.
+    _b42 = _m4runs[("B", 42)]
+    R["m4_horizon"] = _b42["horizon"]
+    R["m4_batch"] = _b42["batch_size"]
+    R["m4_epochs"] = _b42["epochs_requested"]
+    R["m4_patience"] = _b42["patience"]
+    R["m4_cka_windows"] = _b42["cka_windows"]
+    R["m4_lr_exp"] = int(round(-math.log10(_b42["lr"])))
+    # The tail each series holds back from the training pool: one selection window (lookback context
+    # plus horizon target). Derived, not typed, so it cannot disagree with the two constants above.
+    R["m4_heldback"] = R["m4_lookback"] + R["m4_horizon"]
+    # The zero-shot numerator's sample count is NOT in gate.json: the gate was computed before this
+    # check existed, and re-running it to add the field would move every number in the section, because
+    # Chronos forecasts by sampling. So it is read from the literal in the script that produced the
+    # record, which ships in the release, and required to be single-valued.
+    _zs_src = (ROOT / "scripts/gate_chronos_m4.py").read_text()
+    _ns = set(re.findall(r"num_samples=(\d+)", _zs_src))
+    assert len(_ns) == 1, f"gate_chronos_m4.py draws a varying number of samples: {sorted(_ns)}"
+    R["m4_num_samples"] = int(_ns.pop())
+    # The two file:line citations the section makes about the superseded script. A line citation rots
+    # silently -- it stays syntactically valid while pointing at something else -- so each is anchored
+    # on the text it is supposed to name.
+    _old_src = (ROOT / "scripts/finetune_chronos_m4.py").read_text().split("\n")
+    for _ln, _needle in ((303, "def linear_baseline_mse"), (505, "best_val_mse = zs_mse"),
+                         (507, "best_state = copy.deepcopy"), (522, "val_mse = chronos_zs_mse")):
+        assert _needle in _old_src[_ln - 1], (
+            f"app:chronos_detail cites finetune_chronos_m4.py:{_ln} for {_needle!r}; that line now "
+            f"reads {_old_src[_ln - 1].strip()!r}")
+    # "cut a randomly subsampled window pool at the 80th percentile of its own index" is a claim about
+    # that script, so it is checked against that script and not against a number.
+    assert "n_val = max(int(n_total * 0.2), 10)" in "\n".join(_old_src), (
+        'the appendix says the superseded script cut its window pool at the 80th percentile; it no '
+        'longer does')
+    # The one comparison the surviving descriptive observation makes. It used to be an unrecorded CKA
+    # for a Moirai-Small n=10k arm that no emitter reads; it is now a cell of the 31-cell matrix, which
+    # is also the cell Table tab:dissociation prints first.
+    R["m4_moirai_cka"] = _by["Moirai-base/ETTh2 h192 n1000"]["cka"]
+    # The operating point, from the primary gate's own record rather than from any one arm's. It had no
+    # prose check at all before this round -- a constant stated at four sites and derived from none of
+    # them -- and the M4 arm is required to have screened against the same value.
+    R["gate_threshold"] = json.load(open(ROOT / "results/gate_baselines_val.json"))["gate_threshold"]
+    assert _m4g["threshold"] == R["gate_threshold"], (
+        f'the Chronos/M4 gate screened at {_m4g["threshold"]} against the paper\'s '
+        f'{R["gate_threshold"]}')
+    # The superseded script's train/val fraction, read from the script so the appendix's "80th
+    # percentile" cannot drift from the code it describes.
+    _frac = re.search(r"n_val = max\(int\(n_total \* ([\d.]+)\)", "\n".join(_old_src))
+    R["m4_old_split_pct"] = int(round(100 * (1 - float(_frac.group(1)))))
+    # Both arms improving, and every run early-stopping past epoch 0, are the two claims the section
+    # makes in words. The second is what the old arm could not say.
+    assert np.mean(_fb) < 0 and np.mean(_fd) < 0, (
+        f'the appendix says both arms improve on zero-shot on average; they now read '
+        f'B {np.mean(_fb):+.2f}%, D {np.mean(_fd):+.2f}%')
+    assert all(r["best_epoch"] >= 1 for r in _m4runs.values()), (
+        'a run selected the pre-trained checkpoint, which is the defect this arm was re-run to fix')
     return R
 
 
@@ -1812,6 +1948,124 @@ def build_checks(R):
     # the ladder: "no cell clears every admissible rung (selection split)" for the body's 31 and
     # "union count (retrospective)" for the appendix's 32. A single pattern here matched both and
     # could only agree with one.
+
+    # --- Chronos/M4-Monthly (app:chronos_detail, and one clause in S6). Every numeral in that section
+    # is registered here or is gone, which is the check whose absence let ~140 lines of untraceable
+    # numbers stand for ten rounds. Three deliberate exceptions, each of which is a numeral the section
+    # exists to DISOWN rather than to state, and none of which can have a record by construction:
+    #   84.5%            the superseded figure itself. There is no record; that is the claim. What is
+    #                    registered is every number of the reproduction that fails to recover it.
+    #   0.9993--0.9994   the deleted arm's frozen-encoder CKA, quoted twice and attributed to "the old
+    #                    version of this appendix" both times, in the course of saying the protocol as
+    #                    coded cannot produce it.
+    #   n=500, n=10k     the names of two deleted arms, in the list of what was deleted.
+    # A fourth category is checked against source rather than against a record: the four
+    # finetune_chronos_m4.py line citations and the 80th-percentile split, all anchored below.
+    chk("M4: the corrected gate, in the body", r"scores \$\+([\d.]+)\$ once the gate is computed",
+        R["m4_gate"])
+    chk("M4: the corrected gate, in the appendix",
+        r"\\Vb\{\\text\{ridge\}\}\{=\}\{\+\}([\d.]+)\$, which \\emph\{fails\}", R["m4_gate"])
+    chk("M4: the superseded trend rung and the constant floor",
+        r"trend denominator reads \$\+([\d.]+)\$ on those same windows and is "
+        r"\\textbf\{inadmissible\}: at an MSE of \$([\d.]+)\$ it is worse than the constant "
+        r"predictor's \$([\d.]+)\$",
+        R["m4_trend"], R["m4_trend_mse"], R["m4_const_mse"])
+    chk("M4: the best and weakest admissible rungs",
+        r"seasonal naive at \$\+([\d.]+)\$.*?GBM's \$\+([\d.]+)\$",
+        R["m4_best_rung"], R["m4_worst_rung"])
+    chk("M4: the held-out split's fitted and MLP rungs",
+        r"the fitted gate reads \$\+([\d.]+)\$ and would pass, but the MLP rung reads \$-([\d.]+)\$",
+        R["m4_gate_ho"], abs(R["m4_mlp_ho"]))
+    chk("M4: the three splits' window counts",
+        r"\(\$([\d]+)\{,\}([\d]+)\$ usable, \$(\d+)\$ dropped",
+        R["m4_train_windows"] // 1000, R["m4_train_windows"] % 1000, R["m4_dropped"])
+    chk("M4: the selection rule",
+        r"first \$(\d+)\$ series in file order with at least \$(\d+)\$ observations of history and "
+        r"\$(\d+)\$ test values",
+        R["m4_series"], R["m4_minlen"], R["m4_horizon"])
+    # The horizon is restated twice more, in the two sentences that describe what each split's target
+    # is. Both are registered, because a horizon that disagreed with itself across three sentences is
+    # exactly the kind of thing the deleted version of this section did.
+    chk("M4: the selection target", r"contain the \$(\d+)\$ values used as the selection target",
+        R["m4_horizon"])
+    chk("M4: the held-out target", r"test set as the \$(\d+)\$ steps following the history",
+        R["m4_horizon"])
+    # The operating point itself. Registered globally rather than in the M4 block because the numeral
+    # had no check at any of its sites; app:chronos_detail is simply where that was noticed.
+    chk("the gate's operating point", r"\$([\d.]+)\$ operating point", R["gate_threshold"],
+        min_sites=4)
+    chk("the gate's operating point (stated the other way round)",
+        r"operating point of \$([\d.]+)\$", R["gate_threshold"])
+    chk("intervention-cell count (what the deleted M4 numbers were outside of)",
+        r"outside the (\d+)-cell matrix", R["n_int"])
+    chk("M4: where the superseded script cut its pool",
+        r"pool at the \$(\d+)\$th percentile of its own index", R["m4_old_split_pct"])
+    # The superseded figure, reproduced. The 84.5% itself is deliberately NOT checked against a record:
+    # there is none, which is the claim. What is checked is every number of the reproduction.
+    chk("M4 legacy: the old selection rule and what its estimator now gives",
+        r"first \$(\d+)\$ series with at least \$(\d+)\$ observations, whose histories run from "
+        r"\$(\d+)\$ to \$(\d+)\$ points --- gives \$([\d.]+)\\%\$",
+        R["m4_series"], R["m4_legacy_minlen"], R["m4_legacy_hist_min"], R["m4_legacy_hist_max"],
+        R["m4_legacy_pct"])
+    chk("M4 legacy: the training mean beats it, so the defect is not weakness",
+        r"the training mean is worse still, at \$([\d.]+)\$ against the legacy estimator's "
+        r"\$([\d.]+)\$", R["m4_legacy_const"], R["m4_legacy_mse"])
+    chk("M4 legacy: the per-series regressions that fit more coefficients than they have windows",
+        r"that \$(\d+)\$ of the \$(\d+)\$ per-series regressions fit \$(\d+)\$ coefficients",
+        R["m4_legacy_overparam"], R["m4_series"], R["m4_lookback"])
+    chk("M4 legacy: the paper's own denominator on the same windows",
+        r"fitted ridge reaches an MSE of \$([\d.]+)\$ on those same windows",
+        R["m4_legacy_fitted_mse"])
+    chk("M4 legacy: the same numerator under three estimators",
+        r"that denominator the identical zero-shot numerator reads \$([\d.]+)\\%\$; against the "
+        r"legacy one, \$([\d.]+)\\%\$; and on the split the protocol actually scores, \$\+([\d.]+)\$",
+        R["m4_legacy_fitted_pct"], R["m4_legacy_pct"], R["m4_gate"])
+    # The six runs.
+    chk("M4: both arms' mean forgetting",
+        r"full fine-tuning by \$-([\d.]+)\\%\$ and decoder-only adaptation by \$-([\d.]+)\\%\$",
+        R["m4_forg_b"], R["m4_forg_d"])
+    chk("M4: the paired contrast and its interval",
+        r"\\denc\{=\}\{\+\}([\d.]+)\$ with a \$95\\%\$ interval of \$\[-([\d.]+), \+([\d.]+)\]\$",
+        R["m4_denc"], abs(R["m4_ci_lo"]), R["m4_ci_hi"])
+    chk("M4: the minimum detectable effect at three seeds",
+        r"minimum detectable effect here is \$([\d.]+)\$~pp", R["m4_mde"])
+    chk("M4: early stopping engaged past epoch 0",
+        r"at epochs \$(\d+)\$, \$(\d+)\$ and \$(\d+)\$ under B against patience breaks at \$(\d+)\$ "
+        r"to \$(\d+)\$",
+        R["m4_best_epoch_1"], R["m4_best_epoch_2"], R["m4_best_epoch_3"],
+        R["m4_stop_lo"], R["m4_stop_hi"])
+    chk("M4: how far the encoder moved under B",
+        r"\$\\ell_2\$ of \$([\d.]+)\$ to \$([\d.]+)\$ at CKA \$([\d.]+)\$ to \$([\d.]+)\$",
+        R["m4_l2_lo"], R["m4_l2_hi"], R["m4_cka_b_lo"], R["m4_cka_b_hi"])
+    chk("M4: the surviving descriptive observation",
+        r"this dataset, at CKA \$\{\\geq\}([\d.]+)\$, where Moirai-Base on ETTh2 restructures to "
+        r"CKA \$([\d.]+)\$ at \$h\{=\}(\d+)\$",
+        R["m4_cka_b_lo"], R["m4_moirai_cka"], 192)
+    # --- the cell's configuration. Each of these was a hand-typed constant in the deleted version of
+    # the section, and two of them (n and the horizon) were wrong there by the time it was deleted.
+    chk("M4: the cell's shape", r"M4-Monthly, at \$(\d+)\$ series, lookback \$(\d+)\$ and \$h\{=\}(\d+)\$",
+        R["m4_series"], R["m4_lookback"], R["m4_horizon"])
+    chk("M4: the training configuration",
+        r"\$n\{=\}(\d+)\$ training windows, lr \$10\^\{-(\d)\}\$, batch \$(\d+)\$, \$(\d+)\$ epochs "
+        r"with patience \$(\d+)\$",
+        R["m4_n_train"], R["m4_lr_exp"], R["m4_batch"], R["m4_epochs"], R["m4_patience"])
+    chk("M4: the tail held back from the training pool",
+        r"sliding training windows over all but the last \$(\d+)\$ observations", R["m4_heldback"])
+    chk("M4: the numerator's sample count",
+        r"median of \$(\d+)\$ Chronos samples", R["m4_num_samples"])
+    chk("M4: the CKA windows",
+        r"mean-pooled final encoder output on the \$(\d+)\$ selection contexts", R["m4_cka_windows"])
+    # The superseded script's own split, in the two numbers that describe it: stride-1 windows of
+    # length `lookback` overlap in lookback-1 steps, so both come from the same recorded constant.
+    chk("M4: how far the superseded split's windows overlapped",
+        r"windows overlapping in \$(\d+)\$ of \$(\d+)\$ steps sat on both sides",
+        R["m4_lookback"] - 1, R["m4_lookback"])
+    # The gate-correction count, restated in this caption. The body's site says "moves 17 of Moirai's
+    # 21 cells across the threshold" and has its own check; this phrasing is different, and coverage
+    # here is per phrasing, not per fact.
+    chk("M4: the gate correction's scale, restated in the caption",
+        r"moved \$(\d+)\$ of \$(\d+)\$ Moirai cells when it was corrected",
+        R["n_flip_moirai"], R["n_moirai_screened"])
     return C
 
 

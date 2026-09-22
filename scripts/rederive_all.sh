@@ -129,6 +129,15 @@ run "sample_sweep"                 "$PY" scripts/emit_sample_sweep.py
 # writes a visible in-PDF marker whenever a registered cell is still missing.
 run "positive_control"             "$PY" scripts/emit_positive_control.py
 
+# Chronos-T5-Small on M4-Monthly: the gate ladder and the six B/D runs. TIER A -- it reads only
+# results/chronos_m4/*.json, all committed. This arm exists because the appendix section it feeds used
+# to be 140 lines of hand-typed numbers with no run record anywhere under results/, which is the exact
+# failure this whole file is built to prevent; the emitter takes no flags for the same reason
+# emit_positive_control.py takes none, and it asserts the two facts the appendix prose asserts (that
+# the superseded trend denominator is inadmissible on the selection split, and that condition D's
+# CKA of exactly 1 is a consequence of the freeze rather than a measurement).
+run "chronos_m4 (gate + runs)"     "$PY" scripts/emit_chronos_m4.py
+
 # results/MANIFEST.md: which of the 139 directories under results/ the paper actually stands on.
 # --check, not a bare run, and the distinction matters: a bare run RE-TRACES every emitter in this file
 # under an audit hook, which takes the best part of an hour because two of the lines below refit the

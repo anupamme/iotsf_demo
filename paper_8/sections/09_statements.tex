@@ -152,7 +152,15 @@ first condition-B or condition-D run of that arm was launched; the scorer,
 \texttt{score\_prospective.py}, reads that file and the finished runs and makes
 no decisions of its own.  Both are in the release, and the commit that added
 the registration precedes the runs it scores, so the ordering is checkable from
-the history rather than asserted by us.
+the history rather than asserted by us.  The Chronos/M4-Monthly re-run of
+Appendix~\ref{app:chronos_detail} carries a second registration
+(\texttt{results/chronos\_m4/preregistration.json}), on the same terms and with
+the same check available.  That arm is \emph{not} prospective --- the superseded
+runs' outcome was already known --- so what its registration fixes is only what
+was still fixable: the gate's estimator and split, the seeds, the decision rule,
+and what each gate outcome would be taken to mean.  The gate was computed after
+that file was committed, which matters because the estimator was itself one of
+the things being corrected.
 
 \textbf{The figures check themselves.}  Both generated figures read their values
 from \texttt{scripts/cell\_matrix.py} and \emph{assert} at draw time every count the

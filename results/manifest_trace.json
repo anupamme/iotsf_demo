@@ -94,6 +94,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -1341,6 +1350,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -4807,6 +4843,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -6054,6 +6099,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -9500,6 +9572,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -10747,6 +10828,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -14101,7 +14209,7 @@
       }
     },
     {
-      "label": "paired_inference",
+      "label": "paired_inference (+power_mde)",
       "interp": ".venv12/bin/python",
       "script": "scripts/paired_inference.py",
       "args": [],
@@ -14192,6 +14300,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -15439,6 +15556,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -18885,6 +19029,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -20132,6 +20285,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -23722,6 +23902,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -24969,6 +25158,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -28413,6 +28629,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -29660,6 +29885,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -32916,6 +33168,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -34163,6 +34424,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -37612,6 +37900,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -38859,6 +39156,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -42327,6 +42651,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -43574,6 +43907,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -47024,6 +47384,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -48271,6 +48640,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -51795,6 +52191,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -53042,6 +53447,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -56492,6 +56924,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -57739,6 +58180,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -61485,6 +61953,50 @@
       }
     },
     {
+      "label": "chronos_m4 (gate + runs)",
+      "interp": ".venv12/bin/python",
+      "script": "scripts/emit_chronos_m4.py",
+      "args": [],
+      "status": "ok",
+      "error": null,
+      "opened": [
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/preregistration.json"
+      ],
+      "sites": {
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/gate.json": [
+          "emit_chronos_m4.py:load"
+        ],
+        "results/chronos_m4/preregistration.json": [
+          "emit_chronos_m4.py:load"
+        ]
+      }
+    },
+    {
       "label": "fig1_diagnostic_flow",
       "interp": "/opt/homebrew/bin/python3",
       "script": "paper_8/fig1_diagnostic_flow.py",
@@ -61576,6 +62088,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -62823,6 +63344,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -66283,6 +66831,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -67530,6 +68087,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -70974,6 +71558,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -72221,6 +72814,33 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [
@@ -75735,6 +76355,15 @@
         "results/baseline_tuning/best_configs.json",
         "results/baseline_tuning/grid_results.json",
         "results/calibrated_thresholds.json",
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json",
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json",
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json",
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json",
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json",
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json",
+        "results/chronos_m4/gate.json",
+        "results/chronos_m4/legacy_baseline.json",
+        "results/chronos_m4/preregistration.json",
         "results/cka_loco.json",
         "results/clustered_inference.json",
         "results/cnn_diffts/ablation/cnn/metrics.json",
@@ -76982,6 +77611,41 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/calibrated_thresholds.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/chronos_m4/cond_B/seed42/condition_B_s42.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/cond_B/seed43/condition_B_s43.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/cond_B/seed44/condition_B_s44.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/cond_D/seed42/condition_D_s42.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/cond_D/seed43/condition_D_s43.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/cond_D/seed44/condition_D_s44.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/gate.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/legacy_baseline.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/chronos_m4/preregistration.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/cka_loco.json": [

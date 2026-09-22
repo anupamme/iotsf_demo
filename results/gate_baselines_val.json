@@ -59,7 +59,8 @@
     "electricity": 24,
     "electricity7": 24,
     "ettm2": 96,
-    "ili": 52
+    "ili": 52,
+    "m4_monthly": 12
   },
   "floor": "constant",
   "gate_threshold": 0.2,

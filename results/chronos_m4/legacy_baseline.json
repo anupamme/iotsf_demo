@@ -1,0 +1,44 @@
+{
+ "what": "a diagnostic reproduction of the superseded 84.5% figure for Chronos/M4-Monthly, computed after the registered gate and unable to change any decision",
+ "legacy_selection": {
+  "min_len": 114,
+  "n_series": 200,
+  "history_min": 129,
+  "history_max": 1230,
+  "first_series": [
+   "M1",
+   "M2",
+   "M3",
+   "M6",
+   "M9"
+  ],
+  "last_series": "M242",
+  "n_train_windows": 61198
+ },
+ "zs_mse": 0.6726533176687652,
+ "zs_seed": 42,
+ "zs_normalisation": "per-window context mean/sd",
+ "legacy": {
+  "baseline_mse": 2.076792422435744,
+  "r2_task": 0.6761095088743385,
+  "normalisation": "per-series training mean/sd (does NOT match the numerator)",
+  "estimator": "per-series unregularised OLS on that series' own history",
+  "n_series_scored": 200,
+  "n_series_skipped": 0,
+  "windows_per_series_min": 16,
+  "windows_per_series_median": 252,
+  "windows_per_series_max": 1117,
+  "free_coefficients_per_output_step": 96,
+  "n_series_with_fewer_windows_than_coefficients": 59
+ },
+ "constant_floor": {
+  "baseline_mse": 2.61493455716282,
+  "r2_task": 0.7427647602781356
+ },
+ "fitted": {
+  "baseline_mse": 1.0006005561528062,
+  "r2_task": 0.32775040596115623
+ },
+ "legacy_over_floor": 0.794204358478877,
+ "legacy_admissible": true
+}

@@ -1863,143 +1863,164 @@ aggregate of these per-layer values'' does not hold under either reading.
 \label{app:chronos_detail}
 % ============================================================
 
-This appendix provides the complete results for the cross-backbone
-validation on Chronos-T5-Small (65M parameters, T5 seq2seq architecture
-with tokenised cross-entropy loss) fine-tuned on M4-Monthly
-(200 series, lookback$=$96, horizon$=$18).
-\textbf{This cell's gate has not been recomputed against the fitted baseline.}
-The $84.5\%$ advantage over the Linear baseline that earlier versions of this
-appendix quoted for it was measured with the per-window trend estimator, not the fitted
-lookback-96 regression the gate is defined with
-(Appendix~\ref{app:gatecorrection}); it is therefore superseded, and it is not
-relied on anywhere in this paper. We do not recompute it because the M4-Monthly
-series are not retained in our data directory and the corrected value would
-require re-downloading them and re-measuring the zero-shot arm; the five
-Chronos cells that \emph{are} in the screen (Appendix
-Table~\ref{tab:crossbackbone}) all carry fitted-baseline gates. The results
-below are reported as a protocol and drift record only.
+This appendix reports Chronos-T5-Small (T5 seq2seq, tokenised cross-entropy) on
+M4-Monthly, at $200$ series, lookback $96$ and $h{=}18$, re-run from the data
+upwards.  It is the only place in this paper where an appendix was deleted and
+replaced rather than corrected, so what was wrong with it is worth stating
+plainly.  Earlier versions reported ten seeds at two sample sizes, a final-epoch
+comparison, a frozen-encoder arm, a random-init control, a $\Delta R^2$ probe and
+an $84.5\%$ advantage over a linear baseline.  \emph{No run record for any of it
+exists under} \texttt{results/}: the series were never retained, the selection
+rule was never written down, and the gate was measured with the superseded
+per-window trend denominator on the held-out split.  Under this paper's own rule
+--- every number traces to an executed run with an emitter and a prose check ---
+none of that was reportable, and none of it survives below.  What replaces it is
+six runs, conditions B and D at three seeds each, whose records are in the
+release, and a gate computed with the estimator \S\ref{sec:method} defines,
+on the split it defines it on.  The re-run was registered
+(\texttt{results/chronos\_m4/preregistration.json}) and committed before the gate
+was computed, because the gate estimator was one of the things being corrected
+and seeing the number first would have let the estimator be chosen to clear the
+threshold.
 
-\textbf{Protocol.}
-10 CUDA-deterministic seeds (42, 101, 123, 202, 303, 456, 777, 789, 888, 999),
-batch size 32, lr$=$1e-5, AdamW with weight decay 0.01, gradient clipping at 1.0,
-20 epochs with early stopping (patience 5).
-Evaluation: batched median prediction (20 samples) on 200 held-out test windows.
+\textbf{Data and splits.}  The cell takes the first $200$ series in file order
+with at least $228$ observations of history and $18$ test values; there is no RNG
+in the selection, so the set is a property of the two released CSVs, whose hashes
+are in \texttt{results/data\_manifest.json}.  Each series is cut three ways:
+sliding training windows over all but the last $114$ observations
+($57{,}327$ usable, $27$ dropped for a constant context), one selection window
+per series, and one held-out window per series whose target is the official
+M4-Monthly test values.  The held-out \emph{context} does contain the $18$ values
+used as the selection target, because M4 defines its test set as the $18$ steps
+following the history; no held-out target is ever a training or selection target.
+This replaces a split that was not one: \texttt{finetune\_chronos\_m4.py} cut a
+randomly subsampled window pool at the $80$th percentile of its own index, so
+windows overlapping in $95$ of $96$ steps sat on both sides of the boundary; it
+early-stopped on the same windows it reported its forgetting number on; and it
+initialised the early-stopping best score to the zero-shot score with the
+pre-trained weights already saved as the best state
+(\texttt{finetune\_chronos\_m4.py:505--507}), so the pre-trained checkpoint was
+itself an early-stopping candidate, and any seed that selected it reported a CKA
+of exactly $1$ by definition rather than by measurement.  How many of its seeds
+did is not recoverable --- that is what having no run record means --- so no count
+is stated here.  What the mechanism explains is available without one: an
+appendix reading ``this backbone does not drift'' is the expected output of a
+selection rule that can return the weights it started from.  Here the best epoch
+is required to be at least $1$.
 
-\textbf{Condition B (full fine-tune), $n{=}500$ (10 seeds).}
+\begin{table}[ht]
+\centering
+\caption{\textbf{The corrected value gate for Chronos/M4-Monthly.}  Ten
+denominators against one numerator (median of $20$ Chronos samples, per-window
+$z$-scored), on both splits.  A denominator worse than \texttt{constant}, the
+training-mean predictor, cannot support a claim that the checkpoint has
+something worth preserving: it inflates $\Vb{b}$ in the direction that flatters
+the checkpoint, which is precisely the defect that moved $17$ of $21$ Moirai
+cells when it was corrected (Appendix~\ref{app:gatecorrection}).}
+\label{tab:chronosm4gate}
+\input{tables/chronos_m4_gate}
+\end{table}
 
-\begin{center}
-\small
-\begin{tabular}{lcccc}
-\toprule
- & Forgetting\% & CKA & $\Delta R^2$ & $R^2(\text{PT})$ \\
-\midrule
-Mean$\pm$std & $+1.6{\pm}3.9$ & $0.999{\pm}0.001$ & $-0.001{\pm}0.002$ & $+0.068{\pm}0.025$ \\
-Seeds neg/pos & 4/10 neg forg & n/a & 3/10 pos & \textbf{10/10 pos} \\
-\bottomrule
-\end{tabular}
-\end{center}
+\textbf{The gate.}
+Table~\ref{tab:chronosm4gate} gives the ladder.  On the selection split --- the
+split every admission decision in this paper is made on --- the primary fitted
+ridge scores $\Vb{\text{ridge}}{=}{+}0.092$, which \emph{fails} the $0.20$
+operating point.  The superseded trend denominator reads $+0.448$ on those same
+windows and is \textbf{inadmissible}: at an MSE of $1.801$ it is worse than the
+constant predictor's $1.739$, so what it reports is an advantage over a baseline
+a training mean beats.  The best admissible rung is the seasonal naive at
+$+0.208$, the only admissible denominator this checkpoint clears; the weakest
+advantage on the ladder is GBM's $+0.008$.  On the held-out split the fitted gate
+reads $+0.209$ and would pass, but the MLP rung reads $-0.048$, so on neither
+split does the cell survive every admissible denominator.  The registration fixed
+the reading of this outcome before the gate was computed: \textbf{no non-Moirai
+cell in reach clears its own screen} --- a finding about this
+benchmark-and-backbone pairing, not a gap in the design.  The screen's
+disqualifier reading (\S\ref{sec:forecasting:gate}) is unaffected; what is gone
+is any prospect of a non-Moirai cell with something to preserve.
 
-At $n{=}500$ the encoder is essentially unchanged (CKA$\approx$1).
-The positive $R^2(\text{PT})$ confirms that Chronos's pre-trained T5
-encoder representations carry decodable forecasting structure, providing
-a second positive-floor anchor distinct from Moirai.
+\textbf{What the $84.5\%$ was.}  It was not a rung of this ladder.  The old
+script divided by a \emph{per-series} unregularised OLS, one regression per series
+fitted on that series' own history and normalised by that series' training mean
+and standard deviation, while the numerator was normalised by each window's own
+context; and it scored the ratio on the held-out windows
+(\texttt{finetune\_chronos\_m4.py:303}).  Re-running that estimator under the old
+selection rule --- the first $200$ series with at least $114$ observations, whose
+histories run from $129$ to $1230$ points --- gives $67.6\%$, not $84.5\%$, and
+we cannot account for the remaining gap because no record of the original run
+exists; the figure is untraceable in the strict sense, not merely superseded.
+What the re-run does establish is why the quantity was never interpretable.  It is
+not that the denominator was too weak in the ladder's sense --- on those windows
+the training mean is worse still, at $2.615$ against the legacy estimator's
+$2.077$ --- but that $59$ of the $200$ per-series regressions fit $96$
+coefficients per output step to fewer training windows than they have
+coefficients, that the two halves of the ratio were on different scales, and that
+the paper's own fitted ridge reaches an MSE of $1.001$ on those same windows.
+Against that denominator the identical zero-shot numerator reads $32.8\%$; against
+the legacy one, $67.6\%$; and on the split the protocol actually scores, $+0.092$.
+The three figures differ by the choice of estimator and split alone, which is the
+whole argument for fixing both before looking
+(\texttt{results/chronos\_m4/legacy\_baseline.json}).
 
-\textbf{Condition B (full fine-tune), $n{=}10$k (10 seeds).}
+\begin{table}[ht]
+\centering
+\caption{\textbf{Conditions B and D on Chronos/M4-Monthly}, $n{=}500$ training
+windows, lr $10^{-5}$, batch $32$, $20$ epochs with patience $5$, early stopping
+on the selection windows and best epoch ${\geq}1$.  Forgetting is \% change in
+held-out MSE against the same seed's zero-shot measurement (\emph{negative is
+better than zero-shot}); $\denc$ is the paired difference.  CKA is the linear CKA
+of the mean-pooled final encoder output on the $200$ selection contexts, and the
+$\ell_2$ column is the encoder state dict's distance from pre-trained.  Under
+condition D both are fixed \emph{by construction} and not by measurement: on
+Chronos, freezing the encoder freezes the shared token embedding with it.}
+\label{tab:chronosm4runs}
+\input{tables/chronos_m4}
+\end{table}
 
-\begin{center}
-\small
-\begin{tabular}{lcccc}
-\toprule
- & Forgetting\% & CKA (ES) & $\Delta R^2$ & $R^2(\text{PT})$ \\
-\midrule
-Mean$\pm$std & $+0.5{\pm}2.7$ & $0.983{\pm}0.021$ & ${\approx}0$ & $+0.047{\pm}0.016$ \\
-Seeds positive & 6/10 forg & n/a & 1/10 & \textbf{10/10 pos} \\
-\bottomrule
-\end{tabular}
-\end{center}
+\textbf{Conditions B and D.}
+Table~\ref{tab:chronosm4runs} gives the six runs.  Both arms improve on
+zero-shot on average --- full fine-tuning by $-2.1\%$ and decoder-only
+adaptation by $-2.3\%$ --- and the paired contrast is
+$\denc{=}{+}0.21$ with a $95\%$ interval of $[-10.14, +10.56]$, which is
+\textbf{inconclusive} under the three-way rule of \S\ref{sec:analysis:degradation}.
+At three seeds the minimum detectable effect here is $10.35$~pp, so that
+interval is a statement about this cell's power and not about its effect; it is
+reported unadjusted, because this cell is \emph{not} in the Benjamini--Hochberg
+family of the 31 intervention cells and is never pooled with them (different
+objective, horizon and dataset family).  Two of the three degradation clauses
+fail as well: the gate does not clear $0.20$ and full fine-tuning does not hurt.
+Early stopping did engage, at epochs $7$, $7$ and $9$ under B against patience
+breaks at $12$ to $14$, so no run selected the checkpoint it started from.  The
+encoder does move under B, by an $\ell_2$ of $1.4$ to $1.8$ at CKA
+$0.994$ to $0.997$ --- small, and now measured on windows no selection decision
+was made on.  Under D, CKA is $1$ and the drift is exactly zero because
+condition D freezes \texttt{t5.encoder.parameters()} for this backbone, which
+includes the token embedding the encoder reads through; Moirai's condition D
+leaves its input projection trainable, which is why it shows CKA below $1$
+(Appendix~\ref{app:strictfreeze}).  The old version of this appendix reported
+$0.9993$--$0.9994$ for its frozen arm and explained it with Moirai's freeze
+semantics.  The protocol as coded cannot produce that number, and that is the
+second reason this section could not be repaired in place.
 
-At $n{=}10$k, early-stopped CKA averages 0.983 (vs.\ 0.999 at $n{=}500$).
-Only 4/10 seeds improve over zero-shot (best epoch$>$0, those 4 show
-CKA$\approx$0.95--0.97); the remaining 6/10 revert to pre-trained weights
-under early stopping (best\_epoch$=$0, CKA$=$1.000 by definition).
-Fine-tuning moves the forecast very little in either direction on this cell;
-we no longer attribute that to gate strength, for the reason given above.
-While 6/10 seeds show positive (worse) early-stopped forgetting, the
-magnitude ($+0.5{\pm}2.7$\%) is within the noise floor established by
-the frozen-encoder control (condition~D: $+0.6{\pm}5.3$\%);
-a sign test is not statistically distinguishable from chance
-($p{=}0.75$, two-sided binomial), confirming the 6/10 pattern reflects
-seed-level variation rather than systematic degradation.
-
-\textbf{Final-epoch comparison (protocol robustness).}
-Training runs to epoch~20 regardless of early stopping; we report CKA
-at the final training epoch to address whether encoder stability is
-intrinsic or an artefact of early-stopping selection:
-
-\begin{center}
-\small
-\begin{tabular}{lccc}
-\toprule
- & Final-epoch CKA & Final-epoch Forg.\% & $n$ \\
-\midrule
-$n{=}500$ (10 seeds) & $0.968{\pm}0.009$ & $+3.1{\pm}5.8$ & 500 \\
-$n{=}10$k (10 seeds) & $0.955{\pm}0.006$ & $+3.4{\pm}5.2$ & 10k \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-All 10 seeds at $n{=}10$k show final-epoch CKA${>}$0.94 (min$=$0.945,
-max$=$0.964), confirming that encoder stability is \emph{intrinsic}
-rather than an artefact of early-stopping selection.
-The mild CKA decline from 0.999 (early-stopped) to 0.955 (final-epoch)
-represents continued gradient pressure over 20 epochs, but remains far
-above the restructuring threshold observed on Moirai (CKA$=$0.52 on Small,
-0.25 on Base).
-Final-epoch forgetting is $+3.4{\pm}5.2$\%, mild degradation vs.\ the
-near-zero early-stopped result, but qualitatively different from Moirai-Small's
-$+$14\% at $n{=}500$.
-
-\textbf{Mild CKA decline interpretation.}
-The 0.999$\to$0.955 CKA trajectory (early-stopped$\to$final-epoch at
-$n{=}10$k) confirms a small but real gradient signal from the fine-tuning
-objective.
-We do \emph{not} interpret this as ``no drift''; rather, the drift is
-quantitatively minor (CKA${>}$0.94) and functionally benign
-(final-epoch forgetting +3.4\% vs.\ Moirai-Small's +14\% at $n{=}500$).
-We previously read this off the gate; with this cell's gate superseded and not
-recomputed, the observation stands on the CKA and forgetting measurements
-alone.
-
-\textbf{Condition D (frozen encoder), $n{=}10$k (10 seeds).}
-Forgetting: $+0.6{\pm}5.3$\% (5/10 negative).
-Measured CKA is $0.9993$--$0.9994$, not $1$: D holds the encoder's weights
-fixed but leaves its input projection trainable, so the representation is not
-pinned by construction (Appendix~\ref{app:strictfreeze}).
-Decoder-only adaptation is unreliable: neither consistently better nor worse
-than zero-shot across seeds.
-
-\textbf{Random-init control (6 seeds).}
-CKA$=$0.000 (expected: random weights have no similarity to pre-trained).
-$R^2(\text{PT}){<}0$ ($-0.004{\pm}0.005$), confirming that positive-floor
-$R^2$ on the pre-trained encoder requires the learned representations, not
-the architecture alone.
-Training loss remains high ($>$8.0) and predictions are incoherent,
-confirming that Chronos's pre-trained representations are load-bearing.
-
-\textbf{Comparison with Moirai (withdrawn).}
-An earlier version read this cell against Moirai/ETTh2 as a contrast between a
-moderate gate-pass and a strong one, and offered it as validating the
-value-gate as a regime indicator. That reading is withdrawn on both halves.
-The gate half does not survive the baseline correction: Moirai-Small/ETTh2
-scores $+0.400$ ($h{=}96$) and $+0.464$ ($h{=}192$) against the fitted
-baseline, while the M4-Monthly gate was never recomputed against it, so the two
-sides of the contrast are not on a common scale. The probe half rests on the
-retracted $\Delta R^2$ statistic (\S\ref{sec:retraction}). What remains is
-descriptive and gate-independent: Chronos's encoder on M4-Monthly holds
-CKA${\geq}$0.95 even at the final epoch with forgetting near zero under early
-stopping and $+$3.4\% at final epoch, whereas Moirai-Small on ETTh2
-restructures to CKA${\approx}$0.52 at $n{=}10$k. We report the pair as two
-observations, not as a regime law.
+\textbf{Superseded material, for the record.}
+Five things the earlier version of this section reported are deleted rather than
+restated, because the re-run does not reproduce them and nothing under
+\texttt{results/} ever could: the ten-seed means at $n{=}500$ and $n{=}10$k, the
+final-epoch CKA comparison, the frozen arm's $0.9993$--$0.9994$, the six-seed
+random-init control, and the $\Delta R^2$ and $R^2(\text{PT})$ probe figures ---
+the last of which rest on the statistic retracted in \S\ref{sec:retraction}
+anyway.  An earlier version also read this cell against Moirai/ETTh2 as a
+moderate gate-pass against a strong one and offered the pair as evidence that the
+gate indicates a regime.  Both halves are withdrawn: the comparison was never on a
+common scale, and the corrected gate here is a fail.  The descriptive observation
+that survives is narrow and is the one Table~\ref{tab:chronosm4runs} supports ---
+this encoder moves very little under fine-tuning on this dataset, at CKA
+${\geq}0.994$, where Moirai-Base on ETTh2 restructures to CKA $0.396$ at
+$h{=}192$ (Table~\ref{tab:dissociation}) --- and it is two observations on two
+backbones, not a law.  The earlier version's comparison figure
+for Moirai-Small at $n{=}10$k is deleted with the rest: those runs are outside the
+31-cell matrix and no emitter reads them, so it was a number of the same kind as
+the ones this section exists to remove.
 
 % ============================================================
 \section{Eight Denominators, One Numerator: Is the Screen a Property of the Estimator?}

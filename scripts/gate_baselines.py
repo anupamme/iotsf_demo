@@ -58,9 +58,13 @@ from gate_linear_baseline import apply_linear_map, fit_linear_map
 # baseline into a persistence baseline, which is a different estimator making a different claim.
 # ETT hourly and Weather/Electricity hourly -> 24. ETTm2 is 15-minute -> 96 steps per day. ILI is
 # weekly -> 52.
+# M4-Monthly is monthly -> 12 steps per year. It is the one entry here that is not a sub-daily
+# sampling rate, and it is also the one where the seasonal rung is genuinely competitive: the M4
+# competition's own benchmark table has seasonal-naive beating several published forecasters on the
+# monthly subset, so this rung is not a formality on that cell.
 SEASON_OF = {
     "etth1": 24, "etth2": 24, "weather": 24, "electricity": 24, "electricity7": 24,
-    "ettm2": 96, "ili": 52,
+    "ettm2": 96, "ili": 52, "m4_monthly": 12,
 }
 
 # Weakest first, so the order here is the order the ladder is reported in. `constant` leads because it

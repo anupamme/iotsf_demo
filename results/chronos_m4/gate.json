@@ -1,0 +1,295 @@
+{
+ "cell": "chronos_m4monthly",
+ "model_id": "amazon/chronos-t5-small",
+ "arm": "chronos_m4",
+ "lookback": 96,
+ "horizon": 18,
+ "threshold": 0.2,
+ "zs_seed": 42,
+ "data": {
+  "n_series": 200,
+  "lookback": 96,
+  "horizon": 18,
+  "min_len": 228,
+  "train_windows_available": 57354,
+  "train_windows_used": 57327,
+  "degenerate_train_contexts_dropped": 27,
+  "train_subsampled": false,
+  "train_seed": 42,
+  "n_selection_windows": 200,
+  "n_heldout_windows": 200,
+  "selection_target": "final 18 observations of each training history",
+  "heldout_target": "official M4-Monthly test values"
+ },
+ "splits": {
+  "selection": {
+   "zs_mse": 0.9947143752584386,
+   "rungs": {
+    "trend": {
+     "baseline_mse": 1.8014456159220158,
+     "r2_task": 0.447824365905532,
+     "passes": true,
+     "info": {},
+     "admissible": false
+    },
+    "fitted": {
+     "baseline_mse": 1.0951872609500428,
+     "r2_task": 0.09174037105256949,
+     "passes": false,
+     "info": {},
+     "admissible": true
+    },
+    "constant": {
+     "baseline_mse": 1.739101061032611,
+     "r2_task": 0.42802957369952055,
+     "passes": true,
+     "info": {
+      "train_windows": 57327
+     },
+     "admissible": true
+    },
+    "persistence": {
+     "baseline_mse": 1.0870840403056803,
+     "r2_task": 0.08497012339659404,
+     "passes": false,
+     "info": {},
+     "admissible": true
+    },
+    "seasonal_naive": {
+     "baseline_mse": 1.2564777106501135,
+     "r2_task": 0.20833106164393156,
+     "passes": true,
+     "info": {
+      "season": 12,
+      "clamped": false
+     },
+     "admissible": true
+    },
+    "ar": {
+     "baseline_mse": 1.0951872609500428,
+     "r2_task": 0.09174037105256949,
+     "passes": false,
+     "info": {},
+     "admissible": true
+    },
+    "dlinear": {
+     "baseline_mse": 1.0951872611742761,
+     "r2_task": 0.0917403712385304,
+     "passes": false,
+     "info": {
+      "kernel": 25,
+      "lam": 0.0001,
+      "individual": false,
+      "channel_independent": true,
+      "channel_shared_weights": true
+     },
+     "admissible": true
+    },
+    "ridge_tuned": {
+     "baseline_mse": 1.0951872617487868,
+     "r2_task": 0.09174037171498306,
+     "passes": false,
+     "info": {
+      "lam": 1e-06,
+      "selected": true,
+      "n_sel": 11466,
+      "sel_mse": 2.358851310645937
+     },
+     "admissible": true
+    },
+    "mlp": {
+     "baseline_mse": 1.0544659215587162,
+     "r2_task": 0.056665222724270325,
+     "passes": false,
+     "info": {
+      "hidden": [
+       128
+      ],
+      "max_iter": 200,
+      "alpha_grid": [
+       0.0001,
+       0.01,
+       1.0
+      ],
+      "alpha_per_channel": [
+       1.0
+      ],
+      "n_train_windows": 20000,
+      "capped": true,
+      "avail_windows": 57327,
+      "n_sel": 4000,
+      "channels_hitting_iter_budget": 0,
+      "channel_independent": true
+     },
+     "admissible": true
+    },
+    "gbm": {
+     "baseline_mse": 1.0029004275916062,
+     "r2_task": 0.008162377946957178,
+     "passes": false,
+     "info": {
+      "n_train_windows": 11111,
+      "capped": true,
+      "avail_windows": 57327,
+      "rows_per_feature": 199998
+     },
+     "admissible": true
+    }
+   },
+   "n_windows": 200,
+   "primary_r2_task": 0.09174037105256949,
+   "primary_passes": false,
+   "constant_floor_mse": 1.739101061032611,
+   "admissible_rungs": [
+    "ar",
+    "dlinear",
+    "fitted",
+    "gbm",
+    "mlp",
+    "persistence",
+    "ridge_tuned",
+    "seasonal_naive"
+   ],
+   "inadmissible_rungs": [
+    "trend"
+   ],
+   "best_admissible_rung": "seasonal_naive",
+   "worst_case_r2_task": 0.008162377946957178,
+   "survives_every_admissible_rung": false
+  },
+  "heldout": {
+   "zs_mse": 0.8957424032824912,
+   "rungs": {
+    "trend": {
+     "baseline_mse": 2.1868981323883387,
+     "r2_task": 0.5904050627615471,
+     "passes": true,
+     "info": {},
+     "admissible": true
+    },
+    "fitted": {
+     "baseline_mse": 1.131819605143149,
+     "r2_task": 0.2085820044006037,
+     "passes": true,
+     "info": {},
+     "admissible": true
+    },
+    "constant": {
+     "baseline_mse": 2.5135968083471574,
+     "r2_task": 0.6436411757415079,
+     "passes": true,
+     "info": {
+      "train_windows": 57327
+     },
+     "admissible": true
+    },
+    "persistence": {
+     "baseline_mse": 1.363818701635214,
+     "r2_task": 0.34321005995261744,
+     "passes": true,
+     "info": {},
+     "admissible": true
+    },
+    "seasonal_naive": {
+     "baseline_mse": 1.3804512649114693,
+     "r2_task": 0.35112348689836814,
+     "passes": true,
+     "info": {
+      "season": 12,
+      "clamped": false
+     },
+     "admissible": true
+    },
+    "ar": {
+     "baseline_mse": 1.131819605143149,
+     "r2_task": 0.2085820044006037,
+     "passes": true,
+     "info": {},
+     "admissible": true
+    },
+    "dlinear": {
+     "baseline_mse": 1.1318196084697243,
+     "r2_task": 0.20858200672669125,
+     "passes": true,
+     "info": {
+      "kernel": 25,
+      "lam": 0.0001,
+      "individual": false,
+      "channel_independent": true,
+      "channel_shared_weights": true
+     },
+     "admissible": true
+    },
+    "ridge_tuned": {
+     "baseline_mse": 1.1318196103311065,
+     "r2_task": 0.20858200802825144,
+     "passes": true,
+     "info": {
+      "lam": 1e-06,
+      "selected": true,
+      "n_sel": 11466,
+      "sel_mse": 2.358851310645937
+     },
+     "admissible": true
+    },
+    "mlp": {
+     "baseline_mse": 0.8545656842418209,
+     "r2_task": -0.0481843816104115,
+     "passes": false,
+     "info": {
+      "hidden": [
+       128
+      ],
+      "max_iter": 200,
+      "alpha_grid": [
+       0.0001,
+       0.01,
+       1.0
+      ],
+      "alpha_per_channel": [
+       1.0
+      ],
+      "n_train_windows": 20000,
+      "capped": true,
+      "avail_windows": 57327,
+      "n_sel": 4000,
+      "channels_hitting_iter_budget": 0,
+      "channel_independent": true
+     },
+     "admissible": true
+    },
+    "gbm": {
+     "baseline_mse": 0.9831987913391638,
+     "r2_task": 0.08895087018725156,
+     "passes": false,
+     "info": {
+      "n_train_windows": 11111,
+      "capped": true,
+      "avail_windows": 57327,
+      "rows_per_feature": 199998
+     },
+     "admissible": true
+    }
+   },
+   "n_windows": 200,
+   "primary_r2_task": 0.2085820044006037,
+   "primary_passes": true,
+   "constant_floor_mse": 2.5135968083471574,
+   "admissible_rungs": [
+    "ar",
+    "dlinear",
+    "fitted",
+    "gbm",
+    "mlp",
+    "persistence",
+    "ridge_tuned",
+    "seasonal_naive",
+    "trend"
+   ],
+   "inadmissible_rungs": [],
+   "best_admissible_rung": "trend",
+   "worst_case_r2_task": -0.0481843816104115,
+   "survives_every_admissible_rung": false
+  }
+ }
+}

@@ -24,7 +24,7 @@ those lines differ from their `--from-json` counterparts (traced) only in readin
 and writing the ladder JSON that `--from-json` reads, so they reach no `results/` directory the
 traced path does not. Every other `run` line is traced, figure scripts included.
 
-- **CANONICAL** (55): a targeted read names it, or a record in it survived
+- **CANONICAL** (56): a targeted read names it, or a record in it survived
   the matrix loader's filter. These are the directories the paper's numbers come from.
 - **SUPERSEDED** (1): published, then corrected. Kept as the audit trail
   behind the corrections appendix. Do not read as current.
@@ -35,7 +35,7 @@ traced path does not. Every other `run` line is traced, figure scripts included.
   absence of a positive signal, not proof of irrelevance.
 - **ORPHAN** (5): never opened at all, by any emitter, at any call site.
 
-139 directories, 53 top-level JSON records, 29 registered emitters traced.
+140 directories, 53 top-level JSON records, 30 registered emitters traced.
 
 ## Superseded, and why
 
@@ -105,6 +105,7 @@ These are what a clean clone re-derives every table and figure from.
 
 | directory | label | .json | in the matrix | named by (targeted call sites) |
 |---|---|---|---|---|
+| `results/chronos_m4` | CANONICAL | 9 | -- | `check_paper_numbers.py:rederive`, `emit_chronos_m4.py:load` |
 | `results/forecasting_finetune` | CANONICAL | 3 | yes | -- |
 | `results/forecasting_finetune_20ep` | CANONICAL | 61 | yes | `emit_mitigation_spectrum.py:read` |
 | `results/positive_control` | CANONICAL | 64 | yes | `emit_positive_control.py:diverged_cells`, `emit_positive_control.py:main`, `emit_positive_control.py:read_cell` |
@@ -258,5 +259,5 @@ directories most likely to be mistaken for a forecasting experiment.
 These call sites open into half the tree or more; an open from one of them is not evidence that
 a directory is used. Every other call site was given its path and is listed per directory above.
 
-- `cell_matrix.py:moirai_cells` -- opened into 134 directories
+- `cell_matrix.py:moirai_cells` -- opened into 135 directories
 
