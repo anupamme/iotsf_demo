@@ -105,6 +105,12 @@ import gate_baseline_sensitivity as gbs                           # noqa: E402
 from cluster_keys import cluster_of                               # noqa: E402
 
 OUT_JSON = ROOT / "results/paired_inference.json"
+# The augmented read (--augmented): the same analysis with the pre-registered seed top-up's seeds
+# added to the three cells it covers. It is a SEPARATE file and emits no table, because the Phase F
+# registration promises the published numbers are reported beside the augmented ones rather than
+# replaced by them; scripts/emit_power_topup.py puts the two side by side. See
+# cell_matrix.topup_paths().
+OUT_JSON_AUG = ROOT / "results/power_topup/paired_inference_augmented.json"
 OUT_TEX = ROOT / "paper_8/tables/paired_inference.tex"
 OUT_POWER_TEX = ROOT / "paper_8/tables/power_mde.tex"
 # The SELECTION-split ladder, because that is the split the paper's admission decisions are made on:
@@ -697,17 +703,25 @@ def main():
     ap.add_argument("--gate", default=str(GATE_BASELINES),
                     help="Ladder file defining a value-cell. Default is the selection-split "
                          "ladder; results/gate_baselines.json is the retrospective one.")
+    ap.add_argument("--augmented", action="store_true",
+                    help="Add the pre-registered seed top-up's seeds (cell_matrix.topup_paths()). "
+                         "Writes results/power_topup/paired_inference_augmented.json and emits no "
+                         "table: the published analysis is reported beside it, not replaced.")
     a = ap.parse_args()
 
-    rows = cm.build_rows()
+    rows = cm.build_rows(include_topup=a.augmented)
     cells, vc = analyse(rows, a.boot, a.seed, a.gate)
     all_refs = {c["ref"] for c in cells}
     agg = {"value": {k: cluster_aggregate(cells, k, set(vc), a.boot, a.seed) for k, _ in CONTRASTS},
            "all": {k: cluster_aggregate(cells, k, all_refs, a.boot, a.seed) for k, _ in CONTRASTS}}
 
-    OUT_JSON.write_text(json.dumps(dict(cells=cells, aggregate=agg, value_cells=vc,
-                                        n_boot=a.boot, seed=a.seed), indent=1) + "\n")
-    print(f"wrote {OUT_JSON.relative_to(ROOT)}  ({len(cells)} cells, {len(vc)} value-cells)")
+    out = OUT_JSON_AUG if a.augmented else OUT_JSON
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(dict(cells=cells, aggregate=agg, value_cells=vc,
+                                  n_boot=a.boot, seed=a.seed,
+                                  augmented=bool(a.augmented)), indent=1) + "\n")
+    print(f"wrote {out.relative_to(ROOT)}  ({len(cells)} cells, {len(vc)} value-cells)"
+          + ("  [AUGMENTED: top-up seeds included]" if a.augmented else ""))
 
     print(f"\n{'cell':34s} {'N':>2s} {'D_enc':>8s} {'SEM':>6s} {'95% t-CI':>18s} "
           f"{'p_t':>6s} {'p_ex':>6s} {'floor':>6s} {'d':>6s} sign")
@@ -840,7 +854,7 @@ def main():
               f"+{extra} paired seeds = {2 * extra} fine-tunes"
               + (("  [" + ", ".join(f"{c} {n}->{nn}" for c, n, nn in topup) + "]") if topup else ""))
 
-    if not a.no_tex:
+    if not a.no_tex and not a.augmented:
         n = emit_tex(cells, agg)
         print(f"\nwrote {OUT_TEX.relative_to(ROOT)}  ({n} value-cells marked)")
         ngp, nunres = emit_power_tex(cells)

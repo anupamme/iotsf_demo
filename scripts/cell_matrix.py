@@ -299,9 +299,56 @@ def _zs_test_refs():
     return {k: st.mean(v.values()) for k, v in _zs_test_by_seed().items()}
 
 
-def moirai_cells():
-    """Every paired Moirai B/D cell with test_mse stored, keyed by (dir, size, horizon, n)."""
+TOPUP_REG = ROOT / "results/power_topup/preregistration_power.json"
+_TOPUP_PATHS = None
+
+
+def topup_paths():
+    """Repo-relative paths of the pre-registered seed top-up's runs.
+
+    THE TOP-UP IS REPORTED BESIDE THE PUBLISHED ANALYSIS, NOT ABSORBED INTO IT. The Phase F
+    registration promises that no published number is replaced: the added seeds were run months
+    after the cells' original seeds, so they are not guaranteed to be draws from the same
+    distribution, and the point of the exercise is to make the effect of the top-up visible rather
+    than to overwrite three cells' means. But moirai_cells() globs results/**, so these records
+    would join the matrix the moment they landed -- moving three cells' intervals AND, through BH
+    across 31 cells, every other cell's q. So the published readers skip exactly the paths the
+    registration lists, and the augmented analysis is an explicit second computation
+    (`paired_inference.py --augmented`).
+
+    The filter is on PATHS, read from the registration, not on seed values: a seed number could be
+    reused by some later cell, a path cannot. If the registration is absent -- a clone made before
+    Phase F -- there is nothing to exclude and the published set is the whole set.
+    """
+    global _TOPUP_PATHS
+    if _TOPUP_PATHS is None:
+        if TOPUP_REG.exists():
+            reg = json.loads(TOPUP_REG.read_text())
+            _TOPUP_PATHS = frozenset(r["path"] for r in reg.get("planned_runs", ()))
+        else:
+            _TOPUP_PATHS = frozenset()
+    return _TOPUP_PATHS
+
+
+def moirai_cells(include_topup=False):
+    """Every paired Moirai B/D cell with test_mse stored, keyed by (dir, size, horizon, n).
+
+    include_topup=True adds the pre-registered seed top-up's records; see topup_paths() for why the
+    default excludes them. The strict-freeze and LoRA pairings call this with the default on
+    purpose: their condition-H and condition-E arms exist only at the cells' original seeds, so
+    admitting top-up B seeds there would pair arms that were never run against each other.
+
+    It may also be an ITERABLE of repo-relative paths to admit, which is how
+    scripts/emit_power_topup.py walks a cell's seed ladder to find the n at which a call changes:
+    everything else stays at its published seed set.
+    """
     cells = defaultdict(lambda: defaultdict(dict))
+    if include_topup is True:
+        skip = frozenset()
+    elif include_topup is False or include_topup is None:
+        skip = topup_paths()
+    else:
+        skip = topup_paths() - frozenset(include_topup)
     for f in glob.glob(str(ROOT / "results/**/*.json"), recursive=True):
         try:
             d = json.load(open(f))
@@ -310,6 +357,8 @@ def moirai_cells():
         if not isinstance(d, dict) or d.get("condition") not in ("B", "D"):
             continue
         if "final_val_mse" not in d or "test_mse" not in d:
+            continue
+        if Path(f).relative_to(ROOT).as_posix() in skip:
             continue
         rel = Path(f).relative_to(ROOT).parts[1]
         cells[(rel, d.get("model_size") or "small", d.get("horizon"),
@@ -700,8 +749,12 @@ def emit_lora_latex(rows, path=ROOT / "paper_8/tables/lora_valuecells.tex"):
 MIN_SEEDS = 3     # see build_rows()
 
 
-def build_rows(verbose=False):
+def build_rows(verbose=False, include_topup=False):
     """Every intervention cell as a dict, with gate and strict-freeze fields attached.
+
+    include_topup=True is the AUGMENTED read, adding the pre-registered seed top-up's seeds to the
+    three cells it covers; every published table and figure uses the default. topup_paths() says
+    why, and paired_inference.py --augmented is the only caller that passes True.
 
     Split out of main() so figure scripts consume the same rows the tables and statistics do --
     fig1_diagnostic_flow.py previously hard-coded its bar values, which is how an earlier version
@@ -725,7 +778,7 @@ def build_rows(verbose=False):
         print("=" * 96)
         print(f"  zero-shot test references available: {len(refs)}")
     rows = []
-    for key, seeds in sorted(moirai_cells().items(), key=str):
+    for key, seeds in sorted(moirai_cells(include_topup).items(), key=str):
         rel, size, h, n = key
         ds = DATASET_OF.get(rel)
         if ds is None:
