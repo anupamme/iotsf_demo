@@ -1,0 +1,232 @@
+{
+ "written_utc": "2026-09-22T06:23:14+00:00",
+ "git_head": "e5f1d626e68fd907225cda6860b1aaa00e95586f",
+ "batch": 3,
+ "gate_threshold": 0.2,
+ "degradation_datasets": [
+  "ETTh1",
+  "Weather"
+ ],
+ "seeds": [
+  42,
+  123,
+  456
+ ],
+ "predictor": {
+  "statistic": "R2_task = 1 - MSE_zeroshot / MSE_fitted",
+  "estimator": "one ridge map from the lookback-96 context to the h-step target, lam=1e-4, least squares on this cell's TRAIN windows, applied unchanged",
+  "split": "selection (validation), disjoint from the windows the outcome is scored on",
+  "source": "results/v56_pool3/pool_gate_val.json",
+  "computed_by": "scripts/pool_screen_prospective3.py",
+  "note": "This is the CORRECTED gate. Batch 1 froze the superseded trend denominator, which a constant predictor beats; the two batches therefore test different predictors and are never pooled."
+ },
+ "rules": {
+  "gate_rule": "gate_val >= 0.20 -> at risk of degradation (the paper's criterion, corrected)",
+  "dataset_rule": "dataset in {ETTh1, Weather} -> degradation (POST HOC pattern from the original 13 Moirai cells, registered again as a COMPETITOR because both cells that satisfy the ungated interval rule on the published 31 are ETTh1 cells that FAIL the gate)"
+ },
+ "outcome_definition": {
+  "primary": "paired_inference.degrades_ci_ungated: CI(B-ZS) entirely > 0 AND CI(D-ZS) entirely < 0 at 95%, from the paired per-seed differences with the zero-shot reference's SEM propagated where the arm is unpaired. The screen clause (i) of the published definition is REMOVED so that a gate-failing cell can falsify the gate instead of being definitionally unable to.",
+  "secondary": "the three-way call on the paired encoder contrast B-D -- freeze-decisive / adapt-decisive / inconclusive at BH q<0.05 computed across the batch-3 cells only, never pooled with the published 31.",
+  "published_definition_also_reported": "cell_matrix.degradation_cells (three-clause unanimity, screen clause included) is computed for these cells too and reported beside the primary.",
+  "inconclusive": "counted as NOT degrading in the primary confusion matrix; a second matrix restricted to cells where both intervals are decisive is reported with its own n."
+ },
+ "reports": {
+  "confusion_matrix": "rows = predicted at risk (gate_val >= 0.20), columns = primary outcome; TP/FP/FN/TN with precision and specificity. Specificity is estimable from the 8 gate-failing cells; sensitivity is NOT estimable unless a gate-passing cell degrades.",
+  "competitor_matrix": "the same matrix for the dataset rule, side by side.",
+  "scorer": "scripts/score_prospective.py"
+ },
+ "expectations": {
+  "retrospective_prior": "on the published 31 cells the ungated interval rule fires on Moirai-Small/ETTh1 h96 and h192, both gate-FAILING, so the registered expectation is that the gate's errors are false negatives on ETTh1 rather than false positives.",
+  "power": "3 paired seeds per cell; at n=3 the published cells' MDE on the encoder contrast is 4.7-14.7 pp, so inconclusive is the expected modal call.",
+  "prevalence": "expected near zero, as in batches 1 and 2 and in the published matrix; if it is zero the arm reports specificity and states that sensitivity is unestimable."
+ },
+ "disclosures": {
+  "zeroshot_predates_registration": "Six of the nine Moirai pool cells take their zero-shot numerator from results/v48_prospective2, an abandoned batch 2 run on 2026-08-27, and the Moirai cells' zeroshot_val_mse below therefore predates this file. They are zero-shot measurements of a released checkpoint and not outcomes: no B or D run exists for any of them, and a zero-shot MSE cannot move with a fine-tuning result. The remaining three Moirai pool cells were measured by scripts/run_pool3_zs.sh on 2026-09-22, also before this file.",
+  "timesfm_zeroshot": "the TimesFM cells' zeroshot_val_mse was computed by the pool screen itself on the selection windows, because no run of an h=48 TimesFM cell exists; it is the same measurement the h=24 cells store.",
+  "excluded_cells": "five Chronos h=48 cells (forg_confounded predates this batch, so the outcome rule is not measurable there) and four gate-failing Moirai-Large cells (10-26 h each against a ~50 h batch budget). All nine are gate-FAILING in the pool, so the exclusions remove compute and not a class; their gate values are in the pool file.",
+  "cost_estimate_h": 50
+ },
+ "note": "Every prediction is a function of the training and selection splits and the dataset name only. The outcome requires condition B and D runs, which do not exist for any cell in this file at the time it is committed.",
+ "cells": [
+  {
+   "cell": "large_ETTh2_h192",
+   "arm": "moirai",
+   "size": "large",
+   "dataset": "ETTh2",
+   "horizon": 192,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 0.17525069005176017,
+   "gate_val": 0.924023221853389,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "large_ETTm2_h192",
+   "arm": "moirai",
+   "size": "large",
+   "dataset": "ETTm2",
+   "horizon": 192,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 0.45788294822500936,
+   "gate_val": 0.24058689518623477,
+   "predict_gate_rule": true,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "timesfm_etth1_h48",
+   "arm": "timesfm",
+   "size": null,
+   "dataset": "ETTh1",
+   "horizon": 48,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 2.123839277730219,
+   "gate_val": -0.050021013211655196,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": true
+  },
+  {
+   "cell": "timesfm_etth2_h48",
+   "arm": "timesfm",
+   "size": null,
+   "dataset": "ETTh2",
+   "horizon": 48,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 1.2865956707226838,
+   "gate_val": -0.0825019038064192,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "timesfm_ettm2_h48",
+   "arm": "timesfm",
+   "size": null,
+   "dataset": "ETTm2",
+   "horizon": 48,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 8.919003232229933,
+   "gate_val": -0.010611410001449162,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "timesfm_weather_h48",
+   "arm": "timesfm",
+   "size": null,
+   "dataset": "Weather",
+   "horizon": 48,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 1.46905200173581,
+   "gate_val": -0.08188978800772206,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": true
+  },
+  {
+   "cell": "timesfm_electricity_h48",
+   "arm": "timesfm",
+   "size": null,
+   "dataset": "Electricity",
+   "horizon": 48,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 1.851024098629054,
+   "gate_val": 0.04139120287514031,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "base_Electricity7_h96",
+   "arm": "moirai",
+   "size": "base",
+   "dataset": "Electricity7",
+   "horizon": 96,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 0.20470076541629464,
+   "gate_val": -0.5923459002170541,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "base_Electricity7_h192",
+   "arm": "moirai",
+   "size": "base",
+   "dataset": "Electricity7",
+   "horizon": 192,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 0.23524873906238497,
+   "gate_val": -0.5119665749979863,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  },
+  {
+   "cell": "large_ETTm2_h96",
+   "arm": "moirai",
+   "size": "large",
+   "dataset": "ETTm2",
+   "horizon": 96,
+   "n_train": 1000,
+   "epochs": 20,
+   "seeds": [
+    42,
+    123,
+    456
+   ],
+   "zeroshot_val_mse": 0.1921286657057115,
+   "gate_val": -0.2777681191677157,
+   "predict_gate_rule": false,
+   "predict_dataset_rule": false
+  }
+ ]
+}

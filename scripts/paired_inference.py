@@ -374,6 +374,30 @@ def degrades_ci(c, gate_threshold=gac.GATE_THRESHOLD):
     return bool(lo_ft == lo_ft and hi_fz == hi_fz and lo_ft > 0 and hi_fz < 0)
 
 
+def degrades_ci_ungated(c):
+    """Clauses (ii) and (iii) of degrades_ci WITHOUT clause (i), the screen.
+
+    This exists for one reason and it is a scoring reason, not a new definition of degradation. The
+    published criterion makes clearing the gate a CLAUSE of the outcome, so asking "does the gate
+    predict degradation?" against it is circular: a gate-failing cell cannot degrade by construction,
+    every gate-failing cell is therefore a true negative whatever its runs do, and the specificity
+    such a confusion matrix reports is an arithmetic identity rather than a measurement. Batch 1 of
+    the prospective arm registered the criterion in its circular form; batch 3 registers this one, so
+    that a gate-failing cell whose B arm is decisively worse than zero-shot while its D arm is
+    decisively better COUNTS AS A FALSE NEGATIVE instead of being definitionally impossible.
+
+    Everything else is degrades_ci unchanged, including the ZS-propagated intervals and the
+    forg_confounded exclusion. The paper reports both: degrades_ci is the published definition and
+    stays the one the degradation counts are stated in.
+    """
+    ft, fz = c.get("d_ft"), c.get("d_frozen")
+    if c["forg_confounded"] or not ft or not fz:
+        return False
+    lo_ft = ft.get("lo_zs", ft["lo"])
+    hi_fz = fz.get("hi_zs", fz["hi"])
+    return bool(lo_ft == lo_ft and hi_fz == hi_fz and lo_ft > 0 and hi_fz < 0)
+
+
 def degrades_unanimous(c, gate_threshold=gac.GATE_THRESHOLD):
     """The published criterion, restated on the same per-seed lists so the two can be tallied together.
 
@@ -436,6 +460,7 @@ def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES):
     for c in cells:
         c["call"] = call_of(c.get("d_enc"))
         c["degrades_ci"] = degrades_ci(c)
+        c["degrades_ci_ungated"] = degrades_ci_ungated(c)
         c["degrades_unanimous"] = degrades_unanimous(c)
     return cells, vc
 
@@ -758,6 +783,15 @@ def main():
     ci = [c["cell"] for c in cells if c["degrades_ci"]]
     print(f"  three-clause unanimity (published): {len(u)} cells {u or ''}")
     print(f"  three-clause with interval clauses: {len(ci)} cells {ci or ''}")
+    # The same interval clauses with the SCREEN clause removed, which is the form the batch-3
+    # prospective arm is scored against (degrades_ci_ungated explains why the circular form cannot
+    # measure specificity). Printed here because the retrospective count is itself a result: if the
+    # cells it finds are gate-FAILING ones, the screen is excluding the only cells that show the
+    # pattern it was built to predict, and a reader should meet that before the prospective batch.
+    ug = [(c["cell"], c["gate"]) for c in cells if c["degrades_ci_ungated"]]
+    print(f"  interval clauses WITHOUT the screen clause: {len(ug)} cells "
+          + ", ".join(f"{n} (gate {g:+.3f} {'PASS' if g is not None and g >= gac.GATE_THRESHOLD else 'fail'})"
+                      for n, g in ug))
     # The published definition is cell_matrix.degradation_cells. Two spellings of one rule drift, so
     # this asserts rather than assumes. Its printing is suppressed: it is a diagnostic of that module,
     # not output of this one.

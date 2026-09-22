@@ -110,6 +110,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -223,6 +224,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -328,6 +330,7 @@
    },
    "call": "freeze",
    "degrades_ci": false,
+   "degrades_ci_ungated": true,
    "degrades_unanimous": false
   },
   {
@@ -435,6 +438,7 @@
    },
    "call": "freeze",
    "degrades_ci": false,
+   "degrades_ci_ungated": true,
    "degrades_unanimous": false
   },
   {
@@ -546,6 +550,7 @@
    },
    "call": "adapt",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -657,6 +662,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -767,6 +773,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -874,6 +881,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -987,6 +995,7 @@
    },
    "call": "adapt",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1092,6 +1101,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1199,6 +1209,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1304,6 +1315,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1411,6 +1423,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1520,6 +1533,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1627,6 +1641,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1732,6 +1747,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1837,6 +1853,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -1944,6 +1961,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2049,6 +2067,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2154,6 +2173,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2261,6 +2281,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2368,6 +2389,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2475,6 +2497,7 @@
    },
    "call": "adapt",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2582,6 +2605,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2687,6 +2711,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2792,6 +2817,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -2899,6 +2925,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -3007,6 +3034,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -3112,6 +3140,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -3219,6 +3248,7 @@
    },
    "call": "inconclusive",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   },
   {
@@ -3324,6 +3354,7 @@
    },
    "call": "adapt",
    "degrades_ci": false,
+   "degrades_ci_ungated": false,
    "degrades_unanimous": false
   }
  ],
