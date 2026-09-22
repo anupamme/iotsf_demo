@@ -19,10 +19,24 @@ across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
 \texttt{PackedStdScaler} patch of Appendix~\ref{app:scaler_patch}}, without which
 training can appear to run while silently not propagating gradients.
 
-\textbf{Representation diagnostics.}  Two metrics:
-CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned encoder
-representations, and weight drift ($\ell_2$ distance from pre-trained
-parameters).
+% Review M8: the appendix reports mean-pooled against token-flattened CKA, per-layer profiles and a
+% random-init floor, but the body never said which of them its CKA column IS. Named here once, and with
+% no new numerals beyond the window count: the flattened and per-layer values stay in the appendices
+% this points at, because restating them here costs printed lines and a second set of chk() sites for
+% numbers already covered there. The window count is deliberately NOT given: it is 300 on the Moirai
+% arms and 200 on the non-Moirai ones, so a single number here would be wrong for a third of the matrix,
+% and the per-arm counts are in the appendices with the protocols they belong to.
+\textbf{Representation diagnostics, and which representation is primary.}  Two
+metrics: linear CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned
+encoder representations, and weight drift ($\ell_2$ distance from pre-trained
+parameters).  \textbf{Every CKA in the body is of the final encoder output,
+mean-pooled over tokens}, on a fixed prefix of the selection split---the
+comparison a practitioner holding two checkpoints can actually make, and the one
+variant that needs no choice of layer or token position.  The choice is not free:
+computed token-flattened instead, the same encoders read uniformly high and the
+per-layer profile compresses too far to order.  That variant, the per-layer
+profiles and a random-initialisation floor are all reported
+(Appendices~\ref{app:layerunfreeze},~\ref{app:randominit}).
 
 % Review S13/S19: name the screen precisely once, here, and document "gate" as its short form rather
 % than renaming 276 sites. "Capability worth preserving" is defined in this paragraph's first sentence
@@ -36,7 +50,14 @@ operating point, not an established boundary---is the \emph{baseline-relative
 capability screen}, for which we write \emph{gate} in tables, figures and code.
 \textbf{$\Vb{b}$ is a property of the pair, not of the checkpoint}: every
 count we report is a count against a named $b$, and
-\S\ref{sec:forecasting:gate} reports a ladder of eight.  Our primary $b$ is one
+\S\ref{sec:forecasting:gate} reports a ladder of eight.
+% Review M3 asked for the consequence of baseline-relativity to be said out loud rather than left to be
+% inferred from the property-of-the-pair sentence above it. Two lines, and they are what make the
+% eight-rung ladder a necessary part of the design rather than a robustness check.
+\emph{Capability worth preserving} is therefore not a property a checkpoint
+\emph{has}: a claim of that form would be a claim against every baseline a
+practitioner might deploy instead, and the ladder is the closest this design comes
+to making one.  Our primary $b$ is one
 ridge map $\R^{96 \times F} \to \R^{h \times F}$ ($\lambda{=}10^{-4}$) fit by
 least squares on the \emph{training} windows and applied unchanged to the
 evaluation windows, on the train-normalised scale the runs report (up to 300

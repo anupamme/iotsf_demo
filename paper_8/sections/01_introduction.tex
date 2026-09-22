@@ -33,7 +33,16 @@ Figure~\ref{fig:screen}b).
 representation \emph{changed}.  It takes an intervention---fine-tune the whole
 model, then fine-tune it again with the encoder frozen, same data, same epochs---to
 tell us whether that change was \emph{valuable}.  \textbf{Across the cells we
-evaluate, the former does not reliably predict the latter.}  So we split the
+evaluate, the former does not reliably predict the latter.}
+% Review M7: frame this as falsifying a shortcut in use, not as discovering a principle. Two sentences,
+% and the concession that our own earlier draft made the substitution is the strongest form of the point
+% -- it is recorded in app:corrections either way, so stating it here costs lines and not credibility.
+\textbf{We do not claim that is surprising.}  A post-treatment similarity
+statistic has no reason to identify an interventional contrast, and a reader who
+finds the negative result obvious is agreeing with us; what we claim is that the
+substitution is made anyway---by the prescriptions above, and by an earlier draft
+of this work---and that measuring what it costs takes the intervention nobody
+runs.  So we split the
 practitioner's question into four layers and answer them in order
 (Figure~\ref{fig:screen}a): is there a capability
 worth preserving at all (\S\ref{sec:forecasting})?  did the representation change
@@ -111,8 +120,9 @@ only 2 of the 31 favour freezing, and both are cells the screen
     encoder---as the quantity this design manipulates, and show that CKA
     \textbf{does not provide a reliable ordering} of it across an outcome spanning
     $-51.8\%$ to $+46.1\%$: within-backbone $\rho{=}{+}0.168$ with clustered CI
-    $[-0.469,{+}0.717]$, on three backbones and with no actionable threshold
-    (\S\ref{sec:exp3}).
+    $[-0.469,{+}0.717]$ \emph{within Moirai}, the only backbone with enough cells to
+    ask, with Chronos and TimesFM read qualitatively beside it rather than pooled
+    with it, and with no actionable threshold anywhere (\S\ref{sec:exp3}).
 
   \item \textbf{No cell shows decisive evidence of harmful encoder adaptation}
     (2 freezing-better, 4 adaptation-better, 25 inconclusive at a
@@ -126,7 +136,10 @@ only 2 of the 31 favour freezing, and both are cells the screen
     both linear baselines) accompanies this paper.
 \end{enumerate}
 
-\textbf{What is a claim here, and what is a control.}  Those four are the paper's
+% "Those four" was correct until this round's contribution item 3 -- the third statement of the two
+% boxed lessons -- was cut. The list is three items now, so the count is corrected here rather than the
+% cut reverted: nothing was withdrawn, the lessons are stated in the abstract and in S3's box.
+\textbf{What is a claim here, and what is a control.}  Those three are the paper's
 claims, argued in \S\S\ref{sec:forecasting}--\ref{sec:exp4}.  Everything else is a
 control or a boundary case, labelled where it appears: ILI
 and an IoT anomaly detector are external cells that gate-fail, reported as case

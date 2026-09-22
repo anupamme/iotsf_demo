@@ -1642,8 +1642,11 @@ def build_checks(R):
     # Figure 1's panel (b) claim, and the only number in the paper that comes from the figure script
     # rather than from a table: the fewest cells any single CKA cut misplaces. It is in the caption
     # only, so without this it would be the one load-bearing figure number with no prose check.
+    # Round 7 (B3): the conclusion now quantifies what the shortcut costs with this same number, in the
+    # same wording, so the floor rises to 2. It is the figure-script number, so a caption-only claim has
+    # become a body claim and a rewrite of either site now has to keep both honest.
     chk("Figure 1: the best CKA cut", r"the best threshold\s+misplaces (\w+) of the (\d+)",
-        R["n_miscut"], R["n_int"])
+        R["n_miscut"], R["n_int"], min_sites=2)
 
     # -- the pre-registered LOCO ladder, quoted in S6, in the abstract and in Appendix app:loco. Each
     # number is registered where it is PHRASED, not once per fact: S6 quotes the four rungs in one
@@ -1693,7 +1696,12 @@ def build_checks(R):
     # body carries the empirical one. Registered as its own check, and paired with the generalised
     # claim in the conclusion so that a rewrite cannot leave the title asserting something the body
     # never states. If these two ever disagree, the title is the one that is wrong.
-    chk("the methodological claim in the title", r"Is Not a Substitute for Intervention")
+    # Round 7 (B1): the title is now the reviewer's own narrower wording. The pattern is updated rather
+    # than deleted, and it deliberately spans the line break in main.tex's two-line \title so that
+    # dropping either half of the claim -- the subject (CKA) or the qualifier (reliably) -- fails here.
+    chk("the methodological claim in the title",
+        r"CKA Does Not Reliably Predict the Value of Encoder Adaptation\\*\s*in Time-Series"
+        r" Foundation Model Fine-Tuning")
     chk("the methodological claim, generalised",
         r"cannot be assumed to identify the value of a\s+treatment that changed the representation")
     # Figure 1's caption states the same claim about the figure's two axes, so it cannot use

@@ -41,14 +41,17 @@
 \newcommand{\Vb}[1]{V_{#1}}
 \newcommand{\Vbest}{\Vb{\text{best}}}
 
-% The title carries the METHODOLOGICAL claim; the body's spine sentence carries the empirical one, and
-% they are deliberately not the same string. Two earlier titles named the negation ("Representation
-% Drift Is Not Forgetting") or the empirical finding ("Does Not Reliably Predict the Value of Encoder
-% Adaptation"); a reviewer pointed out that the transferable lesson is the one about substitution -- a
-% post-treatment similarity statistic cannot be assumed to identify the value of a treatment that
-% changed the representation -- and that a title asserting a general negative invites the objection
-% that six datasets cannot support it, whereas "is not a substitute" is exactly what the design tests.
-\title{Representation Drift Is Not a Substitute for Intervention\\
+% Fourth title, and it REVERSES the decision the previous comment here recorded, so the reason is
+% written down rather than the comment being quietly replaced. Round 6 moved off "Does Not Reliably
+% Predict the Value of Encoder Adaptation" on the argument that a title asserting a general negative
+% invites "six datasets cannot support that", and that "is not a substitute" is what the design tests.
+% Round 7 asks to come back, and its version supplies the two words the round-6 objection was actually
+% about: the subject is CKA (not "representation drift" in general) and the verb is qualified
+% ("reliably"), so the claim is scoped to a named statistic and to reliability rather than to
+% existence. That is narrower than either predecessor, not broader, which is why it is adopted. The
+% methodological lesson the old title carried is not lost: it is the conclusion's closing sentence,
+% and \S\ref{sec:exp3}'s opening now names the empirical claim the title makes instead.
+\title{CKA Does Not Reliably Predict the Value of Encoder Adaptation\\
        in Time-Series Foundation Model Fine-Tuning}
 
 % ICLR submissions are DOUBLE-BLIND. Authors must not appear in the submitted
