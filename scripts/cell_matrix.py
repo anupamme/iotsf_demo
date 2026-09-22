@@ -323,20 +323,37 @@ DATASET_OF = {   # results dir -> dataset, for attaching the right zero-shot ref
 }
 
 
-def new_moirai_cells():
+def new_moirai_cells(dirs=OWN_A_DIRS, extra_a_dirs=()):
     """Moirai cells that carry their own condition A.
 
     Two directories share one layout: results/v43_moirai_matrix (the cells added for the previous
     revision) and results/v47_prospective (the pre-registered prospective arm). They are read by
     the same code so a prospective cell is never scored differently from a published one.
+
+    `extra_a_dirs` exists for batch 3 of the prospective arm, whose condition-A records are split
+    across three directories by history: the pool screen measured six cells' zero-shot in
+    results/v48_prospective2 (an abandoned batch 2) and three in results/v56_pool3 before the batch
+    was registered, and the two extra reference seeds were then run into results/v57_prospective3
+    beside the outcomes. A cell's reference is the union of its condition-A records across the cell's
+    own directory and these, looked up BY CELL NAME. The alternative was to copy those records into
+    the batch-3 tree, which would have put two copies of one measurement in the release, or to write a
+    second reader, which is how a denominator drifts. Default is empty, so nothing published moves.
     """
     out = []
-    for d in sorted(f for p in OWN_A_DIRS for f in glob.glob(str(ROOT / p / "*"))):
+    for d in sorted(f for p in dirs for f in glob.glob(str(ROOT / p / "*"))):
         if not Path(d).is_dir():
             continue
         name = Path(d).name                       # e.g. small_Weather_h96
-        A = [json.load(open(f)) for f in glob.glob(d + "/condition_A/*.json")]
+        a_files = glob.glob(d + "/condition_A/*.json")
+        for p in extra_a_dirs:
+            a_files += glob.glob(str(ROOT / p / name / "condition_A*" / "*.json"))
+        A = [json.load(open(f)) for f in sorted(set(a_files))]
         A = [x for x in A if "zeroshot_test_mse" in x]
+        # One measurement per seed. Two directories holding the same seed would weight that seed twice
+        # in the reference mean and shrink its SEM, which is the quantity the B-ZS and D-ZS intervals
+        # are widened by -- so this is asserted rather than deduplicated silently.
+        a_seeds = [x.get("seed") for x in A]
+        assert len(set(a_seeds)) == len(a_seeds), f"{name}: duplicate condition-A seeds {a_seeds}"
         B = {json.load(open(f))["seed"]: json.load(open(f))
              for f in glob.glob(d + "/condition_B/*.json")}
         D = {json.load(open(f))["seed"]: json.load(open(f))
@@ -413,7 +430,7 @@ def chronos_cells(root="results/v44_chronos_guarded", horizon=24):
     return out
 
 
-def timesfm_cells(root="results/v46_timesfm", horizon=24):
+def timesfm_cells(root="results/v46_timesfm", horizon=24, ref_suffix=""):
     """
     TimesFM 2.5 cells -- the third backbone (scripts/finetune_timesfm.py).
 
@@ -427,6 +444,12 @@ def timesfm_cells(root="results/v46_timesfm", horizon=24):
     set that gate_all_cells.timesfm_gates() screens on -- so gate, ZS reference and B-D share one
     window set by construction rather than by convention. B and D are paired on seed, as everywhere
     else; an unpaired seed contributes nothing.
+
+    `ref` carries no horizon by default, because the published TimesFM cells are all at h=24 and the
+    gate cache keys them that way. Batch 3 of the prospective arm runs the same five datasets at
+    h=48, whose gate keys DO carry the horizon (timesfm_etth1_h48), so that caller passes
+    ref_suffix="_h48". Without it two cells of one dataset at different horizons would share a ref and
+    the second would silently take the first's gate.
     """
     out = []
     for ds in ("ETTh1", "Weather", "ETTm2", "ETTh2", "Electricity"):
@@ -456,7 +479,7 @@ def timesfm_cells(root="results/v46_timesfm", horizon=24):
                         forg_d=st.mean(fd), forg_d_sd=_sd(fd), forg_d_neg=sum(x < 0 for x in fd),
                         n_train=_n_train([B[s] for s in seeds] + [D[s] for s in seeds],
                                          f"TimesFM/{ds}"),
-                        drift=st.mean(drift), ref=f"timesfm_{ds.lower()}", has_ref=True))
+                        drift=st.mean(drift), ref=f"timesfm_{ds.lower()}{ref_suffix}", has_ref=True))
     return out
 
 
