@@ -25,7 +25,8 @@
 #   five TimesFM h=48 cells              ~3.5 h total (v46/ETTh1 h24 ran A+3B+3D in 32 min; the
 #                                                      ~55 min/run in run_timesfm_arm.sh's header is
 #                                                      an estimate that never matched its own records)
-# ~50 h in total, which is the cost_estimate_h the registration recorded.
+# ~50 h in total, which is the cost_estimate_h the registration recorded, plus the ~2.5 h of
+# zero-shot top-up in scripts/run_prospective3_zs.sh that has to precede it.
 #
 # NO GREP FILTER ON THE CHILD'S OUTPUT AND NO UNCONDITIONAL SUCCESS LINE.  run_prospective_arm.sh
 # has both, and the combination once reported "ALL PROSPECTIVE DONE" through a night in which the
@@ -51,6 +52,19 @@ if [ ! -f "$OUT/preregistration_v3.json" ]; then
   echo "no registration at $OUT/preregistration_v3.json -- refusing to run" | tee -a "$LOG"
   exit 1
 fi
+
+# The five Moirai cells need >= 2 condition-A seeds before any outcome exists, or the registered
+# propagation of the zero-shot reference's SEM is vacuous on exactly the cells it was written for --
+# see scripts/run_prospective3_zs.sh, which must have finished first.
+for CELL in large_ETTh2_h192 large_ETTm2_h192 base_Electricity7_h96 base_Electricity7_h192 \
+            large_ETTm2_h96; do
+  na=$(ls -1 "$OUT/$CELL/condition_A"/*.json 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$na" -lt 2 ]; then
+    echo "$CELL has $na condition-A records under $OUT (need >= 2); run" \
+         "scripts/run_prospective3_zs.sh first" | tee -a "$LOG"
+    exit 1
+  fi
+done
 
 log() { echo "$*" | tee -a "$LOG"; }
 
@@ -84,10 +98,13 @@ moirai() {  # size dataset horizon
 
 timesfm() {  # dataset
   local DS=$1 H=48
-  local KEY="timesfm_$(echo "$DS" | tr '[:upper:]' '[:lower:]')_h$H"
+  # Directory is ${dataset}_h${horizon}, NOT the registration's pool key (timesfm_etth1_h48): that is
+  # the layout cell_matrix.timesfm_cells() globs, and it is parameterised by root and horizon, so the
+  # batch-3 cells are read by the SAME function that scores the published h=24 TimesFM cells instead
+  # of by a second reader written for this batch. score_prospective.py maps pool key -> directory.
   for S in $SEEDS; do
     for C in B D; do
-      one "$KEY" "$C" "$H" "$S" \
+      one "${DS}_h${H}" "$C" "$H" "$S" \
         $PY -u scripts/finetune_timesfm.py --dataset "$DS" --horizon "$H" \
         --epochs 20 --batch-size 16 --max-train-samples 1000 --device mps
     done
