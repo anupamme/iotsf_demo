@@ -434,7 +434,7 @@ def value_cells(rows, gate_json=GATE_BASELINES):
     return out
 
 
-def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES):
+def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES, require_widening=True):
     vc = value_cells(rows, gate_json)
     cells = []
     for r in rows:
@@ -455,7 +455,7 @@ def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES):
         if rec["d_enc"] is not None:
             rec["d_enc"]["zs_propagated"] = False
         cells.append(rec)
-    assert_zs_propagation(cells)
+    assert_zs_propagation(cells, require_widening)
     add_multiplicity(cells)
     for c in cells:
         c["call"] = call_of(c.get("d_enc"))
@@ -465,7 +465,7 @@ def analyse(rows, n_boot=10000, seed=0, gate_json=GATE_BASELINES):
     return cells, vc
 
 
-def assert_zs_propagation(cells):
+def assert_zs_propagation(cells, require_widening=True):
     """Fail loudly if the widening did not happen where it must, or happened where it must not.
 
     The claim in S3 and app:pairedinference is a claim about two directions at once: the arm-vs-zero-shot
@@ -494,7 +494,14 @@ def assert_zs_propagation(cells):
                         f"{c['cell']}/{key}: zs_sem={s['zs_sem_used']} but the interval did not widen "
                         f"([{s['lo']},{s['hi']}] -> [{s['lo_zs']},{s['hi_zs']}])")
                 widened += 1
-    if widened == 0:
+    # require_widening=False is for a cell set in which NO cell can widen -- one whose unpaired cells
+    # all have a single-seed zero-shot reference, or which contains only seed-paired cells. That set is
+    # not evidence of dead code; the invariant is simply vacuous on it, and scoring a prospective batch
+    # while only its seed-paired arm has finished is a real case of that. The per-cell direction checks
+    # above still run. The default stays True, which is what the published 31 are analysed under: there
+    # the assertion is the thing standing between app:pairedinference's prose and an emitter that
+    # quietly stopped propagating.
+    if widened == 0 and require_widening:
         raise AssertionError("no cell's arm-vs-zero-shot interval was widened; the propagation is dead "
                              "code and the prose describing it is wrong")
     return widened
