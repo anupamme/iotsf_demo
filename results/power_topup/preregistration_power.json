@@ -1,0 +1,415 @@
+{
+ "written_utc": "2026-09-22T07:11:18+00:00",
+ "git_head": "1cc432461c44fa0f5258673c83cee71fdc5f64c7",
+ "analysis_source": "results/paired_inference.json",
+ "alpha": 0.05,
+ "gate_threshold": 0.2,
+ "mde_target_pp": 8.0,
+ "feasibility_cap": 20,
+ "rule": {
+  "scope": "every gate-passing cell with a paired encoder contrast",
+  "target": "the BH-ADJUSTED required n where that is at most the cap of 20 paired seeds, otherwise the UNCORRECTED required n where THAT is at most the cap; both are computed from the cell's own observed effect and sd",
+  "top_up": "a cell is topped up iff its BH call is inconclusive AND at least one of the two budgets is at most the cap; it is then run to exactly that n and no further. The per-cell `tier` field says which budget was used, and cells on the uncorrected tier carry expected_to_stay_inconclusive=true",
+  "unresolvable": "a cell whose required n exceeds the cap is NOT topped up, whatever its p-value does, and its required n is published as the finding",
+  "stopping": "the seeds to add are listed per cell in this file; the runner adds those and stops, so there is no decision left to make once a result is seen"
+ },
+ "statements_fixed_in_advance": {
+  "bh_expectation": "the cells on the uncorrected tier are being run to a budget smaller than their BH-adjusted requirement, so they are EXPECTED to remain inconclusive under the paper's own call; the top-up buys a tighter interval there, not a verdict",
+  "reporting": "original-n and augmented-n are reported side by side in one table; no published number is replaced, and any cell whose call changes gets a sentence naming the n at which it changed",
+  "sd_not_blind": "every required n is computed from the cell's already-observed sd, so this is a stopping rule fixed before more data, not a prospective power calculation",
+  "exchangeability": "the added seeds run today into the cell's original directory; the paper's two-cell reproduction check bounds the drift a re-run introduces (MSEs within a few percent, forgetting percentage 63.5%), so the augmented n is reported as an augmentation and not as if the seeds had all been drawn at one time"
+ },
+ "n_cells_in_scope": 7,
+ "n_topped_up": 3,
+ "n_unresolvable": 2,
+ "n_runs": 26,
+ "cells": [
+  {
+   "cell": "Moirai-base/ETTh2 h192 n1000",
+   "ref": "base_ETTh2_h192",
+   "gate": 0.9249116324043706,
+   "n": 3,
+   "mean": -20.22050453967959,
+   "sd": 1.8973239531210588,
+   "q": 0.018116016793219916,
+   "mde": 4.7132139835324915,
+   "mde_adj": 27.24274440969669,
+   "n_needed": 2,
+   "n_needed_adj": 4,
+   "call": "adapt",
+   "action": "none (already decisive at BH)",
+   "target_n": 3,
+   "tier": null,
+   "expected_to_stay_inconclusive": false,
+   "seeds_have": [
+    42,
+    123,
+    456
+   ],
+   "seeds_to_add": [],
+   "meets_mde_target": true
+  },
+  {
+   "cell": "Moirai-base/ETTh2 h96 n1000",
+   "ref": "base_ETTh2_h96",
+   "gate": 0.7773647893886326,
+   "n": 3,
+   "mean": -22.3372959905269,
+   "sd": 4.965408321216871,
+   "q": 0.07119012364437911,
+   "mde": 12.334758065437608,
+   "mde_adj": 71.29586360946625,
+   "n_needed": 3,
+   "n_needed_adj": 5,
+   "call": "inconclusive",
+   "action": "top up",
+   "target_n": 5,
+   "tier": "adjusted",
+   "expected_to_stay_inconclusive": false,
+   "seeds_have": [
+    42,
+    123,
+    456
+   ],
+   "seeds_to_add": [
+    6066,
+    7077
+   ],
+   "meets_mde_target": false
+  },
+  {
+   "cell": "Moirai-base_ETTm2_h192",
+   "ref": "base_ETTm2_h192",
+   "gate": 0.21140297050568668,
+   "n": 3,
+   "mean": 1.2947327385814826,
+   "sd": 5.899582999892245,
+   "q": 0.7404282697346073,
+   "mde": 14.655376614184624,
+   "mde_adj": 84.7092198069147,
+   "n_needed": 83,
+   "n_needed_adj": 212,
+   "call": "inconclusive",
+   "action": "none (UNRESOLVABLE: required n exceeds the cap)",
+   "target_n": 3,
+   "tier": null,
+   "expected_to_stay_inconclusive": false,
+   "seeds_have": [],
+   "seeds_to_add": [],
+   "meets_mde_target": false
+  },
+  {
+   "cell": "Moirai-large/ETTh2 h96 n500",
+   "ref": "large_ETTh2_h96",
+   "gate": 0.8752041772810653,
+   "n": 3,
+   "mean": -20.801289103233618,
+   "sd": 2.345472680783158,
+   "q": 0.02175801723254775,
+   "mde": 5.826477138432707,
+   "mde_adj": 33.67749226872525,
+   "n_needed": 3,
+   "n_needed_adj": 4,
+   "call": "adapt",
+   "action": "none (already decisive at BH)",
+   "target_n": 3,
+   "tier": null,
+   "expected_to_stay_inconclusive": false,
+   "seeds_have": [
+    42,
+    123,
+    456
+   ],
+   "seeds_to_add": [],
+   "meets_mde_target": true
+  },
+  {
+   "cell": "Moirai-small/ETTh2 h192 n500",
+   "ref": "small_ETTh2_h192",
+   "gate": 0.9318906022423123,
+   "n": 10,
+   "mean": 6.1482207209776245,
+   "sd": 10.625226859856621,
+   "q": 0.1725497419468284,
+   "mde": 7.600829411511195,
+   "mde_adj": 14.933573821177838,
+   "n_needed": 14,
+   "n_needed_adj": 36,
+   "call": "inconclusive",
+   "action": "top up",
+   "target_n": 14,
+   "tier": "uncorrected",
+   "expected_to_stay_inconclusive": true,
+   "seeds_have": [
+    42,
+    123,
+    456,
+    789,
+    1011,
+    1234,
+    2022,
+    3033,
+    4044,
+    5055
+   ],
+   "seeds_to_add": [
+    6066,
+    7077,
+    8088,
+    9099
+   ],
+   "meets_mde_target": true
+  },
+  {
+   "cell": "Moirai-small/ETTh2 h96 n500",
+   "ref": "small_ETTh2_h96",
+   "gate": 0.8737103245039648,
+   "n": 10,
+   "mean": 2.7979526919682294,
+   "sd": 11.778010564752325,
+   "q": 0.522244024491518,
+   "mde": 8.42548119587793,
+   "mde_adj": 16.553791514783224,
+   "n_needed": 71,
+   "n_needed_adj": 182,
+   "call": "inconclusive",
+   "action": "none (UNRESOLVABLE: required n exceeds the cap)",
+   "target_n": 10,
+   "tier": null,
+   "expected_to_stay_inconclusive": false,
+   "seeds_have": [
+    42,
+    123,
+    456,
+    789,
+    1011,
+    1234,
+    2022,
+    3033,
+    4044,
+    5055
+   ],
+   "seeds_to_add": [],
+   "meets_mde_target": false
+  },
+  {
+   "cell": "Moirai-small/ETTm2 h192 n1000",
+   "ref": "small_ETTm2_h192",
+   "gate": 0.3522310958151065,
+   "n": 5,
+   "mean": 4.6869731133181505,
+   "sd": 7.163089903896444,
+   "q": 0.30615203877692326,
+   "mde": 8.894150849565094,
+   "mde_adj": 24.327620628385695,
+   "n_needed": 12,
+   "n_needed_adj": 29,
+   "call": "inconclusive",
+   "action": "top up",
+   "target_n": 12,
+   "tier": "uncorrected",
+   "expected_to_stay_inconclusive": true,
+   "seeds_have": [
+    42,
+    123,
+    456,
+    789,
+    999
+   ],
+   "seeds_to_add": [
+    6066,
+    7077,
+    8088,
+    9099,
+    10100,
+    11111,
+    12122
+   ],
+   "meets_mde_target": false
+  }
+ ],
+ "planned_runs": [
+  {
+   "ref": "base_ETTh2_h96",
+   "seed": 6066,
+   "condition": "B",
+   "path": "results/v5_etth2_base/h96/condition_B/condition_B_h96_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size base --horizon 96 --condition B --seed 6066 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_etth2_base/h96/condition_B"
+  },
+  {
+   "ref": "base_ETTh2_h96",
+   "seed": 6066,
+   "condition": "D",
+   "path": "results/v5_etth2_base/h96/condition_D/condition_D_h96_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size base --horizon 96 --condition D --seed 6066 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_etth2_base/h96/condition_D"
+  },
+  {
+   "ref": "base_ETTh2_h96",
+   "seed": 7077,
+   "condition": "B",
+   "path": "results/v5_etth2_base/h96/condition_B/condition_B_h96_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size base --horizon 96 --condition B --seed 7077 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_etth2_base/h96/condition_B"
+  },
+  {
+   "ref": "base_ETTh2_h96",
+   "seed": 7077,
+   "condition": "D",
+   "path": "results/v5_etth2_base/h96/condition_D/condition_D_h96_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size base --horizon 96 --condition D --seed 7077 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_etth2_base/h96/condition_D"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 6066,
+   "condition": "B",
+   "path": "results/forecasting_finetune_20ep/condition_B_h192_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition B --seed 6066 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 6066,
+   "condition": "D",
+   "path": "results/forecasting_finetune_20ep/condition_D_h192_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition D --seed 6066 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 7077,
+   "condition": "B",
+   "path": "results/forecasting_finetune_20ep/condition_B_h192_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition B --seed 7077 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 7077,
+   "condition": "D",
+   "path": "results/forecasting_finetune_20ep/condition_D_h192_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition D --seed 7077 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 8088,
+   "condition": "B",
+   "path": "results/forecasting_finetune_20ep/condition_B_h192_s8088.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition B --seed 8088 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 8088,
+   "condition": "D",
+   "path": "results/forecasting_finetune_20ep/condition_D_h192_s8088.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition D --seed 8088 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 9099,
+   "condition": "B",
+   "path": "results/forecasting_finetune_20ep/condition_B_h192_s9099.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition B --seed 9099 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTh2_h192",
+   "seed": 9099,
+   "condition": "D",
+   "path": "results/forecasting_finetune_20ep/condition_D_h192_s9099.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --model-size small --horizon 192 --condition D --seed 9099 --epochs 20 --max-train-samples 500 --device mps --results-dir results/forecasting_finetune_20ep"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 6066,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 6066 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 6066,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s6066.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 6066 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 7077,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 7077 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 7077,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s7077.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 7077 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 8088,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s8088.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 8088 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 8088,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s8088.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 8088 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 9099,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s9099.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 9099 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 9099,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s9099.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 9099 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 10100,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s10100.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 10100 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 10100,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s10100.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 10100 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 11111,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s11111.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 11111 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 11111,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s11111.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 11111 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 12122,
+   "condition": "B",
+   "path": "results/v5_ettm2/h192/condition_B/condition_B_h192_s12122.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition B --seed 12122 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_B"
+  },
+  {
+   "ref": "small_ETTm2_h192",
+   "seed": 12122,
+   "condition": "D",
+   "path": "results/v5_ettm2/h192/condition_D/condition_D_h192_s12122.json",
+   "cmd": "python scripts/finetune_forecasting.py --data-path data/forecasting/ETTm2.csv --model-size small --horizon 192 --condition D --seed 12122 --epochs 20 --max-train-samples 1000 --device mps --results-dir results/v5_ettm2/h192/condition_D"
+  }
+ ]
+}
