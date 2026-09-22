@@ -1,0 +1,79 @@
+{
+ "written_utc": "2026-09-22T02:46:54+00:00",
+ "git_head": "7a734279413a485120b4038dd98d48afbd2c7711",
+ "cell": "chronos_m4monthly",
+ "prospective": false,
+ "why_not_prospective": "an earlier ten-seed run of this cell exists and its outcome is known to us; only the protocol, the estimator and the interpretation are fixed in advance here",
+ "data": {
+  "train_csv": "data/forecasting/M4_Monthly_train.csv",
+  "test_csv": "data/forecasting/M4_Monthly_test.csv",
+  "train_sha256": "63aaa56198b4a22279a2fec541f56921f3bed6d8e0f84e550206df9276f2e9b9",
+  "test_sha256": "5e3538bf23b4a09f4078180c3e2b34859f0382e1c4f22564affc1797e8f3f48f",
+  "selection_rule": "first 200 series in file order with history length >= 228 and 18 test points; no RNG in the selection",
+  "first_series": [
+   "M1",
+   "M2",
+   "M3",
+   "M6",
+   "M9"
+  ],
+  "last_series": "M362",
+  "lookback": 96,
+  "horizon": 18,
+  "split": {
+   "train": "sliding windows over history[:-114]",
+   "selection": "context history[-114:-18], target history[-18:] (one window per series)",
+   "heldout": "context history[-96:], target the official M4-Monthly test values",
+   "disclosed_overlap": "the held-out CONTEXT contains the 18 values used as the selection target, because M4's test set is defined as the 18 steps following the history; no held-out TARGET is ever a training or selection target"
+  },
+  "train_windows_available": 57354,
+  "degenerate_train_contexts_dropped": 27,
+  "n_selection_windows": 200,
+  "n_heldout_windows": 200
+ },
+ "gate": {
+  "estimator": "fitted: one ridge-OLS map R^{96} -> R^{18}, lam=1e-4, least squares on the TRAIN windows, applied unchanged; identical to gate_baselines' `fitted` rung and to _window_linear_mse(baseline='fitted') in gate_all_cells.py",
+  "normalisation": "per-window z-score by the context's own mean/sd (the Chronos arm's scale)",
+  "split": "selection",
+  "statistic": "R2_task = 1 - MSE_zeroshot / MSE_fitted",
+  "threshold": 0.2,
+  "ladder": "the full eight-rung ladder plus the `constant` admissibility floor is computed and reported for this cell, as for every other cell; the primary number is the `fitted` rung",
+  "season_steps": 12
+ },
+ "runs": {
+  "script": "scripts/chronos_m4_corrected.py",
+  "model": "amazon/chronos-t5-small",
+  "objective": "Chronos's native tokenised cross-entropy, as the superseded appendix documented for this cell -- NOT the direct-MSE head the other five Chronos cells use, so the two are reported separately and never pooled",
+  "conditions": [
+   "B",
+   "D"
+  ],
+  "seeds": [
+   42,
+   43,
+   44
+  ],
+  "n_train_windows": 500,
+  "lr": 1e-05,
+  "batch_size": 32,
+  "epochs": 20,
+  "patience": 5,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "early_stopping": "on the selection windows; best epoch >= 1, so a run may not select the pre-trained checkpoint",
+  "evaluation": "batched median of 20 Chronos samples, on the 200 held-out windows",
+  "diagnostics": "linear CKA of the final encoder output, mean-pooled over tokens, on the 200 selection contexts; l2 weight drift of the encoder state dict"
+ },
+ "outcome": {
+  "primary": "Delta_enc = forgetting_B - forgetting_D on the HELD-OUT windows, per seed, with a paired two-sided 95% t-interval over the three seeds",
+  "decision_rule": "freezing decisively better if the interval lies entirely above 0; adaptation decisively better if entirely below 0; inconclusive otherwise -- the same three-way rule the 31 published cells use",
+  "multiplicity": "NOT in the Benjamini-Hochberg family of the 31 published cells: different horizon, different objective, different dataset family. Reported unadjusted and as its own cell, never pooled into the 2/4/25 split",
+  "degradation": "the three-clause definition applies unchanged: gate >= 0.20 AND forgetting_B > 0 AND forgetting_D < 0",
+  "power": "three seeds resolve only large effects; the minimum detectable effect will be reported for this cell as it is for the others, and an inconclusive call will be reported as inconclusive rather than as absence"
+ },
+ "interpretation": {
+  "gate_clears": "the paper gains the gate-positive non-Moirai cell the review asks for, and the CKA-vs-Delta_enc dissociation gains a second backbone at a second horizon; still read beside Moirai, not pooled with it",
+  "gate_fails": "the 84.5% figure was an artefact of the unfitted trend denominator, and the paper reports that no non-Moirai cell in reach clears its own screen -- a finding about the benchmark x backbone pairing, not a gap in the design"
+ },
+ "appendix_commitment": "app:chronos_detail is rewritten from the records this arm produces; every number the re-run does not reproduce is deleted, not restated"
+}

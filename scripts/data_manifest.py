@@ -14,6 +14,14 @@ So this manifest records, per file: SHA-256 of the bytes, size, row and column c
 and last timestamp. The hash settles identity; the shape and date range let someone diagnose WHICH
 variant they have when the hash differs, which a hash alone cannot.
 
+ONE PAIR OF FILES IS NOT LONG-FORMAT, and the fields read differently for them. M4_Monthly_train.csv
+and M4_Monthly_test.csv are the M4 competition's WIDE panel release: one row per series, one column
+per time step, ragged with trailing blanks. So `rows` is the series count (48,000), `cols` is the
+longest history plus the id column, and `first`/`last` are series IDS (M1 .. M48000) rather than
+timestamps. Which 200 of those 48,000 series the Chronos/M4-Monthly cell uses, and how each series is
+cut into three splits, is fixed in scripts/m4_monthly_data.py -- the hash cannot express a selection
+rule, and this is the dataset where getting the selection wrong is easiest.
+
 WHAT IT IS NOT. Not a claim that the CSVs are ours, not a redistribution, and not a download script:
 it verifies, it does not fetch.
 
