@@ -1,0 +1,86 @@
+{
+  "_what_this_file_is": [
+    "A record that one pre-registered batch-3 cell was NOT run before the submission deadline, written",
+    "and committed BEFORE the decision took effect, so the reasoning travels with the artifact instead",
+    "of living in a chat transcript. Same convention as scripts/run_power_topup_small.sh, which wrote",
+    "its concurrency waiver into its own log rather than relying on a conversation.",
+    "This file does not amend results/v57_prospective3/preregistration_v3.json. The registration stands",
+    "as committed, at 10 cells. This file says which of them has no outcome and why."
+  ],
+
+  "decided_local": "2026-09-24T22:45:00-07:00",
+  "decided_by": "author decision, recorded by the assistant that proposed it",
+  "git_head_at_decision": "3a6a1a2ee00b0c9914487e87c15f0382f3d7a2f2",
+
+  "deferred_cell": {
+    "cell": "large_ETTm2_h96",
+    "arm": "moirai",
+    "size": "large",
+    "dataset": "ETTm2",
+    "horizon": 96,
+    "registered_seeds": [42, 123, 456],
+    "gate_val": -0.2777681191677157,
+    "predict_gate_rule": false,
+    "predict_dataset_rule": false
+  },
+
+  "records_present_at_decision": {
+    "condition_B": 0,
+    "condition_D": 0,
+    "condition_A_zeroshot": 2,
+    "_note": [
+      "condition_A is the zero-shot arm. It is an INPUT to the gate score, not an outcome: the gate is",
+      "computed from zero-shot validation MSE and the fitted ridge baseline, and run_prospective3.sh",
+      "(lines 56-66) requires >= 2 condition_A records for this cell before it will start any B/D run.",
+      "The quantity the arm predicts is the B-vs-D contrast, and ZERO records of it exist. So no outcome",
+      "for this cell was observable when the decision was taken."
+    ]
+  },
+
+  "reason": {
+    "primary": "venue deadline",
+    "detail": [
+      "The paper is being submitted to ICLR 2027 main track with a 36-hour window (deadline 2026-09-26",
+      "10:34 local). Measured cost of this cell is ~16.5 h of Moirai-Large fine-tuning on the serial",
+      "MPS critical path (band 13-20 h), against ~26 h of total experiment window that also has to",
+      "carry the base_Electricity7_h192 tail (6.3 h), a seed repair on large_ETTm2_h192 (4.45 h) and",
+      "the pre-registered power top-up (11.3 h). 38.5 h of runs did not fit in 26 h.",
+      "The 16.5 h was spent instead on completing a gate-PASSING cell to its full 3 seeds and on",
+      "finishing the pre-registered power top-up, both of which were also incomplete."
+    ]
+  },
+
+  "why_this_is_not_outcome_dependent_selection": [
+    "No outcome for this cell existed at the moment of the decision (see records_present_at_decision):",
+    "0 condition_B and 0 condition_D records. The choice therefore cannot have been informed by, and",
+    "cannot have been made to avoid, this cell's result.",
+    "The cell is gate-FAILING (gate_val -0.278 < 0.20 threshold, predict_gate_rule false). Batch 3",
+    "registered 8 gate-failing cells; 7 remain. Gate-failing cells are what makes SPECIFICITY",
+    "estimable, which is the stated deliverable of this arm, so removing one can only WEAKEN the",
+    "arm's main estimate. It cannot manufacture a favourable result: a gate-failing cell that did not",
+    "degrade would have been evidence FOR the screen, and that is the evidence being given up.",
+    "Sensitivity remains unestimable at zero prevalence either way, as the registration already states."
+  ],
+
+  "reported_as": [
+    "The paper reports batch 3 as 9 of 10 registered cells, names large_ETTm2_h96 as pending, and",
+    "states both facts above in the body. The registration file is unchanged and still lists 10 cells,",
+    "so the shortfall is visible by diffing the registration against the scored cells."
+  ],
+
+  "if_it_completes_after_all": [
+    "A bounded attempt may be made as a concurrent third leg if free memory allows, abandoned the",
+    "moment it threatens the critical path. If all 6 B/D records land before the data freeze, this",
+    "file is DELETED rather than published, and the arm is reported at 10 of 10. The presence of this",
+    "file in a released artifact therefore means the cell did not complete."
+  ],
+
+  "data_freeze_local": "2026-09-25T17:00:00-07:00",
+  "records_expected_at_freeze": {
+    "v57_prospective3_BD": 54,
+    "v57_prospective3_BD_registered": 60,
+    "cells_complete": 9,
+    "cells_registered": 10,
+    "power_topup": 26
+  }
+}
