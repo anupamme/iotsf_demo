@@ -72,7 +72,16 @@ def main():
         if not src.exists():
             sys.exit(f"{src.relative_to(ROOT)} not found; "
                      f"run gate_all_cells.py --baseline fitted --split {split} first")
+        # THIS TABLE IS THE RETROSPECTIVE MATRIX AND NOTHING ELSE. The prospective arm's Moirai
+        # cells are deliberately NOT in this cache -- gate_all_cells writes them to
+        # results/gate_val_side_prospective3.json for exactly that reason, since the empty
+        # Moirai-Large/ETTh2/h192 slot below would otherwise swallow large_ETTh2_h192 (+0.924) and
+        # turn the headline count into "eight of 22", pooling a prospective result into the matrix
+        # its own predictor was fitted on.
         G[split] = json.load(open(src))
+        assert not any(v.get("prospective_batch") for v in G[split].values()), (
+            f"{src.name} contains prospective-arm cells; they belong in "
+            f"results/gate_val_side_prospective3.json, not in the retrospective grid")
 
     vals, rows, n_win = {}, [], {s: set() for s, _ in SRCS}
     for heading, pref, datasets in ARMS:

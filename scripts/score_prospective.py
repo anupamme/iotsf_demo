@@ -58,6 +58,11 @@ B3_ROOT = "results/v57_prospective3"
 B3_ZS_DIRS = ("results/v48_prospective2", "results/v56_pool3")
 POOL = ROOT / "results/v56_pool3/pool_gate_val.json"
 GATE_CACHE = ROOT / "results/gate_val_side.json"
+# The batch-3 Moirai cells' independent recomputation. gate_all_cells.py scores them with the same
+# moirai_gates() call the matrix uses, over the same condition_A records, but writes them here rather
+# than into GATE_CACHE -- see the comment at its write site: that cache's LENGTH is a published
+# denominator, so verification must not add keys to it.
+GATE_CACHE_P3 = ROOT / "results/gate_val_side_prospective3.json"
 
 
 def load():
@@ -120,13 +125,27 @@ def check_gate_agreement(pre3):
     """The paper's gate cache must reproduce the registered gate values exactly, once it has them.
 
     The pool screen wrote results/v56_pool3/pool_gate_val.json by calling the paper's own gate
-    functions with the pool substituted for the cell list, so the two must agree to the bit. Until the
-    batch-3 cells are added to gate_all_cells.MOIRAI_CELLS the cache simply does not contain them,
-    which is reported rather than passed over: an absent key is not agreement.
+    functions with the pool substituted for the cell list, so the two must agree to the bit. An absent
+    key is not agreement, so a cell the cache does not carry is reported rather than passed over.
+
+    TWO FILES, ONE CHECK. The Moirai cells are recomputed into GATE_CACHE_P3 by
+    gate_all_cells.MOIRAI_CELLS_PROSPECTIVE3 -- a genuine second pass over the condition_A records
+    through the paper's own estimator, which is what makes this an audit rather than a tautology. The
+    five TimesFM h=48 cells are NOT recomputed anywhere: their registered numerator was measured by
+    loading the checkpoint, and the only other route to it (each run's stored zeroshot_mse at the
+    seed-42 windows) reproduces it to ~6e-7 relative -- real confirmation, but ~3e-8 in R2_task, which
+    would trip the 1e-9 tolerance below over float32 batching noise and read as a voided claim. So
+    they stay absent by design and are reported as such; gate_all_cells.timesfm_gates records why.
     """
     if not GATE_CACHE.exists():
         return ["no results/gate_val_side.json; cannot check the registered gates against the cache"]
     cache = {k: v["r2_task"] for k, v in json.loads(GATE_CACHE.read_text()).items()}
+    if GATE_CACHE_P3.exists():
+        for k, v in json.loads(GATE_CACHE_P3.read_text()).items():
+            assert k not in cache, (
+                f"{k} is in both gate caches; the prospective recomputation must not shadow or "
+                f"duplicate a retrospective cell")
+            cache[k] = v["r2_task"]
     pool = {k: v["r2_task"] for k, v in json.loads(POOL.read_text()).items()}
     msgs = []
     for c in pre3["cells"]:

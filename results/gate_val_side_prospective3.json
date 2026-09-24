@@ -1,0 +1,52 @@
+{
+ "base_Electricity7_h192": {
+  "arm": "moirai",
+  "baseline": "fitted",
+  "linear_test": 0.15559122996002625,
+  "n_windows": 300,
+  "prospective_batch": 3,
+  "r2_task": -0.5119665749979863,
+  "split": "val",
+  "zs_test": 0.23524873906238497
+ },
+ "base_Electricity7_h96": {
+  "arm": "moirai",
+  "baseline": "fitted",
+  "linear_test": 0.12855295158444638,
+  "n_windows": 300,
+  "prospective_batch": 3,
+  "r2_task": -0.5923459002170541,
+  "split": "val",
+  "zs_test": 0.20470076541629464
+ },
+ "large_ETTh2_h192": {
+  "arm": "moirai",
+  "baseline": "fitted",
+  "linear_test": 2.306634926182079,
+  "n_windows": 300,
+  "prospective_batch": 3,
+  "r2_task": 0.924023221853389,
+  "split": "val",
+  "zs_test": 0.17525069005176017
+ },
+ "large_ETTm2_h192": {
+  "arm": "moirai",
+  "baseline": "fitted",
+  "linear_test": 0.6029431745680737,
+  "n_windows": 300,
+  "prospective_batch": 3,
+  "r2_task": 0.240586895186234,
+  "split": "val",
+  "zs_test": 0.45788294822500936
+ },
+ "large_ETTm2_h96": {
+  "arm": "moirai",
+  "baseline": "fitted",
+  "linear_test": 0.1503627010437979,
+  "n_windows": 300,
+  "prospective_batch": 3,
+  "r2_task": -0.27776811916771793,
+  "split": "val",
+  "zs_test": 0.1921286657057115
+ }
+}

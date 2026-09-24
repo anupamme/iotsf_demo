@@ -65,12 +65,71 @@ MOIRAI_CELLS = [
     ("base", "ETTh1", 96), ("base", "ETTh1", 192),
     ("base", "ETTh2", 96), ("base", "ETTh2", 192),
     ("large", "ETTh2", 96),
-    # --- prospective arm (results/v47_prospective), pre-registered before any B/D run ---
+    # --- prospective arm batch 1 (results/v47_prospective), pre-registered before any B/D run ---
     ("base", "Weather", 96), ("base", "Weather", 192),
     ("base", "ETTm2", 96), ("base", "ETTm2", 192),
     ("small", "Electricity7", 96), ("small", "Electricity7", 192),
     ("large", "ETTh1", 96), ("large", "Weather", 96),
 ]
+
+# Prospective arm BATCH 3, Moirai cells only (results/v57_prospective3), registered in
+# results/v57_prospective3/preregistration_v3.json off the pool screen in
+# results/v56_pool3/pool_gate_val.json. Their zero-shot numerators come from v48_prospective2 and
+# v56_pool3 -- see _ZS_VAL_REGISTERED.
+#
+# WHY A SEPARATE LIST AND NOT FIVE MORE ENTRIES IN MOIRAI_CELLS. MOIRAI_CELLS is the RETROSPECTIVE
+# matrix -- the cells Experiment 1 characterises and the cells the predictor was fitted on. Batch 3
+# is a prospective test OF that predictor. Appending these five would let prospectively selected
+# cells change the counts the predictor is scored against: emit_r2task.py's display grid has an
+# empty Moirai-Large/ETTh2/h192 slot, so large_ETTh2_h192 (gate +0.924, a pass) would fill it and
+# turn the paper's headline "seven of these 21 cells clear 0.20" into "eight of 22" -- pooling the
+# prospective arm into the retrospective matrix, which scripts/score_prospective.py:28 refuses to do
+# everywhere else. So these cells are scored by the same function, written to the same cache (which
+# is what lets score_prospective.check_gate_agreement verify them), and tagged so the display grid
+# excludes them.
+#
+# The batch's five TimesFM h=48 cells are not here either; MOIRAI_CELLS is the Moirai arm, and the
+# separate reason they are not routed through timesfm_gates is recorded in that function.
+MOIRAI_CELLS_PROSPECTIVE3 = [
+    ("large", "ETTh2", 192), ("large", "ETTm2", 192), ("large", "ETTm2", 96),
+    ("base", "Electricity7", 96), ("base", "Electricity7", 192),
+]
+
+# Zero-shot VALIDATION references, split by whether a pre-registration froze the denominator.
+#
+# RETROSPECTIVE MATRIX. No registration fixed these, so every record carrying `zeroshot_mse`
+# contributes and the mean over them is the best available estimate. Changing what is globbed here
+# would move published numbers with nothing to check them against, so it is left alone.
+_ZS_VAL_RETROSPECTIVE = (("results/v41_zs_test/*/condition_A_*.json", 1),
+                         ("results/v43_moirai_matrix/*/condition_*/*.json", 2))
+
+# PRE-REGISTERED ARMS. The denominator of each of these cells is frozen in its registration, and a
+# registered predictor has to stay reproducible from the artifact, so these roots are read
+# condition_A ONLY. condition_B/D records also carry a `zeroshot_mse`, but it is a fresh per-seed
+# re-measurement (see the docstring below), so averaging those in silently moves the predictor after
+# its outcomes exist -- which is the one thing a prospective design must not do.
+#
+# This is not hypothetical, and it had already happened. Until 2026-09-25 the v47 pattern was
+# `condition_*`, which pulled batch 1's 48 B/D records into its 8 denominators alongside the 1
+# condition_A record each -- a 7-value mean where the registration used 1. results/gate_val_side.json
+# was written that way: 6 of the 21 grid cells sat off their registered denominator, by up to 3.7e-3
+# in R2_task (base_Weather_h96, cached -0.818943 against -0.822601 here; the gap is exactly the
+# -9.72e-4 numerator shift over that cell's 0.2658 linear denominator). No cell changed its 0.20
+# call and the tightest survivor, base_ETTm2_h192, keeps a 0.011 margin, which is why nothing caught
+# it. Note results/gate_val_side_trend.json was NOT affected: its 17 Sep mtime comes from a
+# non-Moirai arm merge (main() rewrites the whole file), so its Moirai keys predate the B/D runs and
+# still hold the condition_A-only values the batch-1 registration was computed from. Restricting to
+# condition_A reproduces that registration on all 8 cells to 2e-16, so this repair moves the cache
+# BACK ONTO the registered predictor rather than away from it.
+# _assert_registered_refs below makes the same mistake fail loudly instead of silently.
+#
+# v57_prospective3 is deliberately ABSENT. Its condition_A runs are a post-registration top-up (2
+# extra records per Moirai cell), so including them would average three zero-shot measurements into
+# a denominator that was registered from one and break agreement with the registration by
+# construction.
+_ZS_VAL_REGISTERED = (("results/v47_prospective/*/condition_A*/*.json", 2),
+                      ("results/v48_prospective2/*/condition_A*/*.json", 2),
+                      ("results/v56_pool3/*/condition_A*/*.json", 2))
 
 
 def _zs_test_refs():
@@ -79,22 +138,53 @@ def _zs_test_refs():
     return cell_matrix._zs_test_refs()
 
 
+def _assert_registered_refs(paths):
+    """Every zero-shot reference taken from a pre-registered root must be a condition_A record.
+
+    The guard is structural rather than numerical on purpose: the numerical check (does the cache
+    still reproduce the registration?) lives in score_prospective.check_gate_agreement and can only
+    run once a cell is registered, whereas this one fires the moment a pattern here starts matching
+    an outcome file -- which is how the v47 drift described above got in and stayed in.
+    """
+    for f in paths:
+        p = Path(f)
+        assert p.parent.name.startswith("condition_A"), (
+            f"{p.relative_to(ROOT)} is not a condition_A record but is being globbed as a "
+            f"pre-registered zero-shot reference. A registered gate's denominator may not be "
+            f"recomputed from outcome runs; fix the pattern in _ZS_VAL_REGISTERED.")
+        assert "v57_prospective3" not in p.parts, (
+            f"{p.relative_to(ROOT)}: v57_prospective3 carries a POST-registration condition_A "
+            f"top-up and must not enter a registered denominator. See _ZS_VAL_REGISTERED.")
+
+
 def _zs_val_refs():
     """dataset-key -> zero-shot VALIDATION MSE, the denominator a prospective gate would have had.
 
-    finetune_forecasting.py stores this as `zeroshot_mse`, measured on X_val_eval[:300] -- window
-    construction there is deterministic (no seed), so every run of a cell carries the same number
-    and averaging over whatever runs exist is a no-op that only guards against a missing file.
+    finetune_forecasting.py stores this as `zeroshot_mse`, measured on X_val_eval[:300]. Window
+    construction there IS deterministic, but the forecast on those windows is not: Moirai is scored
+    as the median of 20 sampled paths (:445, num_samples=20) drawn from the global RNG, which
+    finetune_forecasting.py seeds per run with --seed (:743). So two runs of one cell carry two
+    different `zeroshot_mse` values, and the mean below is a real estimate over replicates, not the
+    no-op an earlier version of this docstring claimed. Measured: including a cell's B/D replicates
+    moves R2_task by up to 3.7e-3 on batch 1 and 4.4e-3 on batch 3, and the nearest registered cell
+    to the 0.20 operating point (large_ETTm2_h192, +0.2406) sits 0.041 away -- about 9x the largest
+    shift -- so no gate call in either batch is sensitive to it. That is worth reporting as a
+    robustness check, and it is also why the two groups of patterns above are read differently: the
+    noise is small enough to be harmless and large enough that a registered denominator recomputed
+    from outcome runs is no longer the registered denominator.
     """
     refs = defaultdict(list)
-    for pat, depth in (("results/v41_zs_test/*/condition_A_*.json", 1),
-                       ("results/v43_moirai_matrix/*/condition_*/*.json", 2),
-                       ("results/v47_prospective/*/condition_*/*.json", 2)):
-        for f in glob.glob(str(ROOT / pat)):
-            key = Path(f).parents[depth - 1].name if depth == 1 else Path(f).parents[1].name
-            d = json.load(open(f))
-            if isinstance(d.get("zeroshot_mse"), float):
-                refs[key].append(d["zeroshot_mse"])
+    for group, pats in (("retrospective", _ZS_VAL_RETROSPECTIVE),
+                        ("registered", _ZS_VAL_REGISTERED)):
+        for pat, depth in pats:
+            paths = sorted(glob.glob(str(ROOT / pat)))
+            if group == "registered":
+                _assert_registered_refs(paths)
+            for f in paths:
+                key = Path(f).parents[depth - 1].name if depth == 1 else Path(f).parents[1].name
+                d = json.load(open(f))
+                if isinstance(d.get("zeroshot_mse"), float):
+                    refs[key].append(d["zeroshot_mse"])
     for f in glob.glob(str(ROOT / "results/v39_moirai_zs_test/h96/condition_*/*.json")):
         d = json.load(open(f))
         if isinstance(d.get("zeroshot_mse"), float):
@@ -126,8 +216,14 @@ def _zs_traintail_refs():
 # ---------------------------------------------------------------------------
 
 def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted",
-                 traintail_meta=None, traintail_frac=0.2):
+                 traintail_meta=None, traintail_frac=0.2, cells=None, tag=None):
     """R2_task per Moirai cell on `split`.
+
+    `cells` defaults to MOIRAI_CELLS, the retrospective matrix. Pass MOIRAI_CELLS_PROSPECTIVE3 to
+    score batch 3's Moirai cells with the identical estimator, and `tag` to stamp each entry with
+    the provenance that keeps them out of the retrospective display grid -- see the comment on
+    MOIRAI_CELLS_PROSPECTIVE3. (scripts/pool_screen_prospective3.py predates this parameter and
+    substitutes the module global instead, which still works.)
 
     The extended lookback MUST be the one finetune_forecasting.py evaluates with
     (`extended_lookback = lookback + horizon`, :709), not lookback*2. They coincide at h=96 and
@@ -150,7 +246,7 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted
 
     out = {}
     linear_cache = {}
-    for size, ds, h in MOIRAI_CELLS:
+    for size, ds, h in (MOIRAI_CELLS if cells is None else cells):
         key = f"{size}_{ds}_h{h}"
         zs = refs.get(key)
         if zs is None:
@@ -249,6 +345,7 @@ def moirai_gates(refs, split="test", lookback=96, max_eval=300, baseline="fitted
                     + "; ".join(f"{n}: denominator {a} vs numerator {b}" for n, a, b in bad))
         out[key] = dict(r2_task=1 - zs / lin, zs_test=zs, linear_test=lin,
                         n_windows=n_win, split=split, arm="moirai", baseline=baseline,
+                        **({"prospective_batch": tag} if tag else {}),
                         **({"baseline_info": binfo} if binfo else {}))
         print(f"  {key:24s} ZS {zs:.4f}  linear {lin:.4f}  R2_task {1 - zs / lin:+.3f}"
               f"  {'PASS' if 1 - zs / lin >= GATE_THRESHOLD else 'fail'}")
@@ -398,6 +495,21 @@ def timesfm_gates(horizon=24, lookback=96, device="cpu", datasets=None, split="t
 
     Whatever this prints is reportable either way -- a third backbone with no gate-passing cell is
     a narrowing of the paper's scope, not a failed experiment.
+
+    WHY BATCH 3's FIVE TimesFM h=48 CELLS ARE NOT SCORED HERE, though they have full outcomes. Their
+    registered gate was computed by pool_screen_prospective3.timesfm_pool, which loads the checkpoint
+    and measures the numerator on build_windows(val, 96, 48, 200, seed=42). The `split="val"` branch
+    below instead READS each run's stored `zeroshot_mse` and averages over seeds -- and those windows
+    are subsampled per seed, so the numerator swings enormously across replicates (ETTm2 h=48: 3.61,
+    8.92, 9.87). Averaging them is not the registered predictor. Restricting to seed 42 does
+    reproduce it, and is worth knowing -- checked 2026-09-25, the seed-42 records match the pool's
+    numerator on all five datasets to <= 6e-7 relative, an independent confirmation that the
+    registered TimesFM gates are recoverable from the run files. But 6e-7 in the numerator is ~3e-8
+    in R2_task, which exceeds score_prospective.check_gate_agreement's 1e-9 tolerance: routing these
+    cells into the paper's cache through a second code path would raise "the prospective claim is
+    void" over float32 batching noise. So the cache does not claim them, check_gate_agreement reports
+    them as absent, and the registration remains their single source. An absent key is not agreement,
+    which is exactly what that function says.
     """
     from chronos_mse_finetune import build_windows, load_series
 
@@ -526,10 +638,28 @@ def main():
           f"R2_task = 1 - MSE_ZS / MSE_Linear")
     print(f"baseline: {a.baseline}   gate-pass threshold {GATE_THRESHOLD}")
     print("=" * 84)
-    gates = {}
+    gates, prospective3 = {}, {}
     if a.arm in ("all", "moirai"):
-        gates.update(moirai_gates(_zs_val_refs() if a.split == "val" else _zs_test_refs(),
-                                  split=a.split, baseline=a.baseline))
+        refs = _zs_val_refs() if a.split == "val" else _zs_test_refs()
+        gates.update(moirai_gates(refs, split=a.split, baseline=a.baseline))
+        # Batch 3's Moirai cells, same estimator and same records, written to their OWN file.
+        #
+        # WHY NOT MERGED INTO gate_{split}_side.json. Four scripts read that cache and two of them
+        # derive counts from its LENGTH: check_paper_numbers.py sets n_val_scored = len(cache) (31)
+        # and warns in place that mixing denominators is how "7 of 31" becomes "7 of 32", and
+        # gate_baseline_sensitivity.stored() tabulates every key it finds. Five extra keys would
+        # therefore move published counts in three files as a side effect of a verification step.
+        # The separate file gives score_prospective.check_gate_agreement the independent recomputation
+        # it needs -- the values here come from the paper's own gate function over the run records,
+        # not from the registration or the pool file -- while leaving the retrospective matrix's
+        # arithmetic untouched. The boundary is the same one score_prospective.py:28 draws.
+        #
+        # SELECTION SPLIT ONLY: that is the split the registered gate was fixed on, and these cells
+        # have no condition_A test-window record to build a held-out numerator from.
+        if a.split == "val":
+            print("  -- prospective batch 3 (separate file; not the retrospective grid) --")
+            prospective3 = moirai_gates(refs, split=a.split, baseline=a.baseline,
+                                        cells=MOIRAI_CELLS_PROSPECTIVE3, tag=3)
     if a.arm in ("all", "chronos"):
         gates.update(chronos_gates(split=a.split, baseline=a.baseline))
     if a.arm in ("all", "ili"):
@@ -545,6 +675,15 @@ def main():
         out_path.write_text(json.dumps(merged, indent=1, sort_keys=True) + "\n")
         print(f"\nwrote {out_path.relative_to(ROOT)}  "
               f"({len(gates)} cells updated, {len(merged)} total)")
+        assert not any(v.get("prospective_batch") for v in merged.values()), (
+            f"{out_path.name} must stay the retrospective matrix; a prospective cell reached it")
+
+    if prospective3 and not a.dry_run:
+        p3_path = ROOT / f"results/gate_{a.split}_side_prospective3{suffix}.json"
+        p3_path.write_text(json.dumps(prospective3, indent=1, sort_keys=True) + "\n")
+        print(f"wrote {p3_path.relative_to(ROOT)}  ({len(prospective3)} prospective batch-3 cells; "
+              f"verified against results/v57_prospective3/preregistration_v3.json by "
+              f"scripts/score_prospective.py)")
         # A merged cache that mixes estimators would put two different quantities in one column.
         stale = sorted(k for k, v in merged.items() if v.get("baseline", "trend") != a.baseline)
         if stale:
