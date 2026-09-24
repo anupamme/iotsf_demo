@@ -89,6 +89,14 @@ run "r2task"                       "$PY" scripts/emit_r2task.py
 run "degradation_sensitivity"      "$PY" scripts/degradation_sensitivity.py --latex
 run "clustered_* (4 tables)"       "$PY" scripts/clustered_inference.py --latex
 run "paired_inference (+power_mde)"  "$PY" scripts/paired_inference.py
+# Phase F3's table, added 25 Sep 2026. Deliberately invoked WITHOUT --allow-incomplete: that flag
+# reports the top-up's state and does NOT write tables/power_topup.tex, so passing it here would
+# reintroduce exactly the defect the two comments in this file already record -- an emitter that
+# prints "ok" while its table rots. Without the flag the script exits non-zero if any of the 26
+# registered runs is missing, which makes this line the mechanical proof that the pre-registered
+# top-up finished rather than an author's assurance that it did. It is therefore EXPECTED to fail
+# while the top-up is still running; that failure is the signal, not a bug in this file.
+run "power_topup"                  "$PY" scripts/emit_power_topup.py
 run "heldout_decomposition"        "$PY" scripts/heldout_decomposition.py
 run "crossbackbone"                "$PY" scripts/emit_crossbackbone.py
 run "mitigation_spectrum"          "$PY" scripts/emit_mitigation_spectrum.py

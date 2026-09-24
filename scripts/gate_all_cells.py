@@ -84,9 +84,12 @@ MOIRAI_CELLS = [
 # empty Moirai-Large/ETTh2/h192 slot, so large_ETTh2_h192 (gate +0.924, a pass) would fill it and
 # turn the paper's headline "seven of these 21 cells clear 0.20" into "eight of 22" -- pooling the
 # prospective arm into the retrospective matrix, which scripts/score_prospective.py:28 refuses to do
-# everywhere else. So these cells are scored by the same function, written to the same cache (which
-# is what lets score_prospective.check_gate_agreement verify them), and tagged so the display grid
-# excludes them.
+# everywhere else. So these cells are scored by the same function over the same run records, tagged
+# with `prospective_batch`, and written to their OWN cache file -- results/gate_val_side_prospective3
+# *.json, not gate_val_side*.json. That separation is what lets score_prospective.check_gate_agreement
+# verify them without moving any retrospective count, and an assert at the write site (:678) fails the
+# run if a tagged cell ever reaches the retrospective cache. The full reasoning, including the four
+# readers of that cache and the two that derive counts from its length, is at the write site.
 #
 # The batch's five TimesFM h=48 cells are not here either; MOIRAI_CELLS is the Moirai arm, and the
 # separate reason they are not routed through timesfm_gates is recorded in that function.
