@@ -75,7 +75,37 @@
     "file in a released artifact therefore means the cell did not complete."
   ],
 
-  "data_freeze_local": "2026-09-25T17:00:00-07:00",
+  "amendments": [
+    {
+      "amended_local": "2026-09-25T00:20:00-07:00",
+      "field": "data_freeze_local",
+      "was": "2026-09-25T17:00:00-07:00",
+      "now": "2026-09-25T22:00:00-07:00",
+      "reason": [
+        "Two CIFAR-100 shard chains belonging to an unrelated project were competing for memory with",
+        "this paper's serial MPS queue and had roughly halved its throughput: one epoch of",
+        "base_Electricity7_h192 cond B took 160.1 s at 23:05:09 on 09-24, the chains started at",
+        "23:05:28, and the next four epochs took 394 / 515 / 541.4 / 529.1 s against a 269.5 s",
+        "baseline for the same cell and condition at another seed. The channel was memory, not CPU",
+        "(free+inactive 1.1 GB, 6.27 GB swapped, CPU 12-14 %), and SIGSTOP was measured NOT to",
+        "release pages, so pausing could not help. With author authorisation the chains were killed",
+        "(they are resumable and skip completed rows) and the queue returned to 286.1 s/epoch.",
+        "The lost hours were charged to the freeze rather than to the run list: 20.8 h of runs remain",
+        "against 22.4 h to the amended freeze, which still leaves the frozen-data pass its 8 h and",
+        "4.5 h for submission mechanics before the 2026-09-26T10:34 venue deadline.",
+        "The slide is also recorded in results/power_topup/chain.log at the time it was taken.",
+        "NOTHING ELSE in this file is amended: the deferral decision, its timestamp, its git HEAD and",
+        "the record counts that made it outcome-independent all stand exactly as committed."
+      ],
+      "does_not_change": [
+        "The deferred cell is still large_ETTm2_h96 and it is still not being run. The extra 5 h buys",
+        "the runs already queued (legs 1-3), not a reinstatement of the cut cell."
+      ]
+    }
+  ],
+
+  "data_freeze_local": "2026-09-25T22:00:00-07:00",
+  "data_freeze_local_at_commit": "2026-09-25T17:00:00-07:00",
   "records_expected_at_freeze": {
     "v57_prospective3_BD": 54,
     "v57_prospective3_BD_registered": 60,
