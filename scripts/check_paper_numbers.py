@@ -391,6 +391,27 @@ def rederive():
     inter = json.load(open(ROOT / "results/value_axis.json"))["interaction"]["cka_x_value"]
     R["b3"], R["b3_lo"], R["b3_hi"] = abs(inter["b"]), abs(inter["lo"]), inter["hi"]
 
+    # -- the SECOND diagnostic's pooled correlation, from the clustered-inference artifact. S6 puts it
+    # in the same sentence as the pooled CKA figure above, and until 25 Sep 2026 it was the one
+    # correlation in that sentence with no check at all -- which is how the two l2-drift statistics
+    # fixed in ee244a7 went stale. What S6 asserts is the number AND a property of the interval ("with
+    # a CI including zero"), so the interval is an assert rather than a captured group: a records
+    # change that moved it off zero would leave every numeral in the sentence correct and the sentence
+    # false. rederive_all.sh regenerates this JSON immediately before running this script.
+    _cl = json.loads((ROOT / "results/clustered_inference.json").read_text())["pooled"]
+    R["pooled_drift_rho"] = _cl["drift"]["rho"]
+    R["pooled_drift_n"] = _cl["drift"]["n"]
+    _dlo, _dhi = _cl["drift"]["cluster_ci"]
+    assert _dlo < 0 < _dhi, (
+        f"the pooled l2-drift clustered CI is [{_dlo:+.3f}, {_dhi:+.3f}], which no longer includes "
+        f"zero; S6's 'with a CI including zero' is false as written")
+    # Two emitters compute the pooled CKA rho -- value_axis.py (read above) and clustered_inference.py
+    # (read here) -- and S6 quotes it beside the drift figure. If they ever disagree the sentence is
+    # citing one artifact and checked against the other, so they are required to agree here.
+    assert abs(_cl["cka"]["rho"] - R["pooled_rho"]) < 1e-12, (
+        f"pooled CKA rho is {R['pooled_rho']!r} in value_axis.json and {_cl['cka']['rho']!r} in "
+        f"clustered_inference.json; S6 quotes one number and this script would check the other")
+
     # -- paired inference at the value-cell aggregate
     _pi = json.load(open(ROOT / "results/paired_inference.json"))
     agg = _pi["aggregate"]["value"]["d_enc"]
@@ -687,6 +708,134 @@ def rederive():
         f"'they are different cells' argument no longer holds")
     for _i, _b in enumerate((1, 2, 3), 1):
         R[f"zsn_delta_b{_i}"] = _zsn["by_batch"][f"prospective batch {_b}"]["max_delta_r2"]
+
+    # -- S6's four remaining unregistered pairs, and S5.2's sweep restatement. Registered 25 Sep 2026
+    # after scripts/audit_chk_coverage.py found 15 uncovered numerals in 06_exp3_drift.tex. In every
+    # one of these the claim is the RELATION between two numbers -- "near-identical CKA, opposite
+    # sign", "indistinguishable on the task at very different CKA", "worse still" -- so each pair is
+    # one pattern with two groups and the relation itself is an assert. A per-number check would pass
+    # with the pair swapped, which is the likeliest error here.
+    import glob
+
+    # (a) Chronos/ETTh1, the one cross-backbone cell that degrades, and what freezing does to it. Its
+    # forg_b is already pinned as R["chronos_max"] at S6's line-39 site; the line-56 restatement is a
+    # different phrasing of the same number, and coverage is per phrasing, not per fact.
+    _ch1 = next(r for r in rows if r["cell"].startswith("Chronos/etth1"))
+    R["chronos_etth1_b"], R["chronos_etth1_d"] = _ch1["forg_b"], _ch1["forg_d"]
+    assert R["chronos_etth1_d"] > R["chronos_etth1_b"] > 0, (
+        f'Chronos/ETTh1 no longer degrades under both conditions with the frozen encoder worse '
+        f'(B {R["chronos_etth1_b"]:+.1f}%, D {R["chronos_etth1_d"]:+.1f}%); S6\'s "freezing does not '
+        f'save it" is stale')
+
+    # (b) the random-init CKA floor S6 compares the Chronos arm against, and the cells at or below it.
+    # "Four of the five" is DERIVED from the floor rather than typed: which cells fall below it is a
+    # consequence of the records, and the fifth (Chronos/Electricity at 0.232) clears it by 0.018, so a
+    # small records move could change the count while leaving both printed bounds correct.
+    _floor = json.loads((ROOT / "results/v50_cka_floor/random_init_floor_reset.json").read_text())
+    R["cka_floor"], R["cka_floor_sd"] = _floor["cka_mean"], _floor["cka_std_ddof1"]
+    R["n_cka_floor_seeds"] = len(_floor["cka_values"])
+    _chr_rows = [r for r in rows if r["cell"].startswith("Chronos")]
+    assert len(_chr_rows) == 5, \
+        f'S6 says "four of the five Chronos-T5-Small cells"; the arm now has {len(_chr_rows)}'
+    _below = sorted(r["cka"] for r in _chr_rows if r["cka"] <= R["cka_floor"])
+    R["n_chronos_below_floor"] = len(_below)
+    R["chronos_cka_lo"], R["chronos_cka_hi"] = _below[0], _below[-1]
+    assert R["n_chronos_below_floor"] == 4, (
+        f'S6 says four of the five Chronos cells sit at or below the {R["cka_floor"]:.3f} floor; '
+        f'{R["n_chronos_below_floor"]} now do')
+
+    # (c) the layer-unfreeze comparison (app:layerunfreeze), restated in S6. Two matched 10-seed arms
+    # of one cell. S6 prints only the two CKAs, so the "indistinguishable on the task" half is an
+    # assert on the outcome difference against its own standard error: records that pulled the
+    # outcomes apart would leave S6 numerically correct and its sentence false.
+    for _n in (3, 6):
+        _fs = sorted(glob.glob(str(
+            ROOT / f"results/v49_layerunfreeze_10seed/N{_n}_seed*/*.json")))
+        _v = np.array([[json.loads(Path(f).read_text())[k]
+                        for k in ("final_cka", "forgetting_pct")] for f in _fs])
+        assert len(_v) == 10, f"the N={_n} unfreeze arm has {len(_v)} seeds, not the matched 10"
+        R[f"lu{_n}_cka"] = float(_v[:, 0].mean())
+        R[f"lu{_n}_cka_sd"] = float(_v[:, 0].std(ddof=1))
+        R[f"lu{_n}_forg"] = abs(float(_v[:, 1].mean()))
+        R[f"lu{_n}_forg_sd"] = float(_v[:, 1].std(ddof=1))
+        R[f"lu{_n}_sem"] = R[f"lu{_n}_forg_sd"] / len(_v) ** 0.5
+        R[f"lu{_n}_neg"] = int((_v[:, 1] < 0).sum())
+    R["lu_cka_gap"] = R["lu3_cka"] - R["lu6_cka"]
+    R["lu_cka_se"] = R["lu_cka_gap"] / (
+        (R["lu3_cka_sd"] ** 2 + R["lu6_cka_sd"] ** 2) ** 0.5 / 10 ** 0.5)
+    R["lu_forg_gap"] = abs(R["lu3_forg"] - R["lu6_forg"])
+    R["lu_forg_sed"] = (R["lu3_sem"] ** 2 + R["lu6_sem"] ** 2) ** 0.5
+    R["lu_forg_se"] = R["lu_forg_gap"] / R["lu_forg_sed"]
+    assert R["lu_forg_se"] < 1 < R["lu_cka_se"], (
+        f'the two matched unfreeze depths now differ by {R["lu_forg_se"]:.2f} SE on the task and '
+        f'{R["lu_cka_se"]:.2f} SE on CKA; S6 says indistinguishable on the former, separated on the '
+        f'latter, which is the whole dissociation that sentence reports')
+
+    # (d) Moirai-Large's LoRA arm: S6's "the learning rate, not the rank, decides the sign". Two
+    # groups, both r=8 on ETTh2 h=96 -- the default learning rate and the 10x reduction, whose five
+    # seeds were added in three batches and so live under three roots. The roots are LISTED rather
+    # than globbed loosely, for the reason emit_sample_sweep.py lists its own: a new result directory
+    # must not be able to join a group silently and move a published mean.
+    for _tag, _pats in (("deflr", ["results/v8_etth2_large/condition_E_h96_s*.json"]),
+                        ("lowlr", ["results/v12_lora_large_hp/lr1e-5/condition_E_h96_s42.json",
+                                   "results/v13_lora_large_lr1e-5/seed*/condition_E_h96_s*.json",
+                                   "results/v21_lora_large_k5/seed*/condition_E_h96_s*.json"])):
+        _recs = [json.loads(Path(f).read_text())
+                 for p in _pats for f in sorted(glob.glob(str(ROOT / p)))]
+        assert _recs and all(r["lora_rank"] == 8 for r in _recs), \
+            f"the {_tag} LoRA group is empty or a non-r8 record joined it"
+        R[f"lora_{_tag}_n"] = len(_recs)
+        for _k, _s in (("cka", "final_cka"), ("forg", "forgetting_pct")):
+            _x = [r[_s] for r in _recs]
+            R[f"lora_{_tag}_{_k}"] = abs(float(np.mean(_x)))
+            R[f"lora_{_tag}_{_k}_sd"] = float(np.std(_x, ddof=1))
+        R[f"lora_{_tag}_sign"] = float(np.mean([r["forgetting_pct"] for r in _recs]))
+    assert R["lora_deflr_sign"] > 0 > R["lora_lowlr_sign"], (
+        f'the learning rate no longer decides the sign on Moirai-Large '
+        f'(default {R["lora_deflr_sign"]:+.1f}%, 10x lower {R["lora_lowlr_sign"]:+.1f}%)')
+    # The other half of the same sentence: rank escalation does NOT decide it. One mean per rank,
+    # including r=8's three seeds, so "stays +19 to +30%" is read off the four rungs and the claim
+    # that none of them recovers the sign is an assert rather than a reader's inference.
+    _by_rank = {8: [r["forgetting_pct"] for r in
+                    (json.loads(Path(f).read_text()) for f in sorted(glob.glob(str(
+                        ROOT / "results/v8_etth2_large/condition_E_h96_s*.json"))))]}
+    for _p in ("results/v11_large_lora_rank/r*/condition_E_h96_s42.json",
+               "results/v9_large_lora_rank/condition_E_h96_s42.json"):
+        for _f in sorted(glob.glob(str(ROOT / _p))):
+            _d = json.loads(Path(_f).read_text())
+            _by_rank.setdefault(_d["lora_rank"], []).append(_d["forgetting_pct"])
+    R["n_lora_rungs"] = len(_by_rank)
+    _rank_means = {k: float(np.mean(v)) for k, v in _by_rank.items()}
+    assert sorted(_by_rank) == [8, 16, 32, 64], \
+        f"app:lora_rank reports r in {{8,16,32,64}}; the records now give {sorted(_by_rank)}"
+    assert min(_rank_means.values()) > 0, (
+        f"a rank now recovers the sign at the default learning rate ({_rank_means}); app:lora_rank's "
+        f"'no rank recovering Moirai-Small's negative forgetting' is false")
+    R["lora_rank_lo"] = min(_rank_means.values())
+    R["lora_rank_hi"] = max(_rank_means.values())
+
+    # (e) the sample sweep's body restatement (S5.2). The TABLE has an emitter; the sentence that
+    # restates four of its numbers had no check, so the two could drift apart. The groups are IMPORTED
+    # from that emitter rather than re-globbed here, which is what makes this a check on the prose
+    # rather than a second definition of the sweep.
+    import emit_sample_sweep as ess
+    _sw = {_n: ess.load(_pats) for _n, _pats, _ in ess.GROUPS}
+    for _n in (500, 2000, 10000):
+        _f = [r["forgetting_pct"] for r in _sw[_n]]
+        R[f"sw{_n}_forg"] = abs(float(np.mean(_f)))
+        R[f"sw{_n}_sem"] = float(np.std(_f, ddof=1)) / len(_f) ** 0.5
+        R[f"sw{_n}_neg"] = sum(x < 0 for x in _f)
+    for _n in (500, 10000):
+        R[f"sw{_n}_cka"] = float(np.mean([r["final_cka"] for r in _sw[_n]]))
+    # The sentence's two structural claims, neither of which any captured group can carry: drift falls
+    # monotonically in n, and the outcome does not. If the first ever broke, the body's "drift grows
+    # monotonically with n" would be false with both printed endpoints still right.
+    _cka_seq = [float(np.mean([r["final_cka"] for r in _sw[_n]])) for _n, _, _ in ess.GROUPS]
+    _forg_seq = [float(np.mean([r["forgetting_pct"] for r in _sw[_n]])) for _n, _, _ in ess.GROUPS]
+    assert all(a > b for a, b in zip(_cka_seq, _cka_seq[1:])), \
+        f"drift no longer grows monotonically with n; CKA over the sweep is {_cka_seq}"
+    assert not all(a >= b for a, b in zip(_forg_seq, _forg_seq[1:])), \
+        f"forgetting is now monotonic over the sweep ({_forg_seq}); S5.2 says it is not"
 
     # -- the five survivors' own numbers, which the body quotes cell by cell
     by = {r["cell"]: r for r in rows}
@@ -1946,6 +2095,75 @@ def build_checks(R):
         r"runs monotonically from \$-([\d.]+)\\%\$ at the most drifted cell to \$\+([\d.]+)\\%\$ "
         r"and \$\+([\d.]+)\\%\$ at the two least drifted",
         R["imp2_b"], R["deg2_b"], R["deg1_b"])
+
+    # --- S6's FOUR REMAINING PAIRS and S5.2's sweep restatement, registered 25 Sep 2026 from the
+    # coverage audit. Each claim is a relation between two numbers, so each is one pattern with both
+    # of them in it; the relations themselves (opposite signs, one comparison indistinguishable and
+    # the other not, monotone drift against non-monotone outcome) are asserted in rederive(), because
+    # no captured group can carry a relation and every one of these sentences is about one.
+    chk("pooled l2 weight drift correlation",
+        r"pooled \$\\ell_2\$ weight drift gives \$\\rho\{=\}\{\+\}([\d.]+)\$ with a CI including zero",
+        R["pooled_drift_rho"])
+    chk("Chronos/ETTh1: freezing is worse still",
+        r"the frozen encoder is worse still \(\$\+([\d.]+)\\%\$ against \$\+([\d.]+)\\%\$\)",
+        R["chronos_etth1_d"], R["chronos_etth1_b"])
+    # The Chronos arm's drift range and the untrained-encoder floor it is compared against, in one
+    # pattern: the sentence's force is entirely in "at or below", so a check that could pass with the
+    # floor re-pointed at a different measurement would not be checking it.
+    chk("Chronos CKA range against the random-init floor",
+        r"CKA \$\{\\in\}\[([\d.]+), ([\d.]+)\]\$, at or below the \$([\d.]+)\{\\pm\}([\d.]+)\$",
+        R["chronos_cka_lo"], R["chronos_cka_hi"], R["cka_floor"], R["cka_floor_sd"])
+    chk("the random-init CKA floor (app:cka_calibration table)",
+        r"random re-init, library-default & \$\\mathbf\{([\d.]+)\{\\pm\}([\d.]+)\}\$",
+        R["cka_floor"], R["cka_floor_sd"])
+    chk("the random-init CKA floor (it is not zero)",
+        r"\\textbf\{([\d.]+)\}, not zero", R["cka_floor"])
+    chk("the random-init CKA floor (normalisation left at their pre-trained values)",
+        r"reports \$([\d.]+)\$ once normalisation", R["cka_floor"])
+    chk("layer-unfreeze: same task outcome, different representation",
+        r"indistinguishable on the task at CKA \$([\d.]+)\$ against \$([\d.]+)\$",
+        R["lu3_cka"], R["lu6_cka"])
+    chk("layer-unfreeze: the CKA gap in standard errors (appendix)",
+        r"CKA \$([\d.]+)\$ against \$([\d.]+)\$ is a gap of \$([\d.]+)\$ at \$([\d.]+)\$~SE",
+        R["lu3_cka"], R["lu6_cka"], R["lu_cka_gap"], R["lu_cka_se"])
+    chk("layer-unfreeze: the two task outcomes and their difference (appendix)",
+        r"gives forg\.\\ \$-([\d.]+)\$\\% \(SEM \$([\d.]+)\$, (\d+)/10 seeds negative\) against "
+        r"\$N\{=\}6\$'s \$-([\d.]+)\$\\% \(SEM \$([\d.]+)\$, (\d+)/10 negative\), a ([\d.]+)-point "
+        r"gap on a ([\d.]+)-point standard error of the difference, so \$([\d.]+)\$~SE",
+        R["lu3_forg"], R["lu3_sem"], R["lu3_neg"], R["lu6_forg"], R["lu6_sem"], R["lu6_neg"],
+        R["lu_forg_gap"], R["lu_forg_sed"], R["lu_forg_se"])
+    # Both rows of tab:layerunfreeze in one pattern, so the two arms cannot be swapped -- which is the
+    # one error that would leave the table internally consistent and its conclusion reversed. The
+    # ridge column is matched but not captured: it is the WITHDRAWN probe quantity (S:retraction),
+    # reported there only as a record, so registering it would give a retracted number a check.
+    chk("layer-unfreeze: the matched 10-seed table",
+        r"3 \(top-3\) & 3/6 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$\+[\d.]+\{\\pm\}[\d.]+\$ \(\d+/10\) "
+        r"& \$-([\d.]+)\{\\pm\}([\d.]+)\$\\% \((\d+)/10 neg\.\) \\\\ 6 \(full, B\) & 6/6 & "
+        r"\$([\d.]+)\{\\pm\}([\d.]+)\$ & \$\+[\d.]+\{\\pm\}[\d.]+\$ \(\d+/10\) & "
+        r"\$-([\d.]+)\{\\pm\}([\d.]+)\$\\% \((\d+)/10 neg\.\)",
+        R["lu3_cka"], R["lu3_cka_sd"], R["lu3_forg"], R["lu3_forg_sd"], R["lu3_neg"],
+        R["lu6_cka"], R["lu6_cka_sd"], R["lu6_forg"], R["lu6_forg_sd"], R["lu6_neg"])
+    chk("Moirai-Large LoRA: the learning rate decides the sign, not the rank",
+        r"near-identical CKA \(\$([\d.]+)\$ against \$([\d.]+)\$",
+        R["lora_deflr_cka"], R["lora_lowlr_cka"])
+    chk("Moirai-Large LoRA: the two outcomes (mitigation spectrum)",
+        r"fails at the default learning rate \(\$\+([\d.]+)\\%\$\) and only a \$10\\times\$ LR "
+        r"reduction rescues it \(\$-([\d.]+)\\%\$, CKA \$([\d.]+)\$\)",
+        R["lora_deflr_forg"], R["lora_lowlr_forg"], R["lora_lowlr_cka"])
+    chk("Moirai-Large LoRA: the rescued arm's dispersion and seed count",
+        r"\(forg\.\$=-([\d.]+)\\pm([\d.]+)\\%\$, CKA\$=\$([\d.]+)\$\\pm\$([\d.]+), (\d+)~seeds\)",
+        R["lora_lowlr_forg"], R["lora_lowlr_forg_sd"], R["lora_lowlr_cka"],
+        R["lora_lowlr_cka_sd"], R["lora_lowlr_n"])
+    chk("Moirai-Large LoRA: no rank recovers the sign",
+        r"forgetting stays \$\+\$(\d+) to \$\+\$(\d+)\\% across",
+        R["lora_rank_lo"], R["lora_rank_hi"])
+    chk("sample sweep: the drift endpoints (body restatement)",
+        r"\(CKA \$([\d.]+)\$ at 500 to \$([\d.]+)\$ at 10k\)",
+        R["sw500_cka"], R["sw10000_cka"])
+    chk("sample sweep: the three outcomes the sign reverses across (body restatement)",
+        r"\$\+(\d+)\\%\$ at 500, \$-([\d.]+)\\%\$ by 2k, \$-([\d.]+)\{\\pm\}([\d.]+)\\%\$ at 10k "
+        r"\((\d+)/10 negative\)",
+        R["sw500_forg"], R["sw2000_forg"], R["sw10000_forg"], R["sw10000_sem"], R["sw10000_neg"])
 
     # --- the mean-vs-unanimous improver counts. The appendix states BOTH and says which the paper
     # uses; the figure asserts the unanimous one at draw time. `word()` is not available here, so the
