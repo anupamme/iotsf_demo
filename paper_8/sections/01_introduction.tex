@@ -92,7 +92,7 @@ TimesFM-2.5~\cite{das2024timeseries}, with MOMENT~\cite{goswami2024moment}
 screened and excluded), six datasets and two forecast horizons---and pair each with
 a full fine-tune and a frozen-encoder run at 3--10 seeds
 (\S\ref{sec:forecasting}).  The screen is deliberately weak: it asks only whether
-the pre-trained model, zero-shot, beats a lookback-96 linear regression \emph{fit
+the pre-trained model, zero-shot (ZS), beats a lookback-96 linear regression \emph{fit
 on the practitioner's own target data}---not a tuned supervised forecaster, not an
 ensemble, a single ridge-OLS map estimated once on the training split and applied
 unchanged.  We write that margin against a baseline $b$ as
@@ -147,8 +147,8 @@ only 2 of the 31 favour freezing, and both are cells the screen
 % cut reverted: nothing was withdrawn, the lessons are stated in the abstract and in S3's box.
 \textbf{What is a claim here, and what is a control.}  Those three are the paper's
 claims, argued in \S\S\ref{sec:forecasting}--\ref{sec:exp4}.  Everything else is a
-control or a boundary case, labelled where it appears: ILI
-and an IoT anomaly detector are external cells that gate-fail, reported as case
+control or a boundary case, labelled where it appears: influenza-like illness
+(ILI) and an IoT anomaly detector are external cells that gate-fail, reported as case
 studies rather than evidence (Appendix~\ref{app:ili_gate}); the mitigation spectrum,
 strict freeze and the LoRA sweeps ask only whether the frozen-encoder comparison
 depends on how it is implemented

@@ -27,18 +27,26 @@ The reason no cheap diagnostic rescues this is structural rather than statistica
 CKA tells us that the representation changed; only the intervention---fine-tune,
 then fine-tune again with the encoder frozen---tells us whether that change was
 valuable, and \textbf{across the cells we evaluate the former does not reliably
-predict the latter}.  There is no association to work with either: under an
-analysis fixed before it was run we find no evidence that CKA improves
-out-of-sample prediction once backbone identity, horizon and $n$ are known
-(\S\ref{sec:exp3}, Appendix~\ref{app:loco}).  The claim we would defend outside this setting is
+predict the latter}.
+% The LOCO sentence -- "there is no association to work with either: under an analysis fixed before it
+% was run we find no evidence that CKA improves out-of-sample prediction once backbone identity,
+% horizon and n are known" -- is cut on 2026-09-24 for the four printed lines page 10 needs, and it is
+% the right one to cut because the ABSTRACT states the same result with strictly more information (the
+% 15 folds and the +0.201 -> +0.176 drop, which this version omitted), S6 argues it, and app:loco
+% carries the pre-registered analysis. This was a pointer to a finding stated better twice elsewhere,
+% which is the only kind of whole sentence left on this page that is not the sole site of its claim.
+The claim we would defend outside this setting is
 that methodological one: \textbf{a post-treatment similarity statistic cannot be
 assumed to identify the value of a treatment that changed the representation.}
 % Review M7, conclusion half: one sentence, so that the paper's own reading of its contribution is a
-% falsification of a shortcut in use rather than a claimed discovery. The intro states the same framing
-% in two sentences; this is the version a reader who skipped to the end needs.
-That is a falsification and not a discovery: the news is not that the substitution
-is unjustified but that it is made, and here we can price it: the best threshold
-misplaces 5 of the 31 cells.
+% falsification of a shortcut in use rather than a claimed discovery. The clause that stood here --
+% "the news is not that the substitution is unjustified but that it is made" -- is cut on 2026-09-25
+% for page 10's last two lines. \S\ref{sec:intro} states it in strictly stronger form: it concedes the
+% result is unsurprising, names WHO makes the substitution (the prescriptions it has just quoted, and
+% an earlier draft of this work), and says what measuring the cost takes. This clause was the
+% compressed version of that, so the label and the price survive here and the argument survives there.
+That is a falsification and not a discovery, and here we can price it: the best
+threshold misplaces 5 of the 31 cells.
 % The clause cut from here on 21 Sep 2026 -- "drift is measured AFTER the treatment and on the object
 % the treatment altered, so even a strong association would not license a decision rule" -- restated
 % the bold sentence two lines below it, which says the same thing in the general form the paper wants

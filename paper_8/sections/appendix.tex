@@ -201,9 +201,18 @@ follow the $n{=}5$k overshoot pattern (Fig.~\ref{fig:dissociation}, right panel)
 For comparison, MPS early-stopped $k{=}10$ gave $-$5.7$\pm$10.4\% (8/10 neg,
 \texttt{v18\_mps\_deterministic\_n10k}); a second early-stopped run ($k{=}5$) gave
 $-$11.7$\pm$5.3\% (all 5 negative, \texttt{v17\_etth2\_n10k\_es}); the
-final-epoch runs, the only ones without early stopping, gave
-$+$10.6$\pm$9.8\% on $k{=}3$ (\texttt{v16\_etth2\_n10k}), which is the
-protocol dependence \S\ref{sec:forecasting:replication} discusses.
+final-epoch runs gave $+$10.6$\pm$9.8\% on $k{=}3$
+(\texttt{v16\_etth2\_n10k}), which is the sign fragility
+\S\ref{sec:forecasting:replication} reports.  \emph{That last record does not
+isolate early stopping as the cause, and we do not read it that way}: it differs
+from the reported reading in four respects at once---its three seeds
+(101, 456, 789) are a subset of the ten that happens to contain two of the three
+most positive; it trains for 20 epochs rather than 10; it takes its percentage
+against a different zero-shot reference ($0.1325$ against $0.1266$); and it reads
+the final epoch rather than the best.  Choosing a different early-stopped baseline
+reverses which factor looks dominant---seed-matched, the CUDA record reads
+$-$2.0\% and the MPS one $+$4.1\%---so the pair bounds how far this cell's sign
+moves across protocols and attributes it to nothing.
 Moirai-Base is now evaluated at both $n{=}500$ and $n{=}10$k (10 seeds each);
 full $n$-sweep on Moirai-Large is future work.
 

@@ -992,6 +992,65 @@ def rederive():
         f'B {np.mean(_fb):+.2f}%, D {np.mean(_fd):+.2f}%')
     assert all(r["best_epoch"] >= 1 for r in _m4runs.values()), (
         'a run selected the pre-trained checkpoint, which is the defect this arm was re-run to fix')
+
+    # --- the n=10k sign fragility on Moirai-Small/ETTh2 h96 ---------------------------------------
+    # WHY THIS IS DERIVED, AND WHY IT DELIBERATELY STOPS SHORT OF A DECOMPOSITION. The appendix has
+    # long printed an earlier three-seed record of this cell (results/v16_etth2_n10k, +10.6%) beside
+    # the reported ten-seed one (results/v19_cuda_etth2_n10k, -5.3%) and attributed the reversal to
+    # "protocol dependence" -- i.e. to reading the final epoch instead of the best-validation one.
+    # That attribution is not identified, and the records say so: v16 differs from v19 in FOUR ways
+    # at once, not one. (1) seeds -- {101,456,789}, a subset of v19's ten that happens to contain two
+    # of its three most positive seeds; (2) epoch budget -- 20 against 10; (3) the zero-shot
+    # reference the percentage is taken against -- 0.1325 against 0.1266, so the denominators differ;
+    # (4) the stopping rule. Picking a different early-stopped baseline flips which factor looks
+    # dominant: against v19 the seed-matched subset reads -2.0% (so 3.3 pp seed, 12.6 pp residual),
+    # against results/v18_mps_deterministic_n10k it reads +4.1% (9.8 pp seed, 6.5 pp residual). Two
+    # baselines, opposite verdicts, which is what "not identified" means. So the body and the
+    # appendix state the REVERSAL and the confounds and claim no cause, and the asserts below fail if
+    # either the reversal or any of the four differences stops holding.
+    _pro = {}
+    for _tag, _dir in (("fe3", "v16_etth2_n10k"), ("es10", "v19_cuda_etth2_n10k"),
+                       ("es10mps", "v18_mps_deterministic_n10k")):
+        _fs = sorted((ROOT / "results" / _dir).glob("*/condition_B_h96_s*.json"))
+        _pro[_tag] = {(_r := json.load(open(_f)))["seed"]: _r for _f in _fs}
+    R["pro_fe3"] = float(np.mean([r["forgetting_pct"] for r in _pro["fe3"].values()]))
+    R["pro_es10"] = float(np.mean([r["forgetting_pct"] for r in _pro["es10"].values()]))
+    R["pro_n_fe3"], R["pro_n_es10"] = len(_pro["fe3"]), len(_pro["es10"])
+    R["pro_fe3_sd"] = float(np.std([r["forgetting_pct"] for r in _pro["fe3"].values()], ddof=1))
+    R["pro_fe3_seeds"] = sorted(_pro["fe3"])
+    # The two seed-matched readings the appendix prints to show the attribution is not identified.
+    # Both are the SAME three seeds under the other record's protocol, which is the only reason they
+    # bound anything; taken over different seed sets they would just be two more unmatched numbers.
+    for _tag, _key in (("es10", "pro_sub3_cuda"), ("es10mps", "pro_sub3_mps")):
+        R[_key] = float(np.mean([_pro[_tag][s]["forgetting_pct"] for s in _pro["fe3"]]))
+    # The two zero-shot references, which is the confound a reader is least likely to guess at.
+    R["pro_zs_fe3"] = _pro["fe3"][R["pro_fe3_seeds"][0]]["zeroshot_mse"]
+    R["pro_zs_es10"] = _pro["es10"][R["pro_fe3_seeds"][0]]["zeroshot_mse"]
+    R["pro_ep_fe3"] = _pro["fe3"][R["pro_fe3_seeds"][0]]["epochs"]
+    R["pro_ep_es10"] = _pro["es10"][R["pro_fe3_seeds"][0]]["epochs"]
+    # The appendix says the subset "happens to contain two of the three most positive" seeds of the
+    # ten. That is a property of the reported record and is the reason the subset is not a fair draw,
+    # so it is computed rather than asserted.
+    _rank = sorted(_pro["es10"], key=lambda s: -_pro["es10"][s]["forgetting_pct"])
+    assert len(set(_rank[:3]) & set(_pro["fe3"])) == 2, (
+        f'the appendix says the final-epoch seed set holds two of the three most positive seeds of '
+        f'the reported ten; the top three are now {_rank[:3]} against {sorted(_pro["fe3"])}')
+    # The reversal is the claim the body makes; if it stops holding the sentence is wrong, not stale.
+    assert R["pro_es10"] < 0 < R["pro_fe3"], (
+        f'S5.2 says the n=10k sign reverses between these two records; they now read '
+        f'v19 {R["pro_es10"]:+.2f}%, v16 {R["pro_fe3"]:+.2f}%')
+    # The three differences the corrected prose names, each checked against the records rather than
+    # asserted in prose. "at once" is the whole point of the sentence, so all three must hold.
+    assert set(_pro["fe3"]) < set(_pro["es10"]), (
+        'the prose says the final-epoch record covers a subset of the reported seeds; it no longer does')
+    _e3 = {r["epochs"] for r in _pro["fe3"].values()}
+    _e10 = {r["epochs"] for r in _pro["es10"].values()}
+    assert len(_e3) == len(_e10) == 1 and _e3 != _e10, (
+        f'the prose says the two records differ in epoch budget; they now read {_e3} and {_e10}')
+    assert (abs(next(iter({r["zeroshot_mse"] for r in _pro["fe3"].values()}))
+                - next(iter({r["zeroshot_mse"] for r in _pro["es10"].values()}))) > 1e-6), (
+        'the prose says the two records take their percentage against different zero-shot '
+        'references; those references now agree, so that clause must be dropped')
     return R
 
 
@@ -1129,6 +1188,29 @@ def build_checks(R):
         R["n_gate_pass"], R["n_val_scored"])
     chk("gate-failing count (background)", r"in the other (\d+) the pre-trained model",
         R["n_gate_fail"])
+    # --- the n=10k sign fragility, added 2026-09-24. Every number in the two sentences that state it
+    # gets a pattern, including the two confound values a reader would otherwise have to trust
+    # (the epoch budgets and the two zero-shot references). The reason for that thoroughness is the
+    # failure this file keeps having: the claim is ABOUT a record disagreeing with another record, so
+    # an unregistered number here would be an unchecked number inside a paragraph whose whole subject
+    # is unchecked numbers.
+    chk("n=10k sign fragility (S5.2 body)",
+        r"read at its final epoch gives \$\+([\d.]+)\\%\$\s+against the \$-([\d.]+)\\%\$ above",
+        R["pro_fe3"], abs(R["pro_es10"]))
+    chk("n=10k final-epoch record (appendix)",
+        r"final-epoch runs gave \$\+\$([\d.]+)\$\\pm\$([\d.]+)\\% on \$k\{=\}(\d+)\$",
+        R["pro_fe3"], R["pro_fe3_sd"], R["pro_n_fe3"])
+    chk("n=10k fragility: the final-epoch seed set",
+        r"its three seeds\s+\((\d+), (\d+), (\d+)\) are a subset of the (\w+)",
+        *R["pro_fe3_seeds"], R["pro_n_es10"])
+    chk("n=10k fragility: the epoch-budget confound",
+        r"it trains for (\d+) epochs rather than (\d+)", R["pro_ep_fe3"], R["pro_ep_es10"])
+    chk("n=10k fragility: the zero-shot-reference confound",
+        r"zero-shot reference \(\$([\d.]+)\$ against \$([\d.]+)\$\)",
+        R["pro_zs_fe3"], R["pro_zs_es10"])
+    chk("n=10k fragility: the two seed-matched readings",
+        r"the CUDA record reads\s+\$-\$([\d.]+)\\% and the MPS one \$\+\$([\d.]+)\\%",
+        abs(R["pro_sub3_cuda"]), R["pro_sub3_mps"])
     # Also unregistered and also stale until 20 Sep 2026: S7 said the reversals overlap "the five
     # gate-passing cells". Both halves are derived in rederive() -- how many of the sign reversals are
     # gate-passing, and the survivor count they are a subset of -- so the overlap cannot drift from
@@ -1937,11 +2019,11 @@ def build_checks(R):
         r"positive control: (\d+) runs, no destruction", R["pc_n_runs"])
     chk("positive control: the seed count in the table caption",
         r"\$\\pm\$ is the SEM over (\d+) seeds", R["pc_seeds"])
-    # What task A is worth, stated once in each section in different words. This is the arm's own
-    # stated limit -- it tests DETECTION of a loss, not the value of what is lost -- so both phrasings
-    # are registered, and both must move if the cell's margin over the ladder ever changes.
-    chk("positive control: task A's margin over the ladder (body)",
-        r"worth\s+only \$\+([\d.]+)\$ over seasonal-naive", R["pc_v_rung"])
+    # What task A is worth. This is the arm's own stated limit -- it tests DETECTION of a loss, not the
+    # value of what is lost. It had two registered phrasings, one per section, until 2026-09-24, when
+    # the body sentence was cut for page 10's line budget; the appendix paragraph it duplicated says
+    # strictly more, so the claim keeps a site and the body-form pattern is deleted rather than left
+    # matching nothing. A pattern that matches zero sites is not a passing check, it is an absent one.
     chk("positive control: task A's margin over the ladder (appendix)",
         r"task A beats seasonal-naive by only\s+\$\+([\d.]+)\$", R["pc_v_rung"])
     # "no cell clears the strongest admissible rung" is now registered per split, beside the rest of

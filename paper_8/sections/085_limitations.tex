@@ -53,9 +53,24 @@ normalisations; we report them separately and never pool them.
 % the task information in a transformed basis, and a small drift destroying one critical direction --
 % are in app:limitations, which is what "full detail is in" at the head of this section points at. They
 % illustrated the claim rather than adding one, and \S\ref{sec:exp4:poscontrol} needed the two lines.
-(6)~\emph{Similarity is not mechanism}: our negative claim is about
-\emph{identifying} damage from similarity alone, not about CKA's validity as a
-measure of similarity.
+% Item (6) -- "Similarity is not mechanism: our negative claim is about IDENTIFYING damage from
+% similarity alone, not about CKA's validity as a measure of similarity" -- is cut on 2026-09-25 for
+% page 10's last two lines. WHY THIS TOOK THREE BUILDS, because it will come up again: page 9 carries
+% no float but TWO section headings (8 and 9), and on a \flushbottom body the stretchable glue around
+% them absorbs roughly two lines of change in EITHER direction -- cutting this item alone moved the
+% page-9/10 boundary by zero lines, and restoring it moved it by zero lines too. On top of that,
+% \widowpenalty forbids leaving exactly one line of the closing paragraph on page 10, so a cut that
+% frees one effective line gets pushed straight back to a two-line spill. The consequence for anyone
+% trimming this page later: cuts here are CUMULATIVE and buy nothing until they exceed the glue's range
+% and clear the full two lines at once, so measure the boundary only after the whole batch, never after
+% one edit. Provenance for this item's content: app:limitations item (7) gives BOTH directions (low CKA
+% need not mean loss; high CKA need not mean retention) and ties them to the positive control's CKA
+% 0.063 with task A improving, and S9's bold closing claim plus S3's post-treatment paragraph draw the
+% identify-versus-measure distinction in the body. No chk() matched this sentence, so no registered
+% claim loses a site. The other five items stay: (5) is the retraction, which has no body restatement
+% as a limitation, and the rest are concessions about generalisation and power -- the very things the
+% reviews scored down, so cutting one to fund the sentences answering the same reviewer is the bad
+% trade the comment at the top of item (1) already refused.
 % Item (7) was a three-item recap -- the n=10k sign being protocol-dependent, the ILI cell's ~450
 % windows, and the two falsified pre-registrations. Cut for page room, not because any of it is
 % withdrawn: each is stated where it arises (S5.2, S6.4 and the whole of S7, which reports its own
