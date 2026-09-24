@@ -97,6 +97,13 @@ run "paired_inference (+power_mde)"  "$PY" scripts/paired_inference.py
 # top-up finished rather than an author's assurance that it did. It is therefore EXPECTED to fail
 # while the top-up is still running; that failure is the signal, not a bug in this file.
 run "power_topup"                  "$PY" scripts/emit_power_topup.py
+# The gate's sampling-noise floor (app:zsnoise), added 25 Sep 2026. Writes results/gate_zs_noise.json
+# and no table, so the staleness block below cannot catch it drifting -- what catches it instead are
+# its own two asserts (its grouping must reproduce gate_all_cells._zs_val_refs() exactly, and no
+# cell's 0.20 call may flip under any replicate), which make this line fail rather than print a
+# quietly wrong noise floor. It must run BEFORE check_paper_numbers.py at the foot of this file,
+# which reads that JSON for nine of its registered claims.
+run "gate_zs_noise"                "$PY" scripts/gate_zs_noise.py --quiet
 run "heldout_decomposition"        "$PY" scripts/heldout_decomposition.py
 run "crossbackbone"                "$PY" scripts/emit_crossbackbone.py
 run "mitigation_spectrum"          "$PY" scripts/emit_mitigation_spectrum.py

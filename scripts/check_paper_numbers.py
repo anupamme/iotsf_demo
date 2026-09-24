@@ -662,6 +662,32 @@ def rederive():
         "TimesFM/Electricity now has a selection-split gate; the caption's 'no paired run' is stale"
     R["timesfm_elec_gate_test"] = gate_side["timesfm_electricity"]["r2_task"]
 
+    # -- the gate's own sampling noise (app:zsnoise), from scripts/gate_zs_noise.py. Read from its
+    # JSON rather than recomputed here: that script asserts its grouping reproduces
+    # gate_all_cells._zs_val_refs() exactly and that no admission flips under any replicate, so
+    # recomputing the same quantities a second way here would give two answers to defend instead of
+    # one. Keys are named for what the appendix says, not for what the JSON calls them.
+    _zsn = json.loads((ROOT / "results/gate_zs_noise.json").read_text())
+    R["zsn_cells"] = _zsn["n_cells"]
+    R["zsn_measurements"] = _zsn["n_zs_measurements"]
+    R["zsn_samples"] = _zsn["num_samples"]
+    R["zsn_max_spread"] = _zsn["max_noise_any_cell"]
+    R["zsn_min_ratio"] = _zsn["min_ratio_any_cell"]
+    R["zsn_tight_margin"] = _zsn["tightest"]["margin"]
+    R["zsn_tight_r2"] = _zsn["tightest"]["r2"]
+    R["zsn_n_changed"] = _zsn["n_calls_changed_by_contaminated_denominator"]
+    # The cell carrying the largest spread, and its distance from the operating point. The appendix's
+    # argument is that these two numbers belong to DIFFERENT cells, so both are pinned: if the max
+    # spread ever migrated to the tightest cell the prose would be wrong while every number in it
+    # still parsed.
+    _wide = max(_zsn["cells"], key=lambda k: _zsn["cells"][k]["noise_own"])
+    R["zsn_wide_margin"] = _zsn["cells"][_wide]["margin"]
+    assert _wide != _zsn["min_ratio_cell"], (
+        f"{_wide} now carries both the largest spread and the tightest margin; app:zsnoise's "
+        f"'they are different cells' argument no longer holds")
+    for _i, _b in enumerate((1, 2, 3), 1):
+        R[f"zsn_delta_b{_i}"] = _zsn["by_batch"][f"prospective batch {_b}"]["max_delta_r2"]
+
     # -- the five survivors' own numbers, which the body quotes cell by cell
     by = {r["cell"]: r for r in rows}
     improvers = ["Moirai-base/ETTh2 h96 n1000", "Moirai-base/ETTh2 h192 n1000",
@@ -1836,6 +1862,45 @@ def build_checks(R):
     chk("ILI gate (appendix list)",
         r"\\textbf\{ILI\} \(Moirai-Small\): \$\\mathbf\{-([\d.]+)\}\$", R["ili_gate"])
     chk("ILI gate (appendix, restated)", r"it now carries \$-([\d.]+)\$", R["ili_gate"])
+
+    # --- app:zsnoise, the gate's sampling-noise floor. Registered at the same density as the gate
+    # values themselves, because this section's whole function is to say how precisely those values
+    # can be read -- a stale number here would understate or overstate the paper's own resolution.
+    chk("sampling noise: the number of sampled paths",
+        r"median of \$(\d+)\$ sampled paths", R["zsn_samples"])
+    chk("sampling noise: the replicate census",
+        r"Across the \$(\d+)\$ Moirai cell-scorings \(the \$(\d+)\$-cell retrospective grid and "
+        r"batch 3's five\) there are \$(\d+)\$ independent zero-shot measurements",
+        R["zsn_cells"], R["n_moirai_screened"], R["zsn_measurements"])
+    chk("sampling noise: the largest per-cell spread",
+        r"per-cell spread of at most \$([\d.]+)\$", R["zsn_max_spread"])
+    chk("sampling noise: the three batches' denominator shifts",
+        r"moves \$R\^2_\\text\{task\}\$ by at most \$([\d.]+)\$ on batch 1, \$([\d.]+)\$ on batch 2 "
+        r"and \$([\d.]+)\$ on batch 3",
+        R["zsn_delta_b1"], R["zsn_delta_b2"], R["zsn_delta_b3"])
+    # Both numbers of the "different cells" argument in one pattern, for the reason the assert in
+    # rederive() exists: the claim is a RELATION between them, so a check that could pass with one of
+    # them re-pointed at the other cell would not be checking the claim.
+    chk("sampling noise: the mispairing the section exists to reject",
+        r"That largest spread, \$([\d.]+)\$, is bigger than the tightest margin to the operating "
+        r"point anywhere \(\$([\d.]+)\$, Moirai-Base/ETTm2 \$h\{=\}192\$ at "
+        r"\$R\^2_\\text\{task\}\{=\}\{\+\}([\d.]+)\$\)",
+        R["zsn_max_spread"], R["zsn_tight_margin"], R["zsn_tight_r2"])
+    chk("sampling noise: how far the widest cell sits from the operating point",
+        r"sits \$([\d.]+)\$ from \$0\.20\$", R["zsn_wide_margin"])
+    chk("sampling noise: the decisive ratio",
+        r"minimum of that ratio over all \$(\d+)\$ cell-scorings is \$([\d.]+)\\times\$",
+        R["zsn_cells"], R["zsn_min_ratio"])
+    # The two sites that state the contaminated denominator would have changed nothing -- app:zsnoise
+    # and audit item (g). Two phrasings, two patterns: this is the count a reader would most want to
+    # be reassuring, so it is the one that must not be able to drift at one site only.
+    chk("sampling noise: admissions the pre-repair denominator would have changed",
+        r"\\textbf\{\$(\d+)\$ of the \$(\d+)\$\} admissions would have differed",
+        R["zsn_n_changed"], R["zsn_cells"])
+    chk("audit item (g): the shift and the admissions it would have changed",
+        r"at most \$([\d.]+)\$ in \$R\^2_\\text\{task\}\$ and would have changed \$(\d+)\$ of the "
+        r"\$(\d+)\$ admissions",
+        R["zsn_delta_b1"], R["zsn_n_changed"], R["zsn_cells"])
 
     # --- the three survivors full fine-tuning improves
     chk("the three improvers' forgetting",
