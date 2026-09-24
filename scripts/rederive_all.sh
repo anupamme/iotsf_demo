@@ -245,6 +245,13 @@ fi
 echo
 echo "-- TIER C: NOT re-derivable here --------------------------------------------"
 echo "  drift_metric_battery --compute   needs the 59 fine-tuned encoders (*.pt, gitignored)."
+# Declared here rather than run above, and the distinction is the same one drift_metric_battery makes:
+# building a MoiraiModule to count its parameters needs torch, uni2ts and the HF cache, none of which
+# a clean clone has. Its committed OUTPUT (results/model_sizes.json) is what check_paper_numbers.py
+# reads, so the three capacities and the 6.6x ratio stay TIER A. Listed rather than omitted because an
+# emitter absent from this file is indistinguishable from an emitter nobody wrote.
+echo "  emit_model_sizes.py             needs torch + uni2ts + the HF cache; its output"
+echo "                                  (results/model_sizes.json) is committed and IS checked."
 echo "  any condition B/D/E/H run        needs a GPU/MPS run; see scripts/rerun_two_cells.sh for"
 echo "                                   the bounded two-cell from-scratch check instead."
 

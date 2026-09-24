@@ -125,6 +125,43 @@ def rederive():
     R["n_screened"] = len(gate_side)
     R["n_val_scored"] = len(val_side_primary)
     R["n_int"] = len(rows)
+    # -- the screen's COMPOSITION, which S4 states as a four-way split of the 32. One claim, not four:
+    # the relation is what is asserted, and four per-arm checks would all pass with two arms swapped.
+    # The parenthetical "three capacities, five datasets, two horizons" is a COVERAGE statement about
+    # the Moirai arm and not a product -- 3*5*2 is 30 and we ran 21 -- so it is asserted here over the
+    # arm's own cell keys rather than captured as three more numbers a reader would try to multiply.
+    _arm_n = {}
+    for _v in gate_side.values():
+        _arm_n[_v.get("arm")] = _arm_n.get(_v.get("arm"), 0) + 1
+    for _a in ("moirai", "chronos", "timesfm", "ili"):
+        R[f"n_arm_{_a}"] = _arm_n.get(_a, 0)
+    assert sum(_arm_n.values()) == R["n_screened"] and set(_arm_n) == {
+        "moirai", "chronos", "timesfm", "ili"}, (
+        f"the screen's arms are now {_arm_n}; S4 enumerates the 32 as four arms and the enumeration "
+        f"would silently stop adding up")
+    _mo_parts = [k.split("_") for k, v in gate_side.items() if v.get("arm") == "moirai"]
+    R["n_moirai_caps"] = len({p[0] for p in _mo_parts})
+    R["n_moirai_ds"] = len({p[1] for p in _mo_parts})
+    R["n_moirai_hz"] = len({p[2] for p in _mo_parts})
+    assert (R["n_moirai_caps"], R["n_moirai_ds"], R["n_moirai_hz"]) == (3, 5, 2), (
+        f"the Moirai arm now spans {R['n_moirai_caps']} capacities, {R['n_moirai_ds']} datasets and "
+        f"{R['n_moirai_hz']} horizons; S4's parenthetical says three, five and two")
+    # -- the three capacities' parameter counts, from scripts/emit_model_sizes.py's committed output.
+    # They are printed by the loader (moirai_detector.py:348) and every run log has them, but *.log is
+    # gitignored, so until that emitter existed these were the only backbone numbers in the body with
+    # no record a clean clone could read -- and the ratio S4 quoted was wrong (6.3, from the Moirai
+    # paper's rounded capacities, against 6.61 for the checkpoints we actually ran).
+    _ms = json.loads((ROOT / "results/model_sizes.json").read_text())
+    for _s in ("small", "base", "large"):
+        R[f"params_{_s}"] = _ms["models"][_s]["n_params"] / 1e6
+    R["base_over_small"] = _ms["base_over_small"]
+    assert abs(R["base_over_small"] - R["params_base"] / R["params_small"]) < 1e-9, (
+        f"results/model_sizes.json records base/small as {R['base_over_small']!r}, which is not its "
+        f"own two counts' ratio -- the file was hand-edited")
+    # -- the seed budget the screen paired each cell at, as a range over the intervention rows. The
+    # histogram behind it is {3: 24, 5: 4, 10: 3}; S1 states only the endpoints, so only those are
+    # registered, but they come from the rows rather than from the sentence.
+    R["seeds_lo"], R["seeds_hi"] = min(r["seeds"] for r in rows), max(r["seeds"] for r in rows)
     # From `rows`, so it follows cell_matrix.GATE_SPLIT: primary = the selection split.
     R["n_gate_pass"] = sum(r["gate"] is not None and r["gate"] >= 0.20 for r in rows)
     R["n_gate_fail"] = R["n_val_scored"] - R["n_gate_pass"]
@@ -429,6 +466,11 @@ def rederive():
     R["n_adapt_dec"] = _calls.count("adapt")
     R["n_inconclusive"] = _calls.count("inconclusive")
     R["n_paired_tests"] = len(_pic)
+    # The BH level itself, from the module the table is emitted by rather than from the JSON, which does
+    # not store it. Two sites state it and both would read as pre-registered while the emitter used a
+    # different alpha; this makes the prose's 0.05 an assertion about the code that produced the calls.
+    import paired_inference as _pin
+    R["bh_alpha"] = _pin.ALPHA
     # The two freeze-decisive cells and the two adapt-decisive cells that PASS the screen, by name, in
     # the order the appendix states them (h96 then h192 for ETTh1; Base h192 then Large h96 for ETTh2).
     _by = {c["cell"]: c for c in _pic}
@@ -650,6 +692,18 @@ def rederive():
         R[f"n_pass_{arm}"] = sum(1 for k in ks if gate_side[k]["r2_task"] >= 0.20)
         R[f"n_pass_trend_{arm}"] = sum(1 for k in ks if trend[k]["r2_task"] >= 0.20)
     R["n_gate_pass_val"] = sum(1 for v in val_side_primary.values() if v["r2_task"] >= 0.20)
+    # -- Chronos on ETTh2, on BOTH splits. S4's claim is the contrast: the dataset where Moirai clears
+    # the gate at every capacity is where Chronos sits below the baseline, and it does so on the
+    # selection split and on held-out. One pattern carrying both numbers, because the claim is that the
+    # sign holds across splits -- two separate checks would pass with the splits transposed, and this
+    # arm is exactly where a split transposition has happened before (app:corrections).
+    R["chronos_etth2_val"] = abs(val_side_primary["chronos_etth2"]["r2_task"])
+    R["chronos_etth2_test"] = abs(gate_side["chronos_etth2"]["r2_task"])
+    assert (val_side_primary["chronos_etth2"]["r2_task"] < 0
+            and gate_side["chronos_etth2"]["r2_task"] < 0), (
+        f"Chronos/ETTh2 now scores {val_side_primary['chronos_etth2']['r2_task']:+.4f} on selection "
+        f"and {gate_side['chronos_etth2']['r2_task']:+.4f} on held-out; S4 says \\emph{{below}} the "
+        f"fitted baseline on both, and the magnitudes below are registered unsigned")
 
     # -- the gate values quoted cell by cell. Whole passages of Exp 1 and the correction appendix
     # are lists of these, hand-typed, and they are the least likely thing to be re-checked by eye.
@@ -942,6 +996,17 @@ def rederive():
     # silently.
     _big = sorted(abs(r["forg_b"]) for r in _pass if _ds(r["ref"]) == "ETTH2" and r["forg_b"] < 0)
     R["n_imp_big"], R["imp_lo"], R["imp_hi"] = len(_big), _big[0], _big[-1]
+    # The SAME improvers over all four (the ETTm2 cell the selection split added is the fourth and the
+    # smallest at 8.4%), which is the range S5.3 quotes for the clause-(ii) failures. A different range
+    # over a different set, so it is registered separately rather than reusing imp_lo/imp_hi -- reusing
+    # them is how "three of them by 31--42%" and "four, by 8--42%" would silently become one claim.
+    # "with every seed agreeing" is the unanimity the sentence rests on, and no group can carry it.
+    _unan = sorted((abs(r["forg_b"]), r["ref"]) for r in _pass
+                   if r["forg_b"] < 0 and r["forg_b_pos"] == 0)
+    R["imp_unan_lo"], R["imp_unan_hi"] = _unan[0][0], _unan[-1][0]
+    assert len(_unan) == R["n_imp_unan"] == 4, (
+        f'S5.3 says four of the seven survivors improve with every seed agreeing; the records now '
+        f'give {len(_unan)}: {[r for _, r in _unan]}')
 
     # -- how many of the four selection-vs-held-out sign reversals are themselves gate survivors.
     # S7 leans on this overlap to argue the reversals are not confined to cells nobody would inspect,
@@ -1265,6 +1330,45 @@ def build_checks(R):
     # swapped, which is the failure the comment below describes.
     chk("selection-split denominator (S4)", r"which exist for (\d+) of the (\d+)",
         R["n_val_scored"], R["n_screened"])
+    # S4's four-way split of the 32. One site, four groups, because the arms' ORDER is the claim: with
+    # four separate checks the sentence could name 5 Chronos cells and 5 TimesFM cells the other way
+    # round and every check would still pass. The Moirai parenthetical's "three, five, two" is asserted
+    # in rederive() over the arm's own keys instead of captured here -- see the comment there.
+    chk("the screen's four arms",
+        r"screened cells\}---(\d+) Moirai \(three capacities, five datasets, two horizons\), (\d+)\s*"
+        r"Chronos-T5, (\d+) TimesFM-2\.5 and (\d+) Moirai/ILI",
+        R["n_arm_moirai"], R["n_arm_chronos"], R["n_arm_timesfm"], R["n_arm_ili"])
+    # S1's three "31"s. Each is a RESTATEMENT of the selection-split denominator in wording no existing
+    # pattern reaches, and this paper's recorded failure is precisely a restatement drifting while one
+    # canonical site stays green. Two of the three carry a second number, so they capture the relation:
+    # "seven of 31" and "2 of 31" are the two counts a reader takes away from the intro.
+    chk("the headline count (S1's three clauses)",
+        r"\\textbf\{(\w+) of the (\d+) scored cells\}", R["n_gate_pass"], R["n_val_scored"])
+    chk("the freeze-decisive count (S1's three clauses)",
+        r"only (\d+) of the (\d+) favour freezing", R["n_freeze_dec"], R["n_paired_tests"])
+    chk("the funnel's denominator (Figure 1's caption)",
+        r"funnel over the (\d+) cells that carry a", R["n_val_scored"])
+    # The seed budget, as endpoints over the intervention rows. Stated once, in S1's design paragraph.
+    chk("the paired seed budget", r"frozen-encoder run at (\d+)--(\d+) seeds",
+        R["seeds_lo"], R["seeds_hi"])
+    # The BH level, at all three sites that name it, against paired_inference.ALPHA -- the constant the
+    # calls were actually made at. A pre-registered level stated in prose and not tied to the code is a
+    # number that can drift in the one direction nobody checks.
+    chk("the BH level", r"multiplicity-adjusted \$q\{<\}([\d.]+)\$", R["bh_alpha"], min_sites=2)
+    chk("the BH level (appendix)", r"called decisive only at \$q\{<\}([\d.]+)\$", R["bh_alpha"])
+
+    # --- the backbones' sizes. S1's screen description and S4's capacity claim, which is the one that
+    # had drifted: it said 6.3x, the ratio of the Moirai paper's rounded capacities (91M / 14.4M),
+    # where the checkpoints we ran give 6.61. Both sites read scripts/emit_model_sizes.py's output.
+    chk("the three Moirai capacities",
+        r"Moirai Small ([\d.]+)M, Base (\d+)M, Large (\d+)M",
+        R["params_small"], R["params_base"], R["params_large"])
+    chk("the capacity ratio (S4)",
+        r"Moirai-Base is ([\d.]+)\$\\times\$ larger than", R["base_over_small"])
+    # Chronos on ETTh2, both splits in one site: the claim is that the sign survives the split change.
+    chk("Chronos on ETTh2, below the baseline on both splits",
+        r"below\} the fitted baseline \(\$-([\d.]+)\$ on selection, \$-([\d.]+)\$ on\s*held-out\)",
+        R["chronos_etth2_val"], R["chronos_etth2_test"])
     # "no cell of the N clears" appears on both splits with different N -- 31 in S4 and the
     # selection-split appendix, 32 in the retrospective one -- so one pattern spanning both would
     # have to agree with two numbers. Split in two, under "no cell clears every admissible rung
@@ -1332,6 +1436,12 @@ def build_checks(R):
         R["imp_lo"], R["imp_hi"], R["n_imp_big"])
     chk("the big improvers' range (contribution 1)",
         r"(\w+) of them by ([\d.]+)--([\d.]+)\\%", R["n_imp_big"], R["imp_lo"], R["imp_hi"])
+    # S5.3's range over all FOUR unanimous improvers, which is a different set and a different range
+    # from the three ETTh2 cells above. It was the last unchecked claim in 05_exp2_adaptation.tex that
+    # was not a horizon, an n, or a confidence level.
+    chk("the unanimous improvers' range (clause (ii) failures)",
+        r"\\emph\{improves\} MSE, by (\d+)--(\d+)\\% with every seed agreeing",
+        R["imp_unan_lo"], R["imp_unan_hi"])
     # The abstract's ladder-union clause was cut with the short-abstract rewrite. n_union keeps three
     # registered sites -- "ladder union and its backbones" (S4 and app:baselines:val, min_sites=2) and
     # "union count (limitations)" -- and all three carry the backbone composition the abstract did not,

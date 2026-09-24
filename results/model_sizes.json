@@ -1,0 +1,25 @@
+{
+  "base_over_small": 6.606945796819215,
+  "counted_as": "sum(p.numel() for p in MoiraiModule.parameters()), weights not loaded",
+  "generated_by": "scripts/emit_model_sizes.py",
+  "models": {
+    "base": {
+      "d_model": 768,
+      "model_id": "Salesforce/moirai-1.1-R-base",
+      "n_params": 91357728,
+      "num_layers": 12
+    },
+    "large": {
+      "d_model": 1024,
+      "model_id": "Salesforce/moirai-1.1-R-large",
+      "n_params": 310970624,
+      "num_layers": 24
+    },
+    "small": {
+      "d_model": 384,
+      "model_id": "Salesforce/moirai-1.1-R-small",
+      "n_params": 13827528,
+      "num_layers": 6
+    }
+  }
+}
