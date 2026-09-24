@@ -678,6 +678,20 @@ def rederive():
     R["forg_b_lo"], R["forg_b_hi"] = abs(min(_fb)), max(_fb)
     imp4 = next(r for r in rows if r["ref"] == "base_ETTm2_h192")
     R["imp4_b"], R["imp4_d"], R["imp4_cka"] = abs(imp4["forg_b"]), abs(imp4["forg_d"]), imp4["cka"]
+    # -- the two DEGRADERS the lead example is built on: Moirai-Base's two least-drifted cells, which
+    # are the only two in that arm that get worse. The improvers above were registered; these were not,
+    # and they are half of every statement of the dissociation -- including S1's "one checkpoint, two
+    # datasets, opposite lessons", the first concrete numbers in the paper and the thesis in miniature.
+    # Keyed by `ref` for the reason imp4 is. The asserts are the load-bearing part: what S1 claims is
+    # not "22.8%" but the SIGN PATTERN -- least drifted degrade, most drifted improve -- so a records
+    # change that preserved the magnitudes while flipping a sign would satisfy a numeric check and
+    # falsify the sentence. Checked here once rather than in each of the four prose patterns below.
+    for _i, _ref in enumerate(("base_ETTh1_h96", "base_ETTh1_h192"), 1):
+        _deg = next(r for r in rows if r["ref"] == _ref)
+        R[f"deg{_i}_b"], R[f"deg{_i}_cka"] = _deg["forg_b"], _deg["cka"]
+        assert R[f"deg{_i}_b"] > 0, f"{_ref} no longer degrades; the lead example's premise is stale"
+        assert R[f"deg{_i}_cka"] > R["imp1_cka"], \
+            f"{_ref} is no longer less drifted than the improvers; the dissociation has reversed"
     small192 = by["Moirai-small/ETTh2 h192 n500"]
     small96 = by["Moirai-small/ETTh2 h96 n500"]
     # `forg_b_sd` is a standard deviation (ddof=1, via cell_matrix._sd) but the body declares every
@@ -1834,6 +1848,40 @@ def build_checks(R):
         r"\(\$-([\d.]+)\\%\$, \$-([\d.]+)\\%\$, \$-([\d.]+)\\%\$\)",
         R["imp1_d"], R["imp2_d"], R["imp3_d"])
 
+    # --- the LEAD DISSOCIATION EXAMPLE, at all four of its sites.
+    # Added 25 Sep 2026, and the reason it is worth four patterns rather than one: these numbers were
+    # already registered -- imp1/imp2 just above pin 0.460, 0.396, -31.4% and -36.3% at their S5.1
+    # sites -- and every restatement of them elsewhere was nonetheless unchecked. That is "coverage is
+    # per phrasing, not per fact" in its purest form, and it had already gone wrong: S6 printed
+    # -36.4% where S5.1, the appendix and tables/dissociation.tex all print -36.3% (imp2_b = 36.345,
+    # so -36.4 is a double-rounding of the appendix's 2-dp -36.35). One digit, in the sentence that
+    # states the paper's strongest claim, surviving a clean checker run. The four sites do not share a
+    # pattern because they do not share a phrasing: S1 splits the pair across two sentences with prose
+    # between them, S6 gives all four numbers as two CKA-then-forgetting lists, and the appendix walks
+    # the ordering from one end. A pattern loose enough to match all three would be loose enough to
+    # match a swapped pair, which is the error most likely to be made here.
+    chk("the lead example (S1): the degrading cell",
+        r"CKA \$([\d.]+)\$ against the pre-trained encoder---and the model ends \$([\d.]+)\\%\$ "
+        r"\\emph\{worse\}",
+        R["deg1_cka"], R["deg1_b"])
+    chk("the lead example (S1): the improving cell",
+        r"restructures far more, to CKA \$([\d.]+)\$, and the model ends \$([\d.]+)\\%\$ "
+        r"\\emph\{better\}",
+        R["imp1_cka"], R["imp1_b"])
+    chk("the lead example (S6): the two degraders",
+        r"ETTh1 at CKA \$([\d.]+)\$ and \$([\d.]+)\$, \$\+([\d.]+)\\%\$ and \$\+([\d.]+)\\%\$",
+        R["deg1_cka"], R["deg2_cka"], R["deg1_b"], R["deg2_b"])
+    chk("the lead example (S6): the two improvers",
+        r"ETTh2 at CKA \$([\d.]+)\$ and \$([\d.]+)\$, \$-([\d.]+)\\%\$ and \$-([\d.]+)\\%\$",
+        R["imp1_cka"], R["imp2_cka"], R["imp1_b"], R["imp2_b"])
+    # The appendix's version, which is the one that states the ordering as monotone. It runs from the
+    # MOST drifted end, so its first number is imp2 (the h192 improver) and its last two are the
+    # degraders in descending order -- the reverse of S6's direction, deliberately matched as written.
+    chk("the lead example (appendix): the monotone ordering",
+        r"runs monotonically from \$-([\d.]+)\\%\$ at the most drifted cell to \$\+([\d.]+)\\%\$ "
+        r"and \$\+([\d.]+)\\%\$ at the two least drifted",
+        R["imp2_b"], R["deg2_b"], R["deg1_b"])
+
     # --- the mean-vs-unanimous improver counts. The appendix states BOTH and says which the paper
     # uses; the figure asserts the unanimous one at draw time. `word()` is not available here, so the
     # counts are matched as digits where the prose uses digits and spelled out where it spells them.
@@ -2078,6 +2126,27 @@ def build_checks(R):
         min_sites=4)
     chk("the gate's operating point (stated the other way round)",
         r"operating point of \$([\d.]+)\$", R["gate_threshold"])
+    # The THIRD and FOURTH phrasings, added 25 Sep 2026 after auditing app:chronos_detail for numerals
+    # no chk pattern reaches. The two checks above cover "the $0.20$ operating point" and "operating
+    # point of $0.20$" -- 5 sites between them. They reach none of the TWELVE sites that say the gate
+    # "clears $0.20$", which is how the paper states the threshold most often. The audit that found this
+    # is worth repeating rather than describing: extract every chk pattern from this file with ast, mark
+    # the character spans they match in a section's collapsed text, and report the numerals lying
+    # outside every span. Grepping this file for the numeral does NOT work -- expectations are derived
+    # from records, so the digits are not in the source. Same lesson as the restated-claims one: the
+    # checker's coverage is per PHRASING, and a fact with five checked sites can still have a sixth
+    # phrasing nobody registered.
+    #
+    # The negative lookahead is load-bearing, not defensive. app:defsensitivity says of the one
+    # positive instance "It clears $0.216$ against a threshold of $0.20$", where "clears" takes the
+    # cell's GATE VALUE rather than the threshold; without the lookahead this check would demand
+    # 0.216 == 0.20 and fail on a correct sentence. That site's threshold is registered by the check
+    # below instead, so the sentence is covered twice over and neither number can drift alone.
+    chk("the gate's operating point (what a cell clears)",
+        r"clears? (?:the )?\$([\d.]+)\$(?! against a threshold)", R["gate_threshold"],
+        min_sites=12)
+    chk("the gate's operating point (the gate value stated against it)",
+        r"against a threshold of \$([\d.]+)\$", R["gate_threshold"])
     chk("intervention-cell count (what the deleted M4 numbers were outside of)",
         r"outside the (\d+)-cell matrix", R["n_int"])
     chk("M4: where the superseded script cut its pool",
