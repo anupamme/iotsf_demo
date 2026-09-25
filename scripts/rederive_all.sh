@@ -56,6 +56,41 @@ for arg in "$@"; do
 done
 
 fail=0
+
+# The generated artifacts the staleness step watches. Listed once, because it is checked two ways:
+# against the index in a clone, and against a before/after digest in the supplementary archive, which
+# carries no repository. Until 25 Sep 2026 there was only the git path, and inside the extracted
+# archive `git status` failed, $changed came back EMPTY, and the step printed "nothing changed" --
+# failing open on precisely the reader the tier-A claim is addressed to.
+ARTIFACTS=(paper_8/fig1_diagnostic_flow.pdf paper_8/fig_value_axis.pdf
+           paper_8/figA_gate_scatter.pdf paper_8/figA_freeze_boundary.pdf
+           paper_8/figA_window_layout.pdf paper_8/figures/dissociation_trajectory.pdf
+           paper_8/figures/n5k_trajectories.pdf paper_8/fig2_dissociation_sweep.pdf)
+# Written as two statements rather than a one-line `if ... then ... fi`: emit_results_manifest.py
+# parses this file line by line and tracks if/fi depth to find the optional-tier guards, and an
+# `if` whose `fi` shares its line skews that depth for everything below it.
+HAVE_GIT=0
+git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1 && HAVE_GIT=1
+
+digest() {  # md5/sha of every watched artifact, one line each, sorted. Portable across macOS and Linux.
+  local h
+  if   command -v md5sum >/dev/null 2>&1; then h=md5sum
+  elif command -v md5    >/dev/null 2>&1; then h="md5 -r"
+  elif command -v shasum >/dev/null 2>&1; then h=shasum
+  else return 1
+  fi
+  { find "$ROOT/paper_8/tables" -name '*.tex' -print 2>/dev/null
+    for f in "${ARTIFACTS[@]}"; do [ -f "$ROOT/$f" ] && echo "$ROOT/$f"; done
+  } | sort | xargs $h 2>/dev/null
+}
+
+# Taken BEFORE any emitter runs, so the comparison at the end is before/after this sweep and not
+# against an index that may itself be stale.
+BEFORE=""
+if [ "$HAVE_GIT" = 0 ]; then
+  BEFORE=$(mktemp) && digest >"$BEFORE" 2>/dev/null || BEFORE=""
+fi
+
 run() {  # run <label> <command...>
   local label=$1; shift
   printf '  %-34s' "$label"
@@ -75,7 +110,13 @@ echo "==========================================================================
 "$PWD/.venv12/bin/pip install 'numpy<2' scipy scikit-learn pandas"; exit 2; }
 echo "  analysis interpreter  $PY"
 echo "  figure interpreter    $PYFIG"
-git -C "$ROOT" rev-parse --short HEAD | sed 's/^/  HEAD                  /'
+if [ "$HAVE_GIT" = 1 ]; then
+  git -C "$ROOT" rev-parse --short HEAD | sed 's/^/  HEAD                  /'
+else
+  # The supplementary archive is built with `git archive HEAD` and carries no repository, so there is
+  # no commit to print. Said once, here, rather than letting git's "fatal:" line stand as the answer.
+  echo "  HEAD                  (no repository: this is the supplementary archive, not a clone)"
+fi
 
 echo
 echo "-- TIER A: tables, from results/*.json only ----------------------------------"
@@ -274,19 +315,33 @@ fi
 
 echo
 echo "-- STALENESS: what moved ----------------------------------------------------"
-changed=$(git -C "$ROOT" status --porcelain paper_8/tables/ paper_8/fig1_diagnostic_flow.pdf \
-            paper_8/fig_value_axis.pdf paper_8/figA_gate_scatter.pdf \
-            paper_8/figA_freeze_boundary.pdf paper_8/figA_window_layout.pdf \
-            paper_8/figures/dissociation_trajectory.pdf \
-            paper_8/figures/n5k_trajectories.pdf \
-            paper_8/fig2_dissociation_sweep.pdf | sed 's/^/    /')
-if [ -z "$changed" ]; then
+if [ "$HAVE_GIT" = 1 ]; then
+  changed=$(git -C "$ROOT" status --porcelain paper_8/tables/ "${ARTIFACTS[@]}" | sed 's/^/    /')
+elif [ -n "$BEFORE" ]; then
+  # No index to diff against, so diff the digests taken before the sweep against the files it just
+  # wrote. Strictly narrower than the git path -- it cannot see a file the sweep does not rewrite --
+  # but it answers the question the tier-A claim actually makes: do the emitters, run here, on these
+  # records, reproduce the artifacts shipped in this archive?
+  changed=$(digest | diff "$BEFORE" - | grep '^>' | awk '{print "    M  " $NF}')
+  rm -f "$BEFORE"
+else
+  # No repository AND no hashing tool. Neither check is available; say so and fail rather than print
+  # a clean line nothing verified.
+  echo "  STALENESS UNAVAILABLE: no git repository and no md5sum/md5/shasum on PATH, so nothing"
+  echo "  compared the regenerated artifacts against the ones shipped. This is not a clean result."
+  fail=$((fail + 1))
+  changed=""
+  HAVE_GIT=skip
+fi
+if [ "$HAVE_GIT" = skip ]; then
+  :
+elif [ -z "$changed" ]; then
   echo "  nothing changed: every \\input-ed table and figure in the PDF matches the run records."
 else
   echo "  THESE ARTIFACTS CHANGED -- each one is a number that was stale in the PDF, or a run"
   echo "  record added since the last regeneration. Read the diff; do not just commit it."
   echo "$changed"
-  git -C "$ROOT" --no-pager diff --stat paper_8/tables/ | sed 's/^/    /'
+  [ "$HAVE_GIT" = 1 ] && git -C "$ROOT" --no-pager diff --stat paper_8/tables/ | sed 's/^/    /'
   fail=$((fail + 1))
 fi
 
