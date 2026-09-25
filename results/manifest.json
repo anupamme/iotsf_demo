@@ -1261,7 +1261,7 @@
         "emit_power_topup.py:main"
       ],
       "in_matrix": false,
-      "n_json": 3,
+      "n_json": 2,
       "note": null
     },
     {
@@ -2051,15 +2051,6 @@
       "note": null
     },
     {
-      "path": "results/v20_cuda_etth1_n10k",
-      "label": "ORPHAN",
-      "readers": [],
-      "sites": [],
-      "in_matrix": false,
-      "n_json": 0,
-      "note": null
-    },
-    {
       "path": "results/v20_gbm_sensitivity",
       "label": "SCANNED",
       "readers": [
@@ -2141,15 +2132,6 @@
       "note": null
     },
     {
-      "path": "results/v21_etth1_n10k_probe",
-      "label": "ORPHAN",
-      "readers": [],
-      "sites": [],
-      "in_matrix": false,
-      "n_json": 0,
-      "note": null
-    },
-    {
       "path": "results/v21_lora_large_k5",
       "label": "SCANNED",
       "readers": [
@@ -2174,15 +2156,6 @@
       "sites": [],
       "in_matrix": false,
       "n_json": 2,
-      "note": null
-    },
-    {
-      "path": "results/v22_traffic_gate",
-      "label": "ORPHAN",
-      "readers": [],
-      "sites": [],
-      "in_matrix": false,
-      "n_json": 0,
       "note": null
     },
     {
@@ -2372,15 +2345,6 @@
       "sites": [],
       "in_matrix": true,
       "n_json": 2,
-      "note": null
-    },
-    {
-      "path": "results/v27_lora_small_probe",
-      "label": "ORPHAN",
-      "readers": [],
-      "sites": [],
-      "in_matrix": false,
-      "n_json": 0,
       "note": null
     },
     {
@@ -5221,10 +5185,8 @@
   "counts": {
     "SCANNED": 75,
     "CANONICAL": 62,
-    "ORPHAN": 5,
+    "ORPHAN": 1,
     "SUPERSEDED": 1
   },
-  "failed_emitters": [
-    "check_paper_numbers"
-  ]
+  "failed_emitters": []
 }

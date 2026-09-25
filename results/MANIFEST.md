@@ -33,13 +33,9 @@ traced path does not. Every other `run` line is traced, figure scripts included.
   limit of what tracing can show: it rules out the main matrix, and a targeted arm would have
   shown up as a call site, so nothing here is known to be load-bearing -- but the evidence is
   absence of a positive signal, not proof of irrelevance.
-- **ORPHAN** (5): never opened at all, by any emitter, at any call site.
+- **ORPHAN** (1): never opened at all, by any emitter, at any call site.
 
-143 directories, 60 top-level JSON records, 32 registered emitters traced.
-
-**1 emitter(s) did not complete during tracing** (check_paper_numbers). Directories reached only by those may be under-labelled here; the
-failure is printed rather than hidden because a silent trace failure turns a canonical
-directory into an orphan.
+139 directories, 60 top-level JSON records, 32 registered emitters traced.
 
 ## Superseded, and why
 
@@ -120,7 +116,7 @@ These are what a clean clone re-derives every table and figure from.
 | `results/forecasting_finetune` | CANONICAL | 3 | yes | -- |
 | `results/forecasting_finetune_20ep` | CANONICAL | 69 | yes | `emit_mitigation_spectrum.py:read` |
 | `results/positive_control` | CANONICAL | 64 | yes | `emit_positive_control.py:diverged_cells`, `emit_positive_control.py:main`, `emit_positive_control.py:read_cell` |
-| `results/power_topup` | CANONICAL | 3 | -- | `cell_matrix.py:topup_paths`, `emit_power_topup.py:main` |
+| `results/power_topup` | CANONICAL | 2 | -- | `cell_matrix.py:topup_paths`, `emit_power_topup.py:main` |
 | `results/test_b` | CANONICAL | 1 | yes | -- |
 | `results/v10_electricity_gate` | CANONICAL | 1 | yes | -- |
 | `results/v10_electricity_sweep` | CANONICAL | 1 | yes | -- |
@@ -255,10 +251,6 @@ These are what a clean clone re-derives every table and figure from.
 | `results/v9_large_lora_rank` | SCANNED | 1 | -- | -- |
 | `results/v9_weather_base_zs` | SCANNED | 1 | -- | -- |
 | `results/figures` | ORPHAN | 0 | -- | -- |
-| `results/v20_cuda_etth1_n10k` | ORPHAN | 0 | -- | -- |
-| `results/v21_etth1_n10k_probe` | ORPHAN | 0 | -- | -- |
-| `results/v22_traffic_gate` | ORPHAN | 0 | -- | -- |
-| `results/v27_lora_small_probe` | ORPHAN | 0 | -- | -- |
 
 ## The two `crosseval` directories
 

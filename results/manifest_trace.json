@@ -27192,7 +27192,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -28941,9 +28940,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -32490,7 +32486,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -34239,9 +34234,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -37642,7 +37634,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -39450,9 +39441,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -42606,7 +42594,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -44357,9 +44344,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -47763,7 +47747,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -49517,9 +49500,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -53043,7 +53023,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -54793,9 +54772,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -58201,7 +58177,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -59951,9 +59926,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -63433,7 +63405,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -65183,9 +65154,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -68591,7 +68559,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -70341,9 +70308,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -73652,6 +73616,7 @@
       ],
       "sites": {
         "results/positive_control.json": [
+          "emit_positive_control.py:diverged_cells",
           "emit_positive_control.py:main"
         ],
         "results/positive_control/grid_status.tsv": [
@@ -74180,7 +74145,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -75929,9 +75893,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -79348,7 +79309,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -81097,9 +81057,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -84500,7 +84457,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -86249,9 +86205,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -89442,8 +89395,8 @@
       "interp": ".venv12/bin/python",
       "script": "scripts/check_paper_numbers.py",
       "args": [],
-      "status": "exit 1",
-      "error": "1",
+      "status": "ok",
+      "error": null,
       "opened": [
         "results/ablation/a/metrics.json",
         "results/ablation/b/metrics.json",
@@ -89722,7 +89675,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -91757,10 +91709,6 @@
           "check_paper_numbers.py:rederive"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells",
           "check_paper_numbers.py:rederive"
         ],

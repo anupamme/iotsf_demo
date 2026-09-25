@@ -102,6 +102,19 @@ def diverged_cells():
     tsv = PC / "grid_status.tsv"
     if not tsv.exists():
         return {}
+    # logs/ is gitignored (the runner's logs carry absolute home paths), so the log is present in a
+    # clone of the working tree and absent from the supplementary archive. Rather than degrade to "its
+    # log is not present" there, fall back to the reason THIS script stored last time it could read the
+    # log: results/positive_control.json is tracked, so the archive carries it. The TSV still decides
+    # WHICH cells are diverged -- a stored reason can never resurrect a cell the runner no longer
+    # reports as FAILED -- so this caches the string, not the fact.
+    stored = {}
+    if OUT_JSON.exists():
+        try:
+            stored = {k: v.get("reason") for k, v in
+                      json.loads(OUT_JSON.read_text()).get("diverged_cells", {}).items()}
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            stored = {}
     out = {}
     for line in tsv.read_text().splitlines()[1:]:
         parts = line.split("\t")
@@ -109,7 +122,7 @@ def diverged_cells():
             continue
         cell, stage = parts[0], parts[1]
         log = ROOT / f"logs/pc_{cell}.log"
-        reason = "the runner recorded a failure; its log is not present"
+        reason = stored.get(cell) or "the runner recorded a failure; its log is not present"
         if log.exists():
             # The LAST exception line, not the first: training catches and skips individual bad batches
             # (logged as warnings), and the run dies later on the uncaught one. The first match would be
@@ -153,12 +166,20 @@ def main():
     planned = [(r["lr"], r["condition"], r["seed"]) for r in g["runs"]]
     ext_lr = g["declared_extension_lr"]
     ext = [(ext_lr, c, s) for c in g["conditions"] for s in g["seeds"]]
-    ext_present = [k for k in ext if cell_dir(*k).exists()]
 
     # A cell with no record is separated into "diverged" (the runner recorded a failure, and the reason
     # is read from its log) and "missing" (no record and no recorded failure -- never launched). Both are
     # reported, but only the second makes the outcome provisional: a recorded divergence IS a result.
     failed = diverged_cells()
+    # "The extension was taken" used to mean the cell's DIRECTORY exists. The three diverged lr=0.1
+    # frozen-encoder cells left behind an empty directory and nothing else, and git cannot track an empty
+    # directory -- so inside the supplementary archive built from `git archive HEAD` those three cells
+    # vanished, the table silently dropped its "Diverged, not omitted: 3 run(s)" line, and the checker
+    # then read 0 against the paper's "diverged in 3 of 3". A run the runner recorded as FAILED is
+    # evidence it was launched, and grid_status.tsv IS tracked, so the union is what makes this table
+    # re-derivable from the release rather than only from the working tree it was written in.
+    ext_present = [k for k in ext
+                   if cell_dir(*k).exists() or f"lr{k[0]}_{k[1]}_s{k[2]}" in failed]
     rows, missing, diverged = [], [], {}
     for lr, cond, seed in planned + ext_present:
         name = f"lr{lr}_{cond}_s{seed}"

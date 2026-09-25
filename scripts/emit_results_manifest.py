@@ -113,6 +113,22 @@ def abs_interp(interp: str) -> Path:
     return p if p.is_absolute() else ROOT / p
 
 
+def released_files():
+    """What the supplementary archive will carry: `git ls-files results`, or None outside a repository.
+
+    None means "every file present counts", which is the right answer in the extracted archive: the
+    archive IS the release, so there is nothing there that a reader does not have. In a clone the
+    distinction matters -- gitignored checkpoints, logs and untracked intermediates are all present and
+    none of them ships -- and a census that counted them would describe a tree no reader can obtain.
+    """
+    try:
+        out = subprocess.run(["git", "-C", str(ROOT), "ls-files", "-z", "results"],
+                             capture_output=True, text=True, check=True).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        return None
+    return {p for p in out.split("\0") if p}
+
+
 def sweep_invocations():
     """Every TIER A `run <label> <argv...>` line in rederive_all.sh, with $PY/$PYFIG resolved.
 
@@ -342,7 +358,27 @@ def main():
     survived = survived_the_filter()
     canonical = targeted | survived
 
-    dirs = sorted(f"results/{d.name}" for d in RESULTS.iterdir() if d.is_dir())
+    # The census is of the RELEASE, not of the working tree it was written in. rederive_all.sh runs
+    # this with --check inside the extracted supplementary archive, and until 25 Sep 2026 that check
+    # could not pass: the working tree carries four results/ directories the archive cannot
+    # (results/v22_traffic_gate and results/v27_lora_small_probe are empty, and git tracks no empty
+    # directory; results/v20_cuda_etth1_n10k and results/v21_etth1_n10k_probe hold nothing but
+    # gitignored checkpoints), and results/power_topup held an untracked intermediate. So MANIFEST.md
+    # said 143 directories and 5 orphans where the release has 139 and 1, and a reader re-deriving from
+    # the archive got "MANIFEST.md is STALE" for a tree that was exactly right.
+    released = released_files()
+    def in_release(p):
+        return released is None or str(p.relative_to(ROOT)) in released
+
+    dirs = sorted(f"results/{d.name}" for d in RESULTS.iterdir()
+                  if d.is_dir() and any(in_release(f) for f in d.rglob("*") if f.is_file()))
+    # A directory an emitter actually opens must never be dropped by that filter. It would mean the
+    # sweep reads a file the release does not carry, which is a tier-A claim failure and not a census
+    # detail, so it fails here rather than going quiet in the table.
+    _lost = sorted(d for d in readers if d not in set(dirs) and (ROOT / d).is_dir())
+    assert not _lost, (
+        f"{len(_lost)} directory(ies) are read by an emitter but hold no released file: {_lost}. The "
+        f"sweep cannot reproduce from the archive alone; commit the records or stop reading them.")
     rows, counts = [], defaultdict(int)
     for d in dirs:
         who = sorted(readers.get(d, ()))
@@ -361,10 +397,10 @@ def main():
         rows.append(dict(path=d, label=label, readers=who,
                          sites=sorted(dir_sites.get(d, set()) - scans),
                          in_matrix=d in survived,
-                         n_json=len(list((ROOT / d).rglob("*.json"))),
+                         n_json=sum(1 for f in (ROOT / d).rglob("*.json") if in_release(f)),
                          note=DIR_NOTES.get(d)))
 
-    top = sorted(p.name for p in RESULTS.glob("*.json"))
+    top = sorted(p.name for p in RESULTS.glob("*.json") if in_release(p))
     top_rows = [dict(name=n, readers=sorted(top_readers.get(n, ()))) for n in top]
 
     L = []
