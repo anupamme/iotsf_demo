@@ -622,6 +622,59 @@ def rederive():
         "rerun_two_cells.sh's two invocations no longer match the prose: it says both cells run "
         "condition B at seed 42, the TimesFM one at n=1,000")
 
+    # -- every results/ path the reproducibility statement names in \texttt{} has to be a real file.
+    # Not a number, so no chk() can carry it, and it is the one kind of claim in that section a
+    # reviewer checks FIRST: the statement said the prospective predictions were written to
+    # "preregistration.json under results/", and results/preregistration.json does not exist -- the
+    # file is results/v47_prospective/preregistration.json, and the second batch's registration was
+    # not named at all. Existence in a clean clone is the right test because an untracked file would
+    # not be in one, which is exactly the reader's situation.
+    _stmt = (ROOT / "paper_8/sections/09_statements.tex").read_text()
+    _named = {m.replace("\\_", "_") for m in
+              re.findall(r"\\texttt\{(results/[A-Za-z0-9_\\/.]+?)\}", _stmt)}
+    assert _named, "no results/ path is named in the reproducibility statement any more"
+    _absent = sorted(p for p in _named if not (ROOT / p).exists())
+    assert not _absent, (
+        f"the reproducibility statement names {_absent}, which a reader cloning the release will not "
+        f"find; name the path that exists or add the file")
+    R["n_named_paths"] = len(_named)
+
+    # -- the positive control's dose ladder, from the REGISTRATION rather than from the module: the
+    # registration is what was fixed before the runs, and it is the artifact a reader checks. The
+    # module constant is asserted to agree, so a later edit to either one fails here.
+    # The body named three rungs and stopped. The declared extension to 1e-1 WAS taken -- the appendix
+    # says so and counts 21 runs on the strength of it -- so a reader multiplying the body's grid out
+    # got 18 and a contradiction with the appendix the same sentence cites. The body now calls its
+    # grid "the registered" one and the extension is checked at the appendix site that explains it;
+    # the registered rungs and the extension are kept as separate values because the difference
+    # between them is the difference between a pre-registration honoured and one exceeded.
+    _pc = json.load(open(ROOT / "results/positive_control/preregistration.json"))["grid"]
+    import preregister_positive_control as _ppc
+    assert _pc["learning_rates"] == _ppc.LADDER_LRS, (
+        f'preregister_positive_control.LADDER_LRS is now {_ppc.LADDER_LRS} against the registered '
+        f'{_pc["learning_rates"]}; the registration is what the arm ran')
+    R["pc_lr_exps"] = tuple(round(-math.log10(_l)) for _l in _pc["learning_rates"])
+    R["pc_seeds"] = len(_pc["seeds"])
+    R["pc_ext_exp"] = round(-math.log10(_pc["declared_extension_lr"]))
+    assert R["pc_lr_exps"] == (4, 3, 2) and R["pc_seeds"] == 3 and R["pc_ext_exp"] == 1, (
+        f'the positive control\'s ladder is now 1e-{R["pc_lr_exps"]} at {R["pc_seeds"]} seeds with '
+        f'the extension at 1e-{R["pc_ext_exp"]}; S7 states all three')
+    # The extension is stated in the body only because it was actually run: if no record carries it,
+    # the body should say the rule permitted it and it was not needed, which is a different sentence.
+    _pc_lrs = set()
+    for _f in _glob.glob(str(ROOT / "results/positive_control/**/*.json"), recursive=True):
+        if "prereg" in _f:
+            continue
+        try:
+            _d = json.load(open(_f))
+        except Exception:
+            continue
+        if isinstance(_d, dict) and "lr" in _d:
+            _pc_lrs.add(_d["lr"])
+    assert _pc["declared_extension_lr"] in _pc_lrs, (
+        f"S7 says the arm went on to the pre-declared extension, but no positive-control record "
+        f"carries lr={_pc['declared_extension_lr']}; the rungs present are {sorted(_pc_lrs)}")
+
     # -- the LoRA value-cell arm (app:loravaluecells). Read through cell_matrix rather than from the
     # emitted table, so the prose is checked against the records and not against the same file it was
     # written from.
@@ -2089,6 +2142,51 @@ def build_checks(R):
     # different phrasing, and it already has a chk ("two-cell: Moirai's sample count") -- which is why
     # no second one is registered here. The two now read one value; see rederive().
     chk("the horizons the body reports at", r"at \$h\{=\}(\d+)\$ and \$h\{=\}(\d+)\$", *R["moirai_h"])
+    # The same two horizons in set form, which is how S6 and the limitations contrast the Moirai arm
+    # against the h=24 backbones. One pattern, two groups, and it reaches every site of that phrasing.
+    chk("the horizons, in the form the cross-backbone caveat uses",
+        r"\$h\{\\in\}\\\{(\d+),(\d+)\\\}\$", *R["moirai_h"])
+    # The baseline's lookback where the body names it in words rather than in the ridge's shape: the
+    # gate is called "the lookback-96 linear regression" in S1 and S2, two sites this reaches and the
+    # shape pattern in S3 does not.
+    chk("the baseline named by its lookback", r"lookback-(\d+) linear regression",
+        R["ridge_lookback"])
+    # And the asymmetry again, in S4's robustness form ("giving the baseline Moirai's own 96+h context
+    # instead of 96"), where the two numbers straddle a line break.
+    chk("the context asymmetry, where S4 tests removing it",
+        r"Moirai's own \$(\d+)\{\+\}h\$ context instead of\s+\$(\d+)\$",
+        R["ridge_lookback"], R["ridge_lookback"])
+    chk("the interval level, where S5 reports the paired intervals",
+        r"Paired \$(\d+)\\%\$ intervals", R["ci_pct"])
+    # The sweep grid's endpoints in the two abbreviated forms the experiment sections use. The full
+    # five-value grid is registered at its S3 site; these name only the ends, and the low end is
+    # printed with a thousands separator, so the separator is in the pattern.
+    chk("the sweep's endpoints, abbreviated",
+        r"\$n\{\\in\}\\\{(\d+),\\ldots,(\d+)\\mathrm\{k\}\\\}\$",
+        R["n_grid_printed"][0], R["n_grid_printed"][-1])
+    # Anchored on the sentence, not on the "$n{=}X$k" form: that form labels five different sample
+    # sizes across the paper, so a bare pattern binds every one of them to the top of the grid and
+    # fails at n=1k and n=5k. A pattern that matches a LABEL is not a claim about a value.
+    chk("the top of the sweep, where S5 calls its sign fragile",
+        r"\\textbf\{The \$n\{=\}(\d+)\$k sign is fragile\}", R["n_grid_printed"][-1])
+    chk("the bottom of the sweep, with its separator",
+        r"fine-tuning on (\d+)--(\d+)\{,\}000 samples",
+        R["n_grid_printed"][0], R["n_grid_printed"][1])
+    # The positive control's dose ladder, as REGISTERED. The word "registered" is load-bearing and is
+    # inside the pattern: the arm also ran the declared extension to 1e-1, so a body sentence naming
+    # three rungs without that word implies its grid is the whole list of runs, and a reader
+    # multiplying it out gets 18 against the appendix's 21. One word rather than a clause because the
+    # body has no line to spare -- spelling the extension out here cost two typeset lines and pushed
+    # the Ethics Statement off page 10, which is the submission's hard page gate.
+    chk("the positive control's registered dose ladder",
+        r"the registered\s+\$\\text\{lr\}\\in\\\{10\^\{-(\d)\},10\^\{-(\d)\},10\^\{-(\d)\}\\\}\$ "
+        r"crossed with both conditions at (\d) seeds", *R["pc_lr_exps"], R["pc_seeds"])
+    # The extension itself, at the appendix site that explains it, where there is no page limit. Both
+    # numbers in one pattern because the claim is conditional -- the rung the rule permitted AND the
+    # rung whose outcome triggered it -- and either alone would pass with the condition inverted.
+    chk("the declared extension, and the rung that triggered it",
+        r"one extension to \$\\text\{lr\}\{=\}10\^\{-(\d)\}\$ if destruction was not\s+"
+        r"achieved at \$10\^\{-(\d)\}\$", R["pc_ext_exp"], R["pc_lr_exps"][-1])
 
     # --- the two design constants S3 states and the code acts on everywhere downstream.
     chk("the gate's operating point, where S3 defines it",

@@ -146,12 +146,13 @@ which split a given number was scored on.
 
 \textbf{Pre-registration.}  The prospective test of
 \S\ref{sec:analysis:prospective} was registered before any outcome run for
-those cells existed.  The predictions were written to
-\texttt{preregistration.json} under \texttt{results/}, and committed before the
-first condition-B or condition-D run of that arm was launched; the scorer,
-\texttt{score\_prospective.py}, reads that file and the finished runs and makes
-no decisions of its own.  Both are in the release, and the commit that added
-the registration precedes the runs it scores, so the ordering is checkable from
+those cells existed: \texttt{results/v47\_prospective/preregistration.json} for
+the first batch and \texttt{results/v57\_prospective3/preregistration\_v3.json}
+for the second, each committed before the first condition-B or condition-D run
+of its own arm was launched.  The scorer,
+\texttt{score\_prospective.py}, reads those files and the finished runs and makes
+no decisions of its own.  All are in the release, and each registration's commit
+precedes every run it scores, so the ordering is checkable from
 the history rather than asserted by us.  The Chronos/M4-Monthly re-run of
 Appendix~\ref{app:chronos_detail} carries a second registration
 (\texttt{results/chronos\_m4/preregistration.json}), on the same terms and with
