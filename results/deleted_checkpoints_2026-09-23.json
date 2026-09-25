@@ -1,0 +1,351 @@
+{
+ "why": "volume at 179 MB free on 2026-09-23; TIER C regeneration inputs, no emitter reads them",
+ "kept": "the 59 encoders drift_metric_battery --compute globs, every .pt tracked in HEAD, results/positive_control/*.pt, and anything a live chain writes",
+ "files": [
+  {
+   "path": "results/v37_chronos_etth2/cond_B/mse_etth2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T10:45:51"
+  },
+  {
+   "path": "results/v37_chronos_etth2/cond_B/mse_etth2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T10:54:54"
+  },
+  {
+   "path": "results/v37_chronos_etth2/cond_B/mse_etth2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T11:05:56"
+  },
+  {
+   "path": "results/v37_chronos_etth2/cond_D/mse_etth2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T11:16:53"
+  },
+  {
+   "path": "results/v37_chronos_etth2/cond_D/mse_etth2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T11:27:52"
+  },
+  {
+   "path": "results/v37_chronos_etth2/cond_D/mse_etth2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-21T11:38:41"
+  },
+  {
+   "path": "results/v38_chronos_converged/cond_B/mse_etth1/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-22T20:54:08"
+  },
+  {
+   "path": "results/v38_chronos_converged/cond_B/mse_etth1/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-22T21:06:40"
+  },
+  {
+   "path": "results/v38_chronos_converged/cond_B/mse_etth1/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-22T21:17:51"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T07:54:25"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T07:54:25"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T08:07:55"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T08:07:55"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T08:19:27"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth1/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T08:19:27"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T08:32:21"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T08:32:21"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T08:45:12"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T08:45:12"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T08:57:54"
+  },
+  {
+   "path": "results/v39_chronos_heldout/cond_B/mse_etth2/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T08:57:54"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T01:51:40"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T01:51:40"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T02:09:34"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T02:09:34"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T02:23:21"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_electricity/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T02:23:21"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T23:02:05"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T23:02:05"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-23T23:33:12"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-23T23:33:12"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T00:12:03"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_ettm2/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T00:12:03"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T00:33:41"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T00:33:41"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T01:02:03"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T01:02:03"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-24T01:31:49"
+  },
+  {
+   "path": "results/v42_chronos_matrix/cond_B/mse_weather/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-24T01:31:49"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T05:18:49"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T05:18:49"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T05:29:12"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T05:29:12"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T05:38:37"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_electricity/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T05:38:37"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T02:00:41"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T02:00:41"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T02:11:35"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T02:11:35"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T02:25:39"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth1/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T02:25:39"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T02:37:47"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T02:37:47"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T02:53:12"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T02:53:12"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T03:08:23"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_etth2/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T03:08:23"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T04:23:33"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T04:23:33"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T04:50:34"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T04:50:34"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T05:04:49"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_ettm2/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T05:04:49"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed42/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T03:29:26"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed42/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T03:29:26"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed43/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T03:48:04"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed43/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T03:48:04"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed44/best_encoder.pt",
+   "bytes": 83936359,
+   "mtime": "2026-08-25T04:07:40"
+  },
+  {
+   "path": "results/v44_chronos_guarded/cond_B/mse_weather/seed44/best_head.pt",
+   "bytes": 51189,
+   "mtime": "2026-08-25T04:07:40"
+  }
+ ]
+}
