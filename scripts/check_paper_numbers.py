@@ -1366,18 +1366,26 @@ def rederive():
     # of one cell. S6 prints only the two CKAs, so the "indistinguishable on the task" half is an
     # assert on the outcome difference against its own standard error: records that pulled the
     # outcomes apart would leave S6 numerically correct and its sentence false.
+    # final_weight_drift is read here for the first time on 2026-09-26. The appendix's "Finding"
+    # paragraph has printed 9.42+-1.25 and 13.47+-0.75 as HAND-TYPED numerals since the re-run, i.e. the
+    # exact failure mode the emitter guarantee exists to close, and the new four-rung paragraph restates
+    # both. Registering them at both sites rather than only at the new one: coverage is per phrasing.
     for _n in (3, 6):
         _fs = sorted(glob.glob(str(
             ROOT / f"results/v49_layerunfreeze_10seed/N{_n}_seed*/*.json")))
         _v = np.array([[json.loads(Path(f).read_text())[k]
-                        for k in ("final_cka", "forgetting_pct")] for f in _fs])
+                        for k in ("final_cka", "forgetting_pct", "final_weight_drift")]
+                       for f in _fs])
         assert len(_v) == 10, f"the N={_n} unfreeze arm has {len(_v)} seeds, not the matched 10"
         R[f"lu{_n}_cka"] = float(_v[:, 0].mean())
         R[f"lu{_n}_cka_sd"] = float(_v[:, 0].std(ddof=1))
+        R[f"lu{_n}_cka_sem"] = R[f"lu{_n}_cka_sd"] / len(_v) ** 0.5
         R[f"lu{_n}_forg"] = abs(float(_v[:, 1].mean()))
         R[f"lu{_n}_forg_sd"] = float(_v[:, 1].std(ddof=1))
         R[f"lu{_n}_sem"] = R[f"lu{_n}_forg_sd"] / len(_v) ** 0.5
         R[f"lu{_n}_neg"] = int((_v[:, 1] < 0).sum())
+        R[f"lu{_n}_drift"] = float(_v[:, 2].mean())
+        R[f"lu{_n}_drift_sem"] = float(_v[:, 2].std(ddof=1)) / len(_v) ** 0.5
     R["lu_cka_gap"] = R["lu3_cka"] - R["lu6_cka"]
     R["lu_cka_se"] = R["lu_cka_gap"] / (
         (R["lu3_cka_sd"] ** 2 + R["lu6_cka_sd"] ** 2) ** 0.5 / 10 ** 0.5)
@@ -1388,6 +1396,179 @@ def rederive():
         f'the two matched unfreeze depths now differ by {R["lu_forg_se"]:.2f} SE on the task and '
         f'{R["lu_cka_se"]:.2f} SE on CKA; S6 says indistinguishable on the former, separated on the '
         f'latter, which is the whole dissociation that sentence reports')
+
+    # (c-bis) the N=4 and N=5 rungs, topped up from one final-epoch seed each to three early-stopped
+    # seeds on 2026-09-25 under results/v49_layerunfreeze_10seed/preregistration_ladder.json, which was
+    # committed before the first of the six runs. Read here rather than typed into the table, because
+    # tab:layerunfreeze is an INLINE tabular -- the "every table has an emitter" guarantee covers only
+    # the \input-ed ones, so these chk() sites are the whole of its protection.
+    #
+    # TWO dispersion conventions are computed on purpose. The registration fixed "population std
+    # (ddof=0)" for these rows AND asserted, wrongly, that ddof=0 is what tab:layerunfreeze already
+    # uses -- the N=3/N=6 rows above are std(ddof=1). A registration is authoritative on the CHOICE it
+    # fixed and never on a fact it states, so the choice stands, the paper carries the correction, and
+    # the provenance paragraph prints the ddof=1 values too so the two row groups can be compared on one
+    # convention. Both are registered below, which is what stops either being quietly swapped.
+    for _n in (4, 5):
+        _fs = sorted(glob.glob(str(
+            ROOT / f"results/v49_layerunfreeze_10seed/N{_n}_seed*/condition_D_h96_s*.json")))
+        _ds = [json.loads(Path(f).read_text()) for f in _fs]
+        assert len(_ds) == 3, (
+            f'the N={_n} rung has {len(_ds)} record(s), not the 3 seeds the ladder registration fixed; '
+            f'report the rung at the seed count on disk or not at all')
+        assert sorted(d["seed"] for d in _ds) == [42, 101, 123], (
+            f'the N={_n} rung ran seeds {sorted(d["seed"] for d in _ds)}, not the registered 42/101/123')
+        _v = np.array([[d["final_cka"], d["forgetting_pct"], d["final_weight_drift"],
+                        d["early_stopping"]["final_epoch_forgetting_pct"],
+                        d["early_stopping"]["best_epoch"],
+                        d["linear_probe"]["r2_delta"]] for d in _ds])
+        R[f"lu{_n}_cka"], R[f"lu{_n}_cka_sd0"] = float(_v[:, 0].mean()), float(_v[:, 0].std(ddof=0))
+        R[f"lu{_n}_cka_sd1"] = float(_v[:, 0].std(ddof=1))
+        R[f"lu{_n}_cka_sem"] = R[f"lu{_n}_cka_sd1"] / 3 ** 0.5
+        R[f"lu{_n}_forg"] = float(_v[:, 1].mean())
+        # abs(), because the pair's lu3_forg/lu6_forg above are abs() and every prose site prints the
+        # sign as a literal "-" outside the captured group. One convention per column or the chk
+        # patterns silently stop matching the rows they were written for.
+        R[f"lu{_n}_forg_abs"] = abs(R[f"lu{_n}_forg"])
+        R[f"lu{_n}_forg_sd0"] = float(_v[:, 1].std(ddof=0))
+        R[f"lu{_n}_forg_sd1"] = float(_v[:, 1].std(ddof=1))
+        R[f"lu{_n}_sem"] = R[f"lu{_n}_forg_sd1"] / 3 ** 0.5
+        R[f"lu{_n}_neg"] = int((_v[:, 1] < 0).sum())
+        # The per-seed extremes, because the footnote attributes the rung's spread to named seeds: it
+        # says the earliest-stopping seed is the most improved at BOTH rungs, which is a claim about
+        # which seed, not only about the spread's width.
+        R[f"lu{_n}_forg_best"] = abs(float(_v[:, 1].min()))
+        R[f"lu{_n}_forg_worst"] = float(_v[:, 1].max())
+        R[f"lu{_n}_earliest_seed"] = int(_ds[int(_v[:, 4].argmin())]["seed"])
+        assert _ds[int(_v[:, 4].argmin())]["forgetting_pct"] == float(_v[:, 1].min()), (
+            f'at N={_n} the earliest-stopping seed is no longer the most improved one; the caption '
+            f'footnote says it is, at both topped-up rungs')
+        R[f"lu{_n}_drift"], R[f"lu{_n}_drift_sd0"] = (
+            float(_v[:, 2].mean()), float(_v[:, 2].std(ddof=0)))
+        # The withdrawn probe column, registered ONLY because the two new table rows print it as an
+        # audit record beside the rows that already did. A registered check on a retracted quantity is
+        # a check that the record was transcribed, not a claim that the quantity means anything.
+        R[f"lu{_n}_dr2"], R[f"lu{_n}_dr2_sd0"] = (
+            float(_v[:, 5].mean()), float(_v[:, 5].std(ddof=0)))
+        R[f"lu{_n}_dr2_pos"] = int((_v[:, 5] > 0).sum())
+        # The final-epoch mean is what makes the supersession checkable rather than asserted: the
+        # single seeds this rung replaces were final-epoch readings, so the provenance paragraph
+        # compares like with like before saying the new reading differs.
+        R[f"lu{_n}_fe_forg"] = float(_v[:, 3].mean())
+        R[f"lu{_n}_best_ep"] = sorted(int(e) for e in _v[:, 4])
+        # Both zero-shot references must be the one the matched arms used, or the rung is not on the
+        # same footing as the rows it is printed beside and no gap between them means anything.
+        # The zero-shot reference must be the one the matched N=3/N=6 arms used at the SAME SEED. It is
+        # per-seed, not per-arm: Moirai scores the median of 20 sampled forecasts and the sampling is
+        # seeded, so each seed carries its own zero-shot and each forgetting_pct is a paired quantity
+        # against its own reference. An earlier version of this assert compared all three records
+        # against one arm's single value and fired on a correct run; the per-seed form is both right and
+        # stricter, and it is what makes a gap between these rows and the pair's mean interpretable.
+        # Equality is exact, not approximate: the same frozen checkpoint on the same windows at the same
+        # seed either reproduces to the bit or was run in a different environment.
+        for _d in _ds:
+            for _m in (3, 6):
+                _g = glob.glob(str(ROOT / f"results/v49_layerunfreeze_10seed/N{_m}_seed{_d['seed']}"
+                                          f"/*_h96_s{_d['seed']}.json"))
+                assert len(_g) == 1, (
+                    f'no single N={_m} record at seed {_d["seed"]} to pair the N={_n} rung against')
+                _zs = json.loads(Path(_g[0]).read_text())["zeroshot_mse"]
+                assert _d["zeroshot_mse"] == _zs, (
+                    f'the N={_n} rung at seed {_d["seed"]} has zero-shot {_d["zeroshot_mse"]!r} '
+                    f'against the N={_m} arm\'s {_zs!r} at the same seed; it was run in a different '
+                    f'environment and cannot be printed beside the N=3/N=6 rows')
+
+    # (c-ter) the four-rung profile, as the appendix reads it. Every quantity here is a statement ACROSS
+    # rungs, so none of it can be derived inside the per-rung loops above.
+    _lad = [(3, -R["lu3_forg"]), (4, R["lu4_forg"]), (5, R["lu5_forg"]), (6, -R["lu6_forg"])]
+    _lf = [f for _, f in _lad]
+    R["lu_forg_span"] = max(_lf) - min(_lf)
+    # min/max over the four rungs rather than naming two of them: "standard errors of 2.0 to 5.1" is a
+    # claim about the range, and a rung whose SEM moved past an endpoint would leave a hard-coded pair
+    # of keys printing a range that is no longer the range.
+    _sems = [R[f"lu{_n}_sem"] for _n in (3, 4, 5, 6)]
+    R["lu_sem_lo"], R["lu_sem_hi"] = min(_sems), max(_sems)
+    R["lu46_se"] = abs(R["lu4_forg"] - (-R["lu6_forg"])) / (
+        (R["lu4_sem"] ** 2 + R["lu6_sem"] ** 2) ** 0.5)
+    # The two triggers the ladder registration fixed BEFORE these runs, asserted rather than chk()ed:
+    # neither is a numeral, and they are what decides whether the body sentence may be widened to four
+    # depths or must stay at the matched pair. If a re-run ever made the profile monotone AND put both
+    # thin rungs inside the pair's range, the registration's other branch applies and this appendix's
+    # "we read no trend from it" paragraph would be the stale one.
+    _mono = all(a <= b for a, b in zip(_lf, _lf[1:])) or all(a >= b for a, b in zip(_lf, _lf[1:]))
+    _pair_lo, _pair_hi = min(-R["lu3_forg"], -R["lu6_forg"]), max(-R["lu3_forg"], -R["lu6_forg"])
+    _outside = [n for n, f in _lad if n in (4, 5) and not _pair_lo <= f <= _pair_hi]
+    assert (not _mono) or _outside, (
+        f'the forgetting ladder {[f"{n}:{f:+.1f}" for n, f in _lad]} is now monotone in N with both '
+        f'thin rungs inside the matched pair\'s range, which is the registration\'s OTHER branch: '
+        f'app:layerunfreeze reports the narrowing branch and S6 names the pair only')
+    # CKA is non-monotone too, and the appendix says the first three rungs sit inside one another's
+    # dispersion so their ordering must not be read. That is the load-bearing half: a reader who took
+    # 0.716 < 0.741 < 0.747 as a trend would have a depth story the seeds do not support.
+    _ck = [R["lu3_cka"], R["lu4_cka"], R["lu5_cka"]]
+    _ck_sem = [R["lu3_cka_sem"], R["lu4_cka_sem"], R["lu5_cka_sem"]]
+    assert max(_ck) - min(_ck) < min(_ck_sem), (
+        f"the first three unfreeze rungs' CKAs {[f'{c:.3f}' for c in _ck]} now span "
+        f"{max(_ck) - min(_ck):.3f}, more than the smallest of their standard errors "
+        f"{min(_ck_sem):.3f}; the appendix says their ordering should not be read")
+    assert R["lu6_cka"] < min(_ck) - 2 * max(_ck_sem), (
+        f'the appendix calls the CKA profile flat to N=5 and then collapsing; N=6 is now '
+        f'{R["lu6_cka"]:.3f} against a flat stretch at {min(_ck):.3f}--{max(_ck):.3f}')
+
+    # (c-quater) the two SUPERSEDED single-seed rungs. Registered because the provenance paragraph's
+    # argument is a comparison against them -- "the same sign and order of magnitude at the same epoch"
+    # is only checkable if both sides are read from records. early_stopping.enabled is asserted False
+    # because "they read the final epoch rather than the best one" is the whole reason the new numbers
+    # differ; if these records had been early-stopped the supersession would need a different account.
+    for _n in (4, 5):
+        _d = json.loads((ROOT / f"results/v27_layer_unfreeze/n{_n}/condition_D_h96_s42.json").read_text())
+        assert _d["early_stopping"]["enabled"] is False and _d["epochs"] == 20, (
+            f'the superseded N={_n} record is no longer an un-early-stopped 20-epoch run; '
+            f'app:layerunfreeze explains its value by exactly that')
+        R[f"lu{_n}_old_cka"] = _d["final_cka"]
+        R[f"lu{_n}_old_forg"] = _d["forgetting_pct"]
+        # Same sign at the same epoch is the claim, so it is asserted and not merely printed.
+        assert R[f"lu{_n}_old_forg"] > 0 and R[f"lu{_n}_fe_forg"] > 0, (
+            f'the N={_n} rung\'s superseded reading ({R[f"lu{_n}_old_forg"]:+.1f}) and the new runs\' '
+            f'own final-epoch mean ({R[f"lu{_n}_fe_forg"]:+.1f}) no longer share a sign; the provenance '
+            f'paragraph calls the supersession a difference in which epoch is scored')
+
+    # (c-quinquies) the per-layer CKA profile. Another hand-typed inline tabular under app:layerunfreeze,
+    # registered here for the first time on 2026-09-26 because the new four-rung paragraph reads three of
+    # its values (layers 3, 2 and 1) as the rungs the ladder adds. Registering the three restated values
+    # alone would leave the other nine in the same table unprotected, so the whole table is read.
+    _pl = {}
+    for _tag, _f in (("v49", "per_layer_cka_N6.json"), ("v19", "per_layer_cka_v19_reference.json")):
+        _j = json.loads((ROOT / f"results/v49_layerunfreeze_10seed/{_f}").read_text())
+        assert _j["n_ckpts"] == 10, f"the {_tag} per-layer profile is over {_j['n_ckpts']} checkpoints, not 10"
+        _p = [np.array(_j["per_layer_pooled"][str(_i)]) for _i in range(6)]
+        _pl[_tag] = _p
+        for _i, _a in enumerate(_p, start=1):
+            R[f"pl_{_tag}_l{_i}"], R[f"pl_{_tag}_l{_i}_sd"] = float(_a.mean()), float(_a.std(ddof=1))
+        R[f"pl_{_tag}_bot3"] = float(np.mean([_a.mean() for _a in _p[:3]]))
+        R[f"pl_{_tag}_top3"] = float(np.mean([_a.mean() for _a in _p[3:]]))
+        R[f"pl_{_tag}_all6"] = float(np.mean([_a.mean() for _a in _p]))
+        # The flattened floor the "scale caveats" paragraph gives as >=0.94.
+        R[f"pl_{_tag}_flat_lo"] = float(min(
+            np.array(_j["per_layer_flat"][str(_i)]).mean() for _i in range(6)))
+        # A ">=" claim, so no chk() can carry it: the paragraph says every layer reads >=0.94 when the
+        # CKA is computed token-flattened, which is the caveat that stops a reader ordering the pooled
+        # profile without knowing how fragile the ordering is to that choice.
+        assert R[f"pl_{_tag}_flat_lo"] >= 0.94, (
+            f'the {_tag} token-flattened profile now bottoms at {R[f"pl_{_tag}_flat_lo"]:.3f}; '
+            f'app:layerunfreeze says every layer reads at least 0.94 under that convention')
+        # The two readings the appendix says BOTH record sets agree on. Asserted, not printed: they are
+        # what the paragraph concludes, and a record set that stopped agreeing would leave every numeral
+        # in the table correct and the sentence above it false.
+        assert _p[3].mean() == min(_a.mean() for _a in _p), (
+            f"the {_tag} per-layer trough is no longer at layer 4; app:layerunfreeze says the drift is "
+            f"concentrated mid-stack in both record sets")
+        assert R[f"pl_{_tag}_top3"] < R[f"pl_{_tag}_bot3"], (
+            f"in the {_tag} set the top 3 layers no longer drift more than the bottom 3; that inversion "
+            f"is the earlier version's error this paragraph corrects")
+    assert R["pl_v49_all6"] > R["lu6_cka"] + 0.3, (
+        f'the per-layer mean {R["pl_v49_all6"]:.3f} and the global CKA {R["lu6_cka"]:.3f} no longer '
+        f'differ enough for the scale caveat that says the first is not the second')
 
     # (c2) S5.2's mitigation reading, added 25 Sep 2026. The body now states that within the four arms
     # trained at n=1,000 on Moirai-Small/ETTh2, CKA does not order utility. Read through
@@ -3175,6 +3356,109 @@ def build_checks(R):
         r"\$-([\d.]+)\{\\pm\}([\d.]+)\$\\% \((\d+)/10 neg\.\)",
         R["lu3_cka"], R["lu3_cka_sd"], R["lu3_forg"], R["lu3_forg_sd"], R["lu3_neg"],
         R["lu6_cka"], R["lu6_cka_sd"], R["lu6_forg"], R["lu6_forg_sd"], R["lu6_neg"])
+    chk("layer-unfreeze: the pair's weight drift (appendix Finding)",
+        r"separates them the same way \(\$([\d.]+)\{\\pm\}([\d.]+)\$ against "
+        r"\$([\d.]+)\{\\pm\}([\d.]+)\$, SEM\)",
+        R["lu3_drift"], R["lu3_drift_sem"], R["lu6_drift"], R["lu6_drift_sem"])
+    # --- the topped-up rungs (2026-09-26). Both new rows in ONE pattern for the same reason the pair's
+    # rows are: the rungs are adjacent and interchangeable in shape, and swapping them would leave the
+    # table internally consistent while inverting which depth is the more improved one. The withdrawn
+    # ridge column IS captured here, unlike in the pair's pattern above, because these two rows are new
+    # transcriptions of it -- the check is that a record was copied correctly, not that the quantity means
+    # anything; S:retraction still says it supports no claim.
+    chk("layer-unfreeze: the two topped-up 3-seed rows",
+        r"4 \(top-4\) & 4/6 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$\+([\d.]+)\{\\pm\}([\d.]+)\$ "
+        r"\((\d)/3\) & \$-([\d.]+)\{\\pm\}([\d.]+)\$\\% \((\d)/3 neg\.\) \\\\ "
+        r"5 \(top-5\) & 5/6 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$\+([\d.]+)\{\\pm\}([\d.]+)\$ "
+        r"\((\d)/3\) & \$-([\d.]+)\{\\pm\}([\d.]+)\$\\% \((\d)/3 neg\.\)",
+        R["lu4_cka"], R["lu4_cka_sd0"], R["lu4_dr2"], R["lu4_dr2_sd0"], R["lu4_dr2_pos"],
+        R["lu4_forg_abs"], R["lu4_forg_sd0"], R["lu4_neg"],
+        R["lu5_cka"], R["lu5_cka_sd0"], R["lu5_dr2"], R["lu5_dr2_sd0"], R["lu5_dr2_pos"],
+        R["lu5_forg_abs"], R["lu5_forg_sd0"], R["lu5_neg"])
+    # The same two rows under the OTHER dispersion convention. Registered as its own site because the
+    # footnote exists precisely so the two row groups can be compared on one convention: if these ever
+    # drifted to match the row above them, the disclosure would still read as a disclosure and mean
+    # nothing.
+    chk("layer-unfreeze: the topped-up rows under the pair's ddof=1 convention",
+        r"CKA \$([\d.]+)\{\\pm\}([\d.]+)\$ and \$([\d.]+)\{\\pm\}([\d.]+)\$ and forgetting "
+        r"\$-([\d.]+)\{\\pm\}([\d.]+)\$\\% and \$-([\d.]+)\{\\pm\}([\d.]+)\$\\%, i\.e\.\\ standard "
+        r"errors of \$([\d.]+)\$ and \$([\d.]+)\$ points",
+        R["lu4_cka"], R["lu4_cka_sd1"], R["lu5_cka"], R["lu5_cka_sd1"],
+        R["lu4_forg_abs"], R["lu4_forg_sd1"], R["lu5_forg_abs"], R["lu5_forg_sd1"],
+        R["lu4_sem"], R["lu5_sem"])
+    chk("layer-unfreeze: the earliest-stopping seed is the most improved at both rungs",
+        r"\(seed~(\d+), best epoch 1 of 20\) is also the most improved \(\$-([\d.]+)\$\\% and "
+        r"\$-([\d.]+)\$\\%\)",
+        R["lu4_earliest_seed"], R["lu4_forg_best"], R["lu5_forg_best"])
+    chk("layer-unfreeze: what the N=5 spread is",
+        r"spread is that seed against seed~123's \$\+([\d.]+)\$\\%", R["lu5_forg_worst"])
+    # The supersession, at both sites that state it: the caption footnote and the provenance paragraph.
+    # Two phrasings of one fact, and this is the fact a reader most needs not to have drifted, because it
+    # is the paper's own account of why two published numbers changed sign.
+    chk("layer-unfreeze: the superseded values and their final-epoch reproduction (footnote)",
+        r"these two rows replace \(\$\+([\d.]+)\$\\% and \$\+([\d.]+)\$\\%\) are reproduced by the new "
+        r"runs' own final-epoch readings \(\$\+([\d.]+)\$\\% and \$\+([\d.]+)\$\\%\)",
+        R["lu4_old_forg"], R["lu5_old_forg"], R["lu4_fe_forg"], R["lu5_fe_forg"])
+    chk("layer-unfreeze: the superseded single-seed readings (provenance)",
+        r"at the final epoch, at \$\+([\d.]+)\$\\% and \$\+([\d.]+)\$\\% forgetting",
+        R["lu4_old_forg"], R["lu5_old_forg"])
+    chk("layer-unfreeze: the final-epoch means against the restored ones (provenance)",
+        r"final-epoch means are \$\+([\d.]+)\$\\% at \$N\{=\}4\$ and \$\+([\d.]+)\$\\% at \$N\{=\}5\$.{0,120}?"
+        r"against \$-([\d.]+)\$\\% and \$-([\d.]+)\$\\% once the best-val checkpoint is restored",
+        R["lu4_fe_forg"], R["lu5_fe_forg"], R["lu4_forg_abs"], R["lu5_forg_abs"])
+    chk("layer-unfreeze: the superseded CKAs (provenance)",
+        r"older single-seed CKAs \(\$([\d.]+)\$ and \$([\d.]+)\$\)",
+        R["lu4_old_cka"], R["lu5_old_cka"])
+    # The four-rung profile, in four patterns rather than one: each is a different column, and a single
+    # pattern spanning the paragraph would go unmatched (silently, at min_sites=1 it would fail loudly --
+    # which is worse here, because a reworded clause should not fail the three columns it did not touch).
+    chk("layer-unfreeze: the four-rung CKA and forgetting profile",
+        r"CKA reads \$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$ across \$N\{=\}3,4,5,6\$, "
+        r"and forgetting reads \$-([\d.]+)\$, \$-([\d.]+)\$, \$-([\d.]+)\$, \$-([\d.]+)\$\\%",
+        R["lu3_cka"], R["lu4_cka"], R["lu5_cka"], R["lu6_cka"],
+        R["lu3_forg"], R["lu4_forg_abs"], R["lu5_forg_abs"], R["lu6_forg"])
+    chk("layer-unfreeze: the first three rungs' CKA standard errors",
+        r"inside one another's dispersion \(standard errors \$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$\)",
+        R["lu3_cka_sem"], R["lu4_cka_sem"], R["lu5_cka_sem"])
+    chk("layer-unfreeze: the four-rung weight-drift profile",
+        r"same shape \(\$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$\)",
+        R["lu3_drift"], R["lu4_drift"], R["lu5_drift"], R["lu6_drift"])
+    chk("layer-unfreeze: the forgetting spread against its own standard errors",
+        r"four means span \$([\d.]+)\$ points on standard errors of \$([\d.]+)\$ to \$([\d.]+)\$",
+        R["lu_forg_span"], R["lu_sem_lo"], R["lu_sem_hi"])
+    chk("layer-unfreeze: three seeds resolve nothing",
+        r"\$N\{=\}4\$'s \$-([\d.]+)\$\\% against \$N\{=\}6\$'s \$-([\d.]+)\$\\% is \$([\d.]+)\$ "
+        r"standard errors of the difference",
+        R["lu4_forg_abs"], R["lu6_forg"], R["lu46_se"])
+    chk("layer-unfreeze: the layers the ladder adds are the least displaced ones",
+        r"under full unfreezing \(\$([\d.]+)\$, \$([\d.]+)\$, \$([\d.]+)\$\)",
+        R["pl_v49_l3"], R["pl_v49_l2"], R["pl_v49_l1"])
+    # --- the per-layer profile table itself, registered 2026-09-26. Twelve values, two group means per
+    # set and the pooled-vs-global caveat, in the row order the table prints them: a per-layer profile
+    # whose LAYERS were transposed would keep every numeral and invert the paragraph's conclusion, so the
+    # rows are matched as one block rather than value by value.
+    chk("per-layer CKA: the six layers, both record sets",
+        r"1 \(bottom\) & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & bottom 3 \\\\ "
+        r"2 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & bottom 3 \\\\ "
+        r"3 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & bottom 3 \\\\ "
+        r"4 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & top 3 \\\\ "
+        r"5 & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & top 3 \\\\ "
+        r"6 \(top\) & \$([\d.]+)\{\\pm\}([\d.]+)\$ & \$([\d.]+)\{\\pm\}([\d.]+)\$ & top 3",
+        *[R[k] for _i in range(1, 7)
+          for k in (f"pl_v49_l{_i}", f"pl_v49_l{_i}_sd", f"pl_v19_l{_i}", f"pl_v19_l{_i}_sd")])
+    chk("per-layer CKA: the two group means",
+        r"Bottom 3 mean & \$([\d.]+)\$ & \$([\d.]+)\$ & \\\\ Top 3 mean & \$([\d.]+)\$ & \$([\d.]+)\$",
+        R["pl_v49_bot3"], R["pl_v19_bot3"], R["pl_v49_top3"], R["pl_v19_top3"])
+    chk("per-layer CKA: the trough and the near-identity bottom layer",
+        r"a trough at layer~4 \(\$([\d.]+)\$ and \$([\d.]+)\$\) and near-identity at layer~1 "
+        r"\(\$([\d.]+)\$\)",
+        R["pl_v49_l4"], R["pl_v19_l4"], R["pl_v49_l1"])
+    chk("per-layer CKA: the top 3 drift more than the bottom 3",
+        r"\(\$([\d.]+)\$ against \$([\d.]+)\$; \$([\d.]+)\$ against \$([\d.]+)\$\), not less",
+        R["pl_v49_top3"], R["pl_v49_bot3"], R["pl_v19_top3"], R["pl_v19_bot3"])
+    chk("per-layer CKA: the per-layer mean is not the global figure",
+        r"\(\$([\d.]+)\$ pooled against the row's \$([\d.]+)\$\)",
+        R["pl_v49_all6"], R["lu6_cka"])
     chk("Moirai-Large LoRA: the learning rate decides the sign, not the rank",
         r"near-identical CKA \(\$([\d.]+)\$ against \$([\d.]+)\$",
         R["lora_deflr_cka"], R["lora_lowlr_cka"])

@@ -84,15 +84,21 @@ PROMISED = {
     "the LaTeX source": "paper_8/main.tex",
     "the conference style file": "paper_8/iclr2027_conference.sty",
     "the bibliography": "paper_8/main.bbl",
-    # All five, not a sample: "What we release" now promises "all five pre-registration files", and the
-    # Pre-registration paragraph says of the ones it names that "All are in the release". A gate that
-    # covered two of the five let the other three go missing without making the build fail.
+    # EVERY pre-registration, not a sample and no longer a count. "What we release" said "all five
+    # pre-registration files" while this dict pinned six: the seed top-up's registration was added here
+    # and the sentence was not, so the paper understated its own release for two rounds. The prose now
+    # says "every pre-registration file" with no numeral, and prereg_completeness() below is what makes
+    # that word true -- a gate that lists paths cannot notice a registration nobody listed.
     "the positive-control pre-registration": "results/positive_control/preregistration.json",
     "the prospective-arm pre-registration": "results/v47_prospective/preregistration.json",
     "the batch-3 pre-registration": "results/v57_prospective3/preregistration_v3.json",
     "the Chronos/M4 re-run pre-registration": "results/chronos_m4/preregistration.json",
     "the seed top-up pre-registration": "results/power_topup/preregistration_power.json",
-    "the LOCO pre-registration": "scripts/preregister_loco.py",
+    "the layer-unfreeze ladder pre-registration":
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
+    "the LOCO pre-registration (the registered analysis it writes)":
+        "results/preregister_loco.json",
+    "the LOCO pre-registration (the script that registered it)": "scripts/preregister_loco.py",
     "the task-B generator": "scripts/make_conflicting_series.py",
 }
 
@@ -185,6 +191,24 @@ def main():
                        "bundle is built from HEAD, not the worktree)" if v.endswith("MANIFEST.md")
                        else ""))
     print(f"  promised-inventory check: {len(PROMISED) - len(missing)}/{len(PROMISED)} present")
+
+    # ---- "every pre-registration file": the completeness half of that word. The dict above proves the
+    # listed registrations are PRESENT; it cannot notice one that exists in the bundle and was never
+    # listed, which is exactly how the paper came to say "five" while the dict pinned six. Anything in
+    # the staged tree whose name looks like a registration must be claimed by PROMISED, so adding a
+    # registration without adding it here fails the build rather than quietly weakening the sentence.
+    _claimed = set(PROMISED.values())
+    _looks_registered = sorted(
+        str(q.relative_to(staged)) for q in files
+        if re.search(r"prereg", q.name, re.I) and q.suffix in (".json", ".py"))
+    _unclaimed = [q for q in _looks_registered if q not in _claimed]
+    if _unclaimed:
+        fail.append(
+            f"PRE-REGISTRATION IN THE BUNDLE BUT NOT IN PROMISED: {_unclaimed}. The Reproducibility "
+            f"Statement says the release carries EVERY pre-registration file; add these to PROMISED "
+            f"(or drop them from the release) rather than leaving the claim unenforced")
+    print(f"  pre-registration completeness: {len(_looks_registered)} registration file(s) in the "
+          f"bundle, {len(_unclaimed)} unclaimed by PROMISED")
 
     # ---- the anonymity gate, allowlist disabled
     print("  anonymity check on the staged tree (allowlist NOT applied):")

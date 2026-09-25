@@ -1169,7 +1169,7 @@ and the range across all 31 cells is $0.092$ to $0.970$.  The condition-D row al
 needs a scope: D is uniform only within Moirai, and its 134 runs exclude the
 partial-unfreeze arm of Appendix~\ref{app:layerunfreeze}, whose runs are stored
 under the same \texttt{condition\_D} filenames and reach down to CKA $0.317$
-while three of six layers train.  Because D leaves \texttt{in\_proj}
+while three to five of six layers train.  Because D leaves \texttt{in\_proj}
 and \texttt{mask\_encoding} trainable (\S\ref{sec:method}), TimesFM's D falls as
 low as $0.376$, while Chronos's D and every condition-H run are exactly $1.0000$;
 only H is $1.0000$ by construction.
@@ -1842,10 +1842,29 @@ CUDA, at torch~2.14, which is above \texttt{uni2ts}'s declared \texttt{<2.5} pin
 but below which the NegativeBinomial component of Moirai's output mixture
 collapses to \texttt{total\_count}${=}0$ on MPS and training dies in the first
 NLL step; and \texttt{PYTORCH\_ENABLE\_MPS\_FALLBACK=1}, because
-\texttt{aten::\_cummax\_helper} has no MPS kernel.  The $N{=}0$, $N{=}4$ and
-$N{=}5$ rows are the older records, are \emph{not} matched to the re-run pair,
-and read the final epoch rather than the best one; $N{=}0$ is 5 seeds, not 10.
-They are context, not part of the comparison.
+\texttt{aten::\_cummax\_helper} has no MPS kernel.  The $N{=}0$ and $N{=}1$ rows
+are the older records, are \emph{not} matched to the re-run pair, and read the
+final epoch rather than the best one; $N{=}0$ is 5 seeds, not 10.  They are
+context, not part of the comparison.
+
+% The two thin rungs are now records rather than transcriptions, so this paragraph has to say what they
+% superseded and why the supersession is not a contradiction. The final-epoch comparison is the point:
+% the new runs STORE their own final-epoch forgetting alongside the best-val one
+% (early_stopping.final_epoch_forgetting_pct), so "the old values were a different epoch, not a
+% different result" is checkable from the release rather than asserted by us.
+\textbf{The $N{=}4$ and $N{=}5$ rungs were topped up, and what they superseded.}
+Those two rungs previously stood at one seed each, read at the final epoch, at
+$+4.1$\% and $+31.8$\% forgetting.  They are now 3 seeds each (42/101/123) under
+the pair's protocol, flag, environment and early-stopping rule, registered in
+\texttt{results/v49\_layerunfreeze\_10seed/preregistration\_ladder.json} and
+committed before the first of their six runs.  \textbf{The supersession is a
+difference in which epoch is scored, not a reversal}, and the new records make
+that checkable rather than asserted: each stores its own final-epoch forgetting
+beside its best-val one, and the final-epoch means are $+7.1$\% at $N{=}4$ and
+$+17.6$\% at $N{=}5$ -- the same sign and order of magnitude as the single seeds
+they replace -- against $-9.5$\% and $-3.5$\% once the best-val checkpoint is
+restored.  The older single-seed CKAs ($0.610$ and $0.644$) move the same way and
+for the same reason: 20 epochs of drift against the best-val epoch's.
 
 Because $N{=}6$ \emph{is} condition~B, re-running it also produced an unplanned
 cross-device replication of the cell that
@@ -1866,27 +1885,65 @@ LoRA-Large behaviour documented in Appendix~\ref{app:full_tables}: extreme
 partial freeze concentrates gradient pressure on a small number of parameters,
 requiring LR reduction to stabilise.
 
-\textbf{$N{=}3$, $N{=}4$, $N{=}5$ results.}
-Table~\ref{tab:layerunfreeze} shows results for $N{\in}\{3,6\}$ (10 seeds each),
-$N{=}0$ (5 seeds) and $N{\in}\{4,5\}$ (1 seed each).
-Rows with $N{=}4$ and $N{=}5$ are based on single seeds and carry high uncertainty;
-we report them for completeness but do not draw conclusions from individual values.
+% Reported as found, per the registration's non_monotone_outcome rule. Both of its narrowing triggers
+% fired: forgetting is non-monotone in N, and BOTH thin rungs' means sit outside the matched pair's
+% range (N=4 below it, N=5 above). The rule was fixed before the runs, which is the only reason this
+% paragraph can say "we do not read the ordering" without it looking like a choice made after seeing it.
+\textbf{The four-rung profile, and why we read no trend from it.}
+Table~\ref{tab:layerunfreeze} reports $N{\in}\{3,6\}$ at 10 seeds each and
+$N{\in}\{4,5\}$ at 3, with $N{=}0$ at 5 and $N{=}1$ at 1 as context.
+\textbf{Neither measured column orders with $N$.}  CKA reads $0.716$, $0.741$,
+$0.747$, $0.465$ across $N{=}3,4,5,6$, and forgetting reads $-5.9$, $-9.5$,
+$-3.5$, $-7.9$\%.  The CKA profile is better described as flat to $N{=}5$ and then
+collapsing than as non-monotone: the first three rungs sit inside one another's
+dispersion (standard errors $0.060$, $0.058$, $0.076$), so their ordering should
+not be read, and $\ell_2$ weight drift has the same shape ($9.42$, $10.24$,
+$9.76$, $13.47$).  Forgetting has no shape at all: its four means span $6.0$
+points on standard errors of $2.0$ to $5.1$, all four are negative, and the two
+thin rungs bracket the matched pair on both sides rather than extending it in
+either direction.  Three seeds resolve none of these gaps -- $N{=}4$'s $-9.5$\%
+against $N{=}6$'s $-7.9$\% is $0.4$ standard errors of the difference -- and we
+draw no ordering from them.  What the top-up establishes is the negative: filling
+the two rungs in does not reveal a depth trend that the matched pair was hiding.
+The registration fixed this reading in advance, which is why it is stated this
+way: a non-monotone forgetting profile, or a thin rung landing outside the matched
+pair's range, was to be reported as found with the body's claim
+(\S\ref{sec:exp3}) narrowed to the matched pair rather than the ladder dropped.
+Both triggers fired, and the body sentence names the pair.
+
+The per-layer breakdown below is the reading the same registration named for a
+non-monotone CKA ladder, and it is a consistency check and not a mechanism.  The
+layers the ladder adds at $N{=}4$, $N{=}5$ and $N{=}6$ are layers 3, 2 and 1,
+whose own outputs are the \emph{least} displaced of the six under full unfreezing
+($0.783$, $0.969$, $0.998$), so the collapse at $N{=}6$ cannot be charged to the
+drift of the layer that rung adds.  That is consistent with the scale caveat below
+-- the global figure is the encoder's pooled final representation and not an
+average over layers -- and we do not offer an account of why pooling behaves this
+way.
 
 \begin{table}[!ht]
 \centering
 \vspace{-4pt}
 \caption{Layer-wise unfreeze profile (ETTh2 $n{=}10$k, $h{=}96$; mean$\pm$std over
 seeds).  $N$ = number of top transformer layers left trainable (Moirai-Small has
-6).  \textbf{The rows do not all come from one environment.}  $N{=}3$ and $N{=}6$
-are the re-run 10-seed, early-stopped MPS set
+6).  \textbf{The rows do not all come from one environment, and the seed counts
+differ.}  $N{=}3$ and $N{=}6$ are the re-run 10-seed, early-stopped MPS set
 (42/101/123/202/303/456/777/789/888/999;
-\texttt{results/v49\_layerunfreeze\_10seed}); $N{=}0$ is 5 seeds
-(42/101/123/202/456; \texttt{v18\_cond\_d\_probe}) and $N{=}4$/$N{=}5$ are single
-seeds (seed~42; \texttt{v27\_layer\_unfreeze}), all three \emph{without} early
-stopping, so they read the final epoch rather than the best one.  Only $N{=}3$
-versus $N{=}6$ is a matched comparison.  Ridge $\Delta R^2$ is the
-\textbf{withdrawn} probe quantity (\S\ref{sec:retraction}), reported here only as
-a record.}
+\texttt{results/v49\_layerunfreeze\_10seed}).  $N{=}4$ and $N{=}5$ are a
+pre-registered top-up in the \emph{same} root, protocol and environment, but at
+\textbf{3 seeds}, so they are comparable to the pair in kind and much less precise
+than it.  $N{=}0$ is 5 seeds (42/101/123/202/456;
+\texttt{v18\_cond\_d\_probe}) and $N{=}1$ one, both \emph{without} early stopping,
+so they read the final epoch rather than the best one.  Only $N{=}3$ versus
+$N{=}6$ is matched at equal seed counts.  Dispersion is population std
+($\mathrm{ddof}{=}0$) on the two topped-up rows, which is what their registration
+fixed, and sample std ($\mathrm{ddof}{=}1$) on the rows that predate it: the
+registration also asserted that this column already used $\mathrm{ddof}{=}0$,
+which was wrong, so rather than restate a registered choice after the fact we keep
+it and report the column as mixed, with the footnote giving the topped-up rows
+both ways.  Ridge $\Delta R^2$ is the \textbf{withdrawn} probe quantity
+(\S\ref{sec:retraction}), reported here only as a record, and is not recomputed
+for any claim.}
 \label{tab:layerunfreeze}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -1898,18 +1955,25 @@ $N$ & Layers & CKA & Ridge $\Delta R^2$ & Forgetting\% \\
 3 (top-3)    & 3/6   & $0.716{\pm}0.188$ & $+0.329{\pm}0.197$ (9/10) & $-5.9{\pm}6.5$\% (9/10 neg.) \\
 6 (full, B)  & 6/6   & $0.465{\pm}0.123$ & $+0.534{\pm}0.261$ (10/10) & $-7.9{\pm}6.5$\% (8/10 neg.) \\
 \midrule
+\multicolumn{5}{l}{\emph{Pre-registered top-up, same protocol and environment, \textbf{3 seeds} (42/101/123)}} \\
+4 (top-4)    & 4/6   & $0.741{\pm}0.082$ & $+0.090{\pm}0.138$ (2/3) & $-9.5{\pm}5.3$\% (3/3 neg.) \\
+5 (top-5)    & 5/6   & $0.747{\pm}0.108$ & $+0.591{\pm}0.380$ (3/3) & $-3.5{\pm}7.3$\% (2/3 neg.) \\
+\midrule
 \multicolumn{5}{l}{\emph{Earlier records, final epoch, not matched to the above}} \\
 0 (frozen, D) & none & $0.999{\pm}0.000$ & $-0.048{\pm}0.008$ & $-6.6{\pm}1.5$\% \\
 1 (top-1)    & 1/6   & $\approx$0.72 (ep.\ 11) & \multicolumn{2}{c}{\textit{diverged (NaN)}} \\
-4 (top-4)    & 4/6   & $0.610$ & $+0.363$ & $+4.1$\% \\
-5 (top-5)    & 5/6   & $0.644$ & $+0.767$ & $+31.8$\% \\
 \bottomrule
 \end{tabular}
 \vspace{2pt}
-{\small The $N{=}5$ forgetting of $+31.8$\% is a final-epoch overshoot on one
-seed: val MSE bottoms at epoch~7 at $0.132$, essentially unchanged from
-zero-shot, and rises thereafter.  This is the reading the $N{=}3$/$N{=}6$ re-run
-removes by restoring the best-val checkpoint.}
+{\small Under the pair's $\mathrm{ddof}{=}1$ convention the two topped-up rows read
+CKA $0.741{\pm}0.100$ and $0.747{\pm}0.132$ and forgetting $-9.5{\pm}6.5$\% and
+$-3.5{\pm}8.9$\%, i.e.\ standard errors of $3.8$ and $5.1$ points.  Three seeds
+is what that dispersion is over: at both rungs the seed that stopped earliest
+(seed~42, best epoch 1 of 20) is also the most improved ($-15.8$\% and
+$-13.4$\%), and the $N{=}5$ spread is that seed against seed~123's $+3.7$\%.  The
+single-seed final-epoch values these two rows replace ($+4.1$\% and $+31.8$\%)
+are reproduced by the new runs' own final-epoch readings ($+7.1$\% and
+$+17.6$\%); see the provenance paragraph above.}
 \vspace{-2pt}
 \end{table}
 
@@ -1925,7 +1989,8 @@ $0.251$ at $3.5$~SE, and $\ell_2$ weight drift separates them the same way
 trainable layers halves the measured representational change and leaves the task
 outcome where it was.  This is the dissociation of \S\ref{sec:exp3} localised
 inside a single encoder rather than read across cells, and it is the only claim we
-draw from this sweep.
+draw from this sweep.  The two topped-up rungs neither support nor widen it: they
+are three seeds each, and the paragraph above reports what they show.
 
 \textbf{What we no longer claim.}  The earlier version of this appendix read the
 same sweep through $\Delta R^2$ and concluded that the top 3 of 6 layers suffice

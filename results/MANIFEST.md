@@ -153,7 +153,7 @@ These are what a clean clone re-derives every table and figure from.
 | `results/v46_timesfm` | CANONICAL | 28 | yes | `cell_matrix.py:timesfm_cells`, `heldout_decomposition.py:timesfm` |
 | `results/v47_prospective` | CANONICAL | 57 | yes | `cell_matrix.py:_b_arm_for`, `cell_matrix.py:_d_arm_for`, `cell_matrix.py:new_moirai_cells`, `cell_matrix.py:put`, `gate_all_cells.py:_zs_val_refs`, `gate_zs_noise.py:replicates`, `heldout_decomposition.py:new_moirai`, `score_prospective.py:load` |
 | `results/v48_prospective2` | CANONICAL | 6 | -- | `cell_matrix.py:new_moirai_cells`, `gate_all_cells.py:_zs_val_refs`, `gate_zs_noise.py:replicates` _a SECOND prospective batch that was never run: six condition-A zero-shot references and nothing else -- no condition B or D run, and not even the registration file scripts/preregister_prospective2.py would write. The prospective arm the paper reports is batch 1, in results/v47_prospective, and none of these six cells is among its eight_ |
-| `results/v49_layerunfreeze_10seed` | CANONICAL | 22 | yes | -- |
+| `results/v49_layerunfreeze_10seed` | CANONICAL | 29 | yes | -- |
 | `results/v49_thirdsplit` | CANONICAL | 21 | -- | `gate_zs_noise.py:replicates` |
 | `results/v51_strictfreeze_etth2` | CANONICAL | 15 | -- | `cell_matrix.py:strict_freeze_cells`, `gate_zs_noise.py:replicates` |
 | `results/v52_drift_metrics` | CANONICAL | 1 | -- | `drift_metric_battery.py:main` |

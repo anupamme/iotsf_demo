@@ -287,7 +287,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -816,6 +815,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -828,6 +833,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -2036,9 +2042,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -3937,6 +3940,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -3971,6 +3992,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -5461,7 +5485,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -5990,6 +6013,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -6002,6 +6031,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -7210,9 +7240,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -9111,6 +9138,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -9145,6 +9190,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -10615,7 +10663,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -11144,6 +11191,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -11156,6 +11209,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -12365,9 +12419,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -14266,6 +14317,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -14300,6 +14369,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -15768,7 +15840,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -16297,6 +16368,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -16309,6 +16386,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -17519,9 +17597,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -19420,6 +19495,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -19454,6 +19547,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -20922,7 +21018,6 @@
         "results/positive_control/lr0.1_B_s456/retention_A_best_encoder.json",
         "results/positive_control/lr0.1_B_s456/retention_A_final_state.json",
         "results/positive_control/preregistration.json",
-        "results/power_topup/paired_inference_augmented.json",
         "results/power_topup/preregistration_power.json",
         "results/power_topup/topup_comparison.json",
         "results/preregister_loco.json",
@@ -21451,6 +21546,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -21463,6 +21564,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -22673,9 +22775,6 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/positive_control/preregistration.json": [
-          "cell_matrix.py:moirai_cells"
-        ],
-        "results/power_topup/paired_inference_augmented.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/power_topup/preregistration_power.json": [
@@ -24576,6 +24675,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -24610,6 +24727,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -27720,6 +27840,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -27732,6 +27858,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -30984,6 +31111,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -31018,6 +31163,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -33014,6 +33162,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -33026,6 +33180,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -36132,6 +36287,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -36166,6 +36339,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -38162,6 +38338,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -38174,6 +38356,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -41089,6 +41272,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -41123,6 +41324,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -43122,6 +43326,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -43134,6 +43344,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -46243,6 +46454,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -46277,6 +46506,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -48275,6 +48507,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -48287,6 +48525,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -51403,6 +51642,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -51437,6 +51694,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -53551,6 +53811,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -53563,6 +53829,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -56670,6 +56937,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -56704,6 +56989,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -58705,6 +58993,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -58717,6 +59011,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -61824,6 +62119,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -61858,6 +62171,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -63933,6 +64249,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -63945,6 +64267,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -67052,6 +67375,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -67086,6 +67427,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -69087,6 +69431,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -69099,6 +69449,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -72206,6 +72557,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -72240,6 +72609,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -74673,6 +75045,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -74685,6 +75063,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -77791,6 +78170,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -77825,6 +78222,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -79837,6 +80237,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -79849,6 +80255,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -82955,6 +83362,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -82989,6 +83414,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -84985,6 +85413,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -84997,6 +85431,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -88103,6 +88538,24 @@
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json": [
           "cell_matrix.py:moirai_cells"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells"
         ],
@@ -88137,6 +88590,9 @@
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells"
         ],
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json": [
@@ -90203,6 +90659,12 @@
         "results/v49_layerunfreeze_10seed/N3_seed789/condition_D_h96_s789.json",
         "results/v49_layerunfreeze_10seed/N3_seed888/condition_D_h96_s888.json",
         "results/v49_layerunfreeze_10seed/N3_seed999/condition_D_h96_s999.json",
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json",
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json",
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json",
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json",
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json",
         "results/v49_layerunfreeze_10seed/N6_seed123/condition_B_h96_s123.json",
         "results/v49_layerunfreeze_10seed/N6_seed202/condition_B_h96_s202.json",
@@ -90215,6 +90677,7 @@
         "results/v49_layerunfreeze_10seed/N6_seed999/condition_B_h96_s999.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_N6.json",
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json",
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json",
         "results/v49_thirdsplit/base_ETTh1_h192/condition_A_traintail_h192_s42.json",
         "results/v49_thirdsplit/base_ETTh1_h96/condition_A_traintail_h96_s42.json",
         "results/v49_thirdsplit/base_ETTh2_h192/condition_A_traintail_h192_s42.json",
@@ -94300,6 +94763,30 @@
           "cell_matrix.py:moirai_cells",
           "check_paper_numbers.py:rederive"
         ],
+        "results/v49_layerunfreeze_10seed/N4_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/N4_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed101/condition_D_h96_s101.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed123/condition_D_h96_s123.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/N5_seed42/condition_D_h96_s42.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
         "results/v49_layerunfreeze_10seed/N6_seed101/condition_B_h96_s101.json": [
           "cell_matrix.py:moirai_cells",
           "check_paper_numbers.py:rederive"
@@ -94345,6 +94832,10 @@
           "check_paper_numbers.py:rederive"
         ],
         "results/v49_layerunfreeze_10seed/per_layer_cka_v19_reference.json": [
+          "cell_matrix.py:moirai_cells",
+          "check_paper_numbers.py:rederive"
+        ],
+        "results/v49_layerunfreeze_10seed/preregistration_ladder.json": [
           "cell_matrix.py:moirai_cells",
           "check_paper_numbers.py:rederive"
         ],
@@ -95650,115 +96141,143 @@
         ],
         "results/v5_mitigation/ewc_1000/h192/condition_G_h192_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/ewc_1000/h192/condition_G_h192_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/ewc_1000/h192/condition_G_h192_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/ewc_1000/h96/condition_G_h96_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/ewc_1000/h96/condition_G_h96_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/ewc_1000/h96/condition_G_h96_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h192/condition_F_h192_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h192/condition_F_h192_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h192/condition_F_h192_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h96/condition_F_h96_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h96/condition_F_h96_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.01/h96/condition_F_h96_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h192/condition_F_h192_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h192/condition_F_h192_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h192/condition_F_h192_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h96/condition_F_h96_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h96/condition_F_h96_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/l2sp_0.1/h96/condition_F_h96_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h192/condition_E_h192_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h192/condition_E_h192_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h192/condition_E_h192_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h192/condition_E_h192_s789.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h192/condition_E_h192_s999.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h96/condition_E_h96_s123.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h96/condition_E_h96_s42.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h96/condition_E_h96_s456.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h96/condition_E_h96_s789.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v5_mitigation/lora/h96/condition_E_h96_s999.json": [
           "cell_matrix.py:moirai_cells",
-          "check_paper_numbers.py:rederive"
+          "check_paper_numbers.py:rederive",
+          "emit_mitigation_spectrum.py:read"
         ],
         "results/v6_iot_cka.json": [
           "cell_matrix.py:moirai_cells",
