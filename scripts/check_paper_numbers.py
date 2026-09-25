@@ -374,6 +374,98 @@ def rederive():
         "Chronos's condition D no longer reads CKA 1.0; S3's Moirai scope on 'the only condition with "
         "CKA exactly 1.000' was added because of it and would now be understating the claim")
 
+    # -- S3's "Training details", read out of the trainer and out of the records rather than retyped.
+    # Every number in that paragraph was wrong before this block existed: weight decay 10^-2 against
+    # the optimiser's 1e-4; batch size 32, which NO Moirai runner passes (only the two Chronos
+    # launchers do, and the appendix scopes that 32 to the Chronos arm already); "early stopping with
+    # patience 3", when this trainer has no patience counter anywhere and --early-stopping does not
+    # stop anything -- it restores the best-selection-epoch checkpoint before the final eval; and
+    # n=500, when 22 of the 31 cells ran at 1,000.
+    #
+    # AST and not import: importing finetune_forecasting.py needs torch, loguru and the dataset
+    # loaders, none of which a clean clone has. paper_8/figA_window_layout.py reads the same file the
+    # same way for the same reason. The DEFAULTS are what the runs used -- asserted against the runner
+    # scripts below, because a default is only the protocol if nothing overrode it.
+    import ast as _ast
+    _ft = ROOT / "scripts/finetune_forecasting.py"
+    _ft_src = _ft.read_text()
+    _dflt, _adamw, _clip = {}, [], []
+    for _n in _ast.walk(_ast.parse(_ft_src)):
+        if not isinstance(_n, _ast.Call):
+            continue
+        _fn = _ast.unparse(_n.func)
+        if _fn.endswith("add_argument") and _n.args and isinstance(_n.args[0], _ast.Constant):
+            _kw = {k.arg: k.value for k in _n.keywords}
+            if isinstance(_kw.get("default"), _ast.Constant):
+                _dflt[_n.args[0].value] = _kw["default"].value
+            elif "action" in _kw and _ast.unparse(_kw["action"]) == "'store_true'":
+                _dflt[_n.args[0].value] = False          # a flag not passed is the protocol's value
+        elif _fn == "torch.optim.AdamW":
+            _adamw.append({k.arg: _ast.literal_eval(k.value) for k in _n.keywords
+                           if isinstance(k.value, _ast.Constant)})
+        elif _fn == "torch.nn.utils.clip_grad_norm_":
+            _clip.append(_ast.literal_eval(_n.args[-1]))
+    # One of each, asserted: a second optimiser or a second clip call with a different norm would make
+    # the paragraph true of one code path and false of the other, which is not a thing prose can say.
+    assert len(_adamw) == 1 and len(_clip) == 1, (
+        f"finetune_forecasting.py now builds {len(_adamw)} AdamW optimiser(s) and clips in "
+        f"{len(_clip)} place(s); S3's training-details paragraph describes exactly one of each")
+    R["batch_size"] = _dflt["--batch-size"]
+    R["epochs_dflt"] = _dflt["--epochs"]
+    R["lr_exp"] = round(-math.log10(_dflt["--lr"]))
+    R["wd_exp"] = round(-math.log10(_adamw[0]["weight_decay"]))
+    R["clip_norm"] = _clip[0]
+    assert (R["batch_size"], R["epochs_dflt"], R["lr_exp"], R["wd_exp"], R["clip_norm"]) == (
+        16, 20, 4, 4, 1.0), (
+        f"the trainer's defaults moved: batch {R['batch_size']}, {R['epochs_dflt']} epochs, "
+        f"lr 1e-{R['lr_exp']}, weight decay 1e-{R['wd_exp']}, clip {R['clip_norm']}. The runs on "
+        "disk were made under (16, 20, 4, 4, 1.0) and S3 states those, so a changed default here "
+        "means new runs would not be exchangeable with the recorded ones")
+    # --early-stopping RESTORES a checkpoint; it never shortens training, and there is no patience
+    # window to shorten it by. S3 said "early stopping with patience 3" for ten rounds; the only
+    # patience=3 in this repository is scripts/train_moirai.py, the IoT-era trainer.
+    assert _dflt["--early-stopping"] is False and "patience" not in _ft_src, (
+        "finetune_forecasting.py has grown a patience parameter or flipped --early-stopping's "
+        "default; S3 says 20 epochs with no early stopping and every Moirai cell read at its "
+        "final epoch, which is a claim about this file")
+    # The records' side of the same paragraph, over the seven directories the Moirai matrix is built
+    # from -- derived from cell_matrix's own two constants, so a new matrix directory cannot be left
+    # out of this check by being left out of a list here.
+    _mx_roots = sorted(set(cm.DATASET_OF) | {Path(p).name for p in cm.OWN_A_DIRS})
+    _mx = []
+    for _r in _mx_roots:
+        for _f in sorted(_glob.glob(str(ROOT / "results" / _r / "**/*.json"), recursive=True)):
+            _d = json.load(open(_f))
+            if isinstance(_d, dict) and _d.get("condition") in ("B", "D") and "test_mse" in _d:
+                _mx.append(_d)
+    assert len(_mx) >= 170, f"only {len(_mx)} Moirai matrix B/D records found under {_mx_roots}"
+    assert {_d.get("epochs") for _d in _mx} == {R["epochs_dflt"]}, (
+        f"S3 says every Moirai cell runs {R['epochs_dflt']} epochs; the records carry "
+        f"{sorted({_d.get('epochs') for _d in _mx})}")
+    # "no early stopping" over two generations of record: the newer ones store the flag's state and
+    # must read False; the older ones predate the field, and their runners are what says it (none of
+    # them passes --early-stopping -- run_v5_experiments.sh, run_prospective_arm.sh and
+    # run_deadline_tail.sh are the three that wrote these directories).
+    _es = {json.dumps(_d["early_stopping"], sort_keys=True) for _d in _mx if "early_stopping" in _d}
+    assert _es == {'{"enabled": false}'}, (
+        f"a Moirai matrix record now reports early stopping: {sorted(_es)}. S3 says the arm runs "
+        "20 epochs with no early stopping and is read at its final epoch")
+    for _sh in ("run_v5_experiments.sh", "run_prospective_arm.sh", "run_deadline_tail.sh"):
+        _sh_src = (ROOT / "scripts" / _sh).read_text()
+        assert "--early-stopping" not in _sh_src and "--batch-size" not in _sh_src, (
+            f"scripts/{_sh} now passes --early-stopping or overrides --batch-size; it wrote part of "
+            "the Moirai matrix, whose protocol S3 states as batch 16 with no early stopping")
+    # The modal n, and the denominator it is a fraction of. From the rows, not the records: n is part
+    # of a CELL's identity (cell_matrix._display's docstring says why every row prints it), and the
+    # same cell contributes 6-20 records.
+    _ns = [int(_m.group(1)) if (_m := re.search(r" n(\d+)$", _r["cell"])) else _r.get("n_train")
+           for _r in rows]
+    R["n_train_modal"] = max(set(_ns), key=_ns.count)
+    R["n_train_modal_cells"] = _ns.count(R["n_train_modal"])
+    assert R["n_train_modal"] == 1000 and R["n_train_modal_cells"] == 22, (
+        f"the matrix's modal training size is now n={R['n_train_modal']} on "
+        f"{R['n_train_modal_cells']} of {len(rows)} cells; S3 states both")
+
     # -- the LoRA value-cell arm (app:loravaluecells). Read through cell_matrix rather than from the
     # emitted table, so the prose is checked against the records and not against the same file it was
     # written from.
@@ -1784,6 +1876,21 @@ def build_checks(R):
     chk("LoRA arm: full fine-tuning ahead of LoRA",
         r"\(B\$-\$E\$\{\}<0\$\) on \\textbf\{(\d+) of the (\d+)\}",
         R["lora_be_neg"], R["lora_cells"])
+
+    # --- S3's training details. Five numerals, all of which were wrong, and all of which are now read
+    # out of scripts/finetune_forecasting.py by AST (see rederive()) rather than out of the last draft.
+    # The two exponents are captured as exponents: the prose prints 10^{-4}, and capturing "4" from it
+    # is the only form in which the pattern and the value can be compared at all.
+    chk("the optimiser S3 states", r"AdamW \(\$\\eta\{=\}10\^\{-(\d)\}\$, weight decay "
+        r"\$10\^\{-(\d)\}\$\), batch size (\d+), gradient clipping\s*at ([\d.]+)",
+        R["lr_exp"], R["wd_exp"], R["batch_size"], R["clip_norm"])
+    # The epoch budget and the absence of early stopping in ONE pattern, because the relation between
+    # them is the claim: 20 epochs that may be cut short is a different protocol from 20 epochs that
+    # are all run, and the paper's forgetting numbers are the final epoch's.
+    chk("the epoch budget, and that nothing stops it early",
+        r"\\textbf\{(\d+) epochs with no early stopping\}", R["epochs_dflt"])
+    chk("the matrix's modal training size", r"\\textbf\{(\d+) of the (\d+)\} cells train on",
+        R["n_train_modal_cells"], R["n_int"])
 
     # --- condition D's own CKA. S3's concession and tab:cka_calibration's row stated this range by
     # hand and disagreed with each other for ten rounds: S3 said 0.969, which is one root's minimum

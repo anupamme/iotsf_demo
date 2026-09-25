@@ -11,10 +11,11 @@ MSE on the median of 20 forecast samples at $h{=}96$ and $h{=}192$
 negative control is defined in Appendix~\ref{app:cnn_detail}.
 
 \textbf{Training details.}
-AdamW ($\eta = 10^{-4}$, weight decay $10^{-2}$), batch size 32,
-early stopping with patience 3, gradient clipping at 1.0.  ETT
-fine-tuning runs 20 epochs at $n{=}500$ (10 seeds) and is swept
-across $n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
+AdamW ($\eta{=}10^{-4}$, weight decay $10^{-4}$), batch size 16, gradient clipping
+at 1.0, \textbf{20 epochs with no early stopping}: every Moirai cell is read at its
+final epoch.  \textbf{22 of the 31} cells train on $1{\text{k}}$ windows, every row
+prints its own $n$, and the sweep covers
+$n{\in}\{500,1{\text{k}},2{\text{k}},5{\text{k}},10{\text{k}}\}$.
 \textbf{Reproducing any Moirai fine-tune requires the \texttt{uni2ts}
 \texttt{PackedStdScaler} patch of Appendix~\ref{app:scaler_patch}}, without which
 training can appear to run while silently not propagating gradients.
@@ -67,7 +68,7 @@ $\Vb{b}$ generous to the pre-trained model.
 
 \textbf{Three splits, and which quantity each one scores.} The \emph{training}
 split fits both the fine-tuning updates and every baseline; the \emph{selection}
-split chooses checkpoints and early stopping \textbf{and is where we score
+split is where any checkpoint is chosen \textbf{and where we score
 $\Vb{b}$}; the \emph{held-out} split is disjoint from both and is where every
 outcome is scored.  So a cell's admission cannot borrow the windows that later
 judge it.  We also report the retrospective variant---$\Vb{b}$ on the held-out

@@ -3799,11 +3799,17 @@ design choice we expected to be probed, so it is registered and stated rather
 than buried.
 
 \textbf{Both checkpoints, and the noise floor that makes them readable.} The
-early-stopped state is primary, for comparability with the main matrix, which
-early-stops the same way; the final-epoch state is reported beside it as the
-maximal-destruction bound, because early stopping is on task B's validation loss
-and can halt before damage to A has finished developing.  Early stopping fired in
-few runs, so the two states are frequently \emph{identical}---and then the gap
+early-stopped state is primary, as registered; the final-epoch state is reported
+beside it as the maximal-destruction bound, because the flag selects on task B's
+validation loss and so can return a checkpoint from before damage to A has finished
+developing.  \textbf{The reason the registration gave for that choice---
+comparability with the main matrix, ``which early-stops the same way''---was
+wrong}: the matrix passes no \texttt{-{}-early-stopping} flag and is read at its
+final epoch (\S\ref{sec:method}).  We leave the registered choice and the
+registration's wording as they are and report both states, so the error is in a
+stated rationale and not in a result; the arm's own runs do restore the best
+selection-split epoch, which is what the primary column is.  That epoch was
+often the last one, so the two states are frequently \emph{identical}---and then the gap
 between their two retention numbers is not redundancy but a direct read of the
 evaluator's own sampling noise, since Moirai's forecast is the median of 20
 samples.  Over the $17$ identical-state pairs that gap is at most $0.48$~pp and
