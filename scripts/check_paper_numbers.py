@@ -387,20 +387,29 @@ def rederive():
     # same way for the same reason. The DEFAULTS are what the runs used -- asserted against the runner
     # scripts below, because a default is only the protocol if nothing overrode it.
     import ast as _ast
+
+    def _defaults(src):
+        """Every argparse default in a trainer, as the value a run gets when the flag is not passed."""
+        out = {}
+        for _n in _ast.walk(_ast.parse(src)):
+            if not (isinstance(_n, _ast.Call) and _ast.unparse(_n.func).endswith("add_argument")
+                    and _n.args and isinstance(_n.args[0], _ast.Constant)):
+                continue
+            _kw = {k.arg: k.value for k in _n.keywords}
+            if isinstance(_kw.get("default"), _ast.Constant):
+                out[_n.args[0].value] = _kw["default"].value
+            elif "action" in _kw and _ast.unparse(_kw["action"]) == "'store_true'":
+                out[_n.args[0].value] = False            # a flag not passed is the protocol's value
+        return out
+
     _ft = ROOT / "scripts/finetune_forecasting.py"
     _ft_src = _ft.read_text()
-    _dflt, _adamw, _clip = {}, [], []
+    _dflt, _adamw, _clip = _defaults(_ft_src), [], []
     for _n in _ast.walk(_ast.parse(_ft_src)):
         if not isinstance(_n, _ast.Call):
             continue
         _fn = _ast.unparse(_n.func)
-        if _fn.endswith("add_argument") and _n.args and isinstance(_n.args[0], _ast.Constant):
-            _kw = {k.arg: k.value for k in _n.keywords}
-            if isinstance(_kw.get("default"), _ast.Constant):
-                _dflt[_n.args[0].value] = _kw["default"].value
-            elif "action" in _kw and _ast.unparse(_kw["action"]) == "'store_true'":
-                _dflt[_n.args[0].value] = False          # a flag not passed is the protocol's value
-        elif _fn == "torch.optim.AdamW":
+        if _fn == "torch.optim.AdamW":
             _adamw.append({k.arg: _ast.literal_eval(k.value) for k in _n.keywords
                            if isinstance(k.value, _ast.Constant)})
         elif _fn == "torch.nn.utils.clip_grad_norm_":
@@ -465,6 +474,76 @@ def rederive():
     assert R["n_train_modal"] == 1000 and R["n_train_modal_cells"] == 22, (
         f"the matrix's modal training size is now n={R['n_train_modal']} on "
         f"{R['n_train_modal_cells']} of {len(rows)} cells; S3 states both")
+
+    # -- four constants the prose states and the CODE owns, each read from the module that uses it.
+    # The gate's operating point and the interval level are stated in S3 as design choices and then
+    # acted on 300 times downstream, so a constant changed in one place and a sentence left alone in
+    # the other is a paper describing a design it did not run.
+    import emit_sample_sweep as _ess
+    import gate_all_cells as _gac
+    import paired_inference as _pinf        # the BH level is read again below, at its own claim
+    R["gate_threshold"] = _gac.GATE_THRESHOLD
+    R["ci_pct"] = round(100 * (1 - _pinf.ALPHA))
+    # The sweep grid, from the emitter's own GROUPS. The prose prints thousands as "1k", so the
+    # PRINTED tokens are 500,1,2,5,10 -- registered in that form because agrees() compares what is
+    # printed, and "1" is not a rounding of 1000.
+    R["n_grid"] = tuple(g[0] for g in _ess.GROUPS)
+    assert R["n_grid"] == (500, 1000, 2000, 5000, 10000), (
+        f"emit_sample_sweep.GROUPS now sweeps {R['n_grid']}; S3 lists the grid")
+    R["n_grid_printed"] = tuple(n if n < 1000 else n // 1000 for n in R["n_grid"])
+    # The compute ceiling, over EVERY condition record in the tree rather than over the matrix: the
+    # claim is about what this project cost and so covers every arm, including the ones the paper
+    # reports only in an appendix.
+    # EVERY json, not just condition_*.json: 16 records of the n=10k sweep are named by seed alone
+    # (results/v8_final/n10000/s456.json), and one of them is the tree's argmax -- a glob on the
+    # condition_ prefix reports the same maximum today and would miss the run that broke the claim.
+    _all_n = []
+    for _f in _glob.glob(str(ROOT / "results/**/*.json"), recursive=True):
+        try:
+            _d = json.load(open(_f))
+        except Exception:
+            continue
+        if isinstance(_d, dict) and isinstance(_d.get("max_train_samples"), int):
+            _all_n.append(_d["max_train_samples"])
+    R["n_train_max"] = max(_all_n)
+    assert R["n_train_max"] % 1000 == 0 and len(_all_n) > 700, (
+        f"the largest training set in the tree is now {R['n_train_max']} over {len(_all_n)} records; "
+        "the Compute statement prints it as a round number of thousands")
+    R["n_train_max_k"] = R["n_train_max"] // 1000
+
+    # -- the two-cell from-scratch check, read out of the shell script that performs it. The
+    # reproducibility statement describes both invocations in prose, and a flag changed in the script
+    # with the prose left alone would misstate what was reproduced.
+    _r2 = (ROOT / "scripts/rerun_two_cells.sh").read_text()
+
+    def _inv(script):
+        # Anchored on "$PY -u", not on the script name alone: the file's header comment names both
+        # scripts twenty lines above the invocations, and a bare name match reads the comment and
+        # then runs on to the `2>&1` in the usage line -- which parses, and yields nothing.
+        _m = re.findall(rf"\$PY -u scripts/{re.escape(script)}(.*?)2>&1", _r2, re.S)
+        assert len(_m) == 1, f"rerun_two_cells.sh now invokes {script} {len(_m)} times, not once"
+        return _m[0]
+
+    def _flag(inv, name):
+        _m = re.search(rf"--{name}\s+(\S+)", inv)
+        return _m.group(1) if _m else None
+
+    _mo_inv, _tf_inv = _inv("finetune_forecasting.py"), _inv("finetune_timesfm.py")
+    R["r2_moirai_h"] = int(_flag(_mo_inv, "horizon"))
+    R["r2_moirai_n"] = int(_flag(_mo_inv, "max-train-samples"))
+    R["r2_seed"] = int(_flag(_mo_inv, "seed"))
+    # The TimesFM cell's horizon is the trainer's DEFAULT -- the script does not pass --horizon -- so
+    # it is read from finetune_timesfm.py and asserted absent from the invocation. Reading the default
+    # while the script overrode it would print a horizon that cell never ran at.
+    assert _flag(_tf_inv, "horizon") is None, (
+        "rerun_two_cells.sh now passes --horizon to finetune_timesfm.py; the reproducibility "
+        "statement's h=24 is registered as that trainer's default and would stop being what ran")
+    R["r2_tf_h"] = _defaults((ROOT / "scripts/finetune_timesfm.py").read_text())["--horizon"]
+    assert int(_flag(_tf_inv, "max-train-samples")) == 1000 and \
+        int(_flag(_tf_inv, "seed")) == R["r2_seed"] and \
+        _flag(_mo_inv, "condition") == _flag(_tf_inv, "condition") == "B", (
+        "rerun_two_cells.sh's two invocations no longer match the prose: it says both cells run "
+        "condition B at seed 42, the TimesFM one at n=1,000")
 
     # -- the LoRA value-cell arm (app:loravaluecells). Read through cell_matrix rather than from the
     # emitted table, so the prose is checked against the records and not against the same file it was
@@ -1891,6 +1970,33 @@ def build_checks(R):
         r"\\textbf\{(\d+) epochs with no early stopping\}", R["epochs_dflt"])
     chk("the matrix's modal training size", r"\\textbf\{(\d+) of the (\d+)\} cells train on",
         R["n_train_modal_cells"], R["n_int"])
+    # The sweep grid as one pattern: five numbers whose ORDER is the claim, so five separate chks
+    # would all pass with two of them transposed.
+    chk("the sample-size grid S3 sweeps",
+        r"\$n\{\\in\}\\\{(\d+),(\d+)\{\\text\{k\}\},(\d+)\{\\text\{k\}\},(\d+)\{\\text\{k\}\},"
+        r"(\d+)\{\\text\{k\}\}\\\}\$", *R["n_grid_printed"])
+
+    # --- the two design constants S3 states and the code acts on everywhere downstream.
+    chk("the gate's operating point, where S3 defines it",
+        r"thresholding it at \$([\d.]+)\$---a prespecified", R["gate_threshold"])
+    # The same constant again, in clause (i) of the definition twenty lines below, which is where a
+    # reader checks what the criterion actually tests. Two phrasings of one number, so two chks:
+    # perturbing the definitional site left this one silently unflagged.
+    chk("the gate's operating point, in clause (i) of the definition",
+        r"\\Vb\{b\} \\ge\s*([\d.]+)\$ on selection windows", R["gate_threshold"])
+    chk("the interval level", r"the \$(\d+)\\%\$ CI on", R["ci_pct"])
+    # The compute ceiling. The thousands separator is in the pattern rather than captured: "10{,}000"
+    # cannot be tokenised as one number, and a max that stopped being a round number of thousands
+    # would fail this chk's min_sites rather than pass it at the wrong value.
+    chk("the compute ceiling (reproducibility statement)",
+        r"no run\s*exceeds (\d+)\{,\}000 training windows", R["n_train_max_k"])
+    # The two-cell from-scratch check's two invocations, each against the script that runs it.
+    chk("the two-cell check's Moirai cell",
+        r"\(Small/ETTh2 \$h\{=\}(\d+)\$, \$n\{=\}(\d+)\$, seed (\d+), full fine-tuning~\(B\)\)",
+        R["r2_moirai_h"], R["r2_moirai_n"], R["r2_seed"])
+    chk("the two-cell check's TimesFM cell",
+        r"\(TimesFM/ETTh1 \$h\{=\}(\d+)\$, \$n\{=\}1\{,\}000\$, seed (\d+),",
+        R["r2_tf_h"], R["r2_seed"])
 
     # --- condition D's own CKA. S3's concession and tab:cka_calibration's row stated this range by
     # hand and disagreed with each other for ten rounds: S3 said 0.969, which is one root's minimum
