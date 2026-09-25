@@ -282,6 +282,98 @@ def rederive():
         R[f"sf_{tag}_bh_sem"] = v["bh_test_sd"] / math.sqrt(v["seeds"])
         R[f"sf_{tag}_shift"] = abs(v["bh_test"] - v["bd_same"])
 
+    # -- condition D's OWN measured CKA, which S3 uses to make the paper's sharpest methodological
+    # concession (D controls encoder weight updates, not representations) and which tab:cka_calibration
+    # states a range and a run count for. Both were hand-typed and the two disagreed: S3 said
+    # 0.969--0.9999, the appendix row said 0.889--0.9999 over "80 runs". The appendix's endpoints are
+    # the right ones -- 0.969 is one root's minimum (v35_base_frozen) quoted as if it were the range --
+    # and its count is stale by 48 runs. Derived here from the records instead.
+    #
+    # THE SCOPE, and it is not a convenience. Three roots store the PARTIAL-UNFREEZE arm in files named
+    # condition_D_*.json whose own `condition` field also reads "D": v49_layerunfreeze_10seed's N3 runs
+    # (unfreeze the top 3 of 6 layers) are recorded as "D / Frozen encoder" even though three layers are
+    # training, and v26/v27 are the same experiment at fewer seeds. Their CKA runs down to 0.317, so a
+    # sweep that globs condition_D by name silently reports the unfreeze arm's range as the frozen
+    # encoder's. Excluded by root, with an assert that the mislabelling is still there -- if those
+    # records are ever relabelled, this stops being an exclusion anyone needs and the assert says so.
+    import glob as _glob
+    _LU_ROOTS = {"v26_layer_unfreeze", "v27_layer_unfreeze", "v49_layerunfreeze_10seed"}
+    _CELLDIR = re.compile(r"^(?:small|base|large)_")
+    _dcka, _lu_seen = [], set()
+    for _f in sorted(_glob.glob(str(ROOT / "results/**/condition_D*.json"), recursive=True)):
+        _rel = Path(_f).relative_to(ROOT).parts
+        _root = _rel[1]
+        # RELATIVE, not the absolute path: the repository directory is itself called iotsf_demo, so
+        # matching "iot" against an absolute path excludes every record in the tree and the range below
+        # comes out empty rather than wrong -- which is the only reason this was caught immediately.
+        _low = "/".join(_rel).lower()
+        if _root in _LU_ROOTS:
+            _lu_seen.add(_root)
+            continue
+        # The non-Moirai arms, by path: the two extra backbones have their own roots, and batch 3 keeps
+        # its Chronos cells beside its Moirai ones under dataset-only directory names (ETTm2_h48/),
+        # where the Moirai cells all carry a size prefix.
+        if any(t in _low for t in ("chronos", "timesfm", "iot", "nbaiot")):
+            continue
+        if _root.startswith("v57") and not _CELLDIR.match(_rel[2]):
+            continue
+        try:
+            _d = json.load(open(_f))
+        except json.JSONDecodeError:
+            continue
+        if _d.get("final_cka") is None:
+            continue
+        # condition_name is absent from the oldest records (forecasting_finetune_20ep predates the
+        # field), so it is checked only where it exists: requiring it would exclude the 20 runs that
+        # carry the maximum, and defaulting it would defeat the point of checking it at all.
+        assert _d.get("condition") == "D" and _d.get("condition_name") in (None, "Frozen encoder"), (
+            f"{'/'.join(_rel)} is named condition_D but records condition "
+            f"{_d.get('condition')!r}/{_d.get('condition_name')!r}; the frozen-encoder range below "
+            f"would include a run of some other protocol")
+        _dcka.append(_d["final_cka"])
+    assert _lu_seen == _LU_ROOTS, (
+        f"the partial-unfreeze roots excluded here are {sorted(_lu_seen)}, not {sorted(_LU_ROOTS)}: a "
+        f"root was renamed or removed, so the exclusion no longer does what its comment says")
+    _lu_d = []
+    for _r in sorted(_LU_ROOTS):
+        _mis = [f for f in _glob.glob(str(ROOT / f"results/{_r}/**/condition_D*.json"), recursive=True)]
+        _lu_d += [json.load(open(f))["final_cka"] for f in _mis]
+        assert _mis, (
+            f"results/{_r} no longer stores any condition_D-named record. If the partial-unfreeze arm "
+            f"has been relabelled, drop it from _LU_ROOTS -- the exclusion above is only justified by "
+            f"the mislabelling")
+    R["n_cond_d_runs"] = len(_dcka)
+    R["cond_d_cka_lo"] = min(_dcka)
+    # How far the excluded arm reaches, which is what makes the exclusion worth stating in the appendix
+    # rather than performing silently: it is below the frozen-encoder minimum by more than half a unit.
+    R["lu_cond_d_cka_lo"] = min(_lu_d)
+    assert R["lu_cond_d_cka_lo"] < R["cond_d_cka_lo"], (
+        f"the partial-unfreeze arm's condition_D-named records now bottom out at "
+        f"{R['lu_cond_d_cka_lo']:.4f}, inside the frozen encoder's own range; the appendix says they "
+        f"reach below it, which was the reason given for excluding them")
+    # TRUNCATED to four places, not rounded, and the sentence is why: round(0.999977, 4) prints 1.0000,
+    # which contradicts "near but never exactly 1" in the same clause. The claim itself is the assert.
+    R["cond_d_cka_hi"] = int(max(_dcka) * 1e4) / 1e4
+    assert max(_dcka) < 1.0, (
+        f"S3 says condition D's CKA is near but never exactly 1 on Moirai; the maximum over "
+        f"{len(_dcka)} runs is now {max(_dcka)!r}")
+    # The TimesFM floor in the same sentence, and the weight drift that explains it: D leaves in_proj
+    # and mask_encoding trainable, so the encoder stack itself does not move at all.
+    _tf = [json.load(open(f)) for f in sorted(
+        _glob.glob(str(ROOT / "results/v46_timesfm/*/condition_D/condition_D_*.json")))]
+    R["cond_d_cka_timesfm_lo"] = min(d["final_cka"] for d in _tf)
+    assert all(d["final_weight_drift"] == 0.0 for d in _tf), (
+        "S3 says TimesFM's condition-D encoder weight drift is exactly zero; it is now "
+        f"{sorted({d['final_weight_drift'] for d in _tf})}")
+    # "H is the only condition with CKA exactly 1.000" -- true within Moirai only. Chronos's condition D
+    # also reads 1.0000 (to 5e-8; emit_chronos_m4.py asserts it), because on that backbone the freeze
+    # covers everything D leaves trainable on Moirai. S3 carries the Moirai scope for this reason.
+    assert all(abs(json.load(open(f))["final_cka"] - 1.0) < 1e-6 for f in sorted(
+        _glob.glob(str(ROOT / "results/v37_chronos_etth2/cond_D/**/condition_D_*.json"),
+                   recursive=True))), (
+        "Chronos's condition D no longer reads CKA 1.0; S3's Moirai scope on 'the only condition with "
+        "CKA exactly 1.000' was added because of it and would now be understating the claim")
+
     # -- the LoRA value-cell arm (app:loravaluecells). Read through cell_matrix rather than from the
     # emitted table, so the prose is checked against the records and not against the same file it was
     # written from.
@@ -1348,9 +1440,12 @@ def build_checks(R):
         r"only (\d+) of the (\d+) favour freezing", R["n_freeze_dec"], R["n_paired_tests"])
     chk("the funnel's denominator (Figure 1's caption)",
         r"funnel over the (\d+) cells that carry a", R["n_val_scored"])
-    # The seed budget, as endpoints over the intervention rows. Stated once, in S1's design paragraph.
-    chk("the paired seed budget", r"frozen-encoder run at (\d+)--(\d+) seeds",
-        R["seeds_lo"], R["seeds_hi"])
+    # The seed budget, as endpoints over the intervention rows. Three sites and three phrasings: S1's
+    # design paragraph, the limitations list ("3 to 10 per cell") and the reproducibility statement
+    # ("cells at 3--10 seeds"). One pattern loose enough to reach all three, because the endpoints are
+    # one fact and the alternative is three patterns that rot independently.
+    chk("the paired seed budget", r"(\d+)(?:--| to )(\d+) (?:seeds|per cell)",
+        R["seeds_lo"], R["seeds_hi"], min_sites=3)
     # The BH level, at all three sites that name it, against paired_inference.ALPHA -- the constant the
     # calls were actually made at. A pre-registered level stated in prose and not tied to the code is a
     # number that can drift in the one direction nobody checks.
@@ -1689,6 +1784,27 @@ def build_checks(R):
     chk("LoRA arm: full fine-tuning ahead of LoRA",
         r"\(B\$-\$E\$\{\}<0\$\) on \\textbf\{(\d+) of the (\d+)\}",
         R["lora_be_neg"], R["lora_cells"])
+
+    # --- condition D's own CKA. S3's concession and tab:cka_calibration's row stated this range by
+    # hand and disagreed with each other for ten rounds: S3 said 0.969, which is one root's minimum
+    # (v35_base_frozen) quoted as the range, against the records' 0.889. Both sites now read the same
+    # derivation. The upper endpoint is registered TRUNCATED -- see rederive(), where rounding it to
+    # four places would print 1.0000 inside a sentence that says "never exactly 1".
+    chk("condition D's measured CKA on Moirai, and the TimesFM floor beside it",
+        r"never exactly \$1\$ on Moirai \(\$([\d.]+)\$--\$([\d.]+)\$\) and falls as low as\s*"
+        r"\$([\d.]+)\$ on TimesFM",
+        R["cond_d_cka_lo"], R["cond_d_cka_hi"], R["cond_d_cka_timesfm_lo"])
+    chk("condition D's CKA range and run count (calibration table)",
+        r"cond\.\\ D, Moirai \((\d+) runs\) & ([\d.]+)--([\d.]+) &",
+        R["n_cond_d_runs"], R["cond_d_cka_lo"], R["cond_d_cka_hi"])
+    # The row's scope, stated in the paragraph under it: the run count again (a count printed twice is
+    # a count that drifts once) and how far the excluded partial-unfreeze arm reaches, which is the
+    # whole justification for excluding it.
+    chk("condition D's scope: what the row excludes",
+        r"its (\d+) runs exclude the\s*partial-unfreeze arm .*?reach down to CKA \$([\d.]+)\$",
+        R["n_cond_d_runs"], R["lu_cond_d_cka_lo"])
+    chk("condition D on TimesFM (calibration scope paragraph)",
+        r"TimesFM's D falls as\s*low as \$([\d.]+)\$", R["cond_d_cka_timesfm_lo"])
     chk("LoRA arm: the two cells where LoRA is worse than not fine-tuning",
         r"forg\$_\\text\{E\}=\{\+\}([\d.]+)\\%\$, (\d+) of (\d+) seeds, on "
         r"Moirai-Base/ETTh2 \$h\{=\}96\$; \$\{\+\}([\d.]+)\\%\$, (\d+) of (\d+), on "
@@ -1904,6 +2020,10 @@ def build_checks(R):
     chk("prospective confusion counts and precision (corrections appendix)",
         r"\\textbf\{TP~(\d+), FP~(\d+), precision~([\d.]+)\}",
         R["pro_tp"], R["pro_fp"], R["pro_prec"])
+    # S7's own restatement, the one that carries the threshold-independence claim ("at all of them").
+    # The "all of them" is an assert in rederive() over the whole sweep; this is the printed value.
+    chk("prospective precision at every threshold (S7)",
+        r"gives precision \$([\d.]+)\$\s*at all of them", R["pro_prec"])
     chk("prospective threshold sweep, flagged counts (slash form)",
         r"\$" + r"/".join([r"(\d+)"] * 6) + r"\$ cells flagged",
         *R["pro_flagged_by_threshold"])
@@ -1989,6 +2109,11 @@ def build_checks(R):
     # understates the correction. The pattern requires the qualifier, so dropping it fails the check.
     chk("gate flips across the threshold",
         r"moves (\d+) of Moirai's (\d+) cells across the threshold",
+        R["n_flip_moirai"], R["n_moirai_screened"])
+    # A third phrasing, in the retraction statement, where the count is the retraction's substance: it
+    # is the number that makes "the entire class of cell the diagnostic was built to predict" true.
+    chk("gate flips (retraction statement)",
+        r"changes the gate status\s*of (\d+) of the (\d+) Moirai cells",
         R["n_flip_moirai"], R["n_moirai_screened"])
     # 16 and 17 are both correct and sit twenty lines apart, which reads as one fact unless each
     # site says which direction it counts. The abstract's 16 is pass-to-fail; the two 17s are
@@ -2434,8 +2559,11 @@ def build_checks(R):
     chk("positive control: task A improves at the top rung",
         r"\\emph\{better\}, by \$([\d.]+)\\pm([\d.]+)\\%\$ in every seed",
         R["pc_top_ret"], R["pc_top_ret_sem"])
+    # The rho and the n it is computed over, in one pattern: a correlation quoted without its n is the
+    # one number in this arm a reader cannot sanity-check, and the run count had no site here.
     chk("positive control: CKA-vs-retention rho (body)",
-        r"correlation between CKA and retention is \$\\rho\{=\}\{\+\}([\d.]+)\$", R["pc_rho"])
+        r"across all (\d+) runs the correlation between CKA\s*and retention is "
+        r"\$\\rho\{=\}\{\+\}([\d.]+)\$", R["pc_n_runs"], R["pc_rho"])
     chk("positive control: CKA-vs-retention rho (appendix, with p and n)",
         r"retention is \$\+([\d.]+)\$ \(\$p\{=\}([\d.]+)\$, \$n\{=\}(\d+)\$\)",
         R["pc_rho"], R["pc_rho_p"], R["pc_rho_n"])

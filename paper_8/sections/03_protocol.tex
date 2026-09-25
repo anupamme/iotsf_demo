@@ -134,10 +134,10 @@ has to be read through a lookup.
 \textbf{What condition~D does and does not hold fixed.} D freezes the encoder's
 own weights but leaves the input projection and mask encoding trainable, so it
 controls \emph{encoder weight updates} and not representations: its measured CKA
-is near but never exactly $1$ on Moirai ($0.969$--$0.9999$) and falls as low as
+is near but never exactly $1$ on Moirai ($0.889$--$0.9999$) and falls as low as
 $0.38$ on TimesFM, where the encoder stack's weight drift is exactly zero.
-\textbf{H}~(strict freeze) also freezes those two modules, is the only condition
-with CKA exactly $1.000$, and reverses $\denc$'s sign on 4 of the 16 cells we ran
+\textbf{H}~(strict freeze) also freezes those two modules, is the only Moirai
+condition at CKA exactly $1.000$, and reverses $\denc$'s sign on 4 of the 16 cells we ran
 it on---every Moirai/ETTm2 cell.  Figure~\ref{fig:freezeboundary} draws which
 modules move under each (Appendix~\ref{app:strictfreeze}).
 
