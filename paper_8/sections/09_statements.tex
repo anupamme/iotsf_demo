@@ -29,6 +29,28 @@ pre-trained checkpoint holds a large, well-established advantage (which these
 benchmarks do not, on 24 of the 31 cells we screened) are exactly where the
 question remains open.
 
+\textbf{Scope of the claims: one adaptation protocol, not fine-tuning in
+general.}  Three facts bound every number in this paper, and we state them
+together here rather than leaving them to be assembled from three appendices.
+\emph{(i)~The training objective differs by backbone, and one of the three is not
+native.}  Moirai is fine-tuned through its own probabilistic NLL, and TimesFM
+through its own point head's loss (MSE on the mean channel plus pinball on the
+nine decile channels), with no head attached to either.  The five
+Chronos-T5-Small cells in the main matrix are instead fine-tuned through an
+\emph{added} MSE regression head on mean-pooled encoder features, which bypasses
+the tokenised cross-entropy Chronos was pre-trained with.  That mismatch is why
+Chronos's per-condition forgetting is flagged confounded in the code and excluded
+wherever a forgetting comparison is made (Appendix~\ref{app:predictor}), and why
+the M4-Monthly arm, which \emph{is} fine-tuned through the native cross-entropy,
+is reported separately (Appendix~\ref{app:chronos_detail}) instead of pooled with
+those five.  \emph{(ii)~The outcome is one metric on one channel.}  Every
+forecasting result is MSE on a single target channel at a fixed horizon; we test
+no multivariate-target, multi-task or classification adaptation beyond the IoT
+negative control.  \emph{(iii)~One adaptation step, not a task sequence}
+(\S\ref{sec:background}).  ``Encoder adaptation'' in this paper therefore means
+what this protocol does, and our results say nothing about a backbone fine-tuned
+through its own decoder on a task we did not run.
+
 \textbf{Broader impact.}  This is a diagnostic study on public forecasting
 benchmarks, and the effect we intend is to raise the bar for claims about
 forgetting in time-series foundation models: a paper reporting that fine-tuning

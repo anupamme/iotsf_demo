@@ -61,24 +61,38 @@ exist) separates the two readings directly: drift grows monotonically with $n$
 (CKA $0.949$ at 500 to $0.518$ at 10k) while forgetting is non-monotonic and
 reverses sign, $+14\%$ at 500, $-2.9\%$ by 2k, $-5.3{\pm}2.1\%$ at 10k (7/10
 negative). \textbf{If drift magnitude predicted harm these columns would track;
-they do not.}  Whatever harm exists is confined to Small at $n{\leq}1$k, while
-the largest spread across seeds sits at the $n{=}5$k crossover
+they do not.}  Whatever harm exists is confined to Small at $n{\leq}1$k
 (Table~\ref{tab:sample_sweep}, Figure~\ref{fig:dissociation},
-Appendix~\ref{app:n5k_trajectories}).  \textbf{The $n{=}10$k sign is fragile}: an
-earlier three-seed record read at its final epoch gives $+10.6\%$
-against the $-5.3\%$ above, on four differences at once and so isolating no cause
-(Appendix~\ref{app:limitations}).
+Appendices~\ref{app:n5k_trajectories},~\ref{app:limitations}).
+% 2026-09-25, page-10 funding for S5.2's mitigation sentence and S3's scope pointer. Two things are cut
+% from this paragraph and NEITHER leaves the paper. (1) "The n=10k sign is fragile: an earlier
+% three-seed record read at its final epoch gives +10.6% against the -5.3% above, on four differences
+% at once and so isolating no cause." app:limitations states it with strictly more: the three seeds and
+% that they are a subset, both epoch budgets, both zero-shot references, and the two seed-matched
+% CUDA/MPS readings -- five registered chks against this sentence's one, and the pointer above now
+% names it. This was the thinnest statement of the concession, not the load-bearing one. (2) "while the
+% largest spread across seeds sits at the n=5k crossover", which app:n5k_trajectories is the section
+% for and which the same pointer already cited. The CLAIM of this paragraph -- drift monotone,
+% forgetting not, and the +-2.1 with 7/10 negative that carries the n=10k dispersion -- is untouched.
 % C2: the sweep's split-protocol provenance -- that it predates held-out scoring, is scored on one split
 % throughout, and so reads +14.0+-3.9 at n=500 where the held-out mean above reads +9.71+-10.58 -- is a
 % correction record, and app:corrections and app:n5k_trajectories are where it belongs. The body keeps
 % the sweep's CLAIM (drift monotone, forgetting not) and S7.1 keeps the general finding that selection-
 % split scoring reverses signs. Both numbers stay registered at their appendix sites.
 
-\textbf{What mitigation is for.} Five strategies spanning unconstrained
-fine-tuning to full freezing (LoRA, EWC, L2-SP, frozen encoder, strict
-freeze) are reported in Appendix~\ref{app:full_tables}, on
-Moirai-Small/ETTh2, the one cell where we ran the whole spectrum: weight
-anchoring does not help there and LoRA does, but extending LoRA to eight
+\textbf{What mitigation is for, and what preserving a representation buys.}
+Five strategies spanning unconstrained fine-tuning to full freezing (LoRA, EWC,
+L2-SP, frozen encoder, strict freeze) are reported in
+Appendix~\ref{app:full_tables}, on Moirai-Small/ETTh2, the one cell where we ran
+the whole spectrum.  Among the four arms trained at $n{=}1{,}000$ there, the ones
+this cell can compare, the three weight-anchoring arms span CKA $0.939$--$0.972$
+and land within $0.003$ MSE of one another, so a $0.033$ spread in preservation
+buys no measurable utility; the \emph{most} preserving arm (LoRA, CKA $0.979$) is
+also the best on the task and the only one to improve on zero-shot ($-9.1\%$),
+and at $h{=}192$ the worst arm on the task is EWC, at the third-highest CKA of
+the four.  \textbf{Preserving representational similarity is not the same as
+preserving useful behaviour}, the dissociation of \S\ref{sec:exp3} read across
+mitigation strategies rather than across cells, but extending LoRA to eight
 further value-cells leaves full fine-tuning ahead on four of them
 (Appendix~\ref{app:loravaluecells}).
 % The closing sentence -- that the screen bounds what mitigation can be for, on 24 of 31 cells -- is the

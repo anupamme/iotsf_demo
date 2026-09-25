@@ -54,9 +54,19 @@ geometric measures
 (Appendices~\ref{app:crosscell},~\ref{app:driftmetrics}).  The same dissociation
 holds \emph{inside} one encoder: unfreezing the top 3 of 6 layers and unfreezing
 all 6 are indistinguishable on the task at CKA $0.716$ against $0.465$
-(Appendix~\ref{app:layerunfreeze}).  And where a cell does degrade,
-freezing does not save it: on Chronos/ETTh1 the frozen encoder is worse still
-($+59.8\%$ against $+20.6\%$), so encoder adaptation is not the locus of the damage.
+(Appendix~\ref{app:layerunfreeze}).
+% 2026-09-25. Cut: "And where a cell does degrade, freezing does not save it: on Chronos/ETTh1 the
+% frozen encoder is worse still (+59.8% against +20.6%), so encoder adaptation is not the locus of the
+% damage." It is cut for CORRECTNESS first and page-10 funding second. "Where a cell does degrade" is a
+% statement about forg_B, and Chronos's per-condition forgetting is exactly the quantity this paper
+% flags forg_confounded and excludes from every forgetting comparison it makes (cell_matrix.py:474,
+% paired_inference.py:376, degradation_sensitivity.py:119): an MSE head is attached for B and D while
+% the zero-shot reference is the native decoder's. The B-vs-D CONTRAST survives that confound (the
+% mismatched denominator rescales it and cannot flip its sign), but the premise this sentence builds on
+% does not, and the Ethics Statement's Scope paragraph now says out loud that these five cells are
+% excluded wherever a forgetting comparison is made -- which this sentence was. Both numbers stay in
+% tab:crossbackbone, where crossbackbone.tex is emitter-written and the row carries its confound mark,
+% so the reader still has them with the caveat attached; what is gone is the body's inference from them.
 
 % 2026-09-25. "A wide interval is a failure to establish an ordering, not evidence against one" cut
 % here, same page budget. The caution is not dropped: this paragraph still closes on "a null in

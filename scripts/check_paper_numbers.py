@@ -1334,14 +1334,16 @@ def rederive():
     import glob
 
     # (a) Chronos/ETTh1, the one cross-backbone cell that degrades, and what freezing does to it. Its
-    # forg_b is already pinned as R["chronos_max"] at S6's line-39 site; the line-56 restatement is a
-    # different phrasing of the same number, and coverage is per phrasing, not per fact.
+    # forg_b is already pinned as R["chronos_max"] at S6's line-39 site. S6's second phrasing of the
+    # pair is cut on 2026-09-25 (its premise is the forg_confounded quantity), so the surviving site
+    # for both numbers is tab:crossbackbone. The assert stays: it is what stops the emitter printing a
+    # pair whose ordering has silently changed, which is now the only way this fact can go wrong.
     _ch1 = next(r for r in rows if r["cell"].startswith("Chronos/etth1"))
     R["chronos_etth1_b"], R["chronos_etth1_d"] = _ch1["forg_b"], _ch1["forg_d"]
     assert R["chronos_etth1_d"] > R["chronos_etth1_b"] > 0, (
         f'Chronos/ETTh1 no longer degrades under both conditions with the frozen encoder worse '
-        f'(B {R["chronos_etth1_b"]:+.1f}%, D {R["chronos_etth1_d"]:+.1f}%); S6\'s "freezing does not '
-        f'save it" is stale')
+        f'(B {R["chronos_etth1_b"]:+.1f}%, D {R["chronos_etth1_d"]:+.1f}%); tab:crossbackbone\'s '
+        f'ordering is stale')
 
     # (b) the random-init CKA floor S6 compares the Chronos arm against, and the cells at or below it.
     # "Four of the five" is DERIVED from the floor rather than typed: which cells fall below it is a
@@ -1386,6 +1388,63 @@ def rederive():
         f'the two matched unfreeze depths now differ by {R["lu_forg_se"]:.2f} SE on the task and '
         f'{R["lu_cka_se"]:.2f} SE on CKA; S6 says indistinguishable on the former, separated on the '
         f'latter, which is the whole dissociation that sentence reports')
+
+    # (c2) S5.2's mitigation reading, added 25 Sep 2026. The body now states that within the four arms
+    # trained at n=1,000 on Moirai-Small/ETTh2, CKA does not order utility. Read through
+    # emit_mitigation_spectrum.read() rather than re-globbing, so the prose and tab:mitigation_spectrum
+    # cannot disagree about which records an arm is: that emitter also drops the pre-registered seed
+    # top-up's runs ("this is the published read"), and a second loader here would silently include
+    # them and move the body's numbers away from the table's on the same cell.
+    #
+    # The n=1,000 RESTRICTION is the claim's load-bearing part. The table's own caption states that no
+    # ordering across the two training-set sizes is supported (there is no multi-seed full-fine-tuning
+    # arm at n=1,000 on this cell), so a version of this sentence that compared the anchoring arms
+    # against condition B at n=500 would be making exactly the comparison the caption refuses. The
+    # assert below pins the restriction itself: if an arm's n ever changes, this block fails rather
+    # than quietly widening the comparison.
+    import emit_mitigation_spectrum as _ems
+    _mit = {}
+    for _label, _pat, _ntr in _ems.ARMS:
+        if _ntr != 1000:
+            continue
+        for _h in ("h96", "h192"):
+            _a = _ems.read(_pat % _h)
+            assert _a, f"mitigation arm {_label} {_h} has no records; S5.2's sentence reads them"
+            _mit[(_label, _h)] = _a
+    assert len(_mit) == 8, f"S5.2 says four arms at n=1,000; the emitter now offers {len(_mit) // 2}"
+    _lora = [k for k in _mit if "LoRA" in k[0]][0][0]
+    _anch = sorted({k[0] for k in _mit} - {_lora})
+    assert len(_anch) == 3, f"S5.2 says three weight-anchoring arms; found {_anch}"
+
+    _a96 = [_mit[(l, "h96")] for l in _anch]
+    R["mit_cka_lo"] = min(a["cka"] for a in _a96)
+    R["mit_cka_hi"] = max(a["cka"] for a in _a96)
+    R["mit_cka_spread"] = R["mit_cka_hi"] - R["mit_cka_lo"]
+    R["mit_mse_spread"] = max(a["mse"] for a in _a96) - min(a["mse"] for a in _a96)
+    R["mit_lora_cka"] = _mit[(_lora, "h96")]["cka"]
+    R["mit_lora_forg"] = abs(_mit[(_lora, "h96")]["forg"])
+
+    # The three ORDINAL claims in that sentence. None is a numeral, so none can be reached by a chk();
+    # each is the part of the sentence a moved record would falsify while every printed figure in it
+    # stayed correct.
+    _f96 = {l: _mit[(l, "h96")] for l in _anch + [_lora]}
+    _improving = [l for l, a in _f96.items() if a["forg"] < 0]
+    assert _improving == [_lora], (
+        f'S5.2 says LoRA is the ONLY arm at n=1,000 that improves on zero-shot at h=96; '
+        f'the arms now improving are {_improving}')
+    assert R["mit_lora_cka"] == max(a["cka"] for a in _f96.values()), \
+        "S5.2 says LoRA is the most representation-preserving of the four at h=96; it no longer is"
+    assert _f96[_lora]["mse"] == min(a["mse"] for a in _f96.values()), \
+        "S5.2 says LoRA is also the best on the task at h=96; it no longer is"
+    # The h=192 half. The first draft of S5.2 said EWC held the SECOND-highest CKA here, which this
+    # assert caught: LoRA and L2-SP(0.1) both sit above it, so it is third. The sentence was corrected
+    # to the records rather than the assert loosened to the sentence -- the rank is the whole point of
+    # the clause, since a worst-on-task arm at a middling CKA is what makes the inversion an inversion.
+    _by_cka = sorted(_anch + [_lora], key=lambda l: _mit[(l, "h192")]["cka"], reverse=True)
+    _worst_mse = max(_anch + [_lora], key=lambda l: _mit[(l, "h192")]["mse"])
+    assert "EWC" in _by_cka[2] and _by_cka[2] == _worst_mse, (
+        f'S5.2 says EWC is the worst arm on the task at h=192 at the THIRD-highest CKA of the four; '
+        f'the CKA order is now {_by_cka} and the worst MSE is {_worst_mse}')
 
     # (d) Moirai-Large's LoRA arm: S6's "the learning rate, not the rank, decides the sign". Two
     # groups, both r=8 on ETTh2 h=96 -- the default learning rate and the 10x reduction, whose five
@@ -2069,9 +2128,11 @@ def build_checks(R):
     # failure this file keeps having: the claim is ABOUT a record disagreeing with another record, so
     # an unregistered number here would be an unchecked number inside a paragraph whose whole subject
     # is unchecked numbers.
-    chk("n=10k sign fragility (S5.2 body)",
-        r"read at its final epoch gives \$\+([\d.]+)\\%\$\s+against the \$-([\d.]+)\\%\$ above",
-        R["pro_fe3"], abs(R["pro_es10"]))
+    # The S5.2 BODY site is retired on 2026-09-25 with the sentence it checked ("read at its final
+    # epoch gives +10.6% against the -5.3% above"), cut for page-10 funding. The fact is not retired:
+    # the five chks below read app:limitations, which states it with the seed subset, both epoch
+    # budgets, both zero-shot references and the seed-matched CUDA/MPS pair. R["pro_es10"] is still
+    # read by the sweep's own -5.3+-2.1 site in S5.2, so nothing here becomes unreachable.
     chk("n=10k final-epoch record (appendix)",
         r"final-epoch runs gave \$\+\$([\d.]+)\$\\pm\$([\d.]+)\\% on \$k\{=\}(\d+)\$",
         R["pro_fe3"], R["pro_fe3_sd"], R["pro_n_fe3"])
@@ -2336,11 +2397,13 @@ def build_checks(R):
     chk("the sweep's endpoints, abbreviated",
         r"\$n\{\\in\}\\\{(\d+),\\ldots,(\d+)\\mathrm\{k\}\\\}\$",
         R["n_grid_printed"][0], R["n_grid_printed"][-1])
-    # Anchored on the sentence, not on the "$n{=}X$k" form: that form labels five different sample
-    # sizes across the paper, so a bare pattern binds every one of them to the top of the grid and
-    # fails at n=1k and n=5k. A pattern that matches a LABEL is not a claim about a value.
-    chk("the top of the sweep, where S5 calls its sign fragile",
-        r"\\textbf\{The \$n\{=\}(\d+)\$k sign is fragile\}", R["n_grid_printed"][-1])
+    # Retired on 2026-09-25 with the fragility sentence it was anchored on: chk("the top of the sweep,
+    # where S5 calls its sign fragile"), pattern \textbf{The $n{=}(\d+)$k sign is fragile}. It was
+    # anchored on that sentence rather than on the "$n{=}X$k" form because that form labels five
+    # different sample sizes across the paper -- and with the sentence cut there is no other sentence to
+    # anchor on. The grid top is not unregistered: the endpoints chk immediately above reads it from
+    # S5.2's $n{\in}\{500,\ldots,10\mathrm{k}\}$, and the five-value grid chk at S3's site reads all
+    # five in order.
     chk("the bottom of the sweep, with its separator",
         r"fine-tuning on (\d+)--(\d+)\{,\}000 samples",
         R["n_grid_printed"][0], R["n_grid_printed"][1])
@@ -3059,9 +3122,11 @@ def build_checks(R):
     chk("pooled l2 weight drift correlation",
         r"pooled \$\\ell_2\$ weight drift gives \$\\rho\{=\}\{\+\}([\d.]+)\$ with a CI including zero",
         R["pooled_drift_rho"])
-    chk("Chronos/ETTh1: freezing is worse still",
-        r"the frozen encoder is worse still \(\$\+([\d.]+)\\%\$ against \$\+([\d.]+)\\%\$\)",
-        R["chronos_etth1_d"], R["chronos_etth1_b"])
+    # "Chronos/ETTh1: freezing is worse still" is retired on 2026-09-25 with S6's sentence, which was
+    # its only site. The sentence was cut because its premise ("where a cell does degrade") is the
+    # forg_confounded quantity, not because the numbers moved; the rederive() assert that pins
+    # D > B > 0 is KEPT, because tab:crossbackbone still prints both numbers and the emitter is what
+    # has to stay honest about them now.
     # The Chronos arm's drift range and the untrained-encoder floor it is compared against, in one
     # pattern: the sentence's force is entirely in "at or below", so a check that could pass with the
     # floor re-pointed at a different measurement would not be checking it.
@@ -3075,6 +3140,18 @@ def build_checks(R):
         r"\\textbf\{([\d.]+)\}, not zero", R["cka_floor"])
     chk("the random-init CKA floor (normalisation left at their pre-trained values)",
         r"reports \$([\d.]+)\$ once normalisation", R["cka_floor"])
+    # S5.2's mitigation reading. Two sites, because the sentence makes two separable claims and a
+    # single pattern spanning both would go stale on either half. The three ordinal claims in the same
+    # sentence are asserted at read time instead (block (c2) above): they are not numerals, so no chk()
+    # can reach them, and they are the half a moved record would falsify invisibly.
+    chk("mitigation: the anchoring arms' CKA span buys no utility (S5.2)",
+        r"span CKA \$([\d.]+)\$--\$([\d.]+)\$ and land within \$([\d.]+)\$ MSE of one another, "
+        r"so a \$([\d.]+)\$ spread",
+        R["mit_cka_lo"], R["mit_cka_hi"], R["mit_mse_spread"], R["mit_cka_spread"])
+    chk("mitigation: LoRA is the most preserving and the best on the task (S5.2)",
+        r"preserving arm \(LoRA, CKA \$([\d.]+)\$\) is also the best on the task and the only "
+        r"one to improve on zero-shot \(\$-([\d.]+)\\%\$\)",
+        R["mit_lora_cka"], R["mit_lora_forg"])
     chk("layer-unfreeze: same task outcome, different representation",
         r"indistinguishable on the task at CKA \$([\d.]+)\$ against \$([\d.]+)\$",
         R["lu3_cka"], R["lu6_cka"])

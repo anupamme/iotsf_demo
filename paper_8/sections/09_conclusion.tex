@@ -57,7 +57,8 @@ threshold misplaces 5 of the 31 cells.
 
 The advice therefore inverts the literature's.  Check that
 the pre-trained features beat a baseline fitted on your own data before spending
-effort on LoRA, EWC or L2-SP; if they do, settle the question against a frozen
+effort on LoRA, EWC or L2-SP, whose representation preservation is no guide to
+their utility (\S\ref{sec:forecasting:replication}); if they do, settle the question against a frozen
 encoder scored on windows you did not select on, in that order, because
 \textbf{a forgetting result measured on cells with no measurable pre-trained
 advantage is a statement about the benchmark}.  We do \emph{not} claim that drift

@@ -7,9 +7,11 @@
 \emph{(i)~Forgetting} is studied in continual learning, NLP and fine-tuning
 dynamics~\cite{kirkpatrick2017ewc, li2017lwf, luo2023forgetting,
 kumar2022finetuning, andreassen2023evolution}, and supplies the prescriptions
-we test; we use ``forgetting'' throughout in the narrower task-level sense of
-degradation relative to zero-shot, not the continual-learning sense of loss on
-a prior task.  \emph{(ii)~TSFM adaptation} recipes span probabilistic
+we test.  \textbf{This is not a continual-learning study}: no task sequence, no
+loss on a prior task, one adaptation step, so ``forgetting'' here is degradation
+relative to the same checkpoint's zero-shot on the same data, and a
+catastrophic-forgetting result and ours can hold at once.
+\emph{(ii)~TSFM adaptation} recipes span probabilistic
 fine-tuning, generative pre-training, LLM reprogramming and cross-task
 transfer~\cite{rasul2024lagllama, liu2024timer, jin2024timellm,
 zhou2023onefitsall}, and are evaluated on target-task accuracy.
