@@ -1,0 +1,59 @@
+{
+  "written_utc": "2026-09-25T12:05:33+00:00",
+  "git_head": "b9da8fa1e4fd80d98022856f3b499b2127ae0b99",
+  "arm": "partial-encoder-adaptation ladder, thin rungs",
+  "purpose": "tab:layerunfreeze reports N in {0,3,4,5,6} but only N=3 and N=6 are a matched comparison (10 early-stopped MPS seeds each). N=4 and N=5 are single seeds from results/v27_layer_unfreeze, read at the final epoch with early stopping DISABLED, and are labelled context rather than evidence. This registration fixes the top-up that puts N=4 and N=5 on the same protocol as the matched pair, so the appendix can report a four-rung ladder in one environment instead of two rungs plus two unmatched points.",
+  "not_prospective": "This is NOT a prospective test. The N=3/N=6 outcome is already published and the superseded N=4/N=5 single seeds are already on disk, so what this file fixes is only what is still fixable: the rungs, the seeds, the command, the statistic, the reporting form, and what each outcome will be taken to mean. It is registered on the same terms as results/power_topup/preregistration_power.json and results/chronos_m4/preregistration.json.",
+
+  "cell": {
+    "backbone": "Moirai-Small (13.8M)",
+    "dataset": "data/forecasting/ETTh2.csv",
+    "horizon": 96,
+    "max_train_samples": 10000,
+    "epochs": 20
+  },
+
+  "rungs": [
+    {"N": 4, "layers_trainable": "top 4 of 6", "condition": "D", "flag": "--unfreeze-top-n-layers 4"},
+    {"N": 5, "layers_trainable": "top 5 of 6", "condition": "D", "flag": "--unfreeze-top-n-layers 5"}
+  ],
+  "seeds": [42, 101, 123],
+  "n_runs": 6,
+  "seed_choice": "the first three of the matched pair's seed list (42/101/123/202/303/456/777/789/888/999), so the thin rungs are a prefix of the same list and not a separately chosen set",
+
+  "command_template": ".venv12/bin/python scripts/finetune_forecasting.py --data-path data/forecasting/ETTh2.csv --condition D --model-size small --horizon 96 --epochs 20 --max-train-samples 10000 --eval-every 1 --device mps --seed {seed} --early-stopping --save-best-encoder --deterministic --unfreeze-top-n-layers {N} --results-dir results/v49_layerunfreeze_10seed/N{N}_seed{seed}",
+  "output_path": "results/v49_layerunfreeze_10seed/N{N}_seed{seed}/condition_D_h96_s{seed}.json",
+  "depth_provenance": "finetune_forecasting.py does not record the unfreeze depth in its JSON, so the depth is carried by the directory name only. This matches the existing N3 records and is why these runs go into the v49 root, which scripts/check_paper_numbers.py excludes from its condition_D sweep by name (_LU_ROOTS).",
+
+  "environment": {
+    "interpreter": ".venv12 (Python 3.12), uni2ts 2.0.0",
+    "device": "Apple MPS",
+    "torch": "2.14.0",
+    "env": "PYTORCH_ENABLE_MPS_FALLBACK=1",
+    "deviations": "the same two forced deviations the matched pair carries: torch 2.14 is above uni2ts's declared <2.5 pin (below it, the NegativeBinomial component of Moirai's output mixture collapses to total_count=0 on MPS and training dies in the first NLL step), and aten::_cummax_helper has no MPS kernel so uni2ts's time-id generation falls back to CPU for that op",
+    "matched_to": "results/v49_layerunfreeze_10seed N3/N6 runs: same interpreter, device, torch version, epochs, sample count, early-stopping and determinism settings"
+  },
+
+  "statistic": {
+    "table": "mean +- population std (ddof=0) over seeds, the convention tab:layerunfreeze already uses",
+    "prose": "SEM where a difference is characterised in standard errors, the body convention of S3",
+    "signs": "the count of seeds whose forgetting_pct is negative, reported as k/3",
+    "reads": "final_cka, forgetting_pct and final_weight_drift as stored, i.e. AFTER the early-stopping restore, which is what makes them comparable to the N=3/N=6 rows",
+    "withdrawn": "the linear_probe block in each record is the retracted probe quantity (sec:retraction) and will not be used to support any claim; the existing Ridge dR2 column is retained as an audit record only"
+  },
+
+  "statements_fixed_in_advance": {
+    "supersession": "the new N=4 and N=5 rows REPLACE the single-seed v27 rows in tab:layerunfreeze. Nothing is deleted: the v27 records stay in the release and the provenance paragraph states that the superseded values were +4.1% (N=4) and +31.8% (N=5) forgetting at the final epoch without early stopping, and why they are not comparable to an early-stopped reading.",
+    "seed_count_is_stated": "N=4 and N=5 will be labelled at 3 seeds against the pair's 10, in the row group and in the caption. They are a protocol-matched but NOT seed-count-matched extension, and the paper's one drawn claim stays the N=3 versus N=6 comparison.",
+    "monotone_outcome": "if CKA falls monotonically in N while forgetting does not order with it, that is the existing finding extended and the body sentence at 06_exp3_drift.tex:57 is widened from two depths to four.",
+    "non_monotone_outcome": "if forgetting is non-monotone in N, or if a thin rung's mean sits outside the matched pair's range, it is REPORTED AS FOUND and the body sentence is narrowed to the matched pair rather than the ladder being dropped. A rung is not excluded for being inconvenient.",
+    "cka_monotonicity_not_assumed": "we do not predict that CKA is monotone in N. The per-layer profile in this appendix already shows drift concentrated mid-stack (trough at layer 4), so a non-monotone CKA ladder is an admissible outcome and would be reported with the per-layer profile as the reading.",
+    "divergence": "if a rung diverges (as N=1 did at NaN, epoch 11), the diverged seeds are counted and named in the caption and no value is extracted from a crashed run. The learning rate is NOT reduced to rescue a rung: that would break the match to the pair.",
+    "stopping": "exactly the 6 runs listed here, and no more. No seed is added after seeing a result, and no rung is extended to 10 seeds inside this submission window.",
+    "incomplete": "if fewer than 6 records exist at the freeze, each rung is reported at the seed count actually on disk and the shortfall is stated in the provenance paragraph. No table row is emitted for a rung with zero records, and no --allow-incomplete flag is used anywhere.",
+    "no_new_claim": "this top-up cannot create a new claim in the body. Its ceiling is to make an existing appendix comparison four rungs wide."
+  },
+
+  "registered_by": "authors",
+  "scored_by": "hand-authored rows in paper_8/sections/appendix.tex (tab:layerunfreeze is inline, not \\input-ed), with every reported numeral covered by a chk() in scripts/check_paper_numbers.py that reads these records"
+}
