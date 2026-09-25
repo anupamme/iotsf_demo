@@ -84,8 +84,14 @@ PROMISED = {
     "the LaTeX source": "paper_8/main.tex",
     "the conference style file": "paper_8/iclr2027_conference.sty",
     "the bibliography": "paper_8/main.bbl",
+    # All five, not a sample: "What we release" now promises "all five pre-registration files", and the
+    # Pre-registration paragraph says of the ones it names that "All are in the release". A gate that
+    # covered two of the five let the other three go missing without making the build fail.
     "the positive-control pre-registration": "results/positive_control/preregistration.json",
     "the prospective-arm pre-registration": "results/v47_prospective/preregistration.json",
+    "the batch-3 pre-registration": "results/v57_prospective3/preregistration_v3.json",
+    "the Chronos/M4 re-run pre-registration": "results/chronos_m4/preregistration.json",
+    "the seed top-up pre-registration": "results/power_topup/preregistration_power.json",
     "the LOCO pre-registration": "scripts/preregister_loco.py",
     "the task-B generator": "scripts/make_conflicting_series.py",
 }
