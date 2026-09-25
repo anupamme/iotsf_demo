@@ -51,8 +51,33 @@ def sd0(v):
     return st.pstdev(v) if len(v) > 1 else 0.0
 
 
+def published_only(files):
+    """Drop the pre-registered seed top-up's runs. THIS IS A PUBLISHED TABLE.
+
+    Eight of the top-up's 26 registered runs land in results/forecasting_finetune_20ep/ -- the four
+    added B seeds and the four added D seeds of Moirai-Small/ETTh2 h=192, which is this table's own
+    cell at one of its two horizons. This emitter globs that directory directly, so the moment those
+    records landed the h192 column went to n=14 against h96's n=10 and the seed-count guard below
+    fired. The guard was right to fire: absorbing them would have moved a published table's MSE, CKA
+    and drift means at one horizon only, which is exactly what the Phase F registration promises does
+    not happen ("no published number is replaced"). So the filter is the fix, not the guard.
+
+    Same mechanism as cell_matrix.topup_paths(), and deliberately the same source of truth: the
+    registration's own path list, matched on paths rather than seed numbers. The augmented read of
+    this cell lives in Table~\\ref{tab:power_topup}, computed by scripts/emit_power_topup.py.
+    """
+    import cell_matrix as cm
+    skip = cm.topup_paths()
+    keep = [f for f in files if str(Path(f).resolve().relative_to(ROOT)) not in skip]
+    return keep, len(files) - len(keep)
+
+
 def read(pattern):
     files = sorted(glob.glob(str(ROOT / pattern)))
+    files, n_topup = published_only(files)
+    if n_topup:
+        print(f"  skipped {n_topup} pre-registered top-up record(s) in {pattern}: this is the "
+              f"published read")
     if not files:
         return None
     mse, zs, cka, drift = [], [], [], []
