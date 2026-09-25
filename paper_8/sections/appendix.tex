@@ -1136,7 +1136,7 @@ Moirai-S/ETTh2 $h{=}96$, cond.\ B, $n{=}500$ (10 seeds) & $0.937{\pm}0.029$ & \t
 Moirai-S/ETTh2 $h{=}96$, cond.\ B, $n{=}10$k (10 seeds) & $0.465{\pm}0.123$ & \texttt{v49} \\
 Chronos, cond.\ B, 4 cells at $h{=}24$ & 0.092--0.169 & \texttt{v44} \\
 IoT (N-BaIoT), cond.\ C, 200 samples (3 seeds) & $0.423{\pm}0.043$ & \texttt{v6\_iot\_cka} \\
-Frozen encoder, cond.\ D, Moirai (131 runs) & 0.889--0.9999 & \texttt{v5--v57} \\
+Frozen encoder, cond.\ D, Moirai (132 runs) & 0.889--0.9999 & \texttt{v5--v57} \\
 Strict freeze, cond.\ H (7/7 cells) & 1.0000 & \texttt{v45} \\
 \bottomrule
 \end{tabular}
@@ -1159,7 +1159,7 @@ defensible there, but the margin is a factor of two, not the near-total separati
 a zero floor implied.  And ``ETT fine-tuning preserves most pre-trained
 structure'' was read off small-$n$ runs: the same cell at $n{=}10$k reads $0.465$,
 and the range across all 31 cells is $0.092$ to $0.970$.  The condition-D row also
-needs a scope: D is uniform only within Moirai, and its 131 runs exclude the
+needs a scope: D is uniform only within Moirai, and its 132 runs exclude the
 partial-unfreeze arm of Appendix~\ref{app:layerunfreeze}, whose runs are stored
 under the same \texttt{condition\_D} filenames and reach down to CKA $0.317$
 while three of six layers train.  Because D leaves \texttt{in\_proj}

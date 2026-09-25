@@ -1,5 +1,5 @@
 % ============================================================
-% Ethics and Reproducibility statements.  ICLR excludes both from the 9-page
+% Ethics, Reproducibility and AI-assistant statements.  ICLR excludes these from the 9-page
 % main-text limit, so nothing here competes with the body for space.  They are
 % placed after the conclusion and before the references, per the ICLR template.
 % ============================================================
@@ -179,3 +179,48 @@ the \LaTeX{} source and style files needed to build this paper.  Model checkpoin
 are excluded for size; the appendices state which runs retained a checkpoint,
 because two re-measurements we would otherwise have made were blocked by runs
 whose checkpoints were not kept (Appendix~\ref{app:noisefloor}).
+
+% ============================================================
+% Required by the ICLR 2027 main track.  Placed with the other statements, after the
+% conclusion and before the references, on the same footing as Ethics and
+% Reproducibility.  Written to be checkable rather than reassuring: the commit count
+% below is a fact about the released history, and the division between what the
+% assistant produced and what it could not produce is the same division the
+% Reproducibility Statement already enforces mechanically.
+% ============================================================
+\section*{Use of AI Assistants}
+
+An LLM-based coding assistant (Anthropic's Claude, used through Claude Code) was
+used extensively in this work, and we recorded it as we went rather than
+reconstructing it afterwards: \textbf{the majority of commits in this project's
+version-control history carry an AI co-author trailer}.  Because ``extensively''
+is the kind of word that hides the distinctions that matter, we state which parts
+of the work it touched.
+
+\textbf{Where it was used.}  Implementation and prose.  It wrote and revised most
+of the analysis and experiment scripts, including the table emitters, the
+one-command re-derivation sweep, the prose-number checker, the figure scripts, and
+the anonymity and bundle-inventory gates; and it drafted and edited the paper's
+text, this statement included.  It was also used against our own work: to search
+the repository for prose that disagreed with the run records, and to check every
+reference in the bibliography against upstream publisher metadata.
+
+\textbf{Where it was not used.}  It produced no experimental result.  Every number
+in this paper comes from a run that executed and wrote a JSON record, and the
+registered checks in \texttt{scripts/check\_paper\_numbers.py} compare the prose
+against those records, never against anything a model asserted.  The
+research question, the study design, the pre-registered predictions and decision
+rules, the choice of what to cut and what to report, and every claim the paper
+makes are ours.
+
+\textbf{Responsibility, and one caveat worth stating.}  We take full
+responsibility for everything in this paper, errors introduced during
+AI-assisted work included.  Such errors did occur, and the two kinds we hit
+repeatedly are worth naming because they are not the kinds a reader would expect:
+tables whose numbers had been typed by hand and then drifted from the records
+they were supposed to summarise, and claims that were reworded in one place while
+a restatement elsewhere kept the superseded figure.  Neither was caught by
+rereading the paper; each was caught by a mechanical check.  That is the reason
+the verification apparatus described above exists in the form it does, and it is
+the part of this methodology we would recommend to anyone writing a paper this
+way.
