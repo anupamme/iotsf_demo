@@ -1,0 +1,32 @@
+{
+  "backbone": "timesfm",
+  "model_id": "google/timesfm-2.5-200m-pytorch",
+  "dataset": "Electricity",
+  "horizon": 48,
+  "lookback": 96,
+  "condition": "D",
+  "seed": 456,
+  "test_seed": 0,
+  "loss_type": "native_point_head",
+  "n_test_windows": 200,
+  "n_val_windows": 200,
+  "zeroshot_mse": 2.864478142845696,
+  "zeroshot_test_mse": 3.0269463489890915,
+  "final_val_mse": 2.6523576441690655,
+  "test_mse": 3.01705420603146,
+  "best_epoch": 3,
+  "epochs": 20,
+  "lr": 0.0001,
+  "batch_size": 16,
+  "max_train_samples": 1000,
+  "n_trainable": 34574080,
+  "n_params": 231289280,
+  "frozen_modules": [
+    "stacked_xf"
+  ],
+  "final_cka": 0.7985849228990698,
+  "final_weight_drift": 0.0,
+  "has_drift": true,
+  "forgetting_pct_test": -0.32680271855282206,
+  "forgetting_pct_val": -7.405205698860759
+}

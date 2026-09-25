@@ -664,6 +664,119 @@ point used in the paper.}
 \input{tables/gate_sensitivity}
 \end{table}
 
+% \clearpage, not a bare heading: this subsection follows three queued table floats (the mitigation
+% spectrum, tab:prospective and tab:gate_sensitivity), and without the flush its heading printed at the
+% foot of one page while its first result paragraph landed two pages later, behind those tables. The
+% appendix has no page budget, so the backlog is flushed rather than the prose fragmented.
+\clearpage
+% ------------------------------------------------------------
+\subsection{Batch 3: The Corrected Gate, Registered Before Its Own Outcomes}
+\label{app:prospective3}
+% ------------------------------------------------------------
+% Added 25 Sep 2026, when the last of this batch's 54 outcome runs landed. It answers the one thing
+% batch 1 cannot: batch 1's frozen predictor fired on all eight of its cells, so its specificity was
+% 0/8 -- a screen that flags everything has not been tested as a screen. The corrected gate fires on
+% two of nine here, so specificity is estimable. Reported BESIDE batch 1 and never pooled with it:
+% different predictor (corrected ridge vs pre-correction trend) and different registered outcome rule
+% (paired intervals vs unanimity). scripts/score_prospective.py:28 refuses to pool them.
+
+\textbf{Why a second batch, and what was registered.}  The arm above grades a
+predictor we have since corrected, and it fired on every cell it saw, so it
+cannot say what happens when the gate \emph{declines} to fire.  A second batch was
+therefore registered in
+\texttt{results/v57\_prospective3/preregistration\_v3.json}, committed on
+2026-09-22 at revision \texttt{e5f1d626}, \textbf{before any condition-B or
+condition-D run of any cell in it existed}: \textbf{ten} cells---five Moirai
+(Base/Electricity7 at $h{\in}\{96,192\}$, Large/ETTh2 $h{=}192$, Large/ETTm2 at
+$h{\in}\{96,192\}$) and five TimesFM-2.5 at $h{=}48$---at 3 seeds in each of
+conditions~B and~D, with the \emph{corrected} ridge gate as the predictor and the
+paired-interval rule of \S\ref{sec:method} as the registered outcome.  The two
+batches are reported side by side and \textbf{never pooled}: they grade different
+predictors under different outcome rules, and a prospective test may not move its
+own comparison set, so the BH adjustment runs within this batch alone.
+
+\textbf{Result: no cell degraded, and this time the gate did not flag everything}
+(Table~\ref{tab:prospective3}).  Across the \textbf{9} scored cells---54 outcome
+runs---\textbf{0} degrade under the registered interval rule and \textbf{0} under
+the published unanimity definition, the two agreeing as they do on the
+retrospective grid.  The gate fired on \textbf{2} of the 9, giving \textbf{TP~0,
+FP~2, FN~0, TN~7}: precision $0.00$ again, sensitivity still unestimable against
+an empty positive class, but \textbf{specificity $0.78$, which batch 1 could not
+estimate at all}.  That number is the arm's one positive contribution and it is a
+measure of \emph{restraint}, not of discrimination: at zero prevalence a screen
+can be credited for the cells it correctly leaves alone, and nothing can be said
+about the cells it would have caught.  The competing dataset rule flags two
+different cells (TimesFM-2.5 on ETTh1 and on Weather) and scores the same matrix.
+
+\textbf{The gate's two prospective positives are both wrong, and one of them is
+wrong decisively.}  Large/ETTh2 $h{=}192$ carries a gate of $+0.92$---within
+$0.008$ of Moirai-Small/ETTh2 $h{=}192$ ($+0.932$), the strongest capability the
+screen admits anywhere in this paper and the very cell the positive control of
+\S\ref{sec:exp4:poscontrol} had to engineer a conflicting task against.  On that
+cell full fine-tuning does not damage the pre-trained capability: it
+\emph{improves} held-out loss by $33.2\%$ against zero-shot, with a $95\%$
+interval of $[-47.2, -19.2]$ that excludes zero.  The gate's most confident
+prospective prediction is therefore not merely unconfirmed but contradicted, in
+the direction opposite to the one it predicts.
+
+\textbf{What this arm cannot support, stated in its own terms.}  Both the B$-$ZS
+and D$-$ZS intervals exclude zero on only \textbf{2} of the 9 cells, and the
+primary matrix counts an inconclusive cell as not degrading, as registered---so
+most of the specificity above rests on cells where the data are consistent with a
+small effect of either sign.  Restricted to the 2 decisive cells the matrix is
+TP~0, FP~1, FN~0, TN~1, which is not a rate anyone should quote.  The secondary
+registered outcome, the three-way call on $\denc$ after BH adjustment within the
+batch, is \textbf{inconclusive on all 9}: zero freeze-decisive and zero
+adapt-decisive cells, so the batch identifies no new cell on which freezing or
+adapting can be called, and contradicts no call made on the published grid.  A
+batch of nine cells at 3 seeds is a test of the
+screen's false-positive behaviour and of nothing else.
+
+\textbf{One registered cell was not run, and the shortfall is disclosed rather
+than absorbed.}  Nine of the ten registered cells were scored; the tenth,
+Moirai-Large/ETTm2 $h{=}96$, was deferred on cost grounds when the submission
+window would not hold its measured $\sim$16.5~h of fine-tuning, and the decision
+is recorded with its timestamp, its reasons and the record count at the moment it
+was taken in \texttt{results/v57\_prospective3/deferred\_cell\_2026-09-24.json},
+committed before the deferral took effect.  Two facts make it checkable rather
+than a matter of trust.  \emph{No outcome for that cell existed when the decision
+was made}---0 condition-B and 0 condition-D records---so the choice cannot have
+been informed by its result; and \emph{the cell is gate-failing} ($-0.278$), so
+the only matrix entry it could have supplied is a true negative, which would move
+specificity from $0.78$ to $0.80$.  Its absence can therefore only weaken the one
+estimate this arm exists to produce; it cannot manufacture a favourable one.  The
+registration is unchanged and still lists all ten cells, so the shortfall is
+visible by diffing it against the scored cells.
+
+\textbf{Two disclosures about the predictor.}  The five TimesFM cells' registered
+gate was computed on the seed-42 selection-window draw, while the multi-seed
+recomputation in \texttt{gate\_all\_cells.timesfm\_gates} averages the draws of
+all three run seeds; the frozen value is the predictor and the recomputation is a
+sensitivity on it, not a replacement.  Those five cells are also the only
+registered gates the paper's own cache does not reproduce to $10^{-9}$, and by
+design: their numerator was measured by loading the checkpoint, and the one other
+route to it agrees only to ${\sim}6{\times}10^{-7}$ relative, which is real
+confirmation but would trip a bit-equality check.  The five Moirai gates are
+recomputed by the paper's estimator in a second pass and \textbf{all five
+reproduce the registered value exactly}.
+
+\begin{table}[ht]
+\centering
+\caption{\textbf{Batch 3 of the pre-registered prospective test: the corrected
+gate, graded on cells whose outcomes did not exist when it was frozen.}
+gate$_\text{val}$ is the corrected selection-split ridge gate of
+\S\ref{sec:forecasting}, frozen in the registration; ``pred.'' is the registered
+gate rule at the $0.20$ operating point.  $\Delta_\text{FT}$ and
+$\Delta_\text{frozen}$ are B$-$ZS and D$-$ZS in percent of zero-shot loss, with
+$95\%$ intervals propagating the zero-shot reference's own error; ``Degr.?''
+applies the registered interval rule.  The $\denc$ call is BH-adjusted within this
+batch only.  A tenth registered cell (Moirai-Large/ETTm2 $h{=}96$, gate $-0.278$)
+was deferred for the submission deadline and is disclosed in
+Appendix~\ref{app:prospective3}.}
+\label{tab:prospective3}
+\input{tables/prospective3}
+\end{table}
+
 % ============================================================
 \section{The Strict-Freeze Control}
 \label{app:strictfreeze}
@@ -2420,6 +2533,13 @@ checkpoint on the same windows.  Recomputing $R^2_\text{task}$ from each gives a
 per-cell spread of at most $0.0244$, on Moirai-Base/ETTh2 $h{=}96$; substituting
 the all-replicate mean for the registered denominator moves $R^2_\text{task}$ by at
 most $0.0037$ on batch 1, $0.0035$ on batch 2 and $0.0011$ on batch 3.
+% "batch 2" appears exactly once in this paper, here, and a reader meeting a numbered batch that is
+% reported nowhere is entitled to wonder what was in it. Glossed rather than dropped: its zero-shot
+% records are a genuine INPUT to batch 3's registered denominator (cell_matrix.new_moirai_cells reads
+% them through extra_a_dirs), so the number above depends on them and the arm's provenance does not.
+(Batch 2 was abandoned before any outcome run: it contributed six zero-shot
+measurements, which enter batch 3's registered denominator, and no condition-B or
+condition-D record anywhere in this paper.)
 
 \textbf{The comparison that matters is per cell, not global.}  That largest spread,
 $0.0244$, is bigger than the tightest margin to the operating point anywhere

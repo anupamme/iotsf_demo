@@ -53,15 +53,29 @@ scoring script decides nothing (Appendix~\ref{app:prospective2}).
 \textbf{The outcome the gate was registered to predict never occurs.}  None of
 the eight cells degraded; the gate flagged all eight, giving \textbf{TP~0, FP~8,
 FN~0}: precision $0.00$, while \textbf{sensitivity and specificity are both
-unestimable}.  \textbf{That makes this a test at zero prevalence, and the
+unestimable here}.  \textbf{That makes this a test at zero prevalence, and the
 prevalence bounds what it can say}: it establishes that the gate's positive
-predictions are wrong here---and not merely at the $0.20$ operating point, since
-re-scoring the same predictor at every threshold we swept gives precision $0.00$
-at all of them (Appendix~\ref{app:prospective2})---and it establishes nothing
+predictions are wrong here---at the $0.20$ operating point and at every threshold
+we swept (Appendix~\ref{app:prospective2})---and it establishes nothing
 about the gate's \emph{sensitivity}, which an
-empty positive class cannot estimate.  It is not a demonstration that the gate
-cannot work; it is a demonstration that these benchmarks supply nothing for it
-to work on.
+empty positive class cannot estimate.
+% Two sentences are cut here on 25 Sep 2026 to pay for the batch-3 result below, on a 9-page body whose
+% page 10 has under 48 characters of slack. Both were restatements; what replaces them is stated
+% nowhere else in the paper. (1) The threshold-independence clause -- "not merely at the 0.20 operating
+% point, since re-scoring the same predictor at every threshold we swept gives precision 0.00 at all of
+% them" -- keeps its content in the shortened em-dash clause above and its NUMBER in
+% app:prospective2, which reports the sweep beside tab:gate_sensitivity; the chk() that matched only
+% the body form is re-pointed at the appendix phrasing rather than deleted, so the fact keeps its
+% registered site. (2) "It is not a demonstration that the gate cannot work; it is a demonstration
+% that these benchmarks supply nothing for it to work on" -- the "What survives" paragraph immediately
+% below makes exactly this distinction and names what the gate is still good for, so the sentence was
+% telling a reader in the abstract what the next paragraph tells them concretely.
+\textbf{A second registered batch, graded on the corrected gate, does estimate the
+rate batch~1 cannot.}  On the 9 of its 10 registered cells the deadline allowed,
+it fires on 2, none of the 9 degrades, and so \textbf{specificity is $0.78$} with
+sensitivity still unestimable; the deferred cell is gate-failing and had no
+outcome when it was cut, so running it could only have raised that figure
+(Appendix~\ref{app:prospective3}).
 
 % The ordering paragraph that stood here moved VERBATIM to Appendix \ref{app:prospective2} on
 % 21 Sep 2026, to fund the positive control in \S\ref{sec:exp4:poscontrol} on a 9-page body with no

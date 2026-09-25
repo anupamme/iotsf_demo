@@ -976,6 +976,91 @@ def rederive():
         "S7's zero-prevalence reading assumes an empty positive class; the sweep now gives "
         f'TP {R["pro_tp"]}, FN {R["pro_fn"]}')
 
+    # -- BATCH 3, the corrected gate's own prospective arm. Read through the paper's scorer rather than
+    # recomputed here: score_prospective.load3() attaches the REGISTERED gate to each cell and
+    # score_prospective.matrix() builds the confusion counts, so the appendix, the body sentence and the
+    # generated table cannot disagree about a number that only one of them would otherwise own. The
+    # batch is deliberately not pooled with batch 1 anywhere in this block -- different predictor,
+    # different registered outcome rule -- and no derived quantity below mixes the two.
+    import score_prospective as sp
+    with contextlib.redirect_stdout(io.StringIO()):
+        _pre3, _cells3, _ = sp.load3()
+    _done3 = [c for c in _cells3 if c["status"] == "scored"]
+    _pend3 = [c for c in _cells3 if c["status"] == "pending"]
+    R["p3_registered"] = len(_cells3)                                   # 10, from the registration
+    R["p3_scored"] = len(_done3)                                        # 9
+    R["p3_runs"] = len(_glob.glob(str(
+        ROOT / "results/v57_prospective3/*/condition_[BD]/condition_[BD]_h*_s*.json")))
+    assert R["p3_runs"] == 2 * sum(c["seeds_run"] for c in _done3), (
+        f'the appendix says batch 3 is {R["p3_runs"]} outcome runs, but the scored cells account for '
+        f'{2 * sum(c["seeds_run"] for c in _done3)} of them -- an unpaired or extra record exists')
+    R["p3_tp"], R["p3_fp"], R["p3_fn"], R["p3_tn"] = sp.matrix(_done3, "predict_gate_rule")
+    R["p3_prec"] = f'{R["p3_tp"] / (R["p3_tp"] + R["p3_fp"]):.2f}'
+    R["p3_spec"] = f'{R["p3_tn"] / (R["p3_tn"] + R["p3_fp"]):.2f}'      # 0.78 -- estimable here
+    R["p3_deg"] = sum(c["degraded"] for c in _done3)
+    R["p3_deg_unanimous"] = sum(c["degraded_published"] for c in _done3)
+    _dec3 = [c for c in _done3 if c["decisive"]]
+    R["p3_decisive"] = len(_dec3)
+    R["p3_dec_tp"], R["p3_dec_fp"], R["p3_dec_fn"], R["p3_dec_tn"] = \
+        sp.matrix(_dec3, "predict_gate_rule")
+    R["p3_inconclusive"] = sum(c["call"] == "inconclusive" for c in _done3)
+    # The dataset rule's matrix is the SAME four numbers on DIFFERENT cells, which is the one thing the
+    # appendix sentence claims about it, so both halves are checked: equal counts, disjoint positives.
+    assert sp.matrix(_done3, "predict_dataset_rule") == (
+        R["p3_tp"], R["p3_fp"], R["p3_fn"], R["p3_tn"]), (
+        "app:prospective3 says the dataset rule scores the same matrix as the gate rule; it no longer "
+        f'does ({sp.matrix(_done3, "predict_dataset_rule")} against the gate rule\'s '
+        f'{(R["p3_tp"], R["p3_fp"], R["p3_fn"], R["p3_tn"])})')
+    assert not ({c["cell"] for c in _done3 if c["predict_gate_rule"]}
+                & {c["cell"] for c in _done3 if c["predict_dataset_rule"]}), (
+        "app:prospective3 says the two rules flag DIFFERENT cells; they now overlap")
+    assert R["p3_tp"] == 0 and R["p3_fn"] == 0 and R["p3_deg"] == 0, (
+        "app:prospective3's zero-prevalence reading assumes no batch-3 cell degraded; the scorer now "
+        f'gives TP {R["p3_tp"]}, FN {R["p3_fn"]}, {R["p3_deg"]} degrading')
+    # The deferred tenth cell, and the arithmetic that makes its absence conservative: it is
+    # gate-FAILING, so the only entry it could have supplied is a true negative, which RAISES
+    # specificity. If a later run makes it gate-passing or makes it degrade, this assert fires and the
+    # disclosure has to be rewritten rather than quietly kept.
+    assert len(_pend3) == 1, f"app:prospective3 names exactly one deferred cell; there are {_pend3}"
+    R["p3_deferred_gate"] = _pend3[0]["gate_val"]
+    assert not _pend3[0]["predict_gate_rule"] and R["p3_deferred_gate"] < R["gate_threshold_code"], (
+        "the deferral disclosure rests on the deferred cell being gate-failing; it is not")
+    R["p3_spec_with_deferred"] = f'{(R["p3_tn"] + 1) / (R["p3_tn"] + 1 + R["p3_fp"]):.2f}'   # 0.80
+    assert float(R["p3_spec_with_deferred"]) > float(R["p3_spec"]), (
+        "the disclosure says running the deferred cell could only have RAISED specificity")
+    # The gate-positive cell the appendix singles out, and the gap to the strongest admissible cell in
+    # the paper -- which is the positive control's task A. Both sides of a comparison in one place.
+    _p3_hi = max((c for c in _done3 if c["predict_gate_rule"]), key=lambda c: c["gate_val"])
+    R["p3_hi_gate"] = _p3_hi["gate_val"]
+    R["p3_hi_dft"] = _p3_hi["d_ft"]["mean"]
+    R["p3_hi_dft_lo"] = _p3_hi["d_ft"].get("lo_zs", _p3_hi["d_ft"]["lo"])
+    R["p3_hi_dft_hi"] = _p3_hi["d_ft"].get("hi_zs", _p3_hi["d_ft"]["hi"])
+    assert R["p3_hi_dft_hi"] < 0, (
+        "app:prospective3 says the gate's most confident prospective positive is contradicted "
+        "DECISIVELY -- full fine-tuning improving with an interval excluding zero. It no longer is.")
+    _strongest_cell = max(val_side_primary.items(), key=lambda kv: kv[1]["r2_task"])
+    R["p3_strongest_gate"] = _strongest_cell[1]["r2_task"]
+    R["p3_hi_gap"] = f'{R["p3_strongest_gate"] - R["p3_hi_gate"]:.3f}'
+    assert _strongest_cell[0] == "small_ETTh2_h192", (
+        f"app:prospective3 names Moirai-Small/ETTh2 h192 as the strongest admissible cell and the "
+        f'positive control\'s task A; the caches now say {_strongest_cell[0]}')
+    # The audit the appendix reports as a result: the five Moirai gates are recomputed by the paper's
+    # own estimator and must reproduce the registered values, and the five TimesFM ones are absent by
+    # design. Counted, so a cell silently entering or leaving the cache changes the claim.
+    _agree = sp.check_gate_agreement(_pre3)
+    R["p3_reproduced"] = sum("cache reproduces" in m for m in _agree)
+    R["p3_not_in_cache"] = sum("not in the paper's cache" in m for m in _agree)
+    # Batch 2 is named once in the paper, in app:gatenoise, and only as the source of a denominator.
+    # Counted here so the gloss cannot outlive the records: if a condition-B or condition-D record ever
+    # appears under it, "no outcome run anywhere in this paper" becomes false.
+    R["p3_batch2_zs"] = len(_glob.glob(str(
+        ROOT / "results/v48_prospective2/*/condition_A*/*.json")))
+    assert not _glob.glob(str(ROOT / "results/v48_prospective2/*/condition_[BD]*/*.json")), (
+        "app:gatenoise says batch 2 contributed no condition-B or condition-D record; one now exists")
+    assert (R["p3_reproduced"], R["p3_not_in_cache"]) == (5, 5), (
+        f'app:prospective3 says five registered Moirai gates reproduce exactly and five TimesFM gates '
+        f'are absent by design; the caches now give {R["p3_reproduced"]} and {R["p3_not_in_cache"]}')
+
     # -- how many rungs admit a degradation cell, and how many cells each admitting rung admits. The
     # body sentence that reports this was hand-counted wrong once ("five of the eight" when six of the
     # eight admit none), which is exactly the arithmetic a derived check exists to stop.
@@ -1442,6 +1527,13 @@ def rederive():
     # app:poscontrol state, plus three asserts on the claims no captured group can carry.
     _pc = json.load(open(ROOT / "results/positive_control.json"))
     R["pc_v_ridge"] = _pc["task_a"]["v_ridge_selection"]
+    # app:prospective3 claims task A IS the strongest cell the screen admits anywhere, and prints the
+    # same +0.932 the body prints for task A. Two reads of one quantity -- the positive control's frozen
+    # task-A value and the paper's own gate cache -- so they are tied here rather than each being
+    # checked against its own site and allowed to drift apart.
+    assert abs(R["pc_v_ridge"] - R["p3_strongest_gate"]) < 1e-9, (
+        f"the positive control's task A is registered at {R['pc_v_ridge']:.6f} but the paper's gate "
+        f"cache scores the strongest admissible cell at {R['p3_strongest_gate']:.6f}")
     R["pc_v_rung"] = _pc["task_a"]["v_best_admissible_rung"]
     R["pc_sn_ratio"] = _pc["task_b"]["seasonal_naive_over_its_negation"]
     R["pc_horizon"] = _pc["task_a"]["horizon"]
@@ -2445,10 +2537,14 @@ def build_checks(R):
     chk("prospective confusion counts and precision (corrections appendix)",
         r"\\textbf\{TP~(\d+), FP~(\d+), precision~([\d.]+)\}",
         R["pro_tp"], R["pro_fp"], R["pro_prec"])
-    # S7's own restatement, the one that carries the threshold-independence claim ("at all of them").
-    # The "all of them" is an assert in rederive() over the whole sweep; this is the printed value.
-    chk("prospective precision at every threshold (S7)",
-        r"gives precision \$([\d.]+)\$\s*at all of them", R["pro_prec"])
+    # The threshold-independence claim's printed value. This pattern read S7's "at all of them" until
+    # 25 Sep 2026, when that sentence was cut to pay for the batch-3 result; it is RE-POINTED at
+    # app:prospective2's own phrasing rather than deleted, because the fact survives the cut and only
+    # its wording moved. Coverage here is per phrasing, so a pattern left matching nothing would have
+    # reported clean while the surviving sentence went unchecked. The "at every one" quantifier itself
+    # is an assert in rederive() over the whole sweep; this is the printed value.
+    chk("prospective precision at every threshold",
+        r"gives precision \$([\d.]+)\$ at every one", R["pro_prec"])
     chk("prospective threshold sweep, flagged counts (slash form)",
         r"\$" + r"/".join([r"(\d+)"] * 6) + r"\$ cells flagged",
         *R["pro_flagged_by_threshold"])
@@ -2460,6 +2556,61 @@ def build_checks(R):
     chk("prospective threshold sweep, flagged counts",
         r"with " + r", ".join([r"(\d+)"] * 5) + r" and (\d+) cells flagged",
         *R["pro_flagged_by_threshold"])
+
+    # --- batch 3 of the prospective arm: the CORRECTED gate, graded prospectively. Every pattern below
+    # reads app:prospective3 and none of them may be satisfied by a batch-1 sentence: the two arms are
+    # never pooled, so a pattern that matched both would be the bug it exists to prevent.
+    chk("batch 3: the registered size",
+        r"\\textbf\{(\w+)\} cells---five Moirai", R["p3_registered"])
+    chk("batch 3: what was scored, and that both outcome rules return the same count",
+        r"Across the \\textbf\{(\d+)\} scored cells---(\d+) outcome runs---\\textbf\{(\d+)\} degrade "
+        r"under the registered interval rule and \\textbf\{(\d+)\} under",
+        R["p3_scored"], R["p3_runs"], R["p3_deg"], R["p3_deg_unanimous"])
+    # The confusion matrix with BOTH rates beside it, in one pattern. Precision and specificity are
+    # functions of the same four counts, so a cell changing class must move all six together or fail
+    # here -- the failure this guards is a recount that updates the matrix and leaves 0.78 behind.
+    chk("batch 3: the confusion matrix, precision and the specificity batch 1 could not estimate",
+        r"\\textbf\{TP~(\d+), FP~(\d+), FN~(\d+), TN~(\d+)\}: precision \$([\d.]+)\$ again, "
+        r"sensitivity still unestimable against an empty positive class, but "
+        r"\\textbf\{specificity \$([\d.]+)\$",
+        R["p3_tp"], R["p3_fp"], R["p3_fn"], R["p3_tn"], R["p3_prec"], R["p3_spec"])
+    chk("batch 3: the body's form of the same specificity",
+        r"fires on (\d+), none of the (\d+) degrades, and so \\textbf\{specificity is \$([\d.]+)\$\}",
+        R["p3_fp"], R["p3_scored"], R["p3_spec"])
+    chk("batch 3: how many cells the intervals actually decide",
+        r"intervals exclude zero on only \\textbf\{(\d+)\} of the (\d+) cells",
+        R["p3_decisive"], R["p3_scored"])
+    chk("batch 3: the decisive-only matrix, which the appendix declines to turn into a rate",
+        r"Restricted to the (\d+) decisive cells the matrix is TP~(\d+), FP~(\d+), FN~(\d+), TN~(\d+)",
+        R["p3_decisive"], R["p3_dec_tp"], R["p3_dec_fp"], R["p3_dec_fn"], R["p3_dec_tn"])
+    chk("batch 3: the secondary outcome decides nothing",
+        r"\\textbf\{inconclusive on all (\d+)\}", R["p3_inconclusive"])
+    # The gate's most confident prospective positive, beside the strongest cell in the paper and the
+    # gap between them. One pattern, because the sentence's point is the comparison.
+    chk("batch 3: the gate's strongest prospective positive, and what it is nearly as strong as",
+        r"carries a gate of \$\+([\d.]+)\$---within \$([\d.]+)\$ of Moirai-Small/ETTh2 "
+        r"\$h\{=\}192\$ \(\$\+([\d.]+)\$\)",
+        R["p3_hi_gate"], R["p3_hi_gap"], R["p3_strongest_gate"])
+    chk("batch 3: that positive is contradicted, with its interval",
+        r"\\emph\{improves\} held-out loss by \$([\d.]+)\\%\$ against zero-shot, with a \$(\d+)\\%\$ "
+        r"interval of \$\[(-[\d.]+), (-[\d.]+)\]\$",
+        abs(R["p3_hi_dft"]), R["ci_pct"], R["p3_hi_dft_lo"], R["p3_hi_dft_hi"])
+    # The deferral, in both places it is stated: the appendix sentence that does the arithmetic and the
+    # table caption that names the cell and its gate. A reader who finds one must find the other.
+    chk("batch 3: the deferred cell, and why its absence is conservative",
+        r"gate-failing\} \(\$(-[\d.]+)\$\), so the only matrix entry it could have supplied is a "
+        r"true negative, which would move specificity from \$([\d.]+)\$ to \$([\d.]+)\$",
+        R["p3_deferred_gate"], R["p3_spec"], R["p3_spec_with_deferred"])
+    chk("batch 3: the count that discloses the shortfall",
+        r"(\w+) of the (\w+) registered cells were scored", R["p3_scored"], R["p3_registered"])
+    chk("batch 3: the deferred cell named in the table caption",
+        r"Moirai-Large/ETTm2 \$h\{=\}96\$, gate \$(-[\d.]+)\$\) was deferred", R["p3_deferred_gate"])
+    chk("batch 3: the gate audit, both halves",
+        r"The (\w+) Moirai gates are recomputed by the paper's estimator in a second pass and "
+        r"\\textbf\{all (\w+) reproduce the registered value exactly\}",
+        R["p3_reproduced"], R["p3_reproduced"])
+    chk("batch 2, which contributed a denominator and no outcome",
+        r"it contributed (\w+) zero-shot\s*measurements", R["p3_batch2_zs"])
     chk("rungs admitting a degradation cell",
         r"(\w+) of the ladder's eight rungs admit none, persistence admits (\w+) and GBM (\w+)",
         R["n_rungs_no_degradation"], R["n_degradation_persistence"], R["n_degradation_gbm"])
