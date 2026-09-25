@@ -357,6 +357,16 @@ def rederive():
     assert max(_dcka) < 1.0, (
         f"S3 says condition D's CKA is near but never exactly 1 on Moirai; the maximum over "
         f"{len(_dcka)} runs is now {max(_dcka)!r}")
+    # Unity itself, as a registered number, because the paper states it twice as the value one
+    # condition HITS and another DOES NOT. agrees() cannot test a negation, so the two asserts carry
+    # the claims -- H exactly 1 on every cell, D strictly below on every run -- and the chks only pin
+    # the constant the prose compares against. Without this, "not $1.000$" and "exactly $1.000$" were
+    # two unchecked numerals: note that D's maximum PRINTS as 1.000 at three places, so rounding
+    # cannot distinguish them and the exactness is the whole content of both sentences.
+    R["cka_unity"] = 1.0
+    assert all(_c["cka_h"] == R["cka_unity"] for _c in sf.values()), (
+        "S3 says strict freeze is the only Moirai condition at CKA exactly 1.000; the strict-freeze "
+        f"cells now read {sorted({_c['cka_h'] for _c in sf.values()})}")
     # The TimesFM floor in the same sentence, and the weight drift that explains it: D leaves in_proj
     # and mask_encoding trainable, so the encoder stack itself does not move at all.
     _tf = [json.load(open(f)) for f in sorted(
@@ -482,7 +492,7 @@ def rederive():
     import emit_sample_sweep as _ess
     import gate_all_cells as _gac
     import paired_inference as _pinf        # the BH level is read again below, at its own claim
-    R["gate_threshold"] = _gac.GATE_THRESHOLD
+    R["gate_threshold_code"] = _gac.GATE_THRESHOLD
     R["ci_pct"] = round(100 * (1 - _pinf.ALPHA))
     # The sweep grid, from the emitter's own GROUPS. The prose prints thousands as "1k", so the
     # PRINTED tokens are 500,1,2,5,10 -- registered in that form because agrees() compares what is
@@ -510,6 +520,73 @@ def rederive():
         f"the largest training set in the tree is now {R['n_train_max']} over {len(_all_n)} records; "
         "the Compute statement prints it as a round number of thousands")
     R["n_train_max_k"] = R["n_train_max"] // 1000
+
+    # -- the gate's geometry, and the forecast it is scored against. S3 defines the primary baseline
+    # by its shape, its penalty and its window cap, and no run record stores any of the three: they
+    # are FUNCTION-SIGNATURE defaults, so the code is the only evidence and the prose statement of
+    # them was unfalsifiable until now. Same failure mode as the training details, one layer deeper --
+    # argparse defaults at least appear in a runner's command line; these appear nowhere but here.
+    def _sig_defaults(src, fn):
+        """A function's keyword defaults: the values a caller gets by omitting the argument."""
+        for _n in _ast.walk(_ast.parse(src)):
+            if not (isinstance(_n, _ast.FunctionDef) and _n.name == fn):
+                continue
+            _pos = _n.args.posonlyargs + _n.args.args
+            _pairs = list(zip(_pos[len(_pos) - len(_n.args.defaults):], _n.args.defaults))
+            _pairs += [(a, d) for a, d in zip(_n.args.kwonlyargs, _n.args.kw_defaults) if d]
+            return {a.arg: d.value for a, d in _pairs if isinstance(d, _ast.Constant)}
+        raise AssertionError(f"{fn}() is gone from the source this claim reads")
+
+    _gac_src = (ROOT / "scripts/gate_all_cells.py").read_text()
+    _mg = _sig_defaults(_gac_src, "moirai_gates")
+    R["ridge_lookback"] = _mg["lookback"]                  # 96
+    R["gate_max_eval"] = _mg["max_eval"]                   # 300
+    R["ridge_lam_exp"] = round(-math.log10(_sig_defaults(
+        (ROOT / "scripts/gate_linear_baseline.py").read_text(), "fit_linear_map")["lam"]))   # 4
+    assert (R["ridge_lookback"], R["gate_max_eval"], R["ridge_lam_exp"]) == (96, 300, 4), (
+        f'the gate now fits a lookback-{R["ridge_lookback"]} ridge at 1e-{R["ridge_lam_exp"]} over '
+        f'{R["gate_max_eval"]} windows; S3 states all three as the definition of the primary $b$')
+    assert _mg["baseline"] == "fitted", (
+        f'moirai_gates() now defaults to the {_mg["baseline"]!r} baseline; S3 states the primary '
+        "gate is the FITTED least-squares map, and the unfitted extrapolation is the estimator the "
+        "boxed lesson says an earlier version of this work got wrong")
+    # The one production caller that passes a lookback explicitly has to pass the same one, or
+    # "lookback-96" is true of the matrix and false of the pooled screen sharing its threshold.
+    _pool_lb = re.search(r"^LOOKBACK = (\d+)$",
+                         (ROOT / "scripts/pool_screen_prospective3.py").read_text(), re.M)
+    assert _pool_lb and int(_pool_lb.group(1)) == R["ridge_lookback"], (
+        f'pool_screen_prospective3 screens at lookback {_pool_lb and _pool_lb.group(1)} against the '
+        f'matrix\'s {R["ridge_lookback"]}')
+    # The context asymmetry is a claim about an EXPRESSION, not a number: S3 says the pre-trained
+    # model sees 96+h steps where the baseline sees 96, and calls that generous to the pre-trained
+    # model. gate_all_cells:232 records that lookback*2 -- the obvious alternative -- would pair the
+    # stored zero-shot MSE with a baseline evaluated on different windows at h=192.
+    assert re.search(r"ext_lb = lookback \+ h\b", _gac_src), (
+        "gate_all_cells no longer evaluates at lookback + h; S3's asymmetry claim reads that "
+        "expression, and lookback*2 would make the 96+h in the prose wrong at h=192")
+    # The median is over a fixed number of sampled forecast paths: the evaluator's own default, and
+    # again at the single production construction of the detector. num_samples=2 also appears in this
+    # file and is NOT this constant -- it is the throwaway forward pass a hook uses to capture
+    # encoder output for CKA, where the sample count cannot affect what is measured.
+    R["fc_samples"] = _sig_defaults(_ft_src, "evaluate_forecasting")["num_samples"]
+    _det = [_n for _n in _ast.walk(_ast.parse(_ft_src))
+            if isinstance(_n, _ast.Call) and _ast.unparse(_n.func) == "MoiraiAnomalyDetector"]
+    _det_ns = [k.value.value for d in _det for k in d.keywords
+               if k.arg == "num_samples" and isinstance(k.value, _ast.Constant)]
+    assert R["fc_samples"] == 20 and _det_ns == [R["fc_samples"]], (
+        f'the evaluator defaults to {R["fc_samples"]} forecast samples and the detector is built '
+        f'with {_det_ns}; S3 states the median is over one number of samples')
+    # The horizons the body reports, from the matrix rather than from the runner: the ILI cell is the
+    # one Moirai cell at another horizon, and it is not ETT, which is exactly how S3 scopes the claim.
+    _hs = set()
+    for _r in rows:
+        if _r["cell"].startswith("Moirai") and "ILI" not in _r["cell"]:
+            _m = re.search(r"[ _]h(\d+)(?![0-9])", _r["cell"])   # [ _] or "ETTh1" reads as h=1
+            assert _m, f'no horizon in the cell label {_r["cell"]!r}'
+            _hs.add(int(_m.group(1)))
+    R["moirai_h"] = tuple(sorted(_hs))
+    assert R["moirai_h"] == (96, 192), (
+        f"the Moirai ETT cells now span horizons {R['moirai_h']}; S3 names them")
 
     # -- the two-cell from-scratch check, read out of the shell script that performs it. The
     # reproducibility statement describes both invocations in prose, and a flag changed in the script
@@ -638,8 +715,12 @@ def rederive():
         # runner rather than in any run record -- so it is read from the runner. The alternative was to
         # leave the one number in that paragraph that cannot go stale unchecked, which is the habit
         # this script exists to break.
-        src = (ROOT / "scripts/finetune_forecasting.py").read_text()
-        R["rr_moirai_samples"] = int(re.search(r"\n *num_samples=(\d+),", src).group(1))
+        # It is the same constant rederive() already reads by AST from the evaluator's signature and
+        # the detector's construction, so it is taken from there rather than re-found by regex. The
+        # regex that used to be here matched the FIRST "\n *num_samples=(\d+)," in the file and got
+        # the right one only because the CKA hook's num_samples=2 is the last argument in its call
+        # and so carries no trailing comma: add one and this number silently became 2.
+        R["rr_moirai_samples"] = R["fc_samples"]
         R["rr_tfm_fields"] = sum(
             1 for k in ("zeroshot_mse", "zeroshot_test_mse", "final_val_mse", "test_mse",
                         "final_cka", "final_weight_drift", "forgetting_pct_test",
@@ -1495,9 +1576,13 @@ def rederive():
     # prose check at all before this round -- a constant stated at four sites and derived from none of
     # them -- and the M4 arm is required to have screened against the same value.
     R["gate_threshold"] = json.load(open(ROOT / "results/gate_baselines_val.json"))["gate_threshold"]
-    assert _m4g["threshold"] == R["gate_threshold"], (
-        f'the Chronos/M4 gate screened at {_m4g["threshold"]} against the paper\'s '
-        f'{R["gate_threshold"]}')
+    # Three sources, tied together: the constant the screen is coded against, the value the stored
+    # gate artifact was actually computed at, and the value the M4 arm screened at. This assert is
+    # why the earlier read of gate_all_cells.GATE_THRESHOLD is kept under its own key rather than
+    # overwritten here -- a code change that the caches predate would otherwise pass silently.
+    assert _m4g["threshold"] == R["gate_threshold"] == R["gate_threshold_code"], (
+        f'the Chronos/M4 gate screened at {_m4g["threshold"]}, the stored gate artifact at '
+        f'{R["gate_threshold"]}, and gate_all_cells.GATE_THRESHOLD is {R["gate_threshold_code"]}')
     # The superseded script's train/val fraction, read from the script so the appendix's "80th
     # percentile" cannot drift from the code it describes.
     _frac = re.search(r"n_val = max\(int\(n_total \* ([\d.]+)\)", "\n".join(_old_src))
@@ -1867,6 +1952,12 @@ def build_checks(R):
     chk("held-out sign reversals (abstract)",
         r"(\d+) of (\d+) cells (?:otherwise )?reverse",
         R["n_heldout_rev"], R["n_int"])
+    # A third phrasing, in the boxed lesson. The other two patterns reached its numerator and left the
+    # denominator uncovered -- and the denominator is what decides whether the lesson is a footnote or
+    # the reason to read the paper, so it is the half that most needs a record.
+    chk("held-out sign reversals (boxed lesson)",
+        r"reverses its sign on (\d+) of our (\d+)\s+cells",
+        R["n_heldout_rev"], R["n_int"])
 
     # --- the decomposition behind the reversals
     # The body sentence naming the largest reversal (Chronos/ETTh1, +6.8 to -39.2, a 46-point swing) is
@@ -1911,6 +2002,10 @@ def build_checks(R):
         f'"the five Chronos cells are excluded" is now {R["ds_n_confounded"]}'
 
     # --- strict freeze
+    chk("the CKA strict freeze reaches and the frozen encoder does not",
+        r"the only Moirai condition at CKA exactly \$([\d.]+)\$", R["cka_unity"])
+    chk("the same unity, as the value condition D's CKA is not",
+        r"which is why its CKA is not\s*\n?\s*\$([\d.]+)\$", R["cka_unity"])
     chk("the four ETTm2 strict-freeze shifts",
         r"shifts of \$-([\d.]+)\$, \$-([\d.]+)\$, \$-([\d.]+)\$ and \$-([\d.]+)\$~pp",
         R["sf_s96_shift"], R["sf_b96_shift"], R["sf_s192_shift"], R["sf_b192_shift"])
@@ -1975,6 +2070,25 @@ def build_checks(R):
     chk("the sample-size grid S3 sweeps",
         r"\$n\{\\in\}\\\{(\d+),(\d+)\{\\text\{k\}\},(\d+)\{\\text\{k\}\},(\d+)\{\\text\{k\}\},"
         r"(\d+)\{\\text\{k\}\}\\\}\$", *R["n_grid_printed"])
+
+    # --- S3's definition of the primary baseline. The ridge's shape and penalty and the window cap
+    # live in a function signature, so nothing downstream would contradict a wrong number here.
+    chk("the primary baseline's shape and penalty",
+        r"ridge map \$\\R\^\{(\d+) \\times F\} \\to \\R\^\{h \\times F\}\$ "
+        r"\(\$\\lambda\{=\}10\^\{-(\d)\}\$\)", R["ridge_lookback"], R["ridge_lam_exp"])
+    chk("the gate's window cap", r"\(up to (\d+)\s*\n?\s*windows\)", R["gate_max_eval"])
+    # The asymmetry, as one pattern: "96+h against 96" is a claim about the RELATION between the two
+    # context lengths, and the two numbers are the same constant, so separate chks would both pass
+    # with the comparison inverted.
+    chk("the context asymmetry between the model and its baseline",
+        r"\$(\d+)\{\+\}h\$ steps of context against the baseline's \$(\d+)\$",
+        R["ridge_lookback"], R["ridge_lookback"])
+    chk("the number of forecast samples the median is taken over",
+        r"median of (\d+) forecast samples", R["fc_samples"])
+    # The reproducibility statement's "median of 20 sampled forecasts" is the same constant in a
+    # different phrasing, and it already has a chk ("two-cell: Moirai's sample count") -- which is why
+    # no second one is registered here. The two now read one value; see rederive().
+    chk("the horizons the body reports at", r"at \$h\{=\}(\d+)\$ and \$h\{=\}(\d+)\$", *R["moirai_h"])
 
     # --- the two design constants S3 states and the code acts on everywhere downstream.
     chk("the gate's operating point, where S3 defines it",
