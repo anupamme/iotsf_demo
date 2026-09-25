@@ -8,6 +8,13 @@
 % unambiguously next to the body's numbered sections, which single letters did not.
 \renewcommand{\thesection}{A\arabic{section}}
 
+% \appendix switches the numbering but prints no title, so the notation note below used to open
+% page 14 as a bare italic paragraph directly under the running head, with the references ending
+% on the page before and the first heading (A1) only after it. It read as orphaned text rather
+% than as the front matter of the appendix. A starred heading gives it something to sit under and
+% does not touch the A1..A29 numbering, since \section* leaves the counter alone.
+\section*{Appendix}
+
 \noindent\emph{Notation.} The appendices write the paper's estimand in its
 condition form, $\text{B}{-}\text{D}$, because they compare conditions directly
 (for instance $\text{B}{-}\text{D}$ against $\text{B}{-}\text{H}$).  It is the
