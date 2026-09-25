@@ -1318,6 +1318,12 @@ def rederive():
         f"'they are different cells' argument no longer holds")
     for _i, _b in enumerate((1, 2, 3), 1):
         R[f"zsn_delta_b{_i}"] = _zsn["by_batch"][f"prospective batch {_b}"]["max_delta_r2"]
+    # Audit item (g) states the shift as a GLOBAL bound ("at most X in R2_task"), so it gets the max
+    # over every group and not batch 1's figure. It was registered against zsn_delta_b1 until
+    # 25 Sep 2026, which passed only because batch 1 happened to hold the largest shift; when
+    # condition_A records landed for base_Electricity7_h192 the maximum moved to batch 2 and the
+    # global claim would have gone stale at a site whose chk still agreed.
+    R["zsn_delta_max"] = max(v["max_delta_r2"] for v in _zsn["by_batch"].values())
 
     # -- S6's four remaining unregistered pairs, and S5.2's sweep restatement. Registered 25 Sep 2026
     # after scripts/audit_chk_coverage.py found 15 uncovered numerals in 06_exp3_drift.tex. In every
@@ -2998,7 +3004,7 @@ def build_checks(R):
     chk("audit item (g): the shift and the admissions it would have changed",
         r"at most \$([\d.]+)\$ in \$R\^2_\\text\{task\}\$ and would have changed \$(\d+)\$ of the "
         r"\$(\d+)\$ admissions",
-        R["zsn_delta_b1"], R["zsn_n_changed"], R["zsn_cells"])
+        R["zsn_delta_max"], R["zsn_n_changed"], R["zsn_cells"])
 
     # --- the three survivors full fine-tuning improves
     chk("the three improvers' forgetting",

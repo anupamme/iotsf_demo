@@ -9,8 +9,8 @@
       "n_with_replicates": 8
     },
     "prospective batch 2": {
-      "max_delta_cell": "large_ETTm2_h96 (batch 3)",
-      "max_delta_r2": 0.003470101421269245,
+      "max_delta_cell": "base_Electricity7_h192 (batch 3)",
+      "max_delta_r2": 0.0044418630758238375,
       "max_range_cell": "base_Electricity7_h192 (batch 3)",
       "max_rep_range": 0.009827566207191163,
       "n_cells": 4,
@@ -131,15 +131,15 @@
       "ratio_own": 66.09565905002144
     },
     "base_Electricity7_h192 (batch 3)": {
-      "delta_r2": 0.0026651178454943913,
+      "delta_r2": 0.0044418630758238375,
       "denominator_registered_in": "prospective batch 2",
       "linear": 0.15559122996002625,
       "margin": 0.7119665749979862,
-      "n_extra": 4,
+      "n_extra": 8,
       "n_registered": 1,
       "noise_own": 0.009827566207191163,
       "passes": false,
-      "r2_all_replicates": -0.5146316928434806,
+      "r2_all_replicates": -0.5164084380738101,
       "r2_registered": -0.5119665749979863,
       "r2_rep_hi": -0.5119665749979863,
       "r2_rep_lo": -0.5217941412051774,
@@ -243,15 +243,15 @@
       "ratio_own": 1176.1052411840144
     },
     "large_ETTm2_h192 (batch 3)": {
-      "delta_r2": 0.0009662850708506143,
+      "delta_r2": 0.0010099248945286687,
       "denominator_registered_in": "prospective batch 2",
       "linear": 0.6029431745680737,
       "margin": 0.040586895186233984,
-      "n_extra": 7,
+      "n_extra": 8,
       "n_registered": 1,
       "noise_own": 0.0016707311996327912,
       "passes": true,
-      "r2_all_replicates": 0.2415531802570846,
+      "r2_all_replicates": 0.24159682008076266,
       "r2_registered": 0.240586895186234,
       "r2_rep_hi": 0.2422576263858668,
       "r2_rep_lo": 0.240586895186234,
@@ -459,7 +459,7 @@
   "min_ratio_cell": "base_ETTm2_h192",
   "n_calls_changed_by_contaminated_denominator": 0,
   "n_cells": 26,
-  "n_zs_measurements": 222,
+  "n_zs_measurements": 227,
   "num_samples": 20,
   "tightest": {
     "cell": "base_ETTm2_h192",

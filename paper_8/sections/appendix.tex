@@ -2535,11 +2535,11 @@ $0.20$ operating point can be read at all.
 
 We can measure it, because the records contain repeats.  Across the $26$ Moirai
 cell-scorings (the $21$-cell retrospective grid and batch 3's five) there are
-$222$ independent zero-shot measurements, every one of them the same frozen
+$227$ independent zero-shot measurements, every one of them the same frozen
 checkpoint on the same windows.  Recomputing $R^2_\text{task}$ from each gives a
 per-cell spread of at most $0.0244$, on Moirai-Base/ETTh2 $h{=}96$; substituting
 the all-replicate mean for the registered denominator moves $R^2_\text{task}$ by at
-most $0.0037$ on batch 1, $0.0035$ on batch 2 and $0.0011$ on batch 3.
+most $0.0037$ on batch 1, $0.0044$ on batch 2 and $0.0011$ on batch 3.
 % "batch 2" appears exactly once in this paper, here, and a reader meeting a numbered batch that is
 % reported nowhere is entitled to wonder what was in it. Glossed rather than dropped: its zero-shot
 % records are a genuine INPUT to batch 3's registered denominator (cell_matrix.new_moirai_cells reads
@@ -3539,7 +3539,7 @@ after its outcomes existed, which is the one thing a prospective design must not
 permit.  The roots are now read \texttt{condition\_A} only, with a structural
 assertion that fails the run if an outcome file is ever globbed as a registered
 reference.  We record it although it changed \emph{no} published number: the shift
-was at most $0.0037$ in $R^2_\text{task}$ and would have changed $0$ of the $26$
+was at most $0.0044$ in $R^2_\text{task}$ and would have changed $0$ of the $26$
 admissions, and being unnoticeable downstream is exactly what makes it worth
 writing down rather than what excuses it.
 
