@@ -99,6 +99,21 @@ PROMISED = {
     "the LOCO pre-registration (the registered analysis it writes)":
         "results/preregister_loco.json",
     "the LOCO pre-registration (the script that registered it)": "scripts/preregister_loco.py",
+    # The scripts that WROTE the registrations above. Added 2026-09-26 because prereg_completeness()
+    # caught them on its first run: the paper says the release carries every pre-registration file, and
+    # six of them were in the bundle unclaimed. They belong in the release on their own merit -- each is
+    # the artifact whose commit timestamp orders a registration against the runs it scores, and for the
+    # LOCO arm the script was already listed beside its JSON, so listing only that one was the
+    # inconsistency. preregister_prospective2.py is here without a JSON on purpose: that batch was never
+    # run (results/MANIFEST.md says so at results/v48_prospective2), and the script is the record of a
+    # registration that was written and then not used.
+    "the positive control's registration script": "scripts/preregister_positive_control.py",
+    "the prospective arm's registration script": "scripts/preregister_prospective.py",
+    "the batch-2 registration script (that batch was never run)":
+        "scripts/preregister_prospective2.py",
+    "the batch-3 registration script": "scripts/preregister_prospective3.py",
+    "the Chronos/M4 registration script": "scripts/preregister_chronos_m4.py",
+    "the seed top-up's registration script": "scripts/preregister_power.py",
     "the task-B generator": "scripts/make_conflicting_series.py",
 }
 
