@@ -3,9 +3,12 @@
 \label{sec:exp3}
 % ============================================================
 
-This is the section the paper's title makes its claim in.  CKA tells us that the
-representation changed; Experiment 2's intervention tells us whether the change
-was valuable.  Neither CKA nor weight drift is manipulated by that design
+% 2026-09-25. Two sentences cut from this lead -- "CKA tells us that the representation changed;
+% Experiment 2's intervention tells us whether the change was valuable" -- to pay for the seed-top-up
+% scoping in the abstract and \S5.3. They restate, three lines early, the boldface claim this same
+% paragraph ends on, and the abstract and the conclusion both carry the pair verbatim. The restatement
+% went; the claim did not.
+This is the section the paper's title makes its claim in.  Neither CKA nor weight drift is manipulated by that design
 (\S\ref{sec:method}), so both enter here only as candidate \emph{predictors} of
 $\denc$, and \textbf{across the cells we evaluate, the former does not reliably
 predict the latter.}
@@ -55,8 +58,10 @@ all 6 are indistinguishable on the task at CKA $0.716$ against $0.465$
 freezing does not save it: on Chronos/ETTh1 the frozen encoder is worse still
 ($+59.8\%$ against $+20.6\%$), so encoder adaptation is not the locus of the damage.
 
-\textbf{We find no evidence that CKA improves prediction beyond backbone identity.}  A wide
-interval is a failure to establish an ordering, not evidence against one, so with
+% 2026-09-25. "A wide interval is a failure to establish an ordering, not evidence against one" cut
+% here, same page budget. The caution is not dropped: this paragraph still closes on "a null in
+% prediction rather than evidence of no relationship", and app:loco states it as its own sentence.
+\textbf{We find no evidence that CKA improves prediction beyond backbone identity.}  With
 the ladder and deciding statistic fixed in advance
 (\texttt{results/preregister\_loco.json}) we asked out of sample whether measuring
 CKA helps a reader who already knows the backbone, the horizon and $n$.  It does

@@ -46,8 +46,10 @@ cells nobody would have looked at.
 % verbatim to Appendix \ref{app:prospective2}, which is scanned by scripts/check_paper_numbers.py, so
 % every registered number still has its sentence. What is left here is the arm's one result and the
 % bound its prevalence puts on it.
-Everything above is retrospective, and a diagnostic that only explains cells it
-has seen is worth little, so we tested ours forward: predictions for eight unrun
+% 2026-09-25. "and a diagnostic that only explains cells it has seen is worth little" cut for the same
+% line budget: it motivates the test rather than stating anything about it, and the subsection title
+% already says the test is prospective.
+Everything above is retrospective, so we tested ours forward: predictions for eight unrun
 cells were committed to git before any outcome run for them existed, and the
 scoring script decides nothing (Appendix~\ref{app:prospective2}).
 \textbf{The outcome the gate was registered to predict never occurs.}  None of
@@ -98,9 +100,10 @@ supply evidence about damage to pre-trained features, and 24 of our 31 fail it.
 % written to be readable as a NULL: the pre-registration fixed all three outcomes in advance, and the
 % one that fired is the one that says the control failed to construct. The full ladder, both
 % checkpoints and the divergence are in Appendix \ref{app:poscontrol}.
-A null about a detector is only as good as the
-regime it was measured in: \textbf{a diagnostic cannot be shown to fail at
-ordering damage if there is no damage to order}.  So we tried to build the
+% 2026-09-25. The framing sentence "A null about a detector is only as good as the regime it was
+% measured in" is folded into the boldface one that followed it, one line, same budget.
+\textbf{A diagnostic cannot be shown to fail at
+ordering damage if there is no damage to order}, so we tried to build the
 damage.  Task A is the strongest capability the screen admits
 (Moirai-Small/ETTh2, $h{=}192$, $\Vb{\text{ridge}}{=}{+}0.932$); task B is a
 synthetic series, fixed by hash before any run, whose correct forecast is the

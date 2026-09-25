@@ -950,6 +950,19 @@ def rederive():
         f"under the augmented read the two degradation forms disagree: "
         f"{_tut['degrades']['aug']}; the appendix says both return the same count")
     R["tu_deg_aug"] = _tut["degrades"]["aug"]["degrades_ci"]
+    # The abstract and S5 now say the top-up "adds a third" freezing-decisive cell "that the screen
+    # admits". Neither phrasing carries a numeral, so no chk() below can hold it: a pattern cannot
+    # capture "third" and cannot capture "admits" at all. Asserted instead, in the two parts the
+    # sentence actually claims -- one more freezing-decisive cell than the published read, and the
+    # cell that supplies it clears the gate. If either goes false the body is wrong in the one place
+    # where it scopes the abstract's headline, which is the place a reader checks first.
+    assert R["tu_freeze_aug"] == R["tu_freeze_pub"] + 1, (
+        f"the augmented read has {R['tu_freeze_aug']} freezing-decisive cells against "
+        f"{R['tu_freeze_pub']} published; the abstract and \\S5 both say it adds exactly one")
+    _thr = R["gate_threshold_code"]
+    assert R["tu_gate"] > _thr, (
+        f"the cell the top-up moves has gate {R['tu_gate']:+.3f}, which does not clear {_thr}; "
+        f"the abstract says the screen admits it")
 
     # -- the eight-rung ladder. "Admissible" = a denominator no worse than the training-mean floor,
     # which is the rule the caption states, so it is the rule reproduced here. Derived for BOTH
@@ -2902,6 +2915,11 @@ def build_checks(R):
         r"returns \\textbf\{(\w+) cells\} under the augmented read", R["tu_deg_aug"])
     chk("the admitted cell that freezing decisively wins at the augmented n",
         r"cell where freezing decisively wins, at a gate of \$\+([\d.]+)\$", R["tu_gate"])
+    # The same cell where S5 scopes the abstract's headline. A separate site because coverage here is
+    # per phrasing, not per fact: the appendix wording above cannot match the body's.
+    chk("the body's pointer to the admitted freezing-decisive cell",
+        r"adds a third freezing-better cell, which the screen \\emph\{admits\} "
+        r"\(Moirai-Small/ETTm2 \$h\{=\}192\$, gate \$\+([\d.]+)\$;", R["tu_gate"])
     chk("the changed call's margin against its threshold and its neighbour's",
         r"a single cell at \$q\{=\}([\d.]+)\$ against a \$([\d.]+)\$ threshold whose neighbour misses "
         r"the same threshold from the other side at \$([\d.]+)\$",
