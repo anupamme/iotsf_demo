@@ -12,15 +12,15 @@
 
 Fine-tuning a time-series foundation model reshapes its internal
 representations, and a large literature treats that reshaping as damage to be
-prevented---by freezing the encoder, by regularising toward the pre-trained
+prevented: by freezing the encoder, by regularising toward the pre-trained
 weights, by confining updates to low-rank adapters.  Every one of those
 prescriptions presupposes that the pre-trained representation was worth
 preserving \emph{on the target task}.  \textbf{We test that presupposition on
 the benchmarks the field actually uses, and it mostly fails.}
 
 \textbf{One checkpoint, two datasets, opposite lessons.}  Fine-tune Moirai-Base
-on ETTh1 and its encoder barely moves---CKA $0.755$ against the pre-trained
-encoder---and the model ends $22.8\%$ \emph{worse} than not fine-tuning at all.
+on ETTh1 and its encoder barely moves (CKA $0.755$ against the pre-trained
+encoder), and the model ends $22.8\%$ \emph{worse} than not fine-tuning at all.
 Fine-tune the same checkpoint on ETTh2 and the encoder restructures far more, to
 CKA $0.460$, and the model ends $31.4\%$ \emph{better}.  Read drift as damage and
 you would have protected the run that needed no protection and left alone the one
@@ -30,8 +30,8 @@ drifted improve the most (\S\ref{sec:exp3}; both pairs are labelled in
 Figure~\ref{fig:screen}b).
 
 \textbf{What drift can and cannot tell you.}  CKA tells us that the
-representation \emph{changed}.  It takes an intervention---fine-tune the whole
-model, then fine-tune it again with the encoder frozen, same data, same epochs---to
+representation \emph{changed}.  It takes an intervention (fine-tune the whole
+model, then fine-tune it again with the encoder frozen, same data, same epochs) to
 tell us whether that change was \emph{valuable}.  \textbf{Across the cells we
 evaluate, the former does not reliably predict the latter.}
 % Review M7: frame this as falsifying a shortcut in use, not as discovering a principle. Two sentences,
@@ -40,8 +40,8 @@ evaluate, the former does not reliably predict the latter.}
 \textbf{We do not claim that is surprising.}  A post-treatment similarity
 statistic has no reason to identify an interventional contrast, and a reader who
 finds the negative result obvious is agreeing with us; what we claim is that the
-substitution is made anyway---by the prescriptions above, and by an earlier draft
-of this work---and that measuring what it costs takes the intervention nobody
+substitution is made anyway (by the prescriptions above, and by an earlier draft
+of this work), and that measuring what it costs takes the intervention nobody
 runs.  So we split the
 practitioner's question into four layers and answer them in order
 (Figure~\ref{fig:screen}a): is there a capability
@@ -78,7 +78,7 @@ the degradation definition.  \textbf{(b)}~The same cells as CKA against held-out
 $\denc$ (positive ${=}$ freezing better): \textbf{measured drift does not
 reliably predict the value of encoder adaptation}, and no cut on CKA separates the
 cells adaptation helped from the cells it hurt.  The labelled pairs are the paper's
-running example---Moirai-Base's two \emph{least} drifted cells are its only two
+running example: Moirai-Base's two \emph{least} drifted cells are its only two
 that degrade, and its two most drifted improve the most (\S\ref{sec:exp3}).  Filled
 markers clear the gate; each $\rho$ is clustered by dataset${\times}$horizon within
 Moirai, the only backbone with enough cells to ask
@@ -86,24 +86,24 @@ Moirai, the only backbone with enough cells to ask
 \label{fig:screen}
 \end{figure}
 
-\textbf{Design and scope.}  We screen \textbf{32 cells}---three backbones (Moirai
+\textbf{Design and scope.}  We screen \textbf{32 cells} across three backbones (Moirai
 Small 13.8M, Base 91M, Large 311M; Chronos-T5~\cite{ansari2024chronos};
 TimesFM-2.5~\cite{das2024timeseries}, with MOMENT~\cite{goswami2024moment}
-screened and excluded), six datasets and two forecast horizons---and pair each with
+screened and excluded), six datasets and two forecast horizons, and pair each with
 a full fine-tune and a frozen-encoder run at 3--10 seeds
 (\S\ref{sec:forecasting}).  The screen is deliberately weak: it asks only whether
 the pre-trained model, zero-shot (ZS), beats a lookback-96 linear regression \emph{fit
-on the practitioner's own target data}---not a tuned supervised forecaster, not an
+on the practitioner's own target data}: not a tuned supervised forecaster, not an
 ensemble, a single ridge-OLS map estimated once on the training split and applied
 unchanged.  We write that margin against a baseline $b$ as
-$\Vb{b} = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{b}$---a \emph{baseline-relative}
-advantage, never a property of the checkpoint alone---and score it on windows
+$\Vb{b} = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{b}$ (a \emph{baseline-relative}
+advantage, never a property of the checkpoint alone), and score it on windows
 disjoint from every outcome we report.  \textbf{Every claim below is about the
 checkpoints, datasets and fine-tuning protocols we evaluated}: we do not claim
 that fine-tuning is safe, nor that foundation models are useless for forecasting.
 
 \textbf{The result, in three clauses.}  \textbf{Seven of the 31 scored cells}
-clear the screen, all of them Moirai and on two of the six datasets---all five of
+clear the screen, all of them Moirai and on two of the six datasets: all five of
 its ETTh2 cells and two of its four on ETTm2.  Where the advantage does exist,
 letting the encoder adapt usually \emph{helps}: full fine-tuning improves MSE on
 five of the seven, by 31--42\% on the three ETTh2 cells, and the two whose mean
@@ -122,8 +122,8 @@ only 2 of the 31 favour freezing, and both are cells the screen
     fine-tuning in every seed, three of them by 31--42\% (\S\ref{sec:forecasting}).
 
   \item \textbf{The intervention contrast as the estimand, and drift as a failed
-    predictor of it.}  We name $\denc$---full fine-tuning minus a frozen
-    encoder---as the quantity this design manipulates, and show that CKA
+    predictor of it.}  We name $\denc$ (full fine-tuning minus a frozen
+    encoder) as the quantity this design manipulates, and show that CKA
     \textbf{does not provide a reliable ordering} of it across an outcome spanning
     $-51.8\%$ to $+46.1\%$: within-backbone $\rho{=}{+}0.168$ with clustered CI
     $[-0.469,{+}0.717]$ \emph{within Moirai}, the only backbone with enough cells to
@@ -137,7 +137,7 @@ only 2 of the 31 favour freezing, and both are cells the screen
     predict: TP~0, FP~8 on
     eight cells whose predictions were frozen in git before those cells were
     trained, and $\rho{=}{-}0.293$ against the intervention outcome within
-    Moirai---a direction, not an interval claim (\S\ref{sec:exp4}).  A
+    Moirai; a direction, not an interval claim (\S\ref{sec:exp4}).  A
     reproducibility bundle (configs, seed lists, metric scripts, uni2ts patch,
     both linear baselines) accompanies this paper.
 \end{enumerate}

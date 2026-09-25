@@ -25,8 +25,8 @@ backbones, and \S\ref{sec:limitations} states what it does not license.  It is
 reads it as permission to skip the frozen-encoder control would be drawing the
 opposite of our recommendation: our prescription is to \emph{run} that control,
 because we found the observational shortcuts unreliable.  Domains where a
-pre-trained checkpoint holds a large, well-established advantage --- which these
-benchmarks do not, on 24 of the 31 cells we screened --- are exactly where the
+pre-trained checkpoint holds a large, well-established advantage (which these
+benchmarks do not, on 24 of the 31 cells we screened) are exactly where the
 question remains open.
 
 \textbf{Broader impact.}  This is a diagnostic study on public forecasting
@@ -34,7 +34,7 @@ benchmarks, and the effect we intend is to raise the bar for claims about
 forgetting in time-series foundation models: a paper reporting that fine-tuning
 damaged pre-trained features should say what baseline established that the
 features were valuable, and how that baseline was fit.  Our own screen is the
-worked example of why --- the earlier version of this work reported eight
+worked example of why: the earlier version of this work reported eight
 degradation cells on a baseline a constant predictor beats.  The controlled
 comparison remains the way to answer the question for any particular cell, and
 \S\ref{sec:analysis:degradation} claims only that the harm cannot be demonstrated
@@ -45,8 +45,8 @@ same work in two ways that changed its conclusions rather than its presentation,
 and we flag both rather than absorbing them silently.  An earlier version's value
 gate used an unfitted per-window trend extrapolation as its linear baseline; a
 constant predictor beats that baseline, and correcting it changes the gate status
-of 17 of the 21 Moirai cells and removes every degradation instance the paper had
---- that is, the entire class of cell the diagnostic was built to
+of 17 of the 21 Moirai cells and removes every degradation instance the paper had;
+that is, the entire class of cell the diagnostic was built to
 predict.  Separately, we retract a linear-probe diagnostic
 reported earlier: the statistic it rests on is non-zero only where the probe
 fails to generalise, and Appendix~\ref{app:orthogonal} reports the measurement
@@ -70,16 +70,16 @@ others to avoid.
 
 \textbf{Where the numbers come from.}  Every table the source
 \texttt{\textbackslash input}s is written by a named emitter that reads the per-run
-JSON records --- none is assembled by hand --- and
+JSON records (none is assembled by hand), and
 \texttt{scripts/rederive\_all.sh} runs all of them in one command and then reports
 which generated files changed.  A clean run means the PDF agrees with the run
 records; any diff is a number that was stale.  There is one exception and it is
 marked where it appears: the two inline tabulars in \S\ref{sec:retraction}
 transcribe a \emph{withdrawn} computation whose probe records are too sparse to
 re-derive, and they support no claim in this paper.  The per-run records carry the
-fields the tables use --- \texttt{final\_cka}, \texttt{forgetting\_pct},
+fields the tables use (\texttt{final\_cka}, \texttt{forgetting\_pct},
 \texttt{final\_val\_mse}, \texttt{final\_weight\_drift} and the early-stopping
-block --- together with the seed, epoch budget and sample count, so the dispersion
+block), together with the seed, epoch budget and sample count, so the dispersion
 conventions can be recomputed rather than taken on trust.
 
 \textbf{What ``reproducible'' means here, exactly, and what it does not.}
@@ -121,7 +121,7 @@ the numerator's larger term is amplified into $+63.5\%$ in the ratio.
 Moirai scores the median of 20 sampled forecasts and TimesFM emits a point
 forecast, which is why only one of the two is reproducible to the bit.  Every
 sign-bearing field kept its sign, which is what the paper's claims are stated in
-terms of --- but a reader should treat any single-seed Moirai forgetting figure as
+terms of, but a reader should treat any single-seed Moirai forgetting figure as
 carrying at least this much run-to-run variation, and that is why the paper
 reports cells at 3--10 seeds with a dispersion and never a single run.
 
@@ -129,9 +129,9 @@ reports cells at 3--10 seeds with a dispersion and never a single run.
 \texttt{uni2ts} \texttt{PackedStdScaler} performs an in-place write that silently
 detaches the gradient tape for losses depending on scaled statistics; without the
 patch of Appendix~\ref{app:scaler_patch} training can appear to run while not
-converging.  Second, the frozen-encoder condition is not a strict freeze --- the
+converging.  Second, the frozen-encoder condition is not a strict freeze (the
 input projections and mask encoding remain trainable, which is why its CKA is not
-$1.000$ --- and the strictly-frozen variant is reported separately
+$1.000$), and the strictly-frozen variant is reported separately
 (Appendix~\ref{app:strictfreeze}).  Comparisons against a ``frozen'' baseline are
 not comparable across papers unless which parameters were frozen is stated.
 
@@ -156,8 +156,8 @@ precedes every run it scores, so the ordering is checkable from
 the history rather than asserted by us.  The Chronos/M4-Monthly re-run of
 Appendix~\ref{app:chronos_detail} carries a second registration
 (\texttt{results/chronos\_m4/preregistration.json}), on the same terms and with
-the same check available.  That arm is \emph{not} prospective --- the superseded
-runs' outcome was already known --- so what its registration fixes is only what
+the same check available.  That arm is \emph{not} prospective (the superseded
+runs' outcome was already known), so what its registration fixes is only what
 was still fixable: the gate's estimator and split, the seeds, the decision rule,
 and what each gate outcome would be taken to mean.  The gate was computed after
 that file was committed, which matters because the estimator was itself one of
@@ -165,7 +165,7 @@ the things being corrected.
 
 \textbf{The figures check themselves.}  Both generated figures read their values
 from \texttt{scripts/cell\_matrix.py} and \emph{assert} at draw time every count the
-body quotes from them---the number of gate-passing cells, the number of degradation
+body quotes from them: the number of gate-passing cells, the number of degradation
 cells, the number of sign reversals and the sign of each correlation.  A run record
 that moved would fail the figure rather than change it silently, which is the one
 staleness path the table emitters do not cover.  (This sentence used to sit in the

@@ -23,8 +23,8 @@ columns give the seed count and the training-set size separately.
 We therefore claim no ordering \emph{between} the two
 groups: there is no full-fine-tuning arm at $n{=}1{,}000$ on this cell with more
 than a single seed, so ``anchoring ties full fine-tuning'' is not a comparison
-these runs support.  The dissociation the table is cited for---CKA not predicting
-utility---is within-group and unaffected.
+these runs support.  The dissociation the table is cited for (CKA not predicting
+utility) is within-group and unaffected.
 Condition~D reads CKA $0.99996$ rather than $1$: it leaves \texttt{in\_proj} and
 \texttt{mask\_encoding} trainable, so it is a frozen-\emph{encoder} control and not
 a strict freeze.  Only condition~H (Appendix~\ref{app:strictfreeze}) is $1.0000$ by

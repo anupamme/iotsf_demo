@@ -16,7 +16,7 @@ pre-trained capability, and on these benchmarks it is mostly not
 % in S1's result paragraph, in contribution 1, in S5.1 cell by cell and in S5.3's clause walk; the two
 % clauses kept here are the ones this paragraph's opening sentence is about.
 eight-baseline ladder, and no cell shows decisive
-evidence of harmful encoder adaptation---2 of 31 favour freezing at a
+evidence of harmful encoder adaptation: 2 of 31 favour freezing at a
 multiplicity-adjusted $q{<}0.05$, and both are cells the screen rejects.
 % The break between this paragraph and the next is closed on 21 Sep 2026: each paragraph break in this
 % section costs a printed line, as the comment above records, and \S\ref{sec:exp4:poscontrol} needs
@@ -24,8 +24,8 @@ multiplicity-adjusted $q{<}0.05$, and both are cells the screen rejects.
 % advice -- rather than three. The break before "The advice therefore inverts" is the one that carries
 % structure for a skimming reader, so it is the one kept.
 The reason no cheap diagnostic rescues this is structural rather than statistical.
-CKA tells us that the representation changed; only the intervention---fine-tune,
-then fine-tune again with the encoder frozen---tells us whether that change was
+CKA tells us that the representation changed; only the intervention (fine-tune,
+then fine-tune again with the encoder frozen) tells us whether that change was
 valuable, and \textbf{across the cells we evaluate the former does not reliably
 predict the latter}.
 % The LOCO sentence -- "there is no association to work with either: under an analysis fixed before it
@@ -57,7 +57,7 @@ threshold misplaces 5 of the 31 cells.
 The advice therefore inverts the literature's.  Check that
 the pre-trained features beat a baseline fitted on your own data before spending
 effort on LoRA, EWC or L2-SP; if they do, settle the question against a frozen
-encoder scored on windows you did not select on---in that order, because
+encoder scored on windows you did not select on, in that order, because
 \textbf{a forgetting result measured on cells with no measurable pre-trained
 advantage is a statement about the benchmark}.  We do \emph{not} claim that drift
 is generally unpredictive across backbones, which three cannot establish

@@ -6,14 +6,14 @@ $\Delta_\text{enc}={L_\text{full}}-{L_\text{frozen}}$ per seed, in percent of th
 zero-shot reference, so a positive value means allowing the encoder to adapt made the cell
 \emph{worse}.  B and D share a seed, an initialisation and a window sample, so this
 contrast is paired by construction.
-$d$ is paired Cohen's $d$.  The SEM column was dropped when $q$ was added---nine columns
-overrun the textwidth and the interval states the same dispersion---so \texttt{sem} lives
+$d$ is paired Cohen's $d$.  The SEM column was dropped when $q$ was added (nine columns
+overrun the textwidth and the interval states the same dispersion), so \texttt{sem} lives
 in \texttt{results/paired\_inference.json}, on the body's convention (\S\ref{sec:method}).
 Each row names its own $n$, which is not constant down the column
 (Table~\ref{tab:heldout_all}).
 \textbf{$q$ is the decision column, adjusted for the 31 tests}:
-Benjamini--Hochberg within this contrast, with the three-way call---freeze-decisive,
-adapt-decisive, inconclusive---read off $q{<}0.05$ and the sign of $\denc$, and bolded
+Benjamini--Hochberg within this contrast, with the three-way call (freeze-decisive,
+adapt-decisive, inconclusive) read off $q{<}0.05$ and the sign of $\denc$, and bolded
 where decisive.  BH runs on $p_t$, not $p_\text{exact}$, because 24 cells have an
 exact floor of $0.25$ and a step-up procedure there would reject nothing at any effect
 size.

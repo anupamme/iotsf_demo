@@ -31,7 +31,7 @@ training can appear to run while silently not propagating gradients.
 metrics: linear CKA~\cite{kornblith2019cka} between pre-trained and fine-tuned
 encoder representations, and weight drift ($\ell_2$ distance from pre-trained
 parameters).  \textbf{Every CKA in the body is of the final encoder output,
-mean-pooled over tokens}, on a fixed prefix of the selection split---the
+mean-pooled over tokens}, on a fixed prefix of the selection split: the
 comparison a practitioner holding two checkpoints can actually make, and the one
 variant that needs no choice of layer or token position.  The choice is not free:
 computed token-flattened instead, the same encoders read uniformly high and the
@@ -46,8 +46,8 @@ profiles and a random-initialisation floor are all reported
 checkpoint having a \emph{capability worth preserving} except relative to a
 baseline, so the baseline belongs in the quantity.  For a baseline
 $b$, $\Vb{b} = 1-\text{MSE}_\text{ZS}/\text{MSE}_b$ is positive when the
-pre-trained model beats $b$, and thresholding it at $0.20$---a prespecified
-operating point, not an established boundary---is the \emph{baseline-relative
+pre-trained model beats $b$, and thresholding it at $0.20$ (a prespecified
+operating point, not an established boundary) is the \emph{baseline-relative
 capability screen}, for which we write \emph{gate} in tables, figures and code.
 \textbf{$\Vb{b}$ is a property of the pair, not of the checkpoint}: every
 count we report is a count against a named $b$, and
@@ -71,8 +71,8 @@ split fits both the fine-tuning updates and every baseline; the \emph{selection}
 split is where any checkpoint is chosen \textbf{and where we score
 $\Vb{b}$}; the \emph{held-out} split is disjoint from both and is where every
 outcome is scored.  So a cell's admission cannot borrow the windows that later
-judge it.  We also report the retrospective variant---$\Vb{b}$ on the held-out
-windows themselves---which admits two fewer cells and changes no conclusion
+judge it.  We also report the retrospective variant ($\Vb{b}$ on the held-out
+windows themselves), which admits two fewer cells and changes no conclusion
 (Appendices~\ref{app:gatecorrection},~\ref{app:corrections}).
 
 \textbf{The estimand, named once.} For a cell with $S$ paired seeds,
@@ -90,8 +90,8 @@ cell to make different loss scales comparable, with no sign or ordering changed.
 It is the estimand because it is the contrast this design \emph{manipulates}: B
 and D differ in exactly one thing, whether the encoder's weights may move.
 \textbf{Representation drift is not manipulated.}  CKA is an observational
-\emph{post-treatment} measurement---taken after the intervention, on the object
-the intervention changed---so it enters only as a candidate \emph{predictor} of
+\emph{post-treatment} measurement (taken after the intervention, on the object
+the intervention changed), so it enters only as a candidate \emph{predictor} of
 $\denc$.  That asymmetry is why a CKA-to-outcome association would not license a
 CKA-based decision rule even had we found one.
 
@@ -109,8 +109,8 @@ $b$; (ii)~full fine-tuning ends worse than not fine-tuning at all,
 forg.$_\text{B} > 0$; and (iii)~the frozen encoder ends better,
 forg.$_\text{D} < 0$, localising the loss to encoder weight updates rather than
 to the data or the epoch budget. \textbf{Clauses (ii) and (iii) are reported two
-ways}: as pre-registered, each holds in \emph{every} seed; and---primary from
-this revision---as a paired interval, the $95\%$ CI on
+ways}: as pre-registered, each holds in \emph{every} seed; and (primary from
+this revision) as a paired interval, the $95\%$ CI on
 $\text{B}{-}\text{ZS}$ lying entirely above zero and the CI on
 $\text{D}{-}\text{ZS}$ entirely below, propagating the zero-shot reference's own
 error and adjusted for multiplicity (Appendix~\ref{app:pairedinference}).
@@ -126,9 +126,9 @@ unconstrained fine-tuning drift and forget?); \textbf{C}~NLL$+$SupCon
 \textbf{D}~frozen encoder (control: separates encoder updates from head
 training and overfitting); \textbf{E}~LoRA ($r{=}8$); \textbf{F}~L2-SP and
 \textbf{G}~EWC. Conditions~D and~B are the comparison every claim in this
-paper turns on.  \textbf{We name conditions rather than letter them from here on}
----\emph{full fine-tuning} (B), \emph{frozen encoder} (D), \emph{strict frozen
-encoder} (H), \emph{LoRA} (E)---and keep the letters for the tables, the clauses
+paper turns on.  \textbf{We name conditions rather than letter them from here on}:
+\emph{full fine-tuning} (B), \emph{frozen encoder} (D), \emph{strict frozen
+encoder} (H), \emph{LoRA} (E).  We keep the letters for the tables, the clauses
 of the definition above and Equation~\ref{eq:denc}, so that no result in the body
 has to be read through a lookup.
 
@@ -139,7 +139,7 @@ is near but never exactly $1$ on Moirai ($0.889$--$0.9999$) and falls as low as
 $0.38$ on TimesFM, where the encoder stack's weight drift is exactly zero.
 \textbf{H}~(strict freeze) also freezes those two modules, is the only Moirai
 condition at CKA exactly $1.000$, and reverses $\denc$'s sign on 4 of the 16 cells we ran
-it on---every Moirai/ETTm2 cell.  Figure~\ref{fig:freezeboundary} draws which
+it on: every Moirai/ETTm2 cell.  Figure~\ref{fig:freezeboundary} draws which
 modules move under each (Appendix~\ref{app:strictfreeze}).
 
 \textbf{Dispersion.} Every ${\pm}$ in the body and in every generated table is
@@ -161,7 +161,7 @@ cells, and all four reverse toward flattering the frozen encoder
 (\S\ref{sec:analysis:heldout}).
 \emph{(2)~Fit the linear baseline.}  An earlier version of this work reached the
 opposite conclusion from a baseline that was an unfitted per-window trend
-extrapolation---a denominator a constant predictor beats---and correcting the
+extrapolation (a denominator a constant predictor beats), and correcting the
 estimator moves 17 of Moirai's 21 cells across the threshold, 16 of them to
 gate-fail (Appendix~\ref{app:gatecorrection}).
 \end{minipage}}

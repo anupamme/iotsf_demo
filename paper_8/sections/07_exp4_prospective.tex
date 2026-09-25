@@ -55,8 +55,8 @@ the eight cells degraded; the gate flagged all eight, giving \textbf{TP~0, FP~8,
 FN~0}: precision $0.00$, while \textbf{sensitivity and specificity are both
 unestimable here}.  \textbf{That makes this a test at zero prevalence, and the
 prevalence bounds what it can say}: it establishes that the gate's positive
-predictions are wrong here---at the $0.20$ operating point and at every threshold
-we swept (Appendix~\ref{app:prospective2})---and it establishes nothing
+predictions are wrong here (at the $0.20$ operating point and at every threshold
+we swept; Appendix~\ref{app:prospective2}), and it establishes nothing
 about the gate's \emph{sensitivity}, which an
 empty positive class cannot estimate.
 % Two sentences are cut here on 25 Sep 2026 to pay for the batch-3 result below, on a 9-page body whose
@@ -86,8 +86,8 @@ outcome when it was cut, so running it could only have raised that figure
 % second-order point about the coefficient's instability across splits, which is a detail about a
 % quantity the paper does not ask a reader to act on.
 \textbf{What survives.} Not the gate as a predictor of harm, nor as a screen for
-when preservation is worth the effort---here it fired eight times and was wrong
-eight times---but the gate as a \emph{disqualifier}: a cell that fails it cannot
+when preservation is worth the effort (here it fired eight times and was wrong
+eight times), but the gate as a \emph{disqualifier}: a cell that fails it cannot
 supply evidence about damage to pre-trained features, and 24 of our 31 fail it.
 
 \subsection{A Pre-Registered Positive Control: We Could Not Construct Forgetting}
@@ -126,8 +126,8 @@ floor of $0.48$~pp.
 
 \textbf{The attempt nonetheless buys a sharper dissociation than the benchmark
 cells can supply.}  At that top rung the representation is driven almost to
-orthogonality---CKA on task A's inputs $0.063$, $\ell_2$ weight drift $2795$,
-against $0.999$ and $7.2$ at the gentlest rung---and task A gets \emph{better},
+orthogonality (CKA on task A's inputs $0.063$, $\ell_2$ weight drift $2795$,
+against $0.999$ and $7.2$ at the gentlest rung), and task A gets \emph{better},
 by $23.3\pm2.0\%$ in every seed; across all 21 runs the correlation between CKA
 and retention is $\rho{=}{+}0.466$, the wrong sign.  \textbf{A representation can
 be moved most of the way to orthogonality by training measurably in conflict with

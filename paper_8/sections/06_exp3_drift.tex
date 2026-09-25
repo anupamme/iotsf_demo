@@ -7,11 +7,11 @@ This is the section the paper's title makes its claim in.  CKA tells us that the
 representation changed; Experiment 2's intervention tells us whether the change
 was valuable.  Neither CKA nor weight drift is manipulated by that design
 (\S\ref{sec:method}), so both enter here only as candidate \emph{predictors} of
-$\denc$---and \textbf{across the cells we evaluate, the former does not reliably
+$\denc$, and \textbf{across the cells we evaluate, the former does not reliably
 predict the latter.}
 
 \label{sec:forecasting:nonmoirai}
-\textbf{Drift and outcome come apart inside a single backbone}---within our
+\textbf{Drift and outcome come apart inside a single backbone}: within our
 Moirai matrix, the strongest form of the finding.  Beyond the sweep of
 \S\ref{sec:forecasting:replication}: within Moirai-Base the two \emph{least}
 drifted cells are the only two that degrade (ETTh1 at CKA $0.755$ and $0.669$,
@@ -33,9 +33,9 @@ is architectural diversity and the dissociation itself, \textbf{not a controlled
 replication}: they run at $h{=}24$ against Moirai's $h{\in}\{96,192\}$ and on
 different normalisations, and we read them qualitatively and never pool them.  Four
 of the five Chronos-T5-Small cells restructure to a degree that would, on the usual
-reading, be called catastrophic---CKA ${\in}[0.092, 0.169]$, at or below the
-$0.215{\pm}0.054$ an \emph{untrained} encoder of this architecture scores
-(Appendix~\ref{app:cka_calibration})---yet outcomes across the five span
+reading, be called catastrophic (CKA ${\in}[0.092, 0.169]$, at or below the
+$0.215{\pm}0.054$ an \emph{untrained} encoder of this architecture scores;
+Appendix~\ref{app:cka_calibration}), yet outcomes across the five span
 \textbf{$-41.4\%$ on ETTm2 to $+20.6\%$ on ETTh1}, a 62-point spread in which ETTh1
 is the \emph{least} drifted and the only one that degrades; the four TimesFM-2.5
 cells sit at milder drift and all improve
@@ -65,7 +65,7 @@ $+0.137$ on backbone identity and $+0.201$ with horizon and $\log n$, then
 \emph{falls} to $+0.176$ once CKA is added ($\Delta R^2{=}{-}0.025$; no help in
 $69\%$ of cluster-bootstrap draws), and the backbone-specific-slope variant is
 worst of all at $+0.019$.  So the predictable part of $\denc$ is predictable from
-protocol identity---though the slope itself, $+43$~pp per unit CKA with a cluster
+protocol identity, though the slope itself, $+43$~pp per unit CKA with a cluster
 interval of $[-31, +107]$, makes this a null in \emph{prediction} rather than
 evidence of no relationship (Appendix~\ref{app:loco}).
 

@@ -7,12 +7,12 @@
 To ask whether fine-tuning damages valuable pre-trained features we first have
 to find a cell where such features are demonstrably present.  This section
 reports that search, and it comes out negative: across \textbf{32 screened
-cells}---21 Moirai (three capacities, five datasets, two horizons), 5
-Chronos-T5, 5 TimesFM-2.5 and 1 Moirai/ILI---\textbf{seven} clear the value gate,
+cells} (21 Moirai: three capacities, five datasets, two horizons; 5
+Chronos-T5, 5 TimesFM-2.5 and 1 Moirai/ILI), \textbf{seven} clear the value gate,
 and all seven are Moirai: five on ETTh2 and two on ETTm2.  The gate is scored on
-selection windows, which exist for 31 of the 32---TimesFM/Electricity has no
+selection windows, which exist for 31 of the 32 (TimesFM/Electricity has no
 paired frozen-encoder run, so it is screened but carries neither a gate nor an
-intervention row---and every denominator below is 31.
+intervention row), and every denominator below is 31.
 Figure~\ref{fig:screen}a is this screen emptying.
 % Two cuts here, both funding Phase B's added lines and neither losing a fact.
 % (1) The clause explaining why Figure 1 is declared in S1 rather than here was about the paper's
@@ -23,8 +23,8 @@ Figure~\ref{fig:screen}a is this screen emptying.
 % No registered claim had a site in either.
 
 \textbf{Moirai: 7 of 21} (Appendix Table~\ref{tab:r2task}).  ETTh2 clears at
-every capacity---Small $h{=}96$ ($+0.874$) and $h{=}192$ ($+0.932$), Base
-$h{=}96$ ($+0.777$) and $h{=}192$ ($+0.925$), Large $h{=}96$ ($+0.875$)---and
+every capacity: Small $h{=}96$ ($+0.874$) and $h{=}192$ ($+0.932$), Base
+$h{=}96$ ($+0.777$) and $h{=}192$ ($+0.925$), Large $h{=}96$ ($+0.875$).
 ETTm2 clears at two of four, Small $h{=}192$ ($+0.352$) and Base $h{=}192$
 ($+0.211$).  Every other dataset fails at every capacity, and every failing cell
 is below the baseline rather than short of the threshold (Table~\ref{tab:r2task}).
@@ -49,11 +49,11 @@ held-out), so the advantage is not a property of the dataset alone.
 % as a robustness check rather than as a second headline, which is what it is.
 \textbf{One rung of eight.}  The screen's emptiness is not one estimator's
 artefact.  Scoring the same numerator against a \textbf{ladder} of eight
-baselines---on the same selection windows, with the training mean as an
-admissibility floor---and measuring each cell against the \emph{strongest}
+baselines (on the same selection windows, with the training mean as an
+admissibility floor), and measuring each cell against the \emph{strongest}
 admissible rung it faces, \textbf{no cell of the 31 clears $0.20$}, and none does
 on either of two further window sets.  \textbf{20 of the 31 clear it against at
-least one admissible rung---14 Moirai, 3 Chronos, 3 TimesFM}: that union, not the
+least one admissible rung (14 Moirai, 3 Chronos, 3 TimesFM)}: that union, not the
 seven, is the scope every drift analysis below runs on, so those analyses are not
 confined to one backbone.  Where this paper says seven cells clear the gate it
 means seven clear \emph{this} rung of the eight; the per-rung counts, the other

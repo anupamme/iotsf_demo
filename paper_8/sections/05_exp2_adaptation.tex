@@ -8,13 +8,13 @@
 % caveat was item (2) of S8; it is MOVED here, not restated, so this paragraph now carries its three
 % registered numbers and item (2) is a pointer.
 \textbf{What the treatment is.}  Conditions B and D differ in exactly one
-thing---whether the encoder stack's weights may move---so $\denc$
+thing (whether the encoder stack's weights may move), so $\denc$
 (Equation~\ref{eq:denc}) estimates the contribution of encoder weight updates and
 not of representational change.  Where that boundary is drawn is load-bearing:
 D leaves the input projection and mask encoding trainable, and the strict freeze
 that closes that gap on 16 of the 31 cells \emph{reverses} $\denc$'s sign on 4 of
-the 16 cells we ran it on---every Moirai/ETTm2 cell, 2 of which are among the
-seven survivors below---and 15 cells rest on the ordinary freeze alone
+the 16 cells we ran it on (every Moirai/ETTm2 cell, 2 of which are among the
+seven survivors below), and 15 cells rest on the ordinary freeze alone
 (Appendix~\ref{app:strictfreeze}).
 
 % ============================================================
@@ -33,7 +33,7 @@ Table~\ref{tab:gate_survivors}).
 seed.} On
 Moirai-Base at $h{=}96$ and $h{=}192$ and Moirai-Large at $h{=}96$, all on ETTh2,
 forgetting is $-31.4\%$, $-36.3\%$ and $-42.4\%$ against zero-shot, negative
-in 3/3 seeds each, at CKA $0.460$, $0.396$ and $0.626$---the largest
+in 3/3 seeds each, at CKA $0.460$, $0.396$ and $0.626$, the largest
 representational change among the seven.  Freezing the encoder captures only part of that gain
 ($-9.1\%$, $-16.1\%$, $-21.6\%$), so encoder adaptation is where most of the
 improvement comes from.  The fourth, Moirai-Base/ETTm2 at $h{=}192$, improves by a
@@ -42,13 +42,13 @@ smaller $8.4\%$ and is the one survivor where freezing does slightly better
 
 \textbf{On the remaining three, the mean harm does not survive inspection.}
 Moirai-Small/ETTh2 at $h{=}192$ reads forg.$_\text{B}{=}{+}1.99{\pm}3.32$ with 5 of
-10 seeds positive---a coin flip on the sign, and the closest the matrix comes to
+10 seeds positive: a coin flip on the sign, and the closest the matrix comes to
 degradation.  At $h{=}96$ the positive mean ($+9.71{\pm}10.58$, 4 of 10 seeds) is
 produced by one seed that diverges under the \emph{frozen} encoder too, so it is an
 optimisation failure and not an encoder-drift effect; we report means including it
 throughout and decompose it in Appendix~\ref{app:gatecorrection}.
-Moirai-Small/ETTm2 at $h{=}192$ runs the other way---a mean $1.10\%$ improvement
-with 3 of 5 seeds harmful---so its sign is a seed draw in either direction.
+Moirai-Small/ETTm2 at $h{=}192$ runs the other way (a mean $1.10\%$ improvement
+with 3 of 5 seeds harmful), so its sign is a seed draw in either direction.
 
 % ============================================================
 \subsection{Sample Size, and What Mitigation Is For}
@@ -56,8 +56,8 @@ with 3 of 5 seeds harmful---so its sign is a seed draw in either direction.
 % ============================================================
 
 Sweeping $n{\in}\{500,\ldots,10\mathrm{k}\}$ on Moirai-Small/ETTh2 at $h{=}96$
----one of the seven survivors, so a sweep where a pre-trained advantage does
-exist---separates the two readings directly: drift grows monotonically with $n$
+(one of the seven survivors, so a sweep where a pre-trained advantage does
+exist) separates the two readings directly: drift grows monotonically with $n$
 (CKA $0.949$ at 500 to $0.518$ at 10k) while forgetting is non-monotonic and
 reverses sign, $+14\%$ at 500, $-2.9\%$ by 2k, $-5.3{\pm}2.1\%$ at 10k (7/10
 negative). \textbf{If drift magnitude predicted harm these columns would track;
@@ -75,8 +75,8 @@ against the $-5.3\%$ above, on four differences at once and so isolating no caus
 % split scoring reverses signs. Both numbers stay registered at their appendix sites.
 
 \textbf{What mitigation is for.} Five strategies spanning unconstrained
-fine-tuning to full freezing---LoRA, EWC, L2-SP, frozen encoder, strict
-freeze---are reported in Appendix~\ref{app:full_tables}, on
+fine-tuning to full freezing (LoRA, EWC, L2-SP, frozen encoder, strict
+freeze) are reported in Appendix~\ref{app:full_tables}, on
 Moirai-Small/ETTh2, the one cell where we ran the whole spectrum: weight
 anchoring does not help there and LoRA does, but extending LoRA to eight
 further value-cells leaves full fine-tuning ahead on four of them
@@ -108,7 +108,7 @@ clause admits at most 1, the 5/10 seed split named below
 Clause~(i) removes 24 of the 31 outright: they have no measured pre-trained
 advantage, so a worse post-fine-tuning score is benign replacement rather than
 damage.  Of the seven that survive it, four fail clause~(ii) in the strongest
-possible way---full fine-tuning \emph{improves} MSE, by 8--42\% with every seed
+possible way: full fine-tuning \emph{improves} MSE, by 8--42\% with every seed
 agreeing.  That leaves three, and all three fail clause~(ii) cell by cell
 (\S\ref{sec:forecasting:results}); Moirai-Small/ETTh2 at $h{=}192$ remains the
 closest the matrix comes.
@@ -120,7 +120,7 @@ closest the matrix comes.
 \textbf{Per-cell inference sharpens this rather than rescuing it.}  Paired
 $95\%$ intervals on $\denc$, Benjamini--Hochberg adjusted across the 31 cells,
 call \textbf{2 cells freezing-better, 4 adaptation-better and 25
-inconclusive}---and the two where freezing decisively wins are
+inconclusive}, and the two where freezing decisively wins are
 Moirai-Small/ETTh1 at both horizons, which the screen \emph{rejects}, while two
 of the four where adaptation decisively wins \emph{pass} it, at $+0.925$ and
 $+0.875$.  The interval form of the definition returns zero

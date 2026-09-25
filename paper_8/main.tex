@@ -85,8 +85,8 @@ representation changed; a
 fine-tune-versus-frozen-encoder intervention tells us whether that change was
 valuable.  Across the cells we evaluate, the former does not reliably predict
 the latter.}
-Screening \textbf{32 cells}---three backbones (Moirai-S/B/L, Chronos-T5,
-TimesFM-2.5), six datasets, two horizons---against a lookback-96 linear
+Screening \textbf{32 cells} (three backbones: Moirai-S/B/L, Chronos-T5,
+TimesFM-2.5; six datasets; two horizons) against a lookback-96 linear
 regression \emph{fit on the target data} and scored on windows disjoint from
 every outcome we report, only \textbf{7 of the 31} scored cells show the
 pre-trained model beating that baseline, and all seven are Moirai on two of the
@@ -106,9 +106,9 @@ helped from the cells it hurt.  Under an analysis fixed before it was run, we fi
 identity: across 15 leave-one-cluster-out folds it \emph{lowers} $R^2$ from
 $+0.201$ to $+0.176$.
 Two measurement choices decide this: the frozen-encoder comparison must be scored
-on \textbf{held-out} windows---4 of 31 cells otherwise reverse sign, every one of
+on \textbf{held-out} windows (4 of 31 cells otherwise reverse sign, every one of
 them flattering the frozen encoder, and two of the four are cells that pass the
-screen---and the baseline must be \textbf{fitted},
+screen), and the baseline must be \textbf{fitted},
 since an unfitted per-window trend extrapolation that a constant predictor beats
 puts 16 of 21 Moirai cells on the wrong side of the screen.
 \end{abstract}

@@ -1828,7 +1828,7 @@ def build_checks(R):
     # round and every check would still pass. The Moirai parenthetical's "three, five, two" is asserted
     # in rederive() over the arm's own keys instead of captured here -- see the comment there.
     chk("the screen's four arms",
-        r"screened cells\}---(\d+) Moirai \(three capacities, five datasets, two horizons\), (\d+)\s*"
+        r"screened cells\} \((\d+) Moirai: three capacities, five datasets, two horizons; (\d+)\s*"
         r"Chronos-T5, (\d+) TimesFM-2\.5 and (\d+) Moirai/ILI",
         R["n_arm_moirai"], R["n_arm_chronos"], R["n_arm_timesfm"], R["n_arm_ili"])
     # S1's three "31"s. Each is a RESTATEMENT of the selection-split denominator in wording no existing
@@ -1961,7 +1961,7 @@ def build_checks(R):
         R["n_tt_any_sel"], R["n_tt_any_tail"])
     chk("the ridge's own-region advantage",
         r"the fitted ridge scores \$([\d.]+)\$ on the selection windows\s+"
-        r"and \$([\d.]+)\$ on the train tail---\$([\d.]+)\\times\$ better---while zero-shot barely "
+        r"and \$([\d.]+)\$ on the train tail \(\$([\d.]+)\\times\$ better\), while zero-shot barely "
         r"moves,\s+\$([\d.]+)\$ to \$([\d.]+)\$",
         R["tt_ridge_val"], R["tt_ridge_tail"], R["tt_ridge_ratio"], R["tt_zs_val"], R["tt_zs_tail"])
     chk("gate-passing count (Moirai arm)", r"Moirai: (\d+) of (\d+)\}",
@@ -2282,7 +2282,7 @@ def build_checks(R):
 
     # --- the two design constants S3 states and the code acts on everywhere downstream.
     chk("the gate's operating point, where S3 defines it",
-        r"thresholding it at \$([\d.]+)\$---a prespecified", R["gate_threshold"])
+        r"thresholding it at \$([\d.]+)\$ \(a prespecified", R["gate_threshold"])
     # The same constant again, in clause (i) of the definition twenty lines below, which is where a
     # reader checks what the criterion actually tests. Two phrasings of one number, so two chks:
     # perturbing the definitional site left this one silently unflagged.
@@ -2509,7 +2509,7 @@ def build_checks(R):
     # either site fails here rather than silently weakening the claim.
     chk("ladder union and its backbones",
         r"\\textbf\{(\d+)(?: of the \d+)? clear it against at least one"
-        r"(?: admissible rung)?[-:]+ ?(\d+) Moirai, (\d+) Chronos, (\d+) TimesFM\}",
+        r"(?: admissible rung)?[-: ]*\(?(\d+) Moirai, (\d+) Chronos, (\d+) TimesFM\)?\}",
         R["n_union"], R["n_union_moirai"], R["n_union_chronos"], R["n_union_timesfm"],
         min_sites=2)
     # --- the prospective arm under the corrected gates
@@ -2561,9 +2561,9 @@ def build_checks(R):
     # reads app:prospective3 and none of them may be satisfied by a batch-1 sentence: the two arms are
     # never pooled, so a pattern that matched both would be the bug it exists to prevent.
     chk("batch 3: the registered size",
-        r"\\textbf\{(\w+)\} cells---five Moirai", R["p3_registered"])
+        r"\\textbf\{(\w+)\} cells: five Moirai", R["p3_registered"])
     chk("batch 3: what was scored, and that both outcome rules return the same count",
-        r"Across the \\textbf\{(\d+)\} scored cells---(\d+) outcome runs---\\textbf\{(\d+)\} degrade "
+        r"Across the \\textbf\{(\d+)\} scored cells \((\d+) outcome\s+runs\), \\textbf\{(\d+)\} degrade "
         r"under the registered interval rule and \\textbf\{(\d+)\} under",
         R["p3_scored"], R["p3_runs"], R["p3_deg"], R["p3_deg_unanimous"])
     # The confusion matrix with BOTH rates beside it, in one pattern. Precision and specificity are
@@ -2588,7 +2588,7 @@ def build_checks(R):
     # The gate's most confident prospective positive, beside the strongest cell in the paper and the
     # gap between them. One pattern, because the sentence's point is the comparison.
     chk("batch 3: the gate's strongest prospective positive, and what it is nearly as strong as",
-        r"carries a gate of \$\+([\d.]+)\$---within \$([\d.]+)\$ of Moirai-Small/ETTh2 "
+        r"carries a gate of \$\+([\d.]+)\$, within \$([\d.]+)\$ of Moirai-Small/ETTh2 "
         r"\$h\{=\}192\$ \(\$\+([\d.]+)\$\)",
         R["p3_hi_gate"], R["p3_hi_gap"], R["p3_strongest_gate"])
     chk("batch 3: that positive is contradicted, with its interval",
@@ -2711,8 +2711,8 @@ def build_checks(R):
             R[f"n_pass_{arm}"], R[f"n_screened_{arm}"],
             R[f"n_pass_trend_{arm}"], R[f"n_screened_{arm}"])
     chk("gate passes across arms, both splits",
-        r"\\textbf\{(\d+) of (\d+) cells pass on the selection split---the\s+"
-        r"paper's primary---and (\d+) of (\d+) on the retrospective test-side variant\}",
+        r"\\textbf\{(\d+) of (\d+) cells pass on the selection split \(the\s+"
+        r"paper's primary\), and (\d+) of (\d+) on the retrospective test-side variant\}",
         R["n_gate_pass"], R["n_val_scored"], R["n_gate_pass_test"], R["n_screened"])
 
     # --- the closest candidate cell, quoted number for number
@@ -2886,7 +2886,7 @@ def build_checks(R):
     # the ordering from one end. A pattern loose enough to match all three would be loose enough to
     # match a swapped pair, which is the error most likely to be made here.
     chk("the lead example (S1): the degrading cell",
-        r"CKA \$([\d.]+)\$ against the pre-trained encoder---and the model ends \$([\d.]+)\\%\$ "
+        r"CKA \$([\d.]+)\$ against the pre-trained encoder\), and the model ends \$([\d.]+)\\%\$ "
         r"\\emph\{worse\}",
         R["deg1_cka"], R["deg1_b"])
     chk("the lead example (S1): the improving cell",
@@ -3252,7 +3252,7 @@ def build_checks(R):
     # there is none, which is the claim. What is checked is every number of the reproduction.
     chk("M4 legacy: the old selection rule and what its estimator now gives",
         r"first \$(\d+)\$ series with at least \$(\d+)\$ observations, whose histories run from "
-        r"\$(\d+)\$ to \$(\d+)\$ points --- gives \$([\d.]+)\\%\$",
+        r"\$(\d+)\$ to \$(\d+)\$ points\) gives \$([\d.]+)\\%\$",
         R["m4_series"], R["m4_legacy_minlen"], R["m4_legacy_hist_min"], R["m4_legacy_hist_max"],
         R["m4_legacy_pct"])
     chk("M4 legacy: the training mean beats it, so the defect is not weakness",

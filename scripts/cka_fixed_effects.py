@@ -487,13 +487,13 @@ $[{q25:+.3f}, {q75:+.3f}]$, and adding CKA fails to help in
 IQR $[{mq25:+.2f}, {mq75:+.2f}]$.
 \textbf{{Interquartile ranges, not 95\% intervals, are quoted for both}}: an
 out-of-sample $R^2$ is unbounded below and a degenerate bootstrap fold can blow up
-either statistic, so their extreme percentiles are not reproducible---$\Delta R^2$'s
+either statistic, so their extreme percentiles are not reproducible: $\Delta R^2$'s
 2.5th percentile moved between $-1.7$ and $-32.5$ across bootstrap seeds, and
 $\Delta$MAE's 97.5th between $+11$ and $+19$, while the point estimates, medians and
 sign share moved in the third decimal. \textbf{{The 95\% interval is carried instead
 by the one linear coefficient here}}, CKA's slope in M3:
 ${p['cka_coef_m3_insample']:+.0f}$~pp per unit CKA, cluster-bootstrap CI
-$[{clo:+.0f}, {chi:+.0f}]$, which {verdict}---so the slope's sign is not even
+$[{clo:+.0f}, {chi:+.0f}]$, which {verdict}, so the slope's sign is not even
 determined, let alone its size. That interval is quoted to whole percentage points
 because its bounds move by under 5~pp across bootstrap seeds.
 The pre-registered deciding statistic
@@ -502,7 +502,7 @@ it differs from the registration, which says so.
 Dataset identity is deliberately \emph{{absent}} from the ladder: a cluster is a
 (backbone, dataset) pair, so holding one out removes the only cells that identify
 that dataset's fixed effect and the fold would silently score a model nobody
-specified---three of the {p['n_series']} series are covered by a single backbone,
+specified: three of the {p['n_series']} series are covered by a single backbone,
 so no other fold could identify them even in principle. The in-sample fit
 \emph{{with}} dataset fixed effects is reported in the text and is not validation.}}
 \label{{tab:cka_loco}}

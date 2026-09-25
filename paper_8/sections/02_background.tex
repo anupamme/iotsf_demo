@@ -13,9 +13,9 @@ a prior task.  \emph{(ii)~TSFM adaptation} recipes span probabilistic
 fine-tuning, generative pre-training, LLM reprogramming and cross-task
 transfer~\cite{rasul2024lagllama, liu2024timer, jin2024timellm,
 zhou2023onefitsall}, and are evaluated on target-task accuracy.
-\emph{(iii)~Representation analysis} supplies the measurement---representation
+\emph{(iii)~Representation analysis} supplies the measurement (representation
 similarity and probing~\cite{kornblith2019cka, hewitt2019structural,
-pimentel2020information}---including work probing frozen TSFM internals
+pimentel2020information}), including work probing frozen TSFM internals
 directly~\cite{wilinski2025representations}, where we instead track how
 representations \emph{change under fine-tuning}.  \textbf{None of the three
 establishes that the pre-trained representation was worth preserving on the
@@ -53,6 +53,6 @@ change can be harmful only where the structure it discards was valuable, i.e.\ i
 a gate-pass cell; in a gate-fail cell the same change is benign by construction,
 because no demonstrated advantage existed to lose.  Gate-passing plus
 forgetting${>}0$ is therefore necessary for harm but not sufficient, and whether
-the encoder's \emph{change} carried the loss is settled by intervention---full
-fine-tuning against a frozen encoder on the same data for the same epochs---and
+the encoder's \emph{change} carried the loss is settled by intervention (full
+fine-tuning against a frozen encoder on the same data for the same epochs), and
 not by observing the representation.
