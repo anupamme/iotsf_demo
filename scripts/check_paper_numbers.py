@@ -890,6 +890,67 @@ def rederive():
     # it here would hide that. It is the same cell the power table's last row names.
     R["n_star_b192m"] = _by["Moirai-base_ETTm2_h192"]["d_enc"]["n_needed_adj"]
 
+    # -- the pre-registered seed top-up (Phase F3). Read from results/power_topup/topup_comparison.json,
+    # the emitter's own output, so the appendix paragraphs are checked against the file that wrote the
+    # table beside them rather than against a second computation here. The run count carries the claim
+    # the top-up rests on -- that the budget was fixed before the seeds ran -- so an incomplete top-up
+    # has to be an error rather than a smaller number: emit_power_topup.py refuses to write the table
+    # in that case, and a checker that kept passing would leave the appendix describing a table that
+    # is no longer derivable.
+    _tu = json.load(open(ROOT / "results/power_topup/topup_comparison.json"))
+    assert _tu["n_present"] == _tu["n_registered"], (
+        f"the top-up is incomplete ({_tu['n_present']} of {_tu['n_registered']} records); "
+        f"tables/power_topup.tex is not derivable and the appendix paragraphs that read it are "
+        f"describing runs that do not exist")
+    R["topup_runs"] = _tu["n_registered"]
+    _tur = {r["ref"]: r for r in _tu["rows"]}
+    _tut = _tu["tally"]
+    # The appendix names ONE cell as the cell whose call moved, and names it in four sentences. If a
+    # different cell moves, or a second one does, no pattern below would catch it -- the numbers would
+    # simply belong to the wrong cell name. So the identity of the changed set is asserted, not
+    # checked: the correct response to it moving is to rewrite those paragraphs.
+    _CHANGED = "small_ETTm2_h192"
+    assert [c["ref"] for c in _tu["changed"]] == [_CHANGED], (
+        f"the cells whose call changes under the top-up are {[c['ref'] for c in _tu['changed']]}, "
+        f"not ['{_CHANGED}']; the appendix's top-up paragraphs name the cell in four places and must "
+        f"be rewritten rather than re-checked")
+    _c, _h, _a = _tur[_CHANGED], _tur["small_ETTh2_h192"], _tur["base_ETTh2_h96"]
+    R["tu_gate"] = _c["gate"]
+    for tag, e in (("pub", _c["published"]), ("aug", _c["augmented"])):
+        R[f"tu_n_{tag}"], R[f"tu_q_{tag}"] = e["n"], e["q"]
+        R[f"tu_mean_{tag}"], R[f"tu_sem_{tag}"] = abs(e["mean"]), e["sem"]
+    R["tu_first_n"] = _tu["changed"][0]["first_n"]
+    # The rung below the change, by its n rather than by its index: "the rung below it" is the claim,
+    # and indexing from the end would silently follow the ladder if a seed were added to it.
+    _rung = [g for g in _tu["ladders"][_CHANGED] if g["n"] == R["tu_first_n"] - 1]
+    assert len(_rung) == 1, f"no single ladder rung at n={R['tu_first_n'] - 1} for {_CHANGED}"
+    R["tu_prev_q"] = _rung[0]["q"]
+    _dg = _tut["bh_diag"][_CHANGED]
+    R["tu_tp"], R["tu_rank"], R["tu_m"] = _dg["t_p"], _dg["bh_rank"], _dg["m_tests"]
+    R["tu_bh_thr"], R["tu_alpha_adj"] = _dg["bh_threshold"], _dg["alpha_adj"]
+    R["tu_nadj_pub"], R["tu_nadj_aug"] = (_dg["n_needed_adj_published"],
+                                          _dg["n_needed_adj_augmented"])
+    # The cell whose registered expectation HELD, and the adjusted-tier cell that was run to the budget
+    # sized to resolve it and did not resolve. Both are reported in the appendix as the counterweight to
+    # the cell that changed, so both are checked with it.
+    R["tu_held_n"], R["tu_held_q"] = _h["augmented"]["n"], _h["augmented"]["q"]
+    R["tu_adj_n"] = _a["augmented"]["n"]
+    R["tu_adj_q_pub"], R["tu_adj_q_aug"] = _a["published"]["q"], _a["augmented"]["q"]
+    R["tu_adj_mean_pub"] = abs(_a["published"]["mean"])
+    R["tu_adj_mean_aug"] = abs(_a["augmented"]["mean"])
+    R["tu_adj_sd_pub"], R["tu_adj_sd_aug"] = _a["published"]["sd"], _a["augmented"]["sd"]
+    R["tu_max_dq"] = _tut["max_dq_untopped"]
+    for w in ("pub", "aug"):
+        for k in ("freeze", "adapt", "inconclusive"):
+            R[f"tu_{k}_{w}"] = _tut[w][k]
+    # The degradation definition under the augmented read, both forms. The appendix states this as a
+    # zero, and a zero asserted about an analysis nobody re-ran is the kind of claim this script
+    # exists for. Required to agree across the two forms, because the sentence says both return it.
+    assert (_tut["degrades"]["aug"]["degrades_ci"] == _tut["degrades"]["aug"]["degrades_unanimous"]), (
+        f"under the augmented read the two degradation forms disagree: "
+        f"{_tut['degrades']['aug']}; the appendix says both return the same count")
+    R["tu_deg_aug"] = _tut["degrades"]["aug"]["degrades_ci"]
+
     # -- the eight-rung ladder. "Admissible" = a denominator no worse than the training-mean floor,
     # which is the rule the caption states, so it is the rule reproduced here. Derived for BOTH
     # splits, under separate key prefixes: the body quotes the selection-split ladder (the split its
@@ -2786,6 +2847,65 @@ def build_checks(R):
     chk("the two unresolvable cells' adjusted seed requirement",
         r"would need ([\d.]+) and\s*([\d.]+) paired seeds",
         R["n_star_s96"], R["n_star_b192m"], min_sites=2)
+
+    # --- the pre-registered seed top-up. Eleven entries for one table, which is out of proportion to
+    # its size and in proportion to its risk: it is the only place in the paper where an analysis the
+    # authors ran AFTER the main results changes a call, so every number a reader would use to decide
+    # whether to believe it -- the run count, both columns of the cell that moved, the n at which it
+    # moved, the arithmetic of why the registered prediction failed, and the two cells that did not
+    # move -- is pinned to the emitter's output.
+    chk("the top-up's registered run count",
+        r"All \\textbf\{(\d+)\} registered runs completed", R["topup_runs"])
+    chk("the top-up records excluded from the published read",
+        r"excludes those (\d+) records", R["topup_runs"])
+    chk("the changed cell, both columns",
+        r"goes from inconclusive at \$n\{=\}(\d+)\$ \(\$\\denc\{=\}\{\+\}([\d.]+)\{\\pm\}([\d.]+)\$, "
+        r"\$q\{=\}([\d.]+)\$\) to \\emph\{freezing decisively better\} at \$n\{=\}(\d+)\$ "
+        r"\(\$\+([\d.]+)\{\\pm\}([\d.]+)\$, \$q\{=\}([\d.]+)\$\)",
+        R["tu_n_pub"], R["tu_mean_pub"], R["tu_sem_pub"], R["tu_q_pub"],
+        R["tu_n_aug"], R["tu_mean_aug"], R["tu_sem_aug"], R["tu_q_aug"])
+    chk("the n at which the call changed, and the rung below it",
+        r"the ladder puts the change at \$n\{=\}(\d+)\$ itself, its last registered seed, with the "
+        r"rung below it at \$q\{=\}([\d.]+)\$",
+        R["tu_first_n"], R["tu_prev_q"])
+    chk("the registered adjusted requirement the expectation rested on",
+        r"while a decisive call needed (\d+) paired seeds", R["tu_nadj_pub"])
+    chk("the cell whose registered expectation held",
+        r"held for Moirai-Small/ETTh2 \$h\{=\}192\$ \(\$n\{=\}(\d+)\$, \$q\{=\}([\d.]+)\$\)",
+        R["tu_held_n"], R["tu_held_q"])
+    # The one arithmetic claim in the paper about why a pre-registered prediction failed. Seven groups
+    # in one site, because the explanation is the RELATION between them: the same rank appears three
+    # times (as the order statistic, as the multiplier on alpha/m, and as the ratio spelled in words),
+    # and separate checks would let the sentence pair a rank of 7 with a threshold computed at 5.
+    chk("the BH arithmetic behind the failed expectation",
+        r"\$t\$-test \$p\$ at \$n\{=\}(\d+)\$ is \$([\d.]+)\$, the (\d+)th smallest of the (\d+), so "
+        r"the threshold it actually faces is \$(\d+)\\alpha/m\{=\}([\d.]+)\$ --- (\w+) times the "
+        r"\$([\d.]+)\$ its budget was sized against",
+        R["tu_first_n"], R["tu_tp"], R["tu_rank"], R["tu_m"], R["tu_rank"], R["tu_bh_thr"],
+        R["tu_rank"], R["tu_alpha_adj"])
+    chk("the changed cell's re-estimated adjusted requirement",
+        r"its own adjusted requirement is (\d+), not (\d+)", R["tu_nadj_aug"], R["tu_nadj_pub"])
+    chk("the adjusted-tier cell that did not resolve",
+        r"was run to \$n\{=\}(\d+)\$, the budget estimated to make its call decisive, and it is "
+        r"\\emph\{still\} inconclusive: \$q\$ went from \$([\d.]+)\$ to \$([\d.]+)\$, because the two "
+        r"added seeds took the mean from \$-([\d.]+)\$ to \$-([\d.]+)\$ and the sd from \$([\d.]+)\$ "
+        r"to \$([\d.]+)\$",
+        R["tu_adj_n"], R["tu_adj_q_pub"], R["tu_adj_q_aug"], R["tu_adj_mean_pub"],
+        R["tu_adj_mean_aug"], R["tu_adj_sd_pub"], R["tu_adj_sd_aug"])
+    chk("the augmented read's coupling and three-way split",
+        r"no untopped cell's \$q\$ moves by as much as \$([\d.]+)\$; the three-way split goes from "
+        r"(\d+) freezing-better, (\d+) adaptation-better and (\d+) inconclusive to "
+        r"\\textbf\{(\d+), (\d+) and (\d+)\}",
+        R["tu_max_dq"], R["tu_freeze_pub"], R["tu_adapt_pub"], R["tu_inconclusive_pub"],
+        R["tu_freeze_aug"], R["tu_adapt_aug"], R["tu_inconclusive_aug"])
+    chk("the degradation definition under the augmented read",
+        r"returns \\textbf\{(\w+) cells\} under the augmented read", R["tu_deg_aug"])
+    chk("the admitted cell that freezing decisively wins at the augmented n",
+        r"cell where freezing decisively wins, at a gate of \$\+([\d.]+)\$", R["tu_gate"])
+    chk("the changed call's margin against its threshold and its neighbour's",
+        r"a single cell at \$q\{=\}([\d.]+)\$ against a \$([\d.]+)\$ threshold whose neighbour misses "
+        r"the same threshold from the other side at \$([\d.]+)\$",
+        R["tu_q_aug"], R["bh_alpha"], R["tu_held_q"])
 
     # --- the gate values quoted cell by cell
     g, vg = R["gate_of"], R["vgate_of"]
