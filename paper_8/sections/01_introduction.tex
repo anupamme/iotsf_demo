@@ -10,13 +10,25 @@
 % convention at the end of S3 the body no longer uses bare condition letters, so the block was
 % decoding notation the text had stopped using. Everything it defined is still defined in S3.
 
+% Round 8. THE FIRST PARAGRAPH NOW ENDS ON THE PAPER'S CLAIM, which is the one thing a reviewer of the
+% previous draft said they could not find quickly. It ended on "it mostly fails" -- the SCREEN's result,
+% a different finding from the title's -- and the spine sentence did not arrive until the third
+% paragraph. What was the third paragraph's first three sentences is now the end of this one; the
+% "presupposition mostly fails" sentence moved down to "The result, in three clauses", where the 7-of-31
+% count it summarises already lives. This is an exchange and not an addition: the spine sentence still
+% appears exactly ONCE in this file, which is what check_paper_numbers.py:3578 requires of it (four
+% sites: here, the abstract, S6's opening, the conclusion). Merging the two paragraphs is also why the
+% edit is affordable -- one fewer partial last line on a page-1 float page with no slack.
 Fine-tuning a time-series foundation model reshapes its internal
 representations, and a large literature treats that reshaping as damage to be
 prevented: by freezing the encoder, by regularising toward the pre-trained
 weights, by confining updates to low-rank adapters.  Every one of those
 prescriptions presupposes that the pre-trained representation was worth
-preserving \emph{on the target task}.  \textbf{We test that presupposition on
-the benchmarks the field actually uses, and it mostly fails.}
+preserving \emph{on the target task}.  CKA tells us that the representation \emph{changed}.  It
+takes an intervention (fine-tune the whole model, then fine-tune it again with
+the encoder frozen, same data, same epochs) to tell us whether that change was
+\emph{valuable}.  \textbf{Across the cells we evaluate, the former does not
+reliably predict the latter.}
 
 \textbf{One checkpoint, two datasets, opposite lessons.}  Fine-tune Moirai-Base
 on ETTh1 and its encoder barely moves (CKA $0.755$ against the pre-trained
@@ -24,16 +36,15 @@ encoder), and the model ends $22.8\%$ \emph{worse} than not fine-tuning at all.
 Fine-tune the same checkpoint on ETTh2 and the encoder restructures far more, to
 CKA $0.460$, and the model ends $31.4\%$ \emph{better}.  Read drift as damage and
 you would have protected the run that needed no protection and left alone the one
-that did.  The pair is not a curiosity we picked out: within our Moirai-Base cells
-the two \emph{least} drifted are the only two that degrade, and the two most
-drifted improve the most (\S\ref{sec:exp3}; both pairs are labelled in
-Figure~\ref{fig:screen}b).
+that did.  The pair is not a curiosity we picked out
+(Figure~\ref{fig:screen}b, \S\ref{sec:exp3}).
+% Round 8. Cut from the sentence above, and cut as a DUPLICATE rather than for space: "within our
+% Moirai-Base cells the two least drifted are the only two that degrade, and the two most drifted
+% improve the most". Figure 1's caption, on this same page, states that in almost the same words, and
+% S6's second paragraph states it with the four CKA values attached. The claim is not weakened -- the
+% figure script asserts the Moirai-Base ordering it draws, so it is checked at build time either way --
+% and the two lines this frees are what pay for the "below the baseline" clause added below.
 
-\textbf{What drift can and cannot tell you.}  CKA tells us that the
-representation \emph{changed}.  It takes an intervention (fine-tune the whole
-model, then fine-tune it again with the encoder frozen, same data, same epochs) to
-tell us whether that change was \emph{valuable}.  \textbf{Across the cells we
-evaluate, the former does not reliably predict the latter.}
 % Review M7: frame this as falsifying a shortcut in use, not as discovering a principle. Two sentences,
 % and the concession that our own earlier draft made the substitution is the strongest form of the point
 % -- it is recorded in app:corrections either way, so stating it here costs lines and not credibility.
@@ -70,8 +81,25 @@ in for the second; a fifth section asks whether the whole screen works
 % claim, the two things no panel can say (what a filled marker means, what rho is clustered on) and the
 % running example. The figure script asserts the Moirai-Base ordering it draws, so the claim below is
 % checked at build time and not by a chk() on this caption.
-\caption{\textbf{The whole paper}, with every count in both panels computed from
-\texttt{cell\_matrix} at build time rather than typed here.  \textbf{(a)}~The four
+%
+% Round 8: the build-provenance clause moved from the FIRST sentence to the last, and the rho clause was
+% rewritten because panel (b) now prints the pooled correlation as well. Nothing is added or removed --
+% the same words in a different order, so the float's height is unchanged, which matters on a body with
+% no page slack. The reason is that the provenance clause was the first twelve words of the caption of
+% the paper's one figure: a reviewer who reads captions before bodies met an audit note before meeting
+% the claim, and reported not being able to find the paper's question quickly. The note is worth keeping
+% (it is the answer to "did you re-type these numbers?", which this project has been wrong about before)
+% but it is worth keeping LAST.
+%
+% And then it is worth not keeping at all. Moved to the end of the caption first, then CUT, when the
+% page-9/10 boundary came back six lines short: at 1.5 printed lines it was the most expensive sentence
+% in the caption and the only one making no claim about the data. The same review that could not find the
+% paper's question also asked for less audit tone in the main text, so this is the one cut this round
+% that answers two of its complaints at once. NOTHING IS WEAKENED: the counts are still computed by
+% fig1_diagnostic_flow.py from cell_matrix at build time, that script still asserts the ordering the
+% caption states, and the Reproducibility Statement says every table and figure the paper \input{}s is
+% emitter-written. The claim moved to where it is enforced; it was never the caption that made it true.
+\caption{\textbf{The whole paper.}  \textbf{(a)}~The four
 layers of \S\ref{sec:method} as a funnel over the 31 cells that carry a
 selection-split gate: CKA filters none of them, and no cell meets either form of
 the degradation definition.  \textbf{(b)}~The same cells as CKA against held-out
@@ -80,8 +108,8 @@ reliably predict the value of encoder adaptation}, and no cut on CKA separates t
 cells adaptation helped from the cells it hurt.  The labelled pairs are the paper's
 running example: Moirai-Base's two \emph{least} drifted cells are its only two
 that degrade, and its two most drifted improve the most (\S\ref{sec:exp3}).  Filled
-markers clear the gate; each $\rho$ is clustered by dataset${\times}$horizon within
-Moirai, the only backbone with enough cells to ask
+markers clear the gate; both $\rho$ are clustered by dataset${\times}$horizon, and
+only Moirai has enough cells to ask within one backbone
 (Appendix~\ref{app:clustered}).}
 \label{fig:screen}
 \end{figure}
@@ -99,16 +127,35 @@ unchanged.  We write that margin against a baseline $b$ as
 $\Vb{b} = 1 - \text{MSE}_{\text{ZS}}/\text{MSE}_{b}$ (a \emph{baseline-relative}
 advantage, never a property of the checkpoint alone), and score it on windows
 disjoint from every outcome we report.  \textbf{Every claim below is about the
-checkpoints, datasets and fine-tuning protocols we evaluated}: we do not claim
-that fine-tuning is safe, nor that foundation models are useless for forecasting.
+checkpoints, datasets and fine-tuning protocols we evaluated}, and the five
+readings we do \emph{not} claim are listed under \emph{Scope of the claims} in the
+Ethics Statement.
+% Round 8 (B4). This replaces ": we do not claim that fine-tuning is safe, nor that foundation models
+% are useless for forecasting" -- two examples, chosen ad hoc -- with a pointer to the enumerated five,
+% both of the old two among them. Named in prose rather than with \ref because the Ethics Statement is a
+% \section* and carries no number to reference. It goes HERE, in the paragraph that already bounds the
+% claims, rather than in "What is a claim here, and what is a control" as first planned: a reader looking
+% for the boundary of a claim looks where the claims are scoped, and this swap costs no lines.
 
-\textbf{The result, in three clauses.}  \textbf{Seven of the 31 scored cells}
+% Round 8. Two changes in this paragraph, both funded above. (1) It opens on the presupposition, which
+% is where "and it mostly fails" moved from the first paragraph -- that sentence summarises the 7-of-31
+% count, so it belongs beside it rather than three paragraphs earlier competing with the title's claim.
+% (2) The "below the baseline rather than short of the threshold" clause is restated here from S4's lead
+% because it is the answer to an objection a reviewer raised against the ABSTRACT's null -- suppose the
+% zero-shot model were only just short of the bar -- and the answer was five pages away. No chk() is
+% added: that fact has no prose pattern anywhere (check_paper_numbers.py:3188-3192 records why -- no
+% capture group can carry "every"), and BOTH sites are enforced by the max(_mfail) < 0 assert in
+% rederive(), so the restatement cannot drift from S4's while the fact holds.
+\textbf{The result, in three clauses.}  The presupposition mostly fails on the
+benchmarks the field actually uses.  \textbf{Seven of the 31 scored cells}
 clear the screen, all of them Moirai and on two of the six datasets: all five of
-its ETTh2 cells and two of its four on ETTm2.  Where the advantage does exist,
+its ETTh2 cells and two of its four on ETTm2, and every failing cell is
+\emph{below} the baseline rather than short of the threshold.  Where the advantage does exist,
 letting the encoder adapt usually \emph{helps}: full fine-tuning improves MSE on
 five of the seven, by 31--42\% on the three ETTh2 cells, and the two whose mean
 shows harm carry only 4/10 and 5/10 seeds agreeing on the sign.  And \textbf{no
-cell shows decisive evidence of harm}: on multiplicity-adjusted paired intervals
+cell meets our prespecified criterion for harm}: on multiplicity-adjusted paired
+intervals
 only 2 of the 31 favour freezing at these seed counts, and both are cells the
 screen \emph{rejects} (\S\ref{sec:analysis:degradation}).
 
@@ -130,7 +177,7 @@ screen \emph{rejects} (\S\ref{sec:analysis:degradation}).
     ask, with Chronos and TimesFM read qualitatively beside it rather than pooled
     with it, and with no actionable threshold anywhere (\S\ref{sec:exp3}).
 
-  \item \textbf{No cell shows decisive evidence of harmful encoder adaptation}
+  \item \textbf{No cell meets our prespecified criterion for harmful encoder adaptation}
     (2 freezing-better, 4 adaptation-better, 25 inconclusive at a
     multiplicity-adjusted $q{<}0.05$; zero under the pre-registered unanimity
     criterion), so the value gate we proposed has no positive instance to

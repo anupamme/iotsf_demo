@@ -51,8 +51,15 @@
 % existence. That is narrower than either predecessor, not broader, which is why it is adopted. The
 % methodological lesson the old title carried is not lost: it is the conclusion's closing sentence,
 % and \S\ref{sec:exp3}'s opening now names the empirical claim the title makes instead.
+%
+% Round 8 shortens it by two words, keeping everything above: "Fine-Tuning" is dropped, so the trailing
+% phrase is the model family rather than the model family plus a procedure. It is redundant twice over --
+% "Encoder Adaptation" already names the procedure, and the sentence read as though the claim were about
+% fine-tuning in general when it is about the encoder-adaptation contrast specifically. A reviewer read
+% the long form as four concepts competing in one line. Nothing is conceded: subject, verb and scope are
+% the round-7 ones, unchanged.
 \title{CKA Does Not Reliably Predict the Value of Encoder Adaptation\\
-       in Time-Series Foundation Model Fine-Tuning}
+       in Time-Series Foundation Models}
 
 % ICLR submissions are DOUBLE-BLIND. Authors must not appear in the submitted
 % version; non-anonymous submissions are rejected without review. Uncomment
@@ -91,7 +98,16 @@ regression \emph{fit on the target data} and scored on windows disjoint from
 every outcome we report, only \textbf{7 of the 31} scored cells show the
 pre-trained model beating that baseline, and all seven are Moirai on two of the
 six datasets.  On those seven, full fine-tuning \emph{improves} MSE in five.
-\textbf{No cell shows decisive evidence of harmful encoder adaptation}: under
+% Round 8 (B5). "No cell shows decisive evidence of harmful encoder adaptation" -> "No cell meets our
+% prespecified criterion for ...". A reviewer read the old phrasing as a claim that a general null had
+% been ESTABLISHED -- absence of evidence stated as evidence of absence -- and the new one says what was
+% actually done: a criterion was written down in advance (S3's three clauses, and the pre-registered
+% unanimity rule two sentences below) and nothing met it. It is also the more specific claim, because
+% "decisive" was doing two jobs at once here: the degradation definition, and the q<0.05 decisiveness of
+% the paired intervals that the very next clause reports. All FOUR sites moved in one edit -- here,
+% S1's result paragraph, contribution 3 and the conclusion -- because a half-moved phrasing is how this
+% paper's restatements have gone stale before, and this one carries no chk() to catch it.
+\textbf{No cell meets our prespecified criterion for harmful encoder adaptation}: under
 multiplicity-adjusted paired intervals the 31 cells split \textbf{2
 freezing-better, 4 adaptation-better, 25 inconclusive}, and both cells
 where freezing decisively wins are cells our own screen rejects; a

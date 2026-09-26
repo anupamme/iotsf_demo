@@ -51,6 +51,58 @@ negative control.  \emph{(iii)~One adaptation step, not a task sequence}
 what this protocol does, and our results say nothing about a backbone fine-tuned
 through its own decoder on a task we did not run.
 
+% Round 8 (C1/C2), and it is HERE rather than in the body for one reason: ICLR excludes these statements
+% from the 9-page limit, the body has zero slack, and a reader who wants the boundary of a negative result
+% is a reader who will follow one pointer to find it. S1's scope paragraph points at this list by name.
+%
+% Every item below is a reading a reviewer of the previous draft actually offered back to us as our
+% claim, so this is not a list of straw positions -- it is the set of five things the paper was read as
+% saying and does not say. Two of them were named inline in S1 until this round ("we do not claim that
+% fine-tuning is safe, nor that foundation models are useless for forecasting"); they are items (iii)
+% and (v) here, so the enumeration replaces those two rather than adding to them.
+\textbf{What we do not claim.}  Five readings of this paper's negative results are
+ones we explicitly decline.  \emph{(i)}~That CKA fails to measure representation
+change: it does measure it, and we use it as a measurement throughout --- what we
+test is whether that measurement substitutes for an intervention.
+\emph{(ii)}~That CKA can never predict downstream utility.  We report that it does
+not reliably order the intervention outcome across the cells we ran, with the one
+backbone family large enough to condition on carrying the cleanest evidence; a
+larger matrix, another family or another protocol could show otherwise.
+\emph{(iii)}~That fine-tuning never causes catastrophic forgetting, or that
+fine-tuning is safe.  We could not construct a cell on these benchmarks in which it
+demonstrably destroys a demonstrated capability, which is a failure to demonstrate
+and not a demonstration of absence.  \emph{(iv)}~That freezing, L2-SP, EWC or
+low-rank adaptation are useless.  Our prescription is to \emph{run} the
+frozen-encoder control rather than to skip it, because it is the observational
+shortcuts we found unreliable, not the mitigations.  \emph{(v)}~That foundation
+models are useless for forecasting, or that these results establish the absence of
+encoder-adaptation effects in time-series foundation models in general: seven of 31
+cells cleared a deliberately weak screen, and the domains where a pre-trained
+advantage is large and well established are exactly where the question stays open.
+What we do claim is narrower than any of those: \textbf{within the intervention
+cells we evaluated, and with the cleanest evidence inside the Moirai family, CKA
+does not reliably predict the value of encoder adaptation, and no cell meets our
+prespecified criterion for harmful encoder adaptation.}
+Appendix~\ref{app:claims} tabulates every claim we do make with its evidence and its
+strength.
+% The pointer to app:claims lives here because the conclusion's copy of it went with the disclaimer this
+% list replaced (see the comment in 09_conclusion.tex). An appendix nothing in the paper points at is an
+% appendix no reader reaches, so the reference had to land somewhere, and the paragraph enumerating what
+% we do NOT claim is the right neighbour for the table of what we do.
+
+\textbf{The value gate is a screen, not a verdict on a checkpoint.}  A cell that
+fails the gate is one where the pre-trained model does not beat a linear regression
+fit on that cell's own target data; it is \emph{not} a cell we claim holds no
+pre-trained knowledge, and $\Vb{b}$ is a property of the (checkpoint, dataset,
+baseline) triple rather than of the checkpoint (\S\ref{sec:method}).  The screen's
+role is to decide where the question ``was something valuable destroyed?'' is even
+askable.  Two things follow that are easy to misread.  Failing cells here fail
+\emph{widely}: every failing Moirai cell is below its baseline rather than short of
+the $0.20$ threshold, so the emptiness of the screen is not an artefact of where the
+bar sits.  And gate-failing cells are still measured and still reported --- CKA,
+$\denc$ and the paired intervals are computed on all 31 --- because the dissociation
+between drift and outcome is a claim about the measurement, not about the survivors.
+
 \textbf{Broader impact.}  This is a diagnostic study on public forecasting
 benchmarks, and the effect we intend is to raise the bar for claims about
 forgetting in time-series foundation models: a paper reporting that fine-tuning

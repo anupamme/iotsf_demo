@@ -65,6 +65,7 @@ SIZED FOR 1:1 PLACEMENT. The ICLR textwidth is 5.5in, so this figure is authored
 included at width=\\linewidth. Do not shrink it in LaTeX -- every fontsize below is the size it
 will actually print at.
 """
+import json
 import sys
 from pathlib import Path
 
@@ -132,7 +133,19 @@ assert all(r["bd_val"] > 0 > r["bd_test"] for r in REVERSALS), \
 
 
 # Within-backbone correlations. Moirai is the only arm with enough cells to ask, and pooling across
-# backbones is what S5.2 forbids, so the number the panel prints is the within-Moirai one.
+# backbones is what S5.2 forbids, so the within-Moirai number is the one this panel leads with.
+#
+# ROUND 8 REVERSES HALF OF THAT, AND THE PREDECESSOR'S REASONING IS LEFT STANDING ABOVE BECAUSE IT WAS
+# RIGHT ABOUT THE THING IT WAS ABOUT. Printing ONLY the within-Moirai rho was defensible as long as the
+# question was which number the paper reports. It is not defensible against the way the panel is
+# actually read: a reviewer who knows the pooled figure is +0.567 and sees only +0.168 here reads the
+# within-backbone null as special pleading, and told us so in those terms. The pooled figure is not
+# suppressible by omission -- S6 states it -- so omitting it from the figure costs the credibility of
+# the panel without costing the reader the number. What the panel can do, and prose cannot, is show WHY
+# the two differ: the Chronos squares sit bottom-left (most drifted, adaptation helps most) and the
+# Moirai circles upper-right, so the pooled association IS the gap between two backbones and the eye
+# gets that in one look. So both are printed, the pooled one labelled as a between-backbone contrast
+# rather than as an estimand. This is the Simpson's-paradox resolution drawn instead of asserted.
 #
 # INTERVALS, NOT p-VALUES, AND CLUSTERED ONES. Until 2026-09-18 this panel printed the cell-level
 # Spearman p-value ("p=0.014"), which contradicted the body twice over: the body reports the
@@ -151,6 +164,34 @@ CI_CKA = cluster_keys.cluster_bootstrap_spearman([r["cka"] for r in _M],
                                                 [r["bd_test"] for r in _M], _MCL)
 assert RHO_GATE.statistic < 0, \
     "the gate is no longer anti-predictive; the docstring's (b) block and S5.2 both say it is"
+
+# The pooled figure, READ FROM value_axis.json rather than recomputed for printing, and recomputed
+# anyway to check it. Two directions of failure, two guards:
+#   - the figure printing a number S6 does not quote. Avoided by taking the printed value from the same
+#     artifact check_paper_numbers.py registers S6's numerals against (:817-823), so the panel, the
+#     prose and the checker cannot hold three versions of one correlation.
+#   - value_axis.json going stale against the rows this panel actually draws. Avoided by recomputing
+#     rho here from ROWS and requiring agreement, which is the cross-emitter assert the checker already
+#     makes between value_axis.json and clustered_inference.json (:845). The bootstrap is seeded
+#     (cluster_keys.cluster_bootstrap_spearman defaults to default_rng(0)), so the interval is
+#     reproducible too and is checked on the same footing as the point estimate.
+_VA = json.loads((Path(__file__).resolve().parent.parent
+                  / "results/value_axis.json").read_text())["correlations"]["cka_vs_denc_all"]
+POOLED = (_VA["rho"], _VA["lo"], _VA["hi"], _VA["n"], _VA["clusters"])
+_pooled_recomputed = cluster_keys.cluster_bootstrap_spearman(
+    [r["cka"] for r in ROWS], [r["bd_test"] for r in ROWS],
+    cluster_keys.clusters_for([r["cell"] for r in ROWS]))
+assert _VA["n"] == len(ROWS) and _VA["clusters"] == _pooled_recomputed[4], (
+    f"value_axis.json pools {_VA['n']} cells in {_VA['clusters']} clusters; this panel draws "
+    f"{len(ROWS)} in {_pooled_recomputed[4]}")
+assert all(abs(_VA[k] - _pooled_recomputed[i]) < 1e-12 for i, k in enumerate(("rho", "lo", "hi"))), (
+    f"the pooled CKA correlation in value_axis.json ({_VA['rho']:+.4f} "
+    f"[{_VA['lo']:+.4f}, {_VA['hi']:+.4f}]) disagrees with the same statistic recomputed from the "
+    f"rows this panel draws ({_pooled_recomputed[0]:+.4f} [{_pooled_recomputed[1]:+.4f}, "
+    f"{_pooled_recomputed[2]:+.4f}]); S6 quotes the artifact and the figure would draw the rows")
+assert POOLED[0] > RHO_CKA.statistic, (
+    "the pooled correlation is no longer larger than the within-Moirai one, so the panel's "
+    "'between backbones, not within one' label is describing the opposite of the data")
 
 # ---- panel (b)'s claim, computed rather than eyeballed off the plot ----------------------------
 # The panel title says no cut on CKA separates the cells encoder adaptation helped from the cells it
@@ -309,6 +350,26 @@ axr.text(0.055, 14,
          rf"$\rho_{{\rm CKA}}={CI_CKA[0]:+.2f}$ [{CI_CKA[1]:+.2f}, {CI_CKA[2]:+.2f}]" "\n"
          rf"$\rho_{{\rm gate}}={CI_GATE[0]:.2f}$ [{CI_GATE[1]:+.2f}, {CI_GATE[2]:+.2f}]",
          fontsize=4.8, color=INK_SECONDARY, ha="left", va="center", linespacing=1.25)
+# The pooled figure, ABOVE the within-backbone block and labelled with what it is. The two rhos have to
+# be read against each other, so they cannot be separated into figure and caption.
+#
+# THREE LINES, NOT TWO, AND THAT IS THE WHOLE PLACEMENT CONSTRAINT. The pocket this text sits in is
+# y in [+36, +48] at x < 0.52: bounded below by the lone cell at (0.36, +28), above by nothing until the
+# red axis label at y = +63, and on the RIGHT by the ETTh1 annotation, whose third line starts at
+# x = 0.55 at exactly this height with its leader descending through x in [0.62, 0.76] just below.
+# Measured at this font: 0.0158 x-units per character from x = 0.055, so 29 characters is the budget for
+# the top line and ~33 for the others. The first draft put the count and the interval on ONE line -- 57
+# characters, running to x = 0.68 -- and the closing bracket came out struck through by that leader; the
+# second wrapped to two and the top line still touched the red text. Hence three lines, and the first
+# says "pooled:" rather than "pooled," with a trailing colon to buy the two characters that clear it.
+# DO NOT rejoin these lines. If a records change moves the lone cell or the annotation group this text
+# will collide with one of them, which is a thing to LOOK at the .png for, not something an assert
+# can catch.
+axr.text(0.055, 42,
+         rf"pooled: {POOLED[3]} cells, {POOLED[4]} clusters" "\n"
+         rf"$\rho={POOLED[0]:+.2f}$ [{POOLED[1]:+.2f}, {POOLED[2]:+.2f}]" "\n"
+         r"$\it{between}$ backbones, not within one",
+         fontsize=4.8, color=INK_MUTED, ha="left", va="center", linespacing=1.25)
 
 # Section 1's running example, drawn as two leader-line groups rather than four point labels: the pair
 # is the unit of the argument -- same backbone, two datasets, opposite lessons -- and four separate

@@ -3583,9 +3583,12 @@ def build_checks(R):
     # Round 7 (B1): the title is now the reviewer's own narrower wording. The pattern is updated rather
     # than deleted, and it deliberately spans the line break in main.tex's two-line \title so that
     # dropping either half of the claim -- the subject (CKA) or the qualifier (reliably) -- fails here.
+    # Round 8: "Fine-Tuning" dropped from the tail, so the pattern ends at "Foundation Models". This is
+    # the check that made the title edit safe rather than a thing to remember: shortening the title
+    # failed here first, which is what a claim registered by phrasing is for.
     chk("the methodological claim in the title",
         r"CKA Does Not Reliably Predict the Value of Encoder Adaptation\\*\s*in Time-Series"
-        r" Foundation Model Fine-Tuning")
+        r" Foundation Models")
     chk("the methodological claim, generalised",
         r"cannot be assumed to identify the value of a\s+treatment that changed the representation")
     # Figure 1's caption states the same claim about the figure's two axes, so it cannot use

@@ -15,8 +15,8 @@ pre-trained capability, and on these benchmarks it is mostly not
 % in every seed -- is cut from this recap on page 9, where the body spills. It is stated in the abstract,
 % in S1's result paragraph, in contribution 1, in S5.1 cell by cell and in S5.3's clause walk; the two
 % clauses kept here are the ones this paragraph's opening sentence is about.
-eight-baseline ladder, and no cell shows decisive
-evidence of harmful encoder adaptation: at these seed counts 2 of 31 favour
+eight-baseline ladder, and no cell meets our
+prespecified criterion for harmful encoder adaptation: at these seed counts 2 of 31 favour
 freezing at a multiplicity-adjusted $q{<}0.05$, and both are cells the screen
 rejects.
 % The break between this paragraph and the next is closed on 21 Sep 2026: each paragraph break in this
@@ -61,15 +61,22 @@ effort on LoRA, EWC or L2-SP, whose representation preservation is no guide to
 their utility (\S\ref{sec:forecasting:replication}); if they do, settle the question against a frozen
 encoder scored on windows you did not select on, in that order, because
 \textbf{a forgetting result measured on cells with no measurable pre-trained
-advantage is a statement about the benchmark}.  We do \emph{not} claim that drift
-is generally unpredictive across backbones, which three cannot establish
-(Appendix~\ref{app:claims}).
+advantage is a statement about the benchmark}.
 % The two POSITIVE claims were enumerated here as well -- CKA-does-not-identify, and
 % the-screen-locates-cells -- and are cut on 21 Sep 2026 for \S\ref{sec:exp4:poscontrol}'s last two
 % lines. Both are stated in the sentences immediately above (the bold spine sentence and the bold
 % benchmark-selection sentence) and tabulated with their evidence and strength in app:claims, which is
 % the section a reviewer asking for the three claims to be separated was pointed at. The DISCLAIMER is
 % what is kept, because nothing else in the body says which reading we decline.
+%
+% Round 8: that disclaimer -- "we do not claim that drift is generally unpredictive across backbones,
+% which three cannot establish" -- is now CUT, and the comment above is the reason it could not be cut
+% before. "Nothing else in the body says which reading we decline" stopped being true this round: the
+% Ethics Statement's "What we do not claim" list enumerates five such readings, this one among them as
+% item (ii), and \S\ref{sec:intro}'s scope paragraph points a reader at the list by name. So the reading
+% is still declined, in more detail, one pointer away and on a page ICLR does not count -- and the two
+% printed lines it frees are two of the six the round's other edits cost. If that list is ever removed
+% from the Ethics Statement, this sentence has to come back here.
 % The closing line -- "the cheap rule we hoped to report rests on a premise these benchmarks do not
 % supply" -- is cut for the one printed line S5's treatment paragraph needs. It restated the
 % benchmark-selection lesson three sentences above it rather than adding a claim, and it was the only

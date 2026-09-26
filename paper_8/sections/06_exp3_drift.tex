@@ -42,9 +42,28 @@ Appendix~\ref{app:cka_calibration}), yet outcomes across the five span
 \textbf{$-41.4\%$ on ETTm2 to $+20.6\%$ on ETTh1}, a 62-point spread in which ETTh1
 is the \emph{least} drifted and the only one that degrades; the four TimesFM-2.5
 cells sit at milder drift and all improve
-(Appendix Table~\ref{tab:crossbackbone}).  Pooled across all 31 cells CKA does correlate with the intervention
-($\rho{=}{+}0.567$, clustered CI $[{+}0.239,{+}0.828]$), but that pooled figure is a
-backbone artefact by our own rule: within Moirai, the only arm with enough
+(Appendix Table~\ref{tab:crossbackbone}).
+% Round 8 (B3). "But that pooled figure is a backbone artefact by our own rule" asserted the rule without
+% stating it, and a reviewer read the within-backbone null as Simpson's-paradox special pleading -- the
+% pooled +0.567 is not a small correlation, and a paper that reports it and then sets it aside owes the
+% reason. The reason is that CONDITIONING is the whole point: backbone and protocol are known to the
+% reader before any CKA is computed, so an association that lives between backbones cannot help them, and
+% Figure 1b now prints the pooled rho beside the within-Moirai one with exactly that label. Both numbers
+% were already here; what is new is the sentence saying which question each answers.
+%
+% "MEASURED THAT WAY," IS LOAD-BEARING PUNCTUATION, NOT A FLOURISH. This rewrite first made "within
+% Moirai" the start of a sentence, which capitalised the W and silently dropped one of the six prose
+% sites of check_paper_numbers.py's min_sites=5 "within-Moirai CKA rho" check -- 425 sites became 424
+% with every claim still reporting ok, because the check still had five. The introductory clause exists
+% to keep the phrase mid-sentence and lower-case. Any rewrite here has to leave "within Moirai, the only
+% arm with enough cells to ask, $\rho{=}{+}0.168$" intact and uncapitalised: the pattern is
+% case-sensitive and allows at most 70 characters between the phrase and the value.
+Pooled across all 31 cells CKA does correlate with the intervention
+($\rho{=}{+}0.567$, clustered CI $[{+}0.239,{+}0.828]$), which is not a small number
+and not one a practitioner can use: backbone and protocol are known before any CKA is
+computed, so the diagnostic has to order the outcome \emph{given} them rather than
+pool three backbones and report the gap between two of them (Figure~\ref{fig:screen}b).
+Measured that way, within Moirai, the only arm with enough
 cells to ask, $\rho{=}{+}0.168$ with clustered CI $[-0.469,{+}0.717]$, which admits a
 moderate positive relationship but \textbf{does not provide a reliable ordering}
 of our cells and yields no actionable threshold.  Nor does the
