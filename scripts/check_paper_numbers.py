@@ -3586,8 +3586,11 @@ def build_checks(R):
     # Round 8: "Fine-Tuning" dropped from the tail, so the pattern ends at "Foundation Models". This is
     # the check that made the title edit safe rather than a thing to remember: shortening the title
     # failed here first, which is what a claim registered by phrasing is for.
+    # The title sets in three lines (main.tex records why), so the pattern tolerates a \\ at BOTH break
+    # points rather than only the one. It is still one pattern over the whole claim: re-breaking the
+    # title is allowed, dropping "CKA", "Reliably" or "the Value of" is not.
     chk("the methodological claim in the title",
-        r"CKA Does Not Reliably Predict the Value of Encoder Adaptation\\*\s*in Time-Series"
+        r"CKA Does Not Reliably Predict\\*\s*the Value of Encoder Adaptation\\*\s*in Time-Series"
         r" Foundation Models")
     chk("the methodological claim, generalised",
         r"cannot be assumed to identify the value of a\s+treatment that changed the representation")

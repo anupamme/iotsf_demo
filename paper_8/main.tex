@@ -58,7 +58,14 @@
 % fine-tuning in general when it is about the encoder-adaptation contrast specifically. A reviewer read
 % the long form as four concepts competing in one line. Nothing is conceded: subject, verb and scope are
 % the round-7 ones, unchanged.
-\title{CKA Does Not Reliably Predict the Value of Encoder Adaptation\\
+% THE BREAKS ARE SET BY HAND BECAUSE THIS TITLE CANNOT FIT IN TWO LINES, and both alternatives look
+% wrong. At \LARGE small-caps the first line fills at "... the Value of", so leaving it to wrap gives
+% three lines with "M ODELS" alone on the last; keeping the old single break after "Adaptation" gives
+% three with a nearly empty middle. Broken in three deliberately instead, at roughly 29/31/33
+% characters. check_paper_numbers.py's title pattern was widened to tolerate a \\ at either break, so
+% this stays checked -- verify the RENDERED page, not the source, if it is ever reworded again.
+\title{CKA Does Not Reliably Predict\\
+       the Value of Encoder Adaptation\\
        in Time-Series Foundation Models}
 
 % ICLR submissions are DOUBLE-BLIND. Authors must not appear in the submitted
